@@ -1,0 +1,27 @@
+# --- Android / Gradle ---
+.gradle/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- Configuración local y credenciales ---
+local.properties
+*.jks
+*.keystore
+google-services.json
+# Cubre carpetas o copias por si acaso descargaste el json varias veces
+**/google-services.json
+google-services*.json
+
+# --- Configuración del IDE (Android Studio / IntelliJ) ---
+.idea/
+*.iml
+.DS_Store
+# Evita subir listas de carpetas/archivos recientes de la app
+.idea/workspace.xml
+.idea/tasks.xml
+
+# --- Archivos temporales de sistema ---
+Thumbs.db
