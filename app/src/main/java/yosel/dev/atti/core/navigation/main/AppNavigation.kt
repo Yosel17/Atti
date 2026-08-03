@@ -1,4 +1,4 @@
-package yosel.dev.atti.core.navigation
+package yosel.dev.atti.core.navigation.main
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -22,7 +22,7 @@ fun AppNavigation(startDestination: Screens) {
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            homeEntry(
+            mainEntry(
                 onNavigation = { screens ->
                     backStack.add(screens)
                 }
