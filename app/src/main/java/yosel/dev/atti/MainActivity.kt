@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import yosel.dev.atti.core.navigation.AppNavigation
+import yosel.dev.atti.core.navigation.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @AndroidEntryPoint
@@ -21,7 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AttiTheme {
-
+                AppNavigation(startDestination = Screens.Home)
             }
         }
     }
