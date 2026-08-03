@@ -57,6 +57,8 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.ktor.client.android)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

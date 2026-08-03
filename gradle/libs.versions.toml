@@ -17,6 +17,8 @@ kotlinxSerializationCore = "1.11.0"
 hilt = "2.60.1"
 androidxHilt = "1.4.0"
 uiTextGoogleFonts = "1.11.4"
+supabase = "3.0.3"
+ktor = "3.5.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +45,8 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "androidxHilt" }
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+supabase-postgrest = { module = "io.supabase:postgrest-kt", version.ref = "supabase" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
 
 
