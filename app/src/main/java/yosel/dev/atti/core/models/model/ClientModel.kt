@@ -2,7 +2,7 @@ package yosel.dev.atti.core.models.model
 
 import yosel.dev.atti.core.utils.formatDate
 
-data class ClientsModel(
+data class ClientModel(
     val id: String = "",
     val firstName: String = "",
     val lastName: String = "",
