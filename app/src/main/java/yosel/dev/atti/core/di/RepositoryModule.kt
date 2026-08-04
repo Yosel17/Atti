@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import yosel.dev.atti.screens.clients.data.ClientsRepositoryImpl
-import yosel.dev.atti.screens.clients.domain.ClientsRepository
+import yosel.dev.atti.screens.clients.data.DirectoryRepositoryImpl
+import yosel.dev.atti.screens.clients.domain.DirectoryRepository
 import javax.inject.Singleton
 
 @Module
@@ -14,7 +14,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindClientsRepository(
-        impl: ClientsRepositoryImpl
-    ): ClientsRepository
+    abstract fun bindDirectoryRepository(
+        impl: DirectoryRepositoryImpl
+    ): DirectoryRepository
 }

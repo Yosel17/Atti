@@ -10,13 +10,13 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
-import yosel.dev.atti.screens.clients.domain.ClientsRepository
+import yosel.dev.atti.screens.clients.domain.DirectoryRepository
 import javax.inject.Inject
 
-class ClientsRepositoryImpl @Inject constructor(
+class DirectoryRepositoryImpl @Inject constructor(
     private val clientsDataSource: ClientsDataSource,
     private val clientDao: ClientDao
-): ClientsRepository {
+): DirectoryRepository {
 
     override fun getAllClients(): Flow<List<ClientModel>> {
         return clientDao.getAllClients()

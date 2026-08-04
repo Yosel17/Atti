@@ -13,18 +13,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import yosel.dev.atti.screens.clients.domain.ClientsRepository
+import yosel.dev.atti.screens.clients.domain.DirectoryRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class ClientsViewModel @Inject constructor(
-    private val repository: ClientsRepository
+class DirectoryViewModel @Inject constructor(
+    private val repository: DirectoryRepository
 ): ViewModel() {
 
-    private val _state = MutableStateFlow(ClientsState())
-    val state: StateFlow<ClientsState> = repository.getAllClients()
+    private val _state = MutableStateFlow(DirectoryState())
+    val state: StateFlow<DirectoryState> = repository.getAllClients()
         .catch { error ->
-            _events.send(ClientsEvent.ShowSnackBarError("Error al obtener a los clientes"))
+            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener a los clientes"))
         }.combine(_state){ clients, localState ->
             localState.copy(
                 clients = clients
@@ -33,10 +33,10 @@ class ClientsViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ClientsState(isLoading = true)
+            initialValue = DirectoryState(isLoading = true)
         )
 
-    private val _events = Channel<ClientsEvent>()
+    private val _events = Channel<DirectoryEvent>()
     val events = _events.receiveAsFlow()
 
     init {
@@ -53,7 +53,7 @@ class ClientsViewModel @Inject constructor(
                 }.onFailure { error ->
                     _state.update { it.copy(isLoading = false) }
                     _events.send(
-                        ClientsEvent.ShowSnackBarError(
+                        DirectoryEvent.ShowSnackBarError(
                             message = error.localizedMessage ?: "Error al sincronizar los clientes"
                         )
                     )

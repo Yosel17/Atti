@@ -4,10 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.launch
+import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.screens.clients.ui.DirectoryEvent
+import yosel.dev.atti.screens.clients.ui.DirectoryScreen
+import yosel.dev.atti.screens.clients.ui.DirectoryViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(){
     entry<ScreensNavigationBar.Home> {
@@ -21,11 +32,33 @@ fun EntryProviderScope<NavKey>.homeEntry(){
 
 fun EntryProviderScope<NavKey>.directoryEntry(){
     entry<ScreensNavigationBar.Directory> {
-        Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.secondary)
-        ){
-            Text(text = "DirectoryScreen", color = MaterialTheme.colorScheme.onSecondary)
+        val viewModel = hiltViewModel<DirectoryViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is DirectoryEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = event.message
+                        )
+                    }
+                }
+            }
         }
+
+        DirectoryScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onNavigation = { screens ->
+
+            }
+        )
     }
 }
 
