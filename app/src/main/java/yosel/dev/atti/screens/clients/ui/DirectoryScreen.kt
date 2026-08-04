@@ -1,17 +1,15 @@
 package yosel.dev.atti.screens.clients.ui
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -28,84 +26,53 @@ fun DirectoryScreen(
     modifier: Modifier = Modifier,
     state: DirectoryState,
     snackBarHostState: SnackbarHostState,
-    onNavigation:(Screens) -> Unit,
+    onNavigation: (Screens) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState){ data ->
-                SnackBarError(data = data)
-            }
-        },
-        floatingActionButton = {
-            if (!state.isLoading && state.clients.isNotEmpty()){
-                ExtendedFloatingActionButton(
-                    onClick = {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // 1. Contenido principal
+        BodyDirectory(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            onClientClick = { idClient ->
 
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.PersonAdd,
-                            contentDescription = "new client"
-                        )
-                    },
-                    text = { Text(text = "Agregar cliente") },
-                    expanded = true
-                )
-            }
-        }
-    ) { paddingValues ->
+            },
+            onAction = onAction
+        )
 
-        Box(
+        // 2. Floating Action Button (Abajo a la derecha)
+        AnimatedVisibility(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+                .align(Alignment.BottomEnd),
+            visible = state.selectedTabIndex == 0 && !state.isLoadingClients && state.clients.isNotEmpty()
         ) {
-            AnimatedContent(
-                targetState = state,
-                contentKey = { targetState ->
-                    when {
-                        targetState.isLoading -> "LOADING"
-                        targetState.clients.isEmpty() -> "EMPTY"
-                        else -> "CONTENT"
-                    }
+            ExtendedFloatingActionButton(
+                onClick = {
+
                 },
-                label = "directoryScreenStateTransition"
-            ) { targetState ->
-                when {
-                    targetState.isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingIndicator(
-                                modifier = Modifier.size(75.dp)
-                            )
-                        }
-                    }
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.PersonAdd,
+                        contentDescription = "new client"
+                    )
+                },
+                text = { Text(text = "Agregar cliente") },
+                expanded = true,
+                modifier = Modifier
+                    .padding(bottom = 16.dp, end = 16.dp)
+            )
+        }
 
-                    targetState.clients.isEmpty() -> {
-                        EmptyClientsState(
-                            onAddClientClick = {
-
-                            }
-                        )
-                    }
-
-                    else -> {
-                        BodyDirectory(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            state = targetState,
-                            onClientClick = { idClient ->
-
-                            },
-                            onAction = onAction
-                        )
-                    }
-                }
-            }
+        // 3. Snackbar Host (Abajo al centro)
+        SnackbarHost(
+            hostState = snackBarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+        ) { data ->
+            SnackBarError(data = data)
         }
     }
 }
