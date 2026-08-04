@@ -44,6 +44,8 @@ fun DirectoryScreen(
 
         // 2. Floating Action Button (Abajo a la derecha)
         AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.BottomEnd),
             visible = state.selectedTabIndex == 0 && !state.isLoadingClients && state.clients.isNotEmpty()
         ) {
             ExtendedFloatingActionButton(
@@ -59,7 +61,6 @@ fun DirectoryScreen(
                 text = { Text(text = "Agregar cliente") },
                 expanded = true,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
                     .padding(bottom = 16.dp, end = 16.dp)
             )
         }
