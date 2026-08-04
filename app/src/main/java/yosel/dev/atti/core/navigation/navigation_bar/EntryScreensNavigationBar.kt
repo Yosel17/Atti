@@ -1,7 +1,5 @@
 package yosel.dev.atti.core.navigation.navigation_bar
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +17,11 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.core.utils.dialPhoneNumber
+import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.clients.ui.DirectoryEvent
 import yosel.dev.atti.screens.clients.ui.DirectoryScreen
 import yosel.dev.atti.screens.clients.ui.DirectoryViewModel
-import androidx.core.net.toUri
 
 fun EntryProviderScope<NavKey>.homeEntry(){
     entry<ScreensNavigationBar.Home> {
@@ -52,10 +51,7 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
                     }
                 }
                 is DirectoryEvent.NavigateToPhone -> {
-                    try {
-                        val intent = Intent(Intent.ACTION_DIAL, "tel:${event.phoneNumber}".toUri())
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
                         scope.launch {
                             snackBarHostState.showSnackbar(
                                 message = "No se puede abrir la aplicación de teléfono"
@@ -64,14 +60,7 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
                     }
                 }
                 is DirectoryEvent.NavigateToWhatsapp -> {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            data =
-                                "https://wa.me/${event.phoneNumber.filter { it.isDigit() }}".toUri()
-                            setPackage("com.whatsapp")
-                        }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
                         scope.launch {
                             snackBarHostState.showSnackbar(
                                 message = "No se puede abrir la aplicación de WhatsApp"
