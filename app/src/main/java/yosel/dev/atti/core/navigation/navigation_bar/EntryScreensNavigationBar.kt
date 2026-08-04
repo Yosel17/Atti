@@ -10,12 +10,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.core.utils.dialPhoneNumber
+import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.clients.ui.DirectoryEvent
 import yosel.dev.atti.screens.clients.ui.DirectoryScreen
 import yosel.dev.atti.screens.clients.ui.DirectoryViewModel
@@ -36,6 +39,7 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
             when(event){
@@ -44,6 +48,24 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
                         snackBarHostState.showSnackbar(
                             message = event.message
                         )
+                    }
+                }
+                is DirectoryEvent.NavigateToPhone -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono"
+                            )
+                        }
+                    }
+                }
+                is DirectoryEvent.NavigateToWhatsapp -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp"
+                            )
+                        }
                     }
                 }
             }

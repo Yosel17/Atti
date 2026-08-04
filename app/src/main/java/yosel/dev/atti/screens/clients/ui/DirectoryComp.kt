@@ -1,7 +1,7 @@
 package yosel.dev.atti.screens.clients.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,15 +20,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.DocumentScanner
-import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,7 +36,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
@@ -49,11 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.R
+import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.ui.theme.customColors
 
 private data class DirectoryTabData(
     val title: String,
@@ -104,32 +108,72 @@ fun BodyDirectory(
 
         when (state.selectedTabIndex) {
             0 -> {
-                when {
-                    // 1. Si ya existen datos guardados en Room, los mostramos inmediatamente sin esperar la red
-                    state.clients.isNotEmpty() -> {
-                        ClientList(
-                            modifier = Modifier.fillMaxSize().padding(16.dp),
-                            clients = state.clients,
-                            onClientClick = onClientClick
-                        )
-                    }
-                    // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
-                    state.isLoadingClients -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingIndicator()
+                val clientState = when {
+                    state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                    state.isLoadingClients -> DirectoryUIStatus.LOADING
+                    else -> DirectoryUIStatus.EMPTY
+                }
+
+                AnimatedContent(
+                    targetState = clientState,
+                    label = "MainContentAnimation",
+                    modifier = Modifier.fillMaxSize()
+                ) { status ->
+                    when (status) {
+                        DirectoryUIStatus.CONTENT -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp,)
+                                    .padding(top = 24.dp)
+                            ) {
+                                AttiSearchBar(
+                                    value = state.searchQuery,
+                                    onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                    placeholder = "Buscar clientes...",
+                                    onFilterClick = { /* No acción por ahora */ },
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                AnimatedContent(
+                                    targetState = state.filteredClients.isEmpty(),
+                                    label = "SearchAnimation"
+                                ) { isSearchEmpty ->
+                                    if (isSearchEmpty) {
+                                        NoSearchResultsState(
+                                            query = state.searchQuery,
+                                            onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                        )
+                                    } else {
+                                        ClientList(
+                                            modifier = Modifier.fillMaxSize(),
+                                            clients = state.filteredClients,
+                                            onAction = onAction,
+                                        )
+                                    }
+                                }
+                            }
                         }
-                    }
-                    // 3. Si terminó la carga y la base de datos está vacía
-                    else -> {
-                        EmptyClientsState(
-                            onAddClientClick = {}
-                        )
+
+                        DirectoryUIStatus.LOADING -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                LoadingIndicator()
+                            }
+                        }
+
+                        DirectoryUIStatus.EMPTY -> {
+                            EmptyClientsState(
+                                onAddClientClick = {}
+                            )
+                        }
                     }
                 }
             }
+
             1 -> {
                 // TODO: Implementar lista de pacientes
                 Box(
@@ -147,10 +191,19 @@ fun BodyDirectory(
     }
 }
 
+/**
+ * Representa los diferentes estados visuales de la pestaña de Clientes
+ */
+private enum class DirectoryUIStatus {
+    LOADING,
+    CONTENT,
+    EMPTY
+}
+
 @Composable
 fun ClientList(
     clients: List<ClientModel>,
-    onClientClick: (String) -> Unit,
+    onAction: (DirectoryAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -158,12 +211,12 @@ fun ClientList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
     ) {
-        items(clients) { client ->
+        items(clients, key = { it.id }) { client ->
             ClientItem(
                 client = client,
-                onCallClick = {},
-                onMessageClick = {},
-                onClientClick = {}
+                onCallClick = { onAction(DirectoryAction.OnCallClick(it)) },
+                onMessageClick = { onAction(DirectoryAction.OnWhatsappClick(it)) },
+                onClientClick = {  }
             )
         }
     }
@@ -217,11 +270,11 @@ fun ClientItem(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "${client.firstName} ${client.lastName}".trim(),
+                        text = "${client.firstName} ${client.lastName}".trim().ifBlank { "Sin nombre" },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
 
@@ -260,7 +313,9 @@ fun ClientItem(
                         Text(
                             text = "NIT: $nitText",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -306,15 +361,15 @@ fun ClientItem(
                     onClick = { onMessageClick(client.phoneNumber) },
                     shape = CircleShape,
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = MaterialTheme.customColors.whatsappContainer,
+                        contentColor = MaterialTheme.customColors.onWhatsappContainer
                     ),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.Message,
+                        painter = painterResource(id = R.drawable.whatsapp),
                         contentDescription = "Enviar mensaje",
                         modifier = Modifier.size(18.dp)
                     )
@@ -379,5 +434,73 @@ fun EmptyClientsState(
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer cliente")
         }
+    }
+}
+
+@Composable
+fun NoSearchResultsState(
+    query: String,
+    onClearSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.SearchOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "No se encontraron resultados",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "No encontramos clientes que coincidan con \"$query\". Prueba con otro nombre o limpia la búsqueda.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        FilledTonalButton(
+            onClick = onClearSearch,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(text = "Limpiar búsqueda")
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun ItemClientsPreview() {
+    AttiTheme {
+        ClientItem(
+            client = ClientModel(
+                firstName = "Carlos pedor asdf adfnlkasdnkf",
+                lastName = "Perz hernandez echeverria",
+                documentId = "123456788"
+            ),
+            onCallClick = {},
+            onMessageClick = {},
+            onClientClick = {}
+        )
     }
 }

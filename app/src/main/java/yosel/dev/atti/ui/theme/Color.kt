@@ -217,3 +217,19 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF221F17)
 val surfaceContainerDarkHighContrast = Color(0xFF343027)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3F3B32)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF4A463D)
+
+// ==========================================
+// Custom Colors
+// ==========================================
+
+// Light Scheme
+val whatsappLight = Color(0xFF0F6D48)
+val onWhatsappLight = Color(0xFFFFFFFF)
+val whatsappContainerLight = Color(0xFFA2F6C2)
+val onWhatsappContainerLight = Color(0xFF002113)
+
+// Dark Scheme
+val whatsappDark = Color(0xFF86D9A7)
+val onWhatsappDark = Color(0xFF003822)
+val whatsappContainerDark = Color(0xFF005234)
+val onWhatsappContainerDark = Color(0xFFA2F6C2)

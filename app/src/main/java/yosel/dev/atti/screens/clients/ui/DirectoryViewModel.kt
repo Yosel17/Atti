@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.screens.clients.domain.DirectoryRepository
+import java.text.Normalizer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,8 +28,21 @@ class DirectoryViewModel @Inject constructor(
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         }
         .combine(_state) { clients, localState ->
+            val queryNormalized = localState.searchQuery.normalize()
+            
+            val filteredClients = if (queryNormalized.isBlank()) {
+                clients
+            } else {
+                clients.filter { client ->
+                    client.firstName.normalize().contains(queryNormalized) ||
+                            client.lastName.normalize().contains(queryNormalized) ||
+                            client.phoneNumber.normalize().contains(queryNormalized) ||
+                            client.documentId.normalize().contains(queryNormalized)
+                }
+            }
             localState.copy(
-                clients = clients
+                clients = clients,
+                filteredClients = filteredClients
             )
         }
         .stateIn(
@@ -49,10 +63,24 @@ class DirectoryViewModel @Inject constructor(
             is DirectoryAction.OnTabSelected -> {
                 _state.update { it.copy(selectedTabIndex = event.index) }
             }
+            is DirectoryAction.OnCallClick -> {
+                viewModelScope.launch {
+                    _events.send(DirectoryEvent.NavigateToPhone(event.phoneNumber))
+                }
+            }
+            is DirectoryAction.OnWhatsappClick -> {
+                viewModelScope.launch {
+                    _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
+                }
+            }
+            is DirectoryAction.OnSearchQueryChange -> {
+                _state.update { it.copy(searchQuery = event.query) }
+            }
         }
     }
 
     private fun fetchRemoteClientsIfNeeded() {
+        println("YoselBug: fetchRemoteClientsIfNeeded")
         viewModelScope.launch {
             _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
             repository.syncClients()
@@ -72,5 +100,10 @@ class DirectoryViewModel @Inject constructor(
                     )
                 }
         }
+    }
+
+    private fun String.normalize(): String {
+        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+        return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
     }
 }
