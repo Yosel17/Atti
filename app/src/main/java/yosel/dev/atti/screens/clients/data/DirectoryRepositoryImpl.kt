@@ -10,15 +10,15 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
-import yosel.dev.atti.screens.clients.domain.ClientsRepository
+import yosel.dev.atti.screens.clients.domain.DirectoryRepository
 import javax.inject.Inject
 
-class ClientsRepositoryImpl @Inject constructor(
+class DirectoryRepositoryImpl @Inject constructor(
     private val clientsDataSource: ClientsDataSource,
     private val clientDao: ClientDao
-): ClientsRepository {
+): DirectoryRepository {
 
-    override fun getAllBills(): Flow<List<ClientModel>> {
+    override fun getAllClients(): Flow<List<ClientModel>> {
         return clientDao.getAllClients()
             .map { entities ->
                 entities.map { it.toModel() }
@@ -26,7 +26,7 @@ class ClientsRepositoryImpl @Inject constructor(
             .flowOn(Dispatchers.IO)
     }
 
-    override suspend fun syncBills(): Result<Unit> {
+    override suspend fun syncClients(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val remoteClients = clientsDataSource.getAllClients()
