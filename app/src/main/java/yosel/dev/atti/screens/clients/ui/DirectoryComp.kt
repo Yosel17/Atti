@@ -19,9 +19,11 @@ import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -35,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.models.model.ClientModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BodyDirectory(
     modifier: Modifier = Modifier,
@@ -52,6 +55,7 @@ fun BodyDirectory(
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
+                    modifier = Modifier.fillMaxWidth(),
                     selected = state.selectedTabIndex == index,
                     onClick = { onAction(DirectoryAction.OnTabSelected(index)) },
                     text = {
@@ -66,10 +70,25 @@ fun BodyDirectory(
 
         when (state.selectedTabIndex) {
             0 -> {
-                ClientList(
-                    clients = state.clients,
-                    onClientClick = onClientClick
-                )
+                when{
+                    state.isLoadingClients ->{
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                            LoadingIndicator()
+                        }
+                    }
+                    state.clients.isEmpty() ->{
+                        EmptyClientsState(
+                            onAddClientClick = {}
+                        )
+                    }
+                    else ->{
+                        ClientList(
+                            clients = state.clients,
+                            onClientClick = onClientClick
+                        )
+                    }
+                }
+
             }
             1 -> {
                 // TODO: Implementar lista de pacientes

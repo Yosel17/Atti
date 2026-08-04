@@ -33,7 +33,7 @@ class DirectoryViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DirectoryState(isLoading = true)
+            initialValue = DirectoryState(isLoadingClients = true)
         )
 
     private val _events = Channel<DirectoryEvent>()
@@ -54,13 +54,13 @@ class DirectoryViewModel @Inject constructor(
 
     private fun fetchRemoteClients() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoadingClients = true) }
 
             repository.syncClients()
                 .onSuccess {
-                    _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoadingClients = false) }
                 }.onFailure { error ->
-                    _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoadingClients = false) }
                     _events.send(
                         DirectoryEvent.ShowSnackBarError(
                             message = "Error al sincronizar los clientes"

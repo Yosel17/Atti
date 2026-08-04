@@ -39,21 +39,19 @@ fun DirectoryScreen(
             }
         },
         floatingActionButton = {
-            if (!state.isLoading && state.clients.isNotEmpty()){
-                ExtendedFloatingActionButton(
-                    onClick = {
+            ExtendedFloatingActionButton(
+                onClick = {
 
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.PersonAdd,
-                            contentDescription = "new client"
-                        )
-                    },
-                    text = { Text(text = "Agregar cliente") },
-                    expanded = true
-                )
-            }
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.PersonAdd,
+                        contentDescription = "new client"
+                    )
+                },
+                text = { Text(text = "Agregar cliente") },
+                expanded = true
+            )
         }
     ) { paddingValues ->
 
@@ -62,50 +60,15 @@ fun DirectoryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            AnimatedContent(
-                targetState = state,
-                contentKey = { targetState ->
-                    when {
-                        targetState.isLoading -> "LOADING"
-                        targetState.clients.isEmpty() -> "EMPTY"
-                        else -> "CONTENT"
-                    }
+            BodyDirectory(
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = state,
+                onClientClick = { idClient ->
+
                 },
-                label = "directoryScreenStateTransition"
-            ) { targetState ->
-                when {
-                    targetState.isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingIndicator(
-                                modifier = Modifier.size(75.dp)
-                            )
-                        }
-                    }
-
-                    targetState.clients.isEmpty() -> {
-                        EmptyClientsState(
-                            onAddClientClick = {
-
-                            }
-                        )
-                    }
-
-                    else -> {
-                        BodyDirectory(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            state = targetState,
-                            onClientClick = { idClient ->
-
-                            },
-                            onAction = onAction
-                        )
-                    }
-                }
-            }
+                onAction = onAction
+            )
         }
     }
 }
