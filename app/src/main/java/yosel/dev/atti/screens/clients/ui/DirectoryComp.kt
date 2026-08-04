@@ -56,6 +56,7 @@ import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
+import androidx.compose.material.icons.outlined.SearchOff
 
 private data class DirectoryTabData(
     val title: String,
@@ -121,12 +122,19 @@ fun BodyDirectory(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            ClientList(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                clients = state.clients,
-                                onAction = onAction,
-                            )
+                            if (state.filteredClients.isEmpty()) {
+                                NoSearchResultsState(
+                                    query = state.searchQuery,
+                                    onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                )
+                            } else {
+                                ClientList(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    clients = state.filteredClients,
+                                    onAction = onAction,
+                                )
+                            }
                         }
                     }
                     // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
@@ -396,6 +404,57 @@ fun EmptyClientsState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer cliente")
+        }
+    }
+}
+
+@Composable
+fun NoSearchResultsState(
+    query: String,
+    onClearSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.SearchOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "No se encontraron resultados",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "No encontramos clientes que coincidan con \"$query\". Prueba con otro nombre o limpia la búsqueda.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        FilledTonalButton(
+            onClick = onClearSearch,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(text = "Limpiar búsqueda")
         }
     }
 }

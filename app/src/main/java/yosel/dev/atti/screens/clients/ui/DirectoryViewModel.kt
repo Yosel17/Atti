@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.screens.clients.domain.DirectoryRepository
+import java.text.Normalizer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,18 +28,21 @@ class DirectoryViewModel @Inject constructor(
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         }
         .combine(_state) { clients, localState ->
-            val filteredClients = if (localState.searchQuery.isBlank()) {
+            val queryNormalized = localState.searchQuery.normalize()
+            
+            val filteredClients = if (queryNormalized.isBlank()) {
                 clients
             } else {
                 clients.filter { client ->
-                    client.firstName.contains(localState.searchQuery, ignoreCase = true) ||
-                            client.lastName.contains(localState.searchQuery, ignoreCase = true) ||
-                            client.phoneNumber.contains(localState.searchQuery, ignoreCase = true) ||
-                            client.documentId.contains(localState.searchQuery, ignoreCase = true)
+                    client.firstName.normalize().contains(queryNormalized) ||
+                            client.lastName.normalize().contains(queryNormalized) ||
+                            client.phoneNumber.normalize().contains(queryNormalized) ||
+                            client.documentId.normalize().contains(queryNormalized)
                 }
             }
             localState.copy(
-                clients = filteredClients
+                clients = clients,
+                filteredClients = filteredClients
             )
         }
         .stateIn(
@@ -95,5 +99,10 @@ class DirectoryViewModel @Inject constructor(
                     )
                 }
         }
+    }
+
+    private fun String.normalize(): String {
+        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+        return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
     }
 }
