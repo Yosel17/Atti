@@ -54,7 +54,7 @@ class DirectoryViewModel @Inject constructor(
 
     private fun fetchRemoteClientsIfNeeded() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoadingClients = true) }
+            _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
             repository.syncClients()
                 .onSuccess {
                     _state.update {

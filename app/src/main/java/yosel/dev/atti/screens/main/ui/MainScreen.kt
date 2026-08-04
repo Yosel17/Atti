@@ -75,10 +75,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = {
-                            if (!isSelected) {
-                                bottomNavBackStack.clear()
-                                bottomNavBackStack.add(item.screen)
+                            // En lugar de .clear(), reordenamos el backstack para conservar la instancia de la pestaña
+                            if (bottomNavBackStack.contains(item.screen)) {
+                                bottomNavBackStack.remove(item.screen)
                             }
+                            bottomNavBackStack.add(item.screen)
                         },
                         icon = {
                             Icon(

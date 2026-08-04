@@ -92,6 +92,14 @@ fun BodyDirectory(
         when (state.selectedTabIndex) {
             0 -> {
                 when {
+                    // 1. Si ya existen datos guardados en Room, los mostramos inmediatamente sin esperar la red
+                    state.clients.isNotEmpty() -> {
+                        ClientList(
+                            clients = state.clients,
+                            onClientClick = onClientClick
+                        )
+                    }
+                    // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
                     state.isLoadingClients -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -100,15 +108,10 @@ fun BodyDirectory(
                             LoadingIndicator()
                         }
                     }
-                    state.clients.isEmpty() -> {
+                    // 3. Si terminó la carga y la base de datos está vacía
+                    else -> {
                         EmptyClientsState(
                             onAddClientClick = {}
-                        )
-                    }
-                    else -> {
-                        ClientList(
-                            clients = state.clients,
-                            onClientClick = onClientClick
                         )
                     }
                 }
