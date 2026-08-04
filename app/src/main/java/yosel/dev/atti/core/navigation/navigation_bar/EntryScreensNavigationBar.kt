@@ -57,7 +57,8 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
             snackBarHostState = snackBarHostState,
             onNavigation = { screens ->
 
-            }
+            },
+            onAction = viewModel::onAction
         )
     }
 }

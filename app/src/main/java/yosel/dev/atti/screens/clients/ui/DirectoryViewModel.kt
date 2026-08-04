@@ -39,6 +39,15 @@ class DirectoryViewModel @Inject constructor(
     private val _events = Channel<DirectoryEvent>()
     val events = _events.receiveAsFlow()
 
+    fun onAction(event: DirectoryAction) {
+        when(event) {
+            is DirectoryAction.OnTabSelected -> {
+                _state.update { it.copy(selectedTabIndex = event.index) }
+            }
+            else -> {}
+        }
+    }
+
     init {
         fetchRemoteClients()
     }

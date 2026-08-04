@@ -6,5 +6,6 @@ data class DirectoryState(
     val isError: Boolean = false,
     val errorMessage: String = "",
     val isLoading: Boolean = true,
-    val clients: List<ClientModel> = emptyList()
+    val clients: List<ClientModel> = emptyList(),
+    val selectedTabIndex: Int = 0
 )

@@ -28,7 +28,8 @@ fun DirectoryScreen(
     modifier: Modifier = Modifier,
     state: DirectoryState,
     snackBarHostState: SnackbarHostState,
-    onNavigation:(Screens) -> Unit
+    onNavigation:(Screens) -> Unit,
+    onAction: (DirectoryAction) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -95,12 +96,12 @@ fun DirectoryScreen(
                     else -> {
                         BodyDirectory(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
+                                .fillMaxSize(),
                             state = targetState,
                             onClientClick = { idClient ->
 
-                            }
+                            },
+                            onAction = onAction
                         )
                     }
                 }
