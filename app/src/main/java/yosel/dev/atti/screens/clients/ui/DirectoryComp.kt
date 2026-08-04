@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.clients.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -56,7 +58,6 @@ import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
-import androidx.compose.material.icons.outlined.SearchOff
 
 private data class DirectoryTabData(
     val title: String,
@@ -107,53 +108,71 @@ fun BodyDirectory(
 
         when (state.selectedTabIndex) {
             0 -> {
-                when {
-                    // 1. Si ya existen datos guardados en Room, los mostramos inmediatamente sin esperar la red
-                    state.clients.isNotEmpty() -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize().padding(16.dp)
-                        ) {
-                            AttiSearchBar(
-                                value = state.searchQuery,
-                                onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
-                                placeholder = "Buscar clientes...",
-                                onFilterClick = { /* No acción por ahora */ },
-                            )
+                val clientState = when {
+                    state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                    state.isLoadingClients -> DirectoryUIStatus.LOADING
+                    else -> DirectoryUIStatus.EMPTY
+                }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                AnimatedContent(
+                    targetState = clientState,
+                    label = "MainContentAnimation",
+                    modifier = Modifier.fillMaxSize()
+                ) { status ->
+                    when (status) {
+                        DirectoryUIStatus.CONTENT -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                AttiSearchBar(
+                                    value = state.searchQuery,
+                                    onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                    placeholder = "Buscar clientes...",
+                                    onFilterClick = { /* No acción por ahora */ },
+                                )
 
-                            if (state.filteredClients.isEmpty()) {
-                                NoSearchResultsState(
-                                    query = state.searchQuery,
-                                    onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
-                                )
-                            } else {
-                                ClientList(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    clients = state.filteredClients,
-                                    onAction = onAction,
-                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                AnimatedContent(
+                                    targetState = state.filteredClients.isEmpty(),
+                                    label = "SearchAnimation"
+                                ) { isSearchEmpty ->
+                                    if (isSearchEmpty) {
+                                        NoSearchResultsState(
+                                            query = state.searchQuery,
+                                            onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                        )
+                                    } else {
+                                        ClientList(
+                                            modifier = Modifier.fillMaxSize(),
+                                            clients = state.filteredClients,
+                                            onAction = onAction,
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                    // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
-                    state.isLoadingClients -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingIndicator()
+
+                        DirectoryUIStatus.LOADING -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                LoadingIndicator()
+                            }
                         }
-                    }
-                    // 3. Si terminó la carga y la base de datos está vacía
-                    else -> {
-                        EmptyClientsState(
-                            onAddClientClick = {}
-                        )
+
+                        DirectoryUIStatus.EMPTY -> {
+                            EmptyClientsState(
+                                onAddClientClick = {}
+                            )
+                        }
                     }
                 }
             }
+
             1 -> {
                 // TODO: Implementar lista de pacientes
                 Box(
@@ -169,6 +188,15 @@ fun BodyDirectory(
             }
         }
     }
+}
+
+/**
+ * Representa los diferentes estados visuales de la pestaña de Clientes
+ */
+private enum class DirectoryUIStatus {
+    LOADING,
+    CONTENT,
+    EMPTY
 }
 
 @Composable
