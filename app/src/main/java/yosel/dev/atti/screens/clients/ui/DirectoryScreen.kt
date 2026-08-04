@@ -1,17 +1,14 @@
 package yosel.dev.atti.screens.clients.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -28,47 +25,48 @@ fun DirectoryScreen(
     modifier: Modifier = Modifier,
     state: DirectoryState,
     snackBarHostState: SnackbarHostState,
-    onNavigation:(Screens) -> Unit,
+    onNavigation: (Screens) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState){ data ->
-                SnackBarError(data = data)
-            }
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // 1. Contenido principal
+        BodyDirectory(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            onClientClick = { idClient ->
 
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.PersonAdd,
-                        contentDescription = "new client"
-                    )
-                },
-                text = { Text(text = "Agregar cliente") },
-                expanded = true
-            )
-        }
-    ) { paddingValues ->
+            },
+            onAction = onAction
+        )
 
-        Box(
+        // 2. Floating Action Button (Abajo a la derecha)
+        ExtendedFloatingActionButton(
+            onClick = {
+
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.PersonAdd,
+                    contentDescription = "new client"
+                )
+            },
+            text = { Text(text = "Agregar cliente") },
+            expanded = true,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            BodyDirectory(
-                modifier = Modifier
-                    .fillMaxSize(),
-                state = state,
-                onClientClick = { idClient ->
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp, end = 16.dp)
+        )
 
-                },
-                onAction = onAction
-            )
+        // 3. Snackbar Host (Abajo al centro)
+        SnackbarHost(
+            hostState = snackBarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+        ) { data ->
+            SnackBarError(data = data)
         }
     }
 }

@@ -19,13 +19,14 @@ import javax.inject.Inject
 @HiltViewModel
 class DirectoryViewModel @Inject constructor(
     private val repository: DirectoryRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(DirectoryState())
     val state: StateFlow<DirectoryState> = repository.getAllClients()
         .catch { error ->
-            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener a los clientes"))
-        }.combine(_state){ clients, localState ->
+            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
+        }
+        .combine(_state) { clients, localState ->
             localState.copy(
                 clients = clients
             )
@@ -33,33 +34,36 @@ class DirectoryViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DirectoryState(isLoadingClients = true)
+            initialValue = DirectoryState()
         )
 
     private val _events = Channel<DirectoryEvent>()
     val events = _events.receiveAsFlow()
 
+    init {
+        fetchRemoteClientsIfNeeded()
+    }
+
     fun onAction(event: DirectoryAction) {
-        when(event) {
+        when (event) {
             is DirectoryAction.OnTabSelected -> {
                 _state.update { it.copy(selectedTabIndex = event.index) }
             }
-            else -> {}
         }
     }
 
-    init {
-        fetchRemoteClients()
-    }
-
-    private fun fetchRemoteClients() {
+    private fun fetchRemoteClientsIfNeeded() {
         viewModelScope.launch {
             _state.update { it.copy(isLoadingClients = true) }
-
             repository.syncClients()
                 .onSuccess {
-                    _state.update { it.copy(isLoadingClients = false) }
-                }.onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoadingClients = false,
+                        )
+                    }
+                }
+                .onFailure { error ->
                     _state.update { it.copy(isLoadingClients = false) }
                     _events.send(
                         DirectoryEvent.ShowSnackBarError(

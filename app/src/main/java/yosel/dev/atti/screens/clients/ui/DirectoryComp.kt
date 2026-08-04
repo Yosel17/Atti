@@ -5,9 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,8 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DocumentScanner
+import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -25,17 +27,23 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.models.model.ClientModel
+
+private data class DirectoryTabData(
+    val title: String,
+    val icon: ImageVector
+)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -45,24 +53,35 @@ fun BodyDirectory(
     onClientClick: (String) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
-    val tabs = listOf("Clientes", "Pacientes")
+    val tabs = listOf(
+        DirectoryTabData("Clientes", Icons.Outlined.People),
+        DirectoryTabData("Pacientes", Icons.Outlined.Pets)
+    )
 
     Column(modifier = modifier) {
-        PrimaryTabRow(
+        SecondaryTabRow(
             selectedTabIndex = state.selectedTabIndex,
-            containerColor = MaterialTheme.colorScheme.background,
             divider = {}
         ) {
-            tabs.forEachIndexed { index, title ->
+            tabs.forEachIndexed { index, tabData ->
                 Tab(
-                    modifier = Modifier.fillMaxWidth(),
                     selected = state.selectedTabIndex == index,
                     onClick = { onAction(DirectoryAction.OnTabSelected(index)) },
                     text = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = tabData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = tabData.title,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
                     }
                 )
             }
@@ -70,25 +89,27 @@ fun BodyDirectory(
 
         when (state.selectedTabIndex) {
             0 -> {
-                when{
-                    state.isLoadingClients ->{
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                when {
+                    state.isLoadingClients -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             LoadingIndicator()
                         }
                     }
-                    state.clients.isEmpty() ->{
+                    state.clients.isEmpty() -> {
                         EmptyClientsState(
                             onAddClientClick = {}
                         )
                     }
-                    else ->{
+                    else -> {
                         ClientList(
                             clients = state.clients,
                             onClientClick = onClientClick
                         )
                     }
                 }
-
             }
             1 -> {
                 // TODO: Implementar lista de pacientes
@@ -181,7 +202,6 @@ fun EmptyClientsState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -196,27 +216,21 @@ fun EmptyClientsState(
                 modifier = Modifier.size(48.dp)
             )
         }
-
         Spacer(modifier = Modifier.height(24.dp))
-
         Text(
             text = "Sin clientes registrados",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = "Aún no tienes clientes registrados. Agrega el primero para comenzar con el flujo.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-
         Spacer(modifier = Modifier.height(28.dp))
-
         Button(
             onClick = onAddClientClick
         ) {
