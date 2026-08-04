@@ -18,7 +18,7 @@ class ClientsRepositoryImpl @Inject constructor(
     private val clientDao: ClientDao
 ): ClientsRepository {
 
-    override fun getAllBills(): Flow<List<ClientModel>> {
+    override fun getAllClients(): Flow<List<ClientModel>> {
         return clientDao.getAllClients()
             .map { entities ->
                 entities.map { it.toModel() }
@@ -26,7 +26,7 @@ class ClientsRepositoryImpl @Inject constructor(
             .flowOn(Dispatchers.IO)
     }
 
-    override suspend fun syncBills(): Result<Unit> {
+    override suspend fun syncClients(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val remoteClients = clientsDataSource.getAllClients()

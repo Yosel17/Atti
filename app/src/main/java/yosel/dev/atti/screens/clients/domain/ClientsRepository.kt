@@ -5,7 +5,7 @@ import yosel.dev.atti.core.models.model.ClientModel
 
 interface ClientsRepository {
 
-    fun getAllBills(): Flow<List<ClientModel>>
+    fun getAllClients(): Flow<List<ClientModel>>
 
-    suspend fun syncBills(): Result<Unit>
+    suspend fun syncClients(): Result<Unit>
 }
