@@ -27,8 +27,18 @@ class DirectoryViewModel @Inject constructor(
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         }
         .combine(_state) { clients, localState ->
+            val filteredClients = if (localState.searchQuery.isBlank()) {
+                clients
+            } else {
+                clients.filter { client ->
+                    client.firstName.contains(localState.searchQuery, ignoreCase = true) ||
+                            client.lastName.contains(localState.searchQuery, ignoreCase = true) ||
+                            client.phoneNumber.contains(localState.searchQuery, ignoreCase = true) ||
+                            client.documentId.contains(localState.searchQuery, ignoreCase = true)
+                }
+            }
             localState.copy(
-                clients = clients
+                clients = filteredClients
             )
         }
         .stateIn(
@@ -58,6 +68,9 @@ class DirectoryViewModel @Inject constructor(
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
                 }
+            }
+            is DirectoryAction.OnSearchQueryChange -> {
+                _state.update { it.copy(searchQuery = event.query) }
             }
         }
     }

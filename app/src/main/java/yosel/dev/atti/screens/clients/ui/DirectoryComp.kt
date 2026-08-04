@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
+import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
@@ -108,13 +109,25 @@ fun BodyDirectory(
                 when {
                     // 1. Si ya existen datos guardados en Room, los mostramos inmediatamente sin esperar la red
                     state.clients.isNotEmpty() -> {
-                        ClientList(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            clients = state.clients,
-                            onAction = onAction,
-                        )
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(16.dp)
+                        ) {
+                            AttiSearchBar(
+                                value = state.searchQuery,
+                                onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                placeholder = "Buscar clientes...",
+                                onFilterClick = { /* No acción por ahora */ },
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            ClientList(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                clients = state.clients,
+                                onAction = onAction,
+                            )
+                        }
                     }
                     // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
                     state.isLoadingClients -> {
