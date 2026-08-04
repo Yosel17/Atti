@@ -124,7 +124,8 @@ fun BodyDirectory(
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .padding(horizontal = 16.dp,)
+                                    .padding(top = 24.dp)
                             ) {
                                 AttiSearchBar(
                                     value = state.searchQuery,

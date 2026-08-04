@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.main.ui
 
+import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -35,6 +37,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     val bottomNavBackStack = rememberNavBackStack(ScreensNavigationBar.Home)
     val currentDestination = bottomNavBackStack.lastOrNull()
+
+    val activity = LocalContext.current as? Activity
 
     val navItems = remember {
         listOf(
@@ -101,7 +105,20 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 rememberViewModelStoreNavEntryDecorator()
             ),
             onBack = {
-                bottomNavBackStack.removeLastOrNull()
+                // Evaluamos el comportamiento del botón de retroceso
+                if (currentDestination != ScreensNavigationBar.Home) {
+                    // Si no estamos en Inicio, llevamos la pantalla de Inicio al frente.
+                    // Al no eliminar la pantalla actual usando removeLastOrNull(),
+                    // su estado y ViewModel se mantienen vivos en memoria.
+                    if (bottomNavBackStack.contains(ScreensNavigationBar.Home)) {
+                        bottomNavBackStack.remove(ScreensNavigationBar.Home)
+                    }
+                    bottomNavBackStack.add(ScreensNavigationBar.Home)
+                } else {
+                    // Si ya estamos en la pantalla de Inicio y se presiona Atrás,
+                    // finalizamos la Activity para salir de la aplicación.
+                    activity?.finish()
+                }
             },
             entryProvider = entryProvider {
                 homeEntry()

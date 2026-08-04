@@ -80,6 +80,7 @@ class DirectoryViewModel @Inject constructor(
     }
 
     private fun fetchRemoteClientsIfNeeded() {
+        println("YoselBug: fetchRemoteClientsIfNeeded")
         viewModelScope.launch {
             _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
             repository.syncClients()
