@@ -1,7 +1,6 @@
 package yosel.dev.atti.screens.clients.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,11 +19,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.DocumentScanner
-import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
@@ -37,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
@@ -49,11 +45,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.R
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.ui.theme.customColors
 
 private data class DirectoryTabData(
     val title: String,
@@ -108,7 +109,9 @@ fun BodyDirectory(
                     // 1. Si ya existen datos guardados en Room, los mostramos inmediatamente sin esperar la red
                     state.clients.isNotEmpty() -> {
                         ClientList(
-                            modifier = Modifier.fillMaxSize().padding(16.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
                             clients = state.clients,
                             onClientClick = onClientClick
                         )
@@ -217,11 +220,11 @@ fun ClientItem(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "${client.firstName} ${client.lastName}".trim(),
+                        text = "${client.firstName} ${client.lastName}".trim().ifBlank { "Sin nombre" },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
 
@@ -260,7 +263,9 @@ fun ClientItem(
                         Text(
                             text = "NIT: $nitText",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -306,15 +311,15 @@ fun ClientItem(
                     onClick = { onMessageClick(client.phoneNumber) },
                     shape = CircleShape,
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = MaterialTheme.customColors.whatsappContainer,
+                        contentColor = MaterialTheme.customColors.onWhatsappContainer
                     ),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.Message,
+                        painter = painterResource(id = R.drawable.whatsapp),
                         contentDescription = "Enviar mensaje",
                         modifier = Modifier.size(18.dp)
                     )
@@ -379,5 +384,22 @@ fun EmptyClientsState(
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer cliente")
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun ItemClientsPreview() {
+    AttiTheme {
+        ClientItem(
+            client = ClientModel(
+                firstName = "Carlos pedor asdf adfnlkasdnkf",
+                lastName = "Perz hernandez echeverria",
+                documentId = "123456788"
+            ),
+            onCallClick = {},
+            onMessageClick = {},
+            onClientClick = {}
+        )
     }
 }
