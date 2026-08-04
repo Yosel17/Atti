@@ -113,7 +113,7 @@ fun BodyDirectory(
                                 .fillMaxSize()
                                 .padding(16.dp),
                             clients = state.clients,
-                            onClientClick = onClientClick
+                            onAction = onAction,
                         )
                     }
                     // 2. Solo si la lista local está vacía Y sigue cargando/sincronizando, mostramos el indicador
@@ -153,7 +153,7 @@ fun BodyDirectory(
 @Composable
 fun ClientList(
     clients: List<ClientModel>,
-    onClientClick: (String) -> Unit,
+    onAction: (DirectoryAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -161,12 +161,12 @@ fun ClientList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
     ) {
-        items(clients) { client ->
+        items(clients, key = { it.id }) { client ->
             ClientItem(
                 client = client,
-                onCallClick = {},
-                onMessageClick = {},
-                onClientClick = {}
+                onCallClick = { onAction(DirectoryAction.OnCallClick(it)) },
+                onMessageClick = { onAction(DirectoryAction.OnWhatsappClick(it)) },
+                onClientClick = {  }
             )
         }
     }

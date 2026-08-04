@@ -49,6 +49,16 @@ class DirectoryViewModel @Inject constructor(
             is DirectoryAction.OnTabSelected -> {
                 _state.update { it.copy(selectedTabIndex = event.index) }
             }
+            is DirectoryAction.OnCallClick -> {
+                viewModelScope.launch {
+                    _events.send(DirectoryEvent.NavigateToPhone(event.phoneNumber))
+                }
+            }
+            is DirectoryAction.OnWhatsappClick -> {
+                viewModelScope.launch {
+                    _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
+                }
+            }
         }
     }
 
