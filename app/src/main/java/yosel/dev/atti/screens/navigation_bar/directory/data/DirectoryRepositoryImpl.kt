@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.directory.data
+package yosel.dev.atti.screens.navigation_bar.directory.data
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
-import yosel.dev.atti.screens.directory.domain.DirectoryRepository
+import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import javax.inject.Inject
 
 class DirectoryRepositoryImpl @Inject constructor(

@@ -41,6 +41,15 @@ fun ClientModel.toEntity() = ClientEntity(
     createdAt = createdAt
 )
 
+fun ClientModel.toDto() = ClientDto(
+    firstName = firstName,
+    lastName = lastName,
+    documentId = documentId,
+    phoneNumber = phoneNumber,
+    email = email.ifBlank { null },
+    address = address,
+)
+
 // DTO -> Entity
 fun PatientDto.toEntity() = PatientEntity(
     id = id.orEmpty(),

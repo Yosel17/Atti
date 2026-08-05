@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.directory.domain
+package yosel.dev.atti.screens.navigation_bar.directory.domain
 
 import kotlinx.coroutines.flow.Flow
 import yosel.dev.atti.core.models.model.ClientModel

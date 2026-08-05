@@ -1,6 +1,5 @@
-package yosel.dev.atti.screens.directory.ui
+package yosel.dev.atti.screens.navigation_bar.directory.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import yosel.dev.atti.screens.directory.domain.DirectoryRepository
+import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import java.text.Normalizer
 import javax.inject.Inject
 

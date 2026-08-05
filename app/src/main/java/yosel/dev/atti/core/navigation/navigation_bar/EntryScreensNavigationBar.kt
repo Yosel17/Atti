@@ -19,9 +19,9 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.ObserveAsEvents
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.openWhatsApp
-import yosel.dev.atti.screens.directory.ui.DirectoryEvent
-import yosel.dev.atti.screens.directory.ui.DirectoryScreen
-import yosel.dev.atti.screens.directory.ui.DirectoryViewModel
+import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryEvent
+import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryScreen
+import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(){
     entry<ScreensNavigationBar.Home> {
