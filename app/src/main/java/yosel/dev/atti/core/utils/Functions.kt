@@ -2,10 +2,15 @@ package yosel.dev.atti.core.utils
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CrueltyFree
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.net.toUri
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import yosel.dev.atti.R
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.Instant
@@ -65,5 +70,19 @@ fun Context.openWhatsApp(phoneNumber: String): Boolean {
     } catch (e: Exception) {
         e.printStackTrace()
         false
+    }
+}
+
+data class SpeciesInfo(
+    val label: String,
+    val icon: Int
+)
+
+fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
+    return when (speciesId) {
+        1 -> SpeciesInfo("Canino", R.drawable.ic_canine)
+        2 -> SpeciesInfo("Felino", R.drawable.ic_feline)// Puedes usar Pets o CrueltyFree según prefieras
+        3 -> SpeciesInfo("Silvestre", R.drawable.ic_wild)
+        else -> SpeciesInfo("Otro", R.drawable.ic_animals)
     }
 }

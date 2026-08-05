@@ -27,9 +27,7 @@ import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.ContentCut
-import androidx.compose.material.icons.outlined.CrueltyFree
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.Female
 import androidx.compose.material.icons.outlined.Male
@@ -68,6 +66,7 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
@@ -610,20 +609,6 @@ fun NoSearchResultsState(
     }
 }
 
-data class SpeciesInfo(
-    val label: String,
-    val icon: ImageVector
-)
-
-fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
-    return when (speciesId) {
-        1 -> SpeciesInfo("Canino", Icons.Outlined.Pets)
-        2 -> SpeciesInfo("Felino", Icons.Outlined.Pets) // Puedes usar Pets o CrueltyFree según prefieras
-        3 -> SpeciesInfo("Silvestre", Icons.Outlined.CrueltyFree)
-        else -> SpeciesInfo("Otro", Icons.Outlined.Pets)
-    }
-}
-
 // Mapeo de género (1: Macho, 2: Hembra por convención estándar)
 data class GenderInfo(
     val label: String,
@@ -676,7 +661,7 @@ fun PatientCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = speciesInfo.icon,
+                        painter = painterResource(speciesInfo.icon),
                         contentDescription = speciesInfo.label,
                         modifier = Modifier.size(28.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -711,6 +696,7 @@ fun PatientCard(
 
                 // Badge / Chip de Especie
                 Surface(
+                    modifier = Modifier.align(Alignment.Top),
                     shape = RoundedCornerShape(50),
                     color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
@@ -788,7 +774,7 @@ fun PatientCard(
                     text = if (patient.isNeutered) "Sí" else "No",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if(patient.isNeutered) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
                 )
             }
 
@@ -824,15 +810,21 @@ fun PatientCard(
 @Composable
 fun ItemClientsPreview() {
     AttiTheme {
-        ClientItem(
-            client = ClientModel(
-                firstName = "Carlos pedor asdf adfnlkasdnkf",
-                lastName = "Perz hernandez echeverria",
-                documentId = "123456788"
+        PatientCard(
+            patient = PatientModel(
+                id = "1",
+                clientId = "1",
+                name = "Max",
+                speciesId = 1,
+                genderId = 1,
+                breed = "Labrador",
+                ageYears = 2,
+                ageMonths = 1,
+                color = "Blanco",
+                isNeutered = true,
+                photoUrl = "",
             ),
-            onCallClick = {},
-            onMessageClick = {},
-            onClientClick = {}
+            onCardClick = {}
         )
     }
 }
