@@ -1,6 +1,11 @@
 package yosel.dev.atti.screens.directory.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +57,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -83,10 +89,12 @@ fun BodyDirectory(
     onClientClick: (String) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
-    val tabs = listOf(
-        DirectoryTabData("Clientes", Icons.Outlined.People),
-        DirectoryTabData("Pacientes", Icons.Outlined.Pets)
-    )
+    val tabs = remember {
+        listOf(
+            DirectoryTabData("Clientes", Icons.Outlined.People),
+            DirectoryTabData("Pacientes", Icons.Outlined.Pets)
+        )
+    }
 
     Column(modifier = modifier) {
         SecondaryTabRow(
@@ -117,137 +125,163 @@ fun BodyDirectory(
             }
         }
 
-        when (state.selectedTabIndex) {
-            0 -> {
-                val clientState = when {
-                    state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
-                    state.isLoadingClients -> DirectoryUIStatus.LOADING
-                    else -> DirectoryUIStatus.EMPTY
-                }
-
-                AnimatedContent(
-                    targetState = clientState,
-                    label = "MainContentAnimation",
-                    modifier = Modifier.fillMaxSize()
-                ) { status ->
-                    when (status) {
-                        DirectoryUIStatus.CONTENT -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp,)
-                                    .padding(top = 24.dp)
-                            ) {
-                                AttiSearchBar(
-                                    value = state.clientSearchQuery,
-                                    onValueChange = { onAction(DirectoryAction.OnClientSearchQueryChange(it)) },
-                                    placeholder = "Buscar clientes...",
-                                    onFilterClick = { /* No acción por ahora */ },
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                AnimatedContent(
-                                    targetState = state.filteredClients.isEmpty(),
-                                    label = "SearchAnimation"
-                                ) { isSearchEmpty ->
-                                    if (isSearchEmpty) {
-                                        NoSearchResultsState(
-                                            query = state.clientSearchQuery,
-                                            onClearSearch = { onAction(DirectoryAction.OnClientSearchQueryChange("")) }
-                                        )
-                                    } else {
-                                        ClientList(
-                                            modifier = Modifier.fillMaxSize(),
-                                            clients = state.filteredClients,
-                                            onAction = onAction,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        DirectoryUIStatus.LOADING -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                LoadingIndicator()
-                            }
-                        }
-
-                        DirectoryUIStatus.EMPTY -> {
-                            EmptyClientsState(
-                                onAddClientClick = {}
-                            )
-                        }
+        AnimatedContent(
+            targetState = state.selectedTabIndex,
+            label = "TabContentTransition",
+            transitionSpec = {
+                (fadeIn(animationSpec = tween(300)) + slideInVertically(
+                    animationSpec = tween(300),
+                    initialOffsetY = { 30 }
+                )).togetherWith(fadeOut(animationSpec = tween(150)))
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { tabIndex ->
+            when (tabIndex) {
+                0 -> {
+                    val clientState = when {
+                        state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                        state.isLoadingClients -> DirectoryUIStatus.LOADING
+                        else -> DirectoryUIStatus.EMPTY
                     }
-                }
-            }
 
-            1 -> {
-                val patientStatus = when {
-                    state.isLoadingPatients -> DirectoryUIStatus.LOADING
-                    state.patients.isNotEmpty() -> DirectoryUIStatus.CONTENT
-                    else -> DirectoryUIStatus.EMPTY
-                }
-
-                AnimatedContent(
-                    targetState = patientStatus,
-                    label = "PatientContentAnimation",
-                    modifier = Modifier.fillMaxSize()
-                ) { status ->
-                    when (status) {
-                        DirectoryUIStatus.LOADING -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                LoadingIndicator()
-                            }
-                        }
-                        DirectoryUIStatus.CONTENT -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 24.dp)
-                            ) {
-                                AttiSearchBar(
-                                    value = state.patientSearchQuery,
-                                    onValueChange = { onAction(DirectoryAction.OnPatientSearchQueryChange(it)) },
-                                    placeholder = "Buscar pacientes...",
-                                    onFilterClick = {}
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                if (state.filteredPatients.isEmpty()) {
-                                    NoSearchResultsState(
-                                        query = state.patientSearchQuery,
-                                        onClearSearch = { onAction(DirectoryAction.OnPatientSearchQueryChange("")) }
+                    AnimatedContent(
+                        targetState = clientState,
+                        label = "MainContentAnimation",
+                        modifier = Modifier.fillMaxSize()
+                    ) { status ->
+                        when (status) {
+                            DirectoryUIStatus.CONTENT -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 16.dp)
+                                        .padding(top = 24.dp)
+                                ) {
+                                    AttiSearchBar(
+                                        value = state.clientSearchQuery,
+                                        onValueChange = { onAction(DirectoryAction.OnClientSearchQueryChange(it)) },
+                                        placeholder = "Buscar clientes...",
+                                        onFilterClick = { /* No acción por ahora */ },
                                     )
-                                } else {
-                                    LazyColumn(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(vertical = 16.dp)
-                                    ) {
-                                        items(state.filteredPatients, key = { it.id }) { patient ->
-                                            // Componente Card de Paciente
-                                            PatientCard(
-                                                patient = patient,
-                                                onCardClick = {}
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    AnimatedContent(
+                                        targetState = state.filteredClients.isEmpty(),
+                                        label = "SearchAnimation"
+                                    ) { isSearchEmpty ->
+                                        if (isSearchEmpty) {
+                                            NoSearchResultsState(
+                                                query = state.clientSearchQuery,
+                                                onClearSearch = {
+                                                    onAction(
+                                                        DirectoryAction.OnClientSearchQueryChange(
+                                                            ""
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                        } else {
+                                            ClientList(
+                                                modifier = Modifier.fillMaxSize(),
+                                                clients = state.filteredClients,
+                                                onAction = onAction,
                                             )
                                         }
                                     }
                                 }
                             }
+
+                            DirectoryUIStatus.LOADING -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    LoadingIndicator()
+                                }
+                            }
+
+                            DirectoryUIStatus.EMPTY -> {
+                                EmptyClientsState(
+                                    onAddClientClick = {}
+                                )
+                            }
                         }
-                        DirectoryUIStatus.EMPTY -> {
-                            // Puedes usar un estado vacío genérico para Pacientes
-                            NotFoundPatientsState(
-                                onAddPatientClick = {}
-                            )
+                    }
+                }
+
+                1 -> {
+                    val patientStatus = when {
+                        state.isLoadingPatients -> DirectoryUIStatus.LOADING
+                        state.patients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                        else -> DirectoryUIStatus.EMPTY
+                    }
+
+                    AnimatedContent(
+                        targetState = patientStatus,
+                        label = "PatientContentAnimation",
+                        modifier = Modifier.fillMaxSize()
+                    ) { status ->
+                        when (status) {
+                            DirectoryUIStatus.LOADING -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    LoadingIndicator()
+                                }
+                            }
+
+                            DirectoryUIStatus.CONTENT -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 16.dp)
+                                        .padding(top = 24.dp)
+                                ) {
+                                    AttiSearchBar(
+                                        value = state.patientSearchQuery,
+                                        onValueChange = { onAction(DirectoryAction.OnPatientSearchQueryChange(it)) },
+                                        placeholder = "Buscar pacientes...",
+                                        onFilterClick = {}
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    if (state.filteredPatients.isEmpty()) {
+                                        NoSearchResultsState(
+                                            query = state.patientSearchQuery,
+                                            onClearSearch = {
+                                                onAction(
+                                                    DirectoryAction.OnPatientSearchQueryChange(
+                                                        ""
+                                                    )
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        LazyColumn(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            contentPadding = PaddingValues(vertical = 16.dp)
+                                        ) {
+                                            items(state.filteredPatients, key = { it.id }) { patient ->
+                                                // Componente Card de Paciente
+                                                PatientCard(
+                                                    patient = patient,
+                                                    onCardClick = {}
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            DirectoryUIStatus.EMPTY -> {
+                                // Puedes usar un estado vacío genérico para Pacientes
+                                NotFoundPatientsState(
+                                    onAddPatientClick = {}
+                                )
+                            }
                         }
                     }
                 }
