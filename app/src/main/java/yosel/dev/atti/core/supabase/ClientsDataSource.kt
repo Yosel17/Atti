@@ -14,8 +14,11 @@ class ClientsDataSource @Inject constructor(
             .decodeList<ClientDto>()
     }
 
-    suspend fun insertClient(client: ClientDto) {
-        postgrest.from(Constants.CLIENTS_SUPABASE)
-            .insert(client)
+    suspend fun insertAndGetClient(client: ClientDto): ClientDto {
+        return postgrest.from(Constants.CLIENTS_SUPABASE)
+            .insert(client) {
+                select()
+            }
+            .decodeSingle<ClientDto>()
     }
 }
