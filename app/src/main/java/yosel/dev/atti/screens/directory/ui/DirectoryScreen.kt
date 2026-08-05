@@ -1,6 +1,14 @@
 package yosel.dev.atti.screens.directory.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -46,7 +54,21 @@ fun DirectoryScreen(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.BottomEnd),
-            visible = state.selectedTabIndex == 0 && !state.isLoadingClients && state.clients.isNotEmpty()
+            visible = state.selectedTabIndex == 0 && state.clients.isNotEmpty(),
+            enter = slideInVertically(
+                initialOffsetY = { it / 2 },
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            ) + scaleIn(
+                initialScale = 0.8f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)),
+            exit = slideOutVertically(
+                targetOffsetY = { it / 2 },
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ) + scaleOut(
+                targetScale = 0.8f,
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
         ) {
             ExtendedFloatingActionButton(
                 onClick = {
@@ -68,7 +90,21 @@ fun DirectoryScreen(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.BottomEnd),
-            visible = state.selectedTabIndex == 1 && !state.isLoadingPatients && state.patients.isNotEmpty()
+            visible = state.selectedTabIndex == 1 && state.patients.isNotEmpty(),
+            enter = slideInVertically(
+                initialOffsetY = { it / 2 },
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            ) + scaleIn(
+                initialScale = 0.8f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+            ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)),
+            exit = slideOutVertically(
+                targetOffsetY = { it / 2 },
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ) + scaleOut(
+                targetScale = 0.8f,
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
         ) {
             ExtendedFloatingActionButton(
                 onClick = {
