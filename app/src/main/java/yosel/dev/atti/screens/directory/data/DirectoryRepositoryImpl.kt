@@ -9,7 +9,9 @@ import kotlinx.coroutines.withContext
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
+import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
+import yosel.dev.atti.core.supabase.PatientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.directory.domain.DirectoryRepository
@@ -17,7 +19,9 @@ import javax.inject.Inject
 
 class DirectoryRepositoryImpl @Inject constructor(
     private val clientsDataSource: ClientsDataSource,
-    private val clientDao: ClientDao
+    private val clientDao: ClientDao,
+    private val patientsDataSource: PatientsDataSource,
+    private val patientDao: PatientDao
 ): DirectoryRepository {
 
     override fun getAllClients(): Flow<List<ClientModel>> {
@@ -45,10 +49,26 @@ class DirectoryRepositoryImpl @Inject constructor(
     }
 
     override fun getAllPatients(): Flow<List<PatientModel>> {
-        TODO("Not yet implemented")
+        return patientDao.getAllPatients()
+            .map { entities ->
+                entities.map { it.toModel() }
+            }
+            .flowOn(Dispatchers.IO)
     }
 
     override suspend fun syncPatients(): Result<Unit> {
-        TODO("Not yet implemented")
+        return withContext(Dispatchers.IO) {
+            try {
+                val remotePatients = patientsDataSource.getAllPatients()
+                val entities = remotePatients.map { it.toEntity() }
+
+                patientDao.clearAndInsertPatients(entities)
+
+                Result.success(Unit)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                Result.failure(e)
+            }
+        }
     }
 }

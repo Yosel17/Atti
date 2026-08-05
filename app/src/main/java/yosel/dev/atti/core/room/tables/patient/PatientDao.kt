@@ -2,8 +2,10 @@ package yosel.dev.atti.core.room.tables.patient
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import yosel.dev.atti.core.room.tables.client.ClientEntity
 
 @Dao
 interface PatientDao {
@@ -31,4 +33,10 @@ interface PatientDao {
 
     @Query("DELETE FROM patients")
     suspend fun clearAllPatients()
+
+    @Transaction
+    suspend fun clearAndInsertPatients(patients: List<PatientEntity>) {
+        clearAllPatients()
+        upsertPatients(patients)
+    }
 }
