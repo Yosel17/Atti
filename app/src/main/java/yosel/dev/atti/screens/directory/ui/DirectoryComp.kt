@@ -176,16 +176,73 @@ fun BodyDirectory(
             }
 
             1 -> {
-                // TODO: Implementar lista de pacientes
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Próximamente: Lista de Pacientes",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                val patientStatus = when {
+                    state.isLoadingPatients -> DirectoryUIStatus.LOADING
+                    state.patients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                    else -> DirectoryUIStatus.EMPTY
+                }
+
+                AnimatedContent(
+                    targetState = patientStatus,
+                    label = "PatientContentAnimation",
+                    modifier = Modifier.fillMaxSize()
+                ) { status ->
+                    when (status) {
+                        DirectoryUIStatus.LOADING -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                LoadingIndicator()
+                            }
+                        }
+                        DirectoryUIStatus.CONTENT -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 24.dp)
+                            ) {
+                                AttiSearchBar(
+                                    value = state.searchQuery,
+                                    onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                    placeholder = "Buscar pacientes..."
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                if (state.filteredPatients.isEmpty()) {
+                                    NoSearchResultsState(
+                                        query = state.searchQuery,
+                                        onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                    )
+                                } else {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(vertical = 16.dp)
+                                    ) {
+                                        items(state.filteredPatients, key = { it.id }) { patient ->
+                                            // Componente Card de Paciente
+                                            Text(patient.name)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        DirectoryUIStatus.EMPTY -> {
+                            // Puedes usar un estado vacío genérico para Pacientes
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No hay pacientes registrados",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
