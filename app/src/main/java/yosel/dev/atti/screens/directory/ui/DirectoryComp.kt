@@ -139,8 +139,8 @@ fun BodyDirectory(
                                     .padding(top = 24.dp)
                             ) {
                                 AttiSearchBar(
-                                    value = state.searchQuery,
-                                    onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                    value = state.clientSearchQuery,
+                                    onValueChange = { onAction(DirectoryAction.OnClientSearchQueryChange(it)) },
                                     placeholder = "Buscar clientes...",
                                     onFilterClick = { /* No acción por ahora */ },
                                 )
@@ -153,8 +153,8 @@ fun BodyDirectory(
                                 ) { isSearchEmpty ->
                                     if (isSearchEmpty) {
                                         NoSearchResultsState(
-                                            query = state.searchQuery,
-                                            onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                            query = state.clientSearchQuery,
+                                            onClearSearch = { onAction(DirectoryAction.OnClientSearchQueryChange("")) }
                                         )
                                     } else {
                                         ClientList(
@@ -214,8 +214,8 @@ fun BodyDirectory(
                                     .padding(top = 24.dp)
                             ) {
                                 AttiSearchBar(
-                                    value = state.searchQuery,
-                                    onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
+                                    value = state.patientSearchQuery,
+                                    onValueChange = { onAction(DirectoryAction.OnPatientSearchQueryChange(it)) },
                                     placeholder = "Buscar pacientes...",
                                     onFilterClick = {}
                                 )
@@ -223,8 +223,8 @@ fun BodyDirectory(
 
                                 if (state.filteredPatients.isEmpty()) {
                                     NoSearchResultsState(
-                                        query = state.searchQuery,
-                                        onClearSearch = { onAction(DirectoryAction.OnSearchQueryChange("")) }
+                                        query = state.patientSearchQuery,
+                                        onClearSearch = { onAction(DirectoryAction.OnPatientSearchQueryChange("")) }
                                     )
                                 } else {
                                     LazyColumn(

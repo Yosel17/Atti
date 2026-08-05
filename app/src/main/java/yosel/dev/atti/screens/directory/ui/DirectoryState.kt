@@ -14,5 +14,6 @@ data class DirectoryState(
     val patients: List<PatientModel> = emptyList(),
     val filteredPatients: List<PatientModel> = emptyList(),
     val selectedTabIndex: Int = 0,
-    val searchQuery: String = ""
+    val clientSearchQuery: String = "",
+    val patientSearchQuery: String = ""
 )
