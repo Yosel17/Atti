@@ -231,16 +231,9 @@ fun BodyDirectory(
                         }
                         DirectoryUIStatus.EMPTY -> {
                             // Puedes usar un estado vacío genérico para Pacientes
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "No hay pacientes registrados",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            NotFoundPatientsState(
+                                onAddPatientClick = {}
+                            )
                         }
                     }
                 }
@@ -491,6 +484,62 @@ fun EmptyClientsState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer cliente")
+        }
+    }
+}
+
+@Composable
+fun NotFoundPatientsState(
+    onAddPatientClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Pets,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Sin pacientes registrados",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Aún no tienes pacientes registrados. Agrega el primero para comenzar con el flujo.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Button(
+            onClick = onAddPatientClick
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Pets,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(text = "Agregar primer paciente")
         }
     }
 }
