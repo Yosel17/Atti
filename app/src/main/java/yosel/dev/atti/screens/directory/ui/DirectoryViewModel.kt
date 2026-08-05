@@ -34,26 +34,27 @@ class DirectoryViewModel @Inject constructor(
         },
         _state
     ) { clients, patients, localState ->
-        val queryNormalized = localState.searchQuery.normalize()
+        val clientQueryNormalized = localState.clientSearchQuery.normalize()
+        val patientQueryNormalized = localState.patientSearchQuery.normalize()
 
-        val filteredClients = if (queryNormalized.isBlank()) {
+        val filteredClients = if (clientQueryNormalized.isBlank()) {
             clients
         } else {
             clients.filter { client ->
-                client.firstName.normalize().contains(queryNormalized) ||
-                        client.lastName.normalize().contains(queryNormalized) ||
-                        client.phoneNumber.normalize().contains(queryNormalized) ||
-                        client.documentId.normalize().contains(queryNormalized)
+                client.firstName.normalize().contains(clientQueryNormalized) ||
+                        client.lastName.normalize().contains(clientQueryNormalized) ||
+                        client.phoneNumber.normalize().contains(clientQueryNormalized) ||
+                        client.documentId.normalize().contains(clientQueryNormalized)
             }
         }
 
-        val filteredPatients = if (queryNormalized.isBlank()) {
+        val filteredPatients = if (patientQueryNormalized.isBlank()) {
             patients
         } else {
             patients.filter { patient ->
-                patient.name.normalize().contains(queryNormalized) ||
-                        patient.breed.normalize().contains(queryNormalized) ||
-                        patient.color.normalize().contains(queryNormalized)
+                patient.name.normalize().contains(patientQueryNormalized) ||
+                        patient.breed.normalize().contains(patientQueryNormalized) ||
+                        patient.color.normalize().contains(patientQueryNormalized)
             }
         }
 
@@ -91,8 +92,11 @@ class DirectoryViewModel @Inject constructor(
                     _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
                 }
             }
-            is DirectoryAction.OnSearchQueryChange -> {
-                _state.update { it.copy(searchQuery = event.query) }
+            is DirectoryAction.OnClientSearchQueryChange -> {
+                _state.update { it.copy(clientSearchQuery = event.query) }
+            }
+            is DirectoryAction.OnPatientSearchQueryChange -> {
+                _state.update { it.copy(patientSearchQuery = event.query) }
             }
         }
     }
