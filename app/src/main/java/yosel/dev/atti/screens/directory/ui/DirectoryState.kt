@@ -9,5 +9,7 @@ data class DirectoryState(
     val clients: List<ClientModel> = emptyList(),
     val filteredClients: List<ClientModel> = emptyList(),
     val selectedTabIndex: Int = 0,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val isFirstPatients: Boolean = true,
+    val isLoadingPatients: Boolean = true
 )

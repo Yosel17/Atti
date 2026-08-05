@@ -61,7 +61,7 @@ class DirectoryViewModel @Inject constructor(
     fun onAction(event: DirectoryAction) {
         when (event) {
             is DirectoryAction.OnTabSelected -> {
-                _state.update { it.copy(selectedTabIndex = event.index) }
+                onTabSelected(index = event.index)
             }
             is DirectoryAction.OnCallClick -> {
                 viewModelScope.launch {
@@ -80,7 +80,6 @@ class DirectoryViewModel @Inject constructor(
     }
 
     private fun fetchRemoteClientsIfNeeded() {
-        println("YoselBug: fetchRemoteClientsIfNeeded")
         viewModelScope.launch {
             _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
             repository.syncClients()
@@ -96,6 +95,36 @@ class DirectoryViewModel @Inject constructor(
                     _events.send(
                         DirectoryEvent.ShowSnackBarError(
                             message = "Error al sincronizar los clientes"
+                        )
+                    )
+                }
+        }
+    }
+
+    private fun onTabSelected(index: Int) {
+        _state.update { it.copy(selectedTabIndex = index) }
+        if (index == 1 && _state.value.isFirstPatients){
+            fetchRemotePatientsIfNeeded()
+        }
+    }
+
+    private fun fetchRemotePatientsIfNeeded() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingPatients = true) }
+
+            repository.syncPatients()
+                .onSuccess {
+                    _state.update {
+                        it.copy(
+                            isLoadingPatients = false,
+                            isFirstPatients = false
+                        )
+                    }
+                }.onFailure {
+                    _state.update { it.copy(isLoadingPatients = false) }
+                    _events.send(
+                        DirectoryEvent.ShowSnackBarError(
+                            message = "Error al sincronizar a los pacientes"
                         )
                     )
                 }
