@@ -30,4 +30,10 @@ interface ClientDao {
     @Transaction
     @Query("SELECT * FROM clients WHERE id = :clientId")
     fun getClientWithPatients(clientId: String): Flow<ClientWithPatients?>
+
+    @Transaction
+    suspend fun clearAndInsertClients(clients: List<ClientEntity>) {
+        clearAllClients()
+        upsertClients(clients)
+    }
 }

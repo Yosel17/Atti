@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.utils.toEntity
@@ -33,7 +34,7 @@ class DirectoryRepositoryImpl @Inject constructor(
                 val remoteClients = clientsDataSource.getAllClients()
                 val entities = remoteClients.map { it.toEntity() }
 
-                clientDao.upsertClients(entities)
+                clientDao.clearAndInsertClients(entities)
 
                 Result.success(Unit)
             } catch (e: Exception) {
@@ -41,5 +42,13 @@ class DirectoryRepositoryImpl @Inject constructor(
                 Result.failure(e)
             }
         }
+    }
+
+    override fun getAllPatients(): Flow<List<PatientModel>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun syncPatients(): Result<Unit> {
+        TODO("Not yet implemented")
     }
 }
