@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.directory.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,33 +24,50 @@ class DirectoryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DirectoryState())
-    val state: StateFlow<DirectoryState> = repository.getAllClients()
-        .catch { error ->
-            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
-        }
-        .combine(_state) { clients, localState ->
-            val queryNormalized = localState.searchQuery.normalize()
 
-            val filteredClients = if (queryNormalized.isBlank()) {
-                clients
-            } else {
-                clients.filter { client ->
-                    client.firstName.normalize().contains(queryNormalized) ||
-                            client.lastName.normalize().contains(queryNormalized) ||
-                            client.phoneNumber.normalize().contains(queryNormalized) ||
-                            client.documentId.normalize().contains(queryNormalized)
-                }
+    val state: StateFlow<DirectoryState> = combine(
+        repository.getAllClients().catch {
+            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
+        },
+        repository.getAllPatients().catch {
+            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los pacientes locales"))
+        },
+        _state
+    ) { clients, patients, localState ->
+        val queryNormalized = localState.searchQuery.normalize()
+
+        val filteredClients = if (queryNormalized.isBlank()) {
+            clients
+        } else {
+            clients.filter { client ->
+                client.firstName.normalize().contains(queryNormalized) ||
+                        client.lastName.normalize().contains(queryNormalized) ||
+                        client.phoneNumber.normalize().contains(queryNormalized) ||
+                        client.documentId.normalize().contains(queryNormalized)
             }
-            localState.copy(
-                clients = clients,
-                filteredClients = filteredClients
-            )
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = DirectoryState()
+
+        val filteredPatients = if (queryNormalized.isBlank()) {
+            patients
+        } else {
+            patients.filter { patient ->
+                patient.name.normalize().contains(queryNormalized) ||
+                        patient.breed.normalize().contains(queryNormalized) ||
+                        patient.color.normalize().contains(queryNormalized)
+            }
+        }
+
+        localState.copy(
+            clients = clients,
+            filteredClients = filteredClients,
+            patients = patients,
+            filteredPatients = filteredPatients
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = DirectoryState()
+    )
 
     private val _events = Channel<DirectoryEvent>()
     val events = _events.receiveAsFlow()
@@ -84,18 +102,12 @@ class DirectoryViewModel @Inject constructor(
             _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
             repository.syncClients()
                 .onSuccess {
-                    _state.update {
-                        it.copy(
-                            isLoadingClients = false,
-                        )
-                    }
+                    _state.update { it.copy(isLoadingClients = false) }
                 }
-                .onFailure { error ->
+                .onFailure {
                     _state.update { it.copy(isLoadingClients = false) }
                     _events.send(
-                        DirectoryEvent.ShowSnackBarError(
-                            message = "Error al sincronizar los clientes"
-                        )
+                        DirectoryEvent.ShowSnackBarError("Error al sincronizar los clientes")
                     )
                 }
         }
@@ -103,7 +115,7 @@ class DirectoryViewModel @Inject constructor(
 
     private fun onTabSelected(index: Int) {
         _state.update { it.copy(selectedTabIndex = index) }
-        if (index == 1 && _state.value.isFirstPatients){
+        if (index == 1 && _state.value.isFirstPatients) {
             fetchRemotePatientsIfNeeded()
         }
     }
@@ -111,7 +123,6 @@ class DirectoryViewModel @Inject constructor(
     private fun fetchRemotePatientsIfNeeded() {
         viewModelScope.launch {
             _state.update { it.copy(isLoadingPatients = true) }
-
             repository.syncPatients()
                 .onSuccess {
                     _state.update {
@@ -120,12 +131,11 @@ class DirectoryViewModel @Inject constructor(
                             isFirstPatients = false
                         )
                     }
-                }.onFailure {
+                }
+                .onFailure { error ->
                     _state.update { it.copy(isLoadingPatients = false) }
                     _events.send(
-                        DirectoryEvent.ShowSnackBarError(
-                            message = "Error al sincronizar a los pacientes"
-                        )
+                        DirectoryEvent.ShowSnackBarError("Error al sincronizar a los pacientes")
                     )
                 }
         }
