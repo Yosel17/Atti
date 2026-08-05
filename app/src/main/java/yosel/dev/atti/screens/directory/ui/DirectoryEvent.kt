@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.clients.ui
+package yosel.dev.atti.screens.directory.ui
 
 sealed interface DirectoryEvent {
     data class ShowSnackBarError(val message: String): DirectoryEvent

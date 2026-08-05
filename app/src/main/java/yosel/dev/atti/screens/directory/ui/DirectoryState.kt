@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.clients.ui
+package yosel.dev.atti.screens.directory.ui
 
 import yosel.dev.atti.core.models.model.ClientModel
 

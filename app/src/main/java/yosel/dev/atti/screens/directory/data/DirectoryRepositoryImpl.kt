@@ -1,5 +1,6 @@
-package yosel.dev.atti.screens.clients.data
+package yosel.dev.atti.screens.directory.data
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -10,7 +11,7 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
-import yosel.dev.atti.screens.clients.domain.DirectoryRepository
+import yosel.dev.atti.screens.directory.domain.DirectoryRepository
 import javax.inject.Inject
 
 class DirectoryRepositoryImpl @Inject constructor(
@@ -36,7 +37,7 @@ class DirectoryRepositoryImpl @Inject constructor(
 
                 Result.success(Unit)
             } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
+                if (e is CancellationException) throw e
                 Result.failure(e)
             }
         }
