@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.clients.ui
+package yosel.dev.atti.screens.directory.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import yosel.dev.atti.screens.clients.domain.DirectoryRepository
+import yosel.dev.atti.screens.directory.domain.DirectoryRepository
 import java.text.Normalizer
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class DirectoryViewModel @Inject constructor(
         }
         .combine(_state) { clients, localState ->
             val queryNormalized = localState.searchQuery.normalize()
-            
+
             val filteredClients = if (queryNormalized.isBlank()) {
                 clients
             } else {

@@ -2,6 +2,7 @@ package yosel.dev.atti.core.room.tables.client
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -25,4 +26,14 @@ interface ClientDao {
 
     @Query("DELETE FROM clients")
     suspend fun clearAllClients()
+
+    @Transaction
+    @Query("SELECT * FROM clients WHERE id = :clientId")
+    fun getClientWithPatients(clientId: String): Flow<ClientWithPatients?>
+
+    @Transaction
+    suspend fun clearAndInsertClients(clients: List<ClientEntity>) {
+        clearAllClients()
+        upsertClients(clients)
+    }
 }

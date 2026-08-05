@@ -1,10 +1,11 @@
-package yosel.dev.atti.screens.clients.ui
+package yosel.dev.atti.screens.directory.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -209,7 +210,7 @@ fun ClientList(
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
+        contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(clients, key = { it.id }) { client ->
             ClientItem(
