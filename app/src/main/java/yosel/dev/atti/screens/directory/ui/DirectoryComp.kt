@@ -2,9 +2,11 @@ package yosel.dev.atti.screens.directory.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +23,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.ContentCut
+import androidx.compose.material.icons.outlined.CrueltyFree
 import androidx.compose.material.icons.outlined.DocumentScanner
+import androidx.compose.material.icons.outlined.Female
+import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
@@ -206,7 +217,8 @@ fun BodyDirectory(
                                 AttiSearchBar(
                                     value = state.searchQuery,
                                     onValueChange = { onAction(DirectoryAction.OnSearchQueryChange(it)) },
-                                    placeholder = "Buscar pacientes..."
+                                    placeholder = "Buscar pacientes...",
+                                    onFilterClick = {}
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -223,7 +235,10 @@ fun BodyDirectory(
                                     ) {
                                         items(state.filteredPatients, key = { it.id }) { patient ->
                                             // Componente Card de Paciente
-                                            Text(patient.name)
+                                            PatientCard(
+                                                patient = patient,
+                                                onCardClick = {}
+                                            )
                                         }
                                     }
                                 }
@@ -591,6 +606,216 @@ fun NoSearchResultsState(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(text = "Limpiar búsqueda")
+        }
+    }
+}
+
+data class SpeciesInfo(
+    val label: String,
+    val icon: ImageVector
+)
+
+fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
+    return when (speciesId) {
+        1 -> SpeciesInfo("Canino", Icons.Outlined.Pets)
+        2 -> SpeciesInfo("Felino", Icons.Outlined.Pets) // Puedes usar Pets o CrueltyFree según prefieras
+        3 -> SpeciesInfo("Silvestre", Icons.Outlined.CrueltyFree)
+        else -> SpeciesInfo("Otro", Icons.Outlined.Pets)
+    }
+}
+
+// Mapeo de género (1: Macho, 2: Hembra por convención estándar)
+data class GenderInfo(
+    val label: String,
+    val icon: ImageVector
+)
+
+fun getGenderInfo(genderId: Int): GenderInfo {
+    return when (genderId) {
+        1 -> GenderInfo("Macho", Icons.Outlined.Male)
+        2 -> GenderInfo("Hembra", Icons.Outlined.Female)
+        else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
+    }
+}
+
+@Composable
+fun PatientCard(
+    patient: PatientModel,
+    onCardClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val speciesInfo = getSpeciesInfo(patient.speciesId)
+    val genderInfo = getGenderInfo(patient.genderId)
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onCardClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // --- HEADER: Ícono + Nombre/Raza + Chip Especie ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Ícono del contenedor superior izquierdo
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = speciesInfo.icon,
+                        contentDescription = speciesInfo.label,
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Nombre y Raza (reemplazando al dueño)
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = patient.name.ifBlank { "Sin nombre" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = if (patient.breed.isNotBlank()) "Raza: ${patient.breed}" else "Raza no especificada",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Badge / Chip de Especie
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Text(
+                        text = speciesInfo.label,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // --- DETALLES: Edad, Género y Esterilización ---
+            // FlowRow asegura responsividad en pantallas estrechas sin cortar texto
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Edad
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.Cake,
+                        contentDescription = "Edad",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = patient.formattedAge,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // Género
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = genderInfo.icon,
+                        contentDescription = "Género",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = genderInfo.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Estado Castrado/Esterilizado
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.ContentCut,
+                    contentDescription = "Castrado",
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Castrado: ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = if (patient.isNeutered) "Sí" else "No",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // --- FOOTER: Ver Historia Clínica ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Ver historia clínica",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.FactCheck,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
