@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import yosel.dev.atti.screens.directory.data.DirectoryRepositoryImpl
-import yosel.dev.atti.screens.directory.domain.DirectoryRepository
+import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
+import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import javax.inject.Singleton
 
 @Module

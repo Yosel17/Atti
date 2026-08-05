@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.directory.ui
+package yosel.dev.atti.screens.navigation_bar.directory.ui
 
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel

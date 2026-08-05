@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.directory.ui
+package yosel.dev.atti.screens.navigation_bar.directory.ui
 
 sealed interface DirectoryAction {
 
