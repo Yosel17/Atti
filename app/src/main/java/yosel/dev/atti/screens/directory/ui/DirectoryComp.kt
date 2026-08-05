@@ -179,7 +179,8 @@ fun BodyDirectory(
                                                             ""
                                                         )
                                                     )
-                                                }
+                                                },
+                                                nameResult = "clientes"
                                             )
                                         } else {
                                             ClientList(
@@ -256,7 +257,8 @@ fun BodyDirectory(
                                                         ""
                                                     )
                                                 )
-                                            }
+                                            },
+                                            nameResult = "Pacientes"
                                         )
                                     } else {
                                         LazyColumn(
@@ -596,11 +598,13 @@ fun NotFoundPatientsState(
 fun NoSearchResultsState(
     query: String,
     onClearSearch: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    nameResult: String
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -628,7 +632,7 @@ fun NoSearchResultsState(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "No encontramos clientes que coincidan con \"$query\". Prueba con otro nombre o limpia la búsqueda.",
+            text = "No encontramos $nameResult que coincidan con \"$query\". Prueba con otro nombre o limpia la búsqueda.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
