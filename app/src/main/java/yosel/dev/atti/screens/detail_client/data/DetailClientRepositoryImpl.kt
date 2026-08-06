@@ -1,11 +1,6 @@
 package yosel.dev.atti.screens.detail_client.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
-import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
-import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.PatientsDataSource
@@ -20,25 +15,27 @@ class DetailClientRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : DetailClientRepository {
 
-    override suspend fun getInfoClient(clientId: String): Result<ClientModel> = runCatching {
-        val clientEntity = clientDao.getClientById(clientId = clientId)
-            ?: throw NoSuchElementException("Cliente no encontrado con id: $clientId")
+    override suspend fun getClientWithPatients(
+        clientId: String,
+        isLocal: Boolean
+    ): Result<ClientWithPatientsModel> = runCatching {
+        if (isLocal) {
+            return@runCatching fetchLocalClientWithPatients(clientId)
+        }
 
-        clientEntity.toModel()
-    }
+        val clientExists = clientDao.getClientById(clientId) != null
+        if (!clientExists) {
+            throw NoSuchElementException("Cliente no encontrado localmente con id: $clientId. No se puede sincronizar pacientes sin el cliente.")
+        }
 
-    override suspend fun getPatientsForClient(clientId: String): Result<List<PatientModel>> = runCatching {
         val remotePatients = patientsDataSource.getPatientsByClientId(clientId = clientId)
         patientDao.upsertPatients(remotePatients.map { it.toEntity() })
 
-        val localPatients = patientDao.getPatientsByClientId(clientId = clientId)
-        localPatients.map { it.toModel() }
+        fetchLocalClientWithPatients(clientId)
     }
 
-    override suspend fun getClientWithPatients(clientId: String): Result<ClientWithPatientsModel> = runCatching {
-        val clientWithPatients = clientDao.getClientWithPatients(clientId = clientId)
+    private suspend fun fetchLocalClientWithPatients(clientId: String): ClientWithPatientsModel {
+        return clientDao.getClientWithPatients(clientId = clientId)?.toModel()
             ?: throw NoSuchElementException("Cliente no encontrado con id: $clientId")
-
-        clientWithPatients.toModel()
     }
 }
