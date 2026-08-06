@@ -3,17 +3,72 @@ package yosel.dev.atti.core.navigation.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.launch
+import yosel.dev.atti.core.components.SnackbarType
+import yosel.dev.atti.core.components.showCustomSnackbar
+import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.screens.add_client.ui.AddClientEvent
+import yosel.dev.atti.screens.add_client.ui.AddClientScreen
+import yosel.dev.atti.screens.add_client.ui.AddClientViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 
 fun EntryProviderScope<NavKey>.mainEntry(
-    onNavigation: (Screens) -> Unit
+    onNavigation: (Screens) -> Unit,
 ){
     entry<Screens.Main> {
         MainScreen(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            onNavigationMain = onNavigation
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.addClientEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.AddClient> {
+        val viewModel = hiltViewModel<AddClientViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is AddClientEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AddClientEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
+
+        AddClientScreen(
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
         )
     }
 }

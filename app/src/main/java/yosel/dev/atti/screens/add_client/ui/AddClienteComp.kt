@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.add_client.ui
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,19 +21,19 @@ import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 
@@ -42,6 +43,7 @@ fun BodyAddClient(
     state: AddClientState,
     onAction: (AddClientAction) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = modifier
     ) {
@@ -57,7 +59,10 @@ fun BodyAddClient(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {},
+            onClick = {
+                focusManager.clearFocus()
+                onAction(AddClientAction.AddClient)
+            },
             enabled = state.formState.isValid
         ) {
             Row(
@@ -73,6 +78,8 @@ fun BodyAddClient(
                 Text(text = "Registrar cliente")
             }
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -84,7 +91,7 @@ private fun ClientForm(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
             Text(
@@ -95,47 +102,50 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Nombres",
+                placeHolder = "ej. Juan Jose",
                 value = formState.firstName,
                 onValueChange = {
                     onInputChanged(it, Constants.FIRST_NAME_FIELD)
                 },
                 leadingIcon = Icons.Outlined.Person,
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
+                    capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.firstName.isBlank(),
+                isError = formState.isError(Constants.FIRST_NAME_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Apellidos",
+                placeHolder = "ej. Perez Hernandez",
                 value = formState.lastName,
                 onValueChange = {
                     onInputChanged(it, Constants.LAST_NAME_FIELD)
                 },
                 leadingIcon = Icons.Outlined.Person,
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
+                    capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.lastName.isBlank(),
+                isError = formState.isError(Constants.LAST_NAME_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
-                label = "Documento de identidad",
+                label = "Nit",
+                placeHolder = "ej. 12345678",
                 value = formState.documentId,
                 onValueChange = {
                     onInputChanged(it, Constants.DOCUMENT_ID_FIELD)
@@ -145,51 +155,37 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.documentId.isBlank(),
+                isError = formState.isError(Constants.DOCUMENT_ID_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Teléfono",
+                placeHolder = "ej. 87654321",
                 value = formState.phoneNumber,
                 onValueChange = {
-                    onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
+                    if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                        onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
+                    }
                 },
                 leadingIcon = Icons.Outlined.Phone,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.phoneNumber.isBlank(),
+                isError = formState.isError(Constants.PHONE_NUMBER_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
 
         item {
-            InputFieldGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Email (Opcional)",
-                value = formState.email,
-                onValueChange = {
-                    onInputChanged(it, Constants.EMAIL_FIELD)
-                },
-                leadingIcon = Icons.Outlined.Email,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                isError = false,
-                errorMessage = null
-            )
-        }
-
-        item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Dirección",
+                placeHolder = "ej. Palencia",
                 value = formState.address,
                 onValueChange = {
                     onInputChanged(it, Constants.ADDRESS_FIELD)
@@ -198,11 +194,34 @@ private fun ClientForm(
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
                     keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
-                isError = formState.address.isBlank(),
+                isError = formState.isError(Constants.ADDRESS_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
+        }
+
+        item {
+            InputFieldWithTextGlobal(
+                modifier = Modifier.fillMaxWidth(),
+                label = "Email (Opcional)",
+                placeHolder = "ej. Ejemplo@gmail.com",
+                value = formState.email,
+                onValueChange = {
+                    onInputChanged(it, Constants.EMAIL_FIELD)
+                },
+                leadingIcon = Icons.Outlined.Email,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                isError = formState.isError(Constants.EMAIL_FIELD),
+                errorMessage = null
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

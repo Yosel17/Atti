@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.navigation.navigation_bar.BottomNavItem
 import yosel.dev.atti.core.navigation.navigation_bar.ScreensNavigationBar
 import yosel.dev.atti.core.navigation.navigation_bar.consultationEntry
@@ -33,7 +34,10 @@ import yosel.dev.atti.core.navigation.navigation_bar.homeEntry
 import yosel.dev.atti.core.navigation.navigation_bar.inventoryEntry
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onNavigationMain: (Screens) -> Unit
+) {
 
     val bottomNavBackStack = rememberNavBackStack(ScreensNavigationBar.Home)
     val currentDestination = bottomNavBackStack.lastOrNull()
@@ -122,7 +126,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
             },
             entryProvider = entryProvider {
                 homeEntry()
-                directoryEntry()
+                directoryEntry(
+                    onNavigationMain = onNavigationMain
+                )
                 consultationEntry()
                 inventoryEntry()
             }

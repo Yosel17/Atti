@@ -72,7 +72,7 @@ fun DirectoryScreen(
         ) {
             ExtendedFloatingActionButton(
                 onClick = {
-
+                    onNavigation(Screens.AddClient)
                 },
                 icon = {
                     Icon(

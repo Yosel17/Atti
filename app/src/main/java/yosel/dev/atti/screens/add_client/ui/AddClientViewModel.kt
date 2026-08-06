@@ -36,19 +36,38 @@ class AddClientViewModel @Inject constructor(
     }
 
     private fun onValueFormStateChange(value: String, field: Int) {
-        when(field){
-            Constants.FIRST_NAME_FIELD -> _state.update { it.copy(formState = it.formState.copy(firstName = value)) }
-            Constants.LAST_NAME_FIELD -> _state.update { it.copy(formState = it.formState.copy(lastName = value)) }
-            Constants.DOCUMENT_ID_FIELD -> _state.update { it.copy(formState = it.formState.copy(documentId = value)) }
-            Constants.PHONE_NUMBER_FIELD -> _state.update { it.copy(formState = it.formState.copy(phoneNumber = value)) }
-            Constants.EMAIL_FIELD -> _state.update { it.copy(formState = it.formState.copy(email = value)) }
-            Constants.ADDRESS_FIELD -> _state.update { it.copy(formState = it.formState.copy(address = value)) }
+        _state.update {
+            val newFormState = when(field){
+                Constants.FIRST_NAME_FIELD -> it.formState.copy(firstName = value)
+                Constants.LAST_NAME_FIELD -> it.formState.copy(lastName = value)
+                Constants.DOCUMENT_ID_FIELD -> it.formState.copy(documentId = value)
+                Constants.PHONE_NUMBER_FIELD -> it.formState.copy(phoneNumber = value)
+                Constants.EMAIL_FIELD -> it.formState.copy(email = value)
+                Constants.ADDRESS_FIELD -> it.formState.copy(address = value)
+                else -> it.formState
+            }
+            it.copy(formState = newFormState.copy(touchedFields = newFormState.touchedFields + field))
         }
     }
 
     private fun addClient() {
         val cs = _state.value
-        if (!cs.formState.isValid) return
+        if (!cs.formState.isValid) {
+            _state.update {
+                it.copy(
+                    formState = it.formState.copy(
+                        touchedFields = setOf(
+                            Constants.FIRST_NAME_FIELD,
+                            Constants.LAST_NAME_FIELD,
+                            Constants.DOCUMENT_ID_FIELD,
+                            Constants.PHONE_NUMBER_FIELD,
+                            Constants.ADDRESS_FIELD
+                        )
+                    )
+                )
+            }
+            return
+        }
 
         _state.update { it.copy(isLoadingAddClient = true) }
 

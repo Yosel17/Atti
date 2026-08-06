@@ -7,4 +7,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data object Main: Screens
+
+    @Serializable
+    data object AddClient: Screens
 }
