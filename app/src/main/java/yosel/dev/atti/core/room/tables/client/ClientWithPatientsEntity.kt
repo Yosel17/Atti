@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 
-data class ClientWithPatients(
+data class ClientWithPatientsEntity(
     @Embedded val client: ClientEntity,
     @Relation(
         parentColumn = "id",

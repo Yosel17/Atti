@@ -3,8 +3,10 @@ package yosel.dev.atti.core.utils
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.room.tables.client.ClientEntity
+import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 
@@ -105,4 +107,9 @@ fun AddClientFormState.toModel() = ClientModel(
     phoneNumber = phoneNumber,
     email = email,
     address = address
+)
+
+fun ClientWithPatientsEntity.toModel() = ClientWithPatientsModel(
+    client = client.toModel(),
+    patients = patients.map { it.toModel() }
 )
