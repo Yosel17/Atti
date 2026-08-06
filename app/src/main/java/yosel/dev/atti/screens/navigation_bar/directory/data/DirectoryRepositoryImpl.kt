@@ -40,7 +40,7 @@ class DirectoryRepositoryImpl @Inject constructor(
     }
 
     override fun getAllPatients(): Flow<List<PatientModel>> =
-        patientDao.getAllPatients()
+        patientDao.getAllPatientsFlow()
             .map { entities ->
                 entities.map { it.toModel() }
             }

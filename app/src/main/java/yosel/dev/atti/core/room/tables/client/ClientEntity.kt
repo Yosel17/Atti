@@ -4,7 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "clients")
+@Entity(
+    tableName = "clients",
+    indices = [androidx.room.Index(value = ["created_at"])]
+)
 data class ClientEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")

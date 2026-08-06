@@ -7,18 +7,21 @@ import androidx.compose.material.icons.outlined.CrueltyFree
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.net.toUri
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import yosel.dev.atti.R
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.time.Instant
 
 fun formatDate(isoString: String): String {
     if (isoString.isBlank()) return ""
     return try {
-        val instant = Instant.parse(isoString)
+        // Supabase envía el formato "yyyy-MM-dd HH:mm:ss.SSSSSS+00"
+        // Instant.parse espera el formato ISO con 'T' en lugar de espacio.
+        val sanitizedIso = isoString.replace(" ", "T")
+        val instant = Instant.parse(sanitizedIso)
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
 
         val javaLocalDateTime = java.time.LocalDateTime.of(

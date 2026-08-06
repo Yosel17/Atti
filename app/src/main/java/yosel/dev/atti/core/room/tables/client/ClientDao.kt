@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ClientDao {
 
-    @Query("SELECT * FROM clients ORDER BY created_at ASC")
+    @Query("SELECT * FROM clients ORDER BY created_at DESC")
     fun getAllClientsFlow(): Flow<List<ClientEntity>>
 
     @Query("SELECT * FROM clients WHERE id = :clientId")
