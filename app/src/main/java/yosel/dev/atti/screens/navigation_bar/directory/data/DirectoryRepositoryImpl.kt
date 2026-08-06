@@ -25,7 +25,7 @@ class DirectoryRepositoryImpl @Inject constructor(
 ): DirectoryRepository {
 
     override fun getAllClients(): Flow<List<ClientModel>> =
-        clientDao.getAllClients()
+        clientDao.getAllClientsFlow()
             .map { entities ->
                 entities.map { it.toModel() }
             }
