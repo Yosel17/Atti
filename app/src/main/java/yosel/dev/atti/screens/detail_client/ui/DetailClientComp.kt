@@ -72,10 +72,13 @@ fun BodyDetailClient(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
             ProfileHeader(client = client)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         item {
@@ -86,7 +89,15 @@ fun BodyDetailClient(
         }
 
         item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
             ClientMainInfoCard(client = client)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         item {
@@ -94,7 +105,15 @@ fun BodyDetailClient(
         }
 
         item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        item {
             PetsSectionHeader(onAddPetClick = { /* Funcionalidad posterior */ })
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         if (patients.isEmpty()) {
@@ -107,6 +126,7 @@ fun BodyDetailClient(
                     patient = patient,
                     onCardClick = { /* Navegación posterior */ }
                 )
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
@@ -532,6 +552,22 @@ private fun DetailClientPreview() {
                 )
             ),
             onAction = {}
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun CardPatientPreview() {
+    AttiTheme {
+        DetailPatientCard(
+            patient = PatientModel(
+                name = "klfklasdjf safklj saklfjlas dfjlksd j asdf asdf asdf asdf asd",
+                speciesId = 1,
+                breed = "Pastora aleman adf asdfa sdfa sdfas fasdf asdf asdf sadf asdf",
+                genderId = 1
+            ),
+            onCardClick = {}
         )
     }
 }
