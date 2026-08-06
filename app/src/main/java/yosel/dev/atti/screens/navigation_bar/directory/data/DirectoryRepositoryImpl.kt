@@ -24,51 +24,33 @@ class DirectoryRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ): DirectoryRepository {
 
-    override fun getAllClients(): Flow<List<ClientModel>> {
-        return clientDao.getAllClients()
+    override fun getAllClients(): Flow<List<ClientModel>> =
+        clientDao.getAllClients()
             .map { entities ->
                 entities.map { it.toModel() }
             }
             .flowOn(Dispatchers.IO)
+
+
+    override suspend fun syncClients(): Result<Unit> = runCatching {
+        val remoteClients = clientsDataSource.getAllClients()
+        val entities = remoteClients.map { it.toEntity() }
+
+        clientDao.clearAndInsertClients(entities)
     }
 
-    override suspend fun syncClients(): Result<Unit> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val remoteClients = clientsDataSource.getAllClients()
-                val entities = remoteClients.map { it.toEntity() }
-
-                clientDao.clearAndInsertClients(entities)
-
-                Result.success(Unit)
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                Result.failure(e)
-            }
-        }
-    }
-
-    override fun getAllPatients(): Flow<List<PatientModel>> {
-        return patientDao.getAllPatients()
+    override fun getAllPatients(): Flow<List<PatientModel>> =
+        patientDao.getAllPatients()
             .map { entities ->
                 entities.map { it.toModel() }
             }
             .flowOn(Dispatchers.IO)
-    }
 
-    override suspend fun syncPatients(): Result<Unit> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val remotePatients = patientsDataSource.getAllPatients()
-                val entities = remotePatients.map { it.toEntity() }
 
-                patientDao.clearAndInsertPatients(entities)
+    override suspend fun syncPatients(): Result<Unit> = runCatching {
+        val remotePatients = patientsDataSource.getAllPatients()
+        val entities = remotePatients.map { it.toEntity() }
 
-                Result.success(Unit)
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                Result.failure(e)
-            }
-        }
+        patientDao.clearAndInsertPatients(entities)
     }
 }

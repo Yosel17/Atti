@@ -15,15 +15,8 @@ class AddClientRepositoryImpl @Inject constructor(
     private val clientDao: ClientDao
 ): AddClientRepository {
 
-    override suspend fun insertClient(client: ClientModel): Result<Unit> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val clientDto = clientsDataSource.insertAndGetClient(client = client.toDto())
-                clientDao.upsertClient(client = clientDto.toEntity())
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Result.failure(exception = e)
-            }
-        }
+    override suspend fun insertClient(client: ClientModel): Result<Unit> = runCatching {
+        val clientDto = clientsDataSource.insertAndGetClient(client = client.toDto())
+        clientDao.upsertClient(client = clientDto.toEntity())
     }
 }
