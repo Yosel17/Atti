@@ -17,9 +17,9 @@ class DetailClientRepositoryImpl @Inject constructor(
 
     override suspend fun getClientWithPatients(
         clientId: String,
-        isLocal: Boolean
+        isLocalPatients: Boolean
     ): Result<ClientWithPatientsModel> = runCatching {
-        if (isLocal) {
+        if (isLocalPatients) {
             return@runCatching fetchLocalClientWithPatients(clientId)
         }
 

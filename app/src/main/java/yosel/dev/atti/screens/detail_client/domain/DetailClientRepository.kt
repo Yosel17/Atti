@@ -4,5 +4,5 @@ import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 
 interface DetailClientRepository {
 
-    suspend fun getClientWithPatients(clientId: String, isLocal: Boolean): Result<ClientWithPatientsModel>
+    suspend fun getClientWithPatients(clientId: String, isLocalPatients: Boolean): Result<ClientWithPatientsModel>
 }
