@@ -14,4 +14,14 @@ class PatientsDataSource @Inject constructor(
             .select()
             .decodeList<PatientDto>()
     }
+
+    suspend fun getPatientsByClientId(clientId: String): List<PatientDto> {
+        return postgrest.from(Constants.PATIENTS_SUPABASE)
+            .select {
+                filter {
+                    eq("client_id", clientId)
+                }
+            }
+            .decodeList<PatientDto>()
+    }
 }

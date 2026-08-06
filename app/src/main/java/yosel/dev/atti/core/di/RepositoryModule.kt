@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import yosel.dev.atti.screens.add_client.data.AddClientRepositoryImpl
 import yosel.dev.atti.screens.add_client.domain.AddClientRepository
+import yosel.dev.atti.screens.detail_client.data.DetailClientRepositoryImpl
+import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import javax.inject.Singleton
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindAddClientRepository(
         impl: AddClientRepositoryImpl
     ): AddClientRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDetailClientRepository(
+        impl: DetailClientRepositoryImpl
+    ): DetailClientRepository
 }
