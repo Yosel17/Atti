@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.ObserveAsEvents
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.openWhatsApp
@@ -33,7 +34,9 @@ fun EntryProviderScope<NavKey>.homeEntry(){
     }
 }
 
-fun EntryProviderScope<NavKey>.directoryEntry(){
+fun EntryProviderScope<NavKey>.directoryEntry(
+    onNavigationMain: (Screens) -> Unit
+){
     entry<ScreensNavigationBar.Directory> {
         val viewModel = hiltViewModel<DirectoryViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -77,9 +80,7 @@ fun EntryProviderScope<NavKey>.directoryEntry(){
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
-            onNavigation = { screens ->
-
-            },
+            onNavigation = onNavigationMain,
             onAction = viewModel::onAction
         )
     }
