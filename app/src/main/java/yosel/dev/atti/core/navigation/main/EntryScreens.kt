@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
@@ -16,9 +17,14 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.SnackbarType
 import yosel.dev.atti.core.components.showCustomSnackbar
 import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.core.utils.dialPhoneNumber
+import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.add_client.ui.AddClientEvent
 import yosel.dev.atti.screens.add_client.ui.AddClientScreen
 import yosel.dev.atti.screens.add_client.ui.AddClientViewModel
+import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
+import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
+import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 
 fun EntryProviderScope<NavKey>.mainEntry(
@@ -67,6 +73,69 @@ fun EntryProviderScope<NavKey>.addClientEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailClientEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.DetailClient> { detailClientKey ->
+        val viewModel: DetailClientViewModel = hiltViewModel(
+            creationCallback = { factory: DetailClientViewModel.Factory ->
+                factory.create(
+                    clienteId = detailClientKey.clientId,
+                    isLocalPatients = detailClientKey.isLocalPatients
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is DetailClientEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+
+                is DetailClientEvent.OnCallClick -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono",
+                                type = SnackbarType.ERROR
+                            )
+                        }
+                    }
+                }
+                is DetailClientEvent.OnWhatsappClick -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp",
+                                type = SnackbarType.ERROR
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        DetailClientScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
         )

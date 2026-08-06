@@ -32,6 +32,11 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+            detailClientEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
         }
     )
 

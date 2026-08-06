@@ -34,13 +34,10 @@ import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.DocumentScanner
-import androidx.compose.material.icons.outlined.Female
-import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
-import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -72,6 +69,8 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
@@ -86,7 +85,7 @@ private data class DirectoryTabData(
 fun BodyDirectory(
     modifier: Modifier = Modifier,
     state: DirectoryState,
-    onClientClick: (String) -> Unit,
+    onNavigationMain: (Screens) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
     val tabs = remember {
@@ -187,6 +186,14 @@ fun BodyDirectory(
                                                 modifier = Modifier.fillMaxSize(),
                                                 clients = state.filteredClients,
                                                 onAction = onAction,
+                                                onClientClick = { clientId ->
+                                                    onNavigationMain(
+                                                        Screens.DetailClient(
+                                                            clientId = clientId,
+                                                            isLocalPatients = !state.isFirstPatients
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                     }
@@ -305,7 +312,8 @@ private enum class DirectoryUIStatus {
 fun ClientList(
     clients: List<ClientModel>,
     onAction: (DirectoryAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClientClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -317,7 +325,9 @@ fun ClientList(
                 client = client,
                 onCallClick = { onAction(DirectoryAction.OnCallClick(it)) },
                 onMessageClick = { onAction(DirectoryAction.OnWhatsappClick(it)) },
-                onClientClick = {  }
+                onClientClick = { clientId ->
+                    onClientClick(clientId)
+                }
             )
         }
     }
@@ -328,11 +338,11 @@ fun ClientItem(
     client: ClientModel,
     onCallClick: (String) -> Unit,
     onMessageClick: (String) -> Unit,
-    onClientClick: (ClientModel) -> Unit,
+    onClientClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        onClick = { onClientClick(client) },
+        onClick = { onClientClick(client.id) },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -644,20 +654,6 @@ fun NoSearchResultsState(
         ) {
             Text(text = "Limpiar búsqueda")
         }
-    }
-}
-
-// Mapeo de género (1: Macho, 2: Hembra por convención estándar)
-data class GenderInfo(
-    val label: String,
-    val icon: ImageVector
-)
-
-fun getGenderInfo(genderId: Int): GenderInfo {
-    return when (genderId) {
-        1 -> GenderInfo("Macho", Icons.Outlined.Male)
-        2 -> GenderInfo("Hembra", Icons.Outlined.Female)
-        else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
     }
 }
 

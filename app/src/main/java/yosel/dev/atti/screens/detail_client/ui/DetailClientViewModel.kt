@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,8 +15,8 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import javax.inject.Inject
 
-@HiltViewModel
-class DetailClientViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DetailClientViewModel.Factory::class)
+class DetailClientViewModel @AssistedInject constructor(
     private val repository: DetailClientRepository,
     @Assisted private val clienteId: String,
     @Assisted private val isLocalPatients: Boolean,
@@ -38,7 +39,20 @@ class DetailClientViewModel @Inject constructor(
 
     fun onAction(action: DetailClientAction){
         when(action){
-            else -> {}
+            is DetailClientAction.OnCallClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(
+                        DetailClientEvent.OnCallClick(phoneNumber = action.phoneNumber)
+                    )
+                }
+            }
+            is DetailClientAction.OnWhatsappClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(
+                        DetailClientEvent.OnWhatsappClick(phoneNumber = action.phoneNumber)
+                    )
+                }
+            }
         }
     }
 
