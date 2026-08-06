@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.add_client.ui
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 
@@ -77,6 +78,8 @@ fun BodyAddClient(
                 Text(text = "Registrar cliente")
             }
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -88,7 +91,7 @@ private fun ClientForm(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(32.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
             Text(
@@ -99,9 +102,10 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Nombres",
+                placeHolder = "ej. Juan Jose",
                 value = formState.firstName,
                 onValueChange = {
                     onInputChanged(it, Constants.FIRST_NAME_FIELD)
@@ -118,9 +122,10 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Apellidos",
+                placeHolder = "ej. Perez Hernandez",
                 value = formState.lastName,
                 onValueChange = {
                     onInputChanged(it, Constants.LAST_NAME_FIELD)
@@ -137,9 +142,10 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Nit",
+                placeHolder = "ej. 12345678",
                 value = formState.documentId,
                 onValueChange = {
                     onInputChanged(it, Constants.DOCUMENT_ID_FIELD)
@@ -155,9 +161,10 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Teléfono",
+                placeHolder = "ej. 87654321",
                 value = formState.phoneNumber,
                 onValueChange = {
                     if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
@@ -175,27 +182,10 @@ private fun ClientForm(
         }
 
         item {
-            InputFieldGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Email (Opcional)",
-                value = formState.email,
-                onValueChange = {
-                    onInputChanged(it, Constants.EMAIL_FIELD)
-                },
-                leadingIcon = Icons.Outlined.Email,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                isError = formState.isError(Constants.EMAIL_FIELD),
-                errorMessage = null
-            )
-        }
-
-        item {
-            InputFieldGlobal(
+            InputFieldWithTextGlobal(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Dirección",
+                placeHolder = "ej. Palencia",
                 value = formState.address,
                 onValueChange = {
                     onInputChanged(it, Constants.ADDRESS_FIELD)
@@ -204,11 +194,34 @@ private fun ClientForm(
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
                     keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
                 isError = formState.isError(Constants.ADDRESS_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
+        }
+
+        item {
+            InputFieldWithTextGlobal(
+                modifier = Modifier.fillMaxWidth(),
+                label = "Email (Opcional)",
+                placeHolder = "ej. Ejemplo@gmail.com",
+                value = formState.email,
+                onValueChange = {
+                    onInputChanged(it, Constants.EMAIL_FIELD)
+                },
+                leadingIcon = Icons.Outlined.Email,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                isError = formState.isError(Constants.EMAIL_FIELD),
+                errorMessage = null
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

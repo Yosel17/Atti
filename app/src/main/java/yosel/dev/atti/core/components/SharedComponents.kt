@@ -1,8 +1,12 @@
 package yosel.dev.atti.core.components
 
 import android.content.ClipData
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -39,8 +43,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -340,4 +346,134 @@ fun InputFieldGlobal(
             errorLeadingIconColor = MaterialTheme.colorScheme.error
         )
     )
+}
+
+@Composable
+fun InputFieldWithTextGlobal(
+    modifier: Modifier = Modifier,
+    label: String,
+    placeHolder: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    leadingIcon: ImageVector,
+    onCopyClick: (label: String, value: String) -> Unit = { _, _ -> },
+    singleLine: Boolean = true,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    readOnly: Boolean = false,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    onClick: (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    showCopyButton: Boolean = false
+) {
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Captura de lambdas para garantizar la versión más actualizada dentro de las corrutinas
+    val currentOnCopyClick by rememberUpdatedState(onCopyClick)
+    val currentOnClick by rememberUpdatedState(onClick)
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    // 1. Escuchamos el estado de enfoque del TextField
+    val isFocused by interactionSource.collectIsFocusedAsState()
+
+    // 2. Determinamos el color del label según la prioridad de estado: Error > Enfocado > Defecto
+    val labelColor = when {
+        isError -> MaterialTheme.colorScheme.error
+        isFocused -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+
+    // Modificador condicional para manejar clics cuando readOnly = true y existe onClick
+    val clickableModifier = if (readOnly && currentOnClick != null) {
+        val onClick = currentOnClick
+        Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = null
+        ) {
+            onClick?.invoke()
+        }
+    } else {
+        Modifier
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        // Label externo superior más destacado y configurable
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = labelColor
+        )
+
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            leadingIcon = {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null
+                )
+            },
+            trailingIcon = {
+                if (showCopyButton) {
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                val clipData = ClipData.newPlainText(label, value)
+                                clipboard.setClipEntry(ClipEntry(clipData))
+                                currentOnCopyClick(label, value)
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Copiar $label",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            isError = isError,
+            supportingText = if (isError && !errorMessage.isNullOrEmpty()) {
+                { Text(text = errorMessage) }
+            } else null,
+            readOnly = readOnly,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
+            keyboardOptions = keyboardOptions,
+            interactionSource = interactionSource,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = MaterialTheme.typography.bodyLarge,
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                // Remueve las líneas indicadoras inferiores por defecto de Material 3
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+                // Colores para el leadingIcon según el estado
+                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                errorLeadingIconColor = MaterialTheme.colorScheme.error,
+                errorPlaceholderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(clickableModifier),
+            placeholder = {
+                Text(
+                    text = placeHolder,
+                )
+            }
+        )
+    }
 }
