@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CrueltyFree
+import androidx.compose.material.icons.outlined.Female
+import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.net.toUri
 import kotlinx.datetime.Instant
@@ -87,5 +90,18 @@ fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
         2 -> SpeciesInfo("Felino", R.drawable.ic_feline)// Puedes usar Pets o CrueltyFree según prefieras
         3 -> SpeciesInfo("Silvestre", R.drawable.ic_wild)
         else -> SpeciesInfo("Otro", R.drawable.ic_animals)
+    }
+}
+
+data class GenderInfo(
+    val label: String,
+    val icon: ImageVector
+)
+
+fun getGenderInfo(genderId: Int): GenderInfo {
+    return when (genderId) {
+        1 -> GenderInfo("Macho", Icons.Outlined.Male)
+        2 -> GenderInfo("Hembra", Icons.Outlined.Female)
+        else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
     }
 }

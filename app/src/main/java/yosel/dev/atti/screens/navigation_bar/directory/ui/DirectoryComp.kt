@@ -34,13 +34,10 @@ import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.DocumentScanner
-import androidx.compose.material.icons.outlined.Female
-import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
-import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -73,6 +70,7 @@ import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
@@ -656,20 +654,6 @@ fun NoSearchResultsState(
         ) {
             Text(text = "Limpiar búsqueda")
         }
-    }
-}
-
-// Mapeo de género (1: Macho, 2: Hembra por convención estándar)
-data class GenderInfo(
-    val label: String,
-    val icon: ImageVector
-)
-
-fun getGenderInfo(genderId: Int): GenderInfo {
-    return when (genderId) {
-        1 -> GenderInfo("Macho", Icons.Outlined.Male)
-        2 -> GenderInfo("Hembra", Icons.Outlined.Female)
-        else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
     }
 }
 
