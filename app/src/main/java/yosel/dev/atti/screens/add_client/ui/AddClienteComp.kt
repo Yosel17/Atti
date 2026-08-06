@@ -84,7 +84,7 @@ private fun ClientForm(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         item {
             Text(
@@ -104,7 +104,7 @@ private fun ClientForm(
                 },
                 leadingIcon = Icons.Outlined.Person,
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
+                    capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
@@ -123,7 +123,7 @@ private fun ClientForm(
                 },
                 leadingIcon = Icons.Outlined.Person,
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
+                    capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
@@ -135,7 +135,7 @@ private fun ClientForm(
         item {
             InputFieldGlobal(
                 modifier = Modifier.fillMaxWidth(),
-                label = "Documento de identidad",
+                label = "Nit",
                 value = formState.documentId,
                 onValueChange = {
                     onInputChanged(it, Constants.DOCUMENT_ID_FIELD)
@@ -156,7 +156,9 @@ private fun ClientForm(
                 label = "Teléfono",
                 value = formState.phoneNumber,
                 onValueChange = {
-                    onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
+                    if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                        onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
+                    }
                 },
                 leadingIcon = Icons.Outlined.Phone,
                 keyboardOptions = KeyboardOptions(
