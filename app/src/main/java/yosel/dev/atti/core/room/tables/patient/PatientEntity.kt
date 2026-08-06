@@ -17,7 +17,7 @@ import yosel.dev.atti.core.room.tables.client.ClientEntity
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["client_id"])]
+    indices = [Index(value = ["client_id"]),Index(value = ["created_at"])]
 )
 data class PatientEntity(
     @PrimaryKey
