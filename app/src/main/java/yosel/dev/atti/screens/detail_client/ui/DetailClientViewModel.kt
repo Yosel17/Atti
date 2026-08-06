@@ -39,7 +39,20 @@ class DetailClientViewModel @AssistedInject constructor(
 
     fun onAction(action: DetailClientAction){
         when(action){
-            else -> {}
+            is DetailClientAction.OnCallClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(
+                        DetailClientEvent.OnCallClick(phoneNumber = action.phoneNumber)
+                    )
+                }
+            }
+            is DetailClientAction.OnWhatsappClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(
+                        DetailClientEvent.OnWhatsappClick(phoneNumber = action.phoneNumber)
+                    )
+                }
+            }
         }
     }
 

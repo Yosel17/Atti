@@ -80,8 +80,8 @@ fun BodyDetailClient(
 
         item {
             ActionButtons(
-                onCallClick = { context.dialPhoneNumber(client.phoneNumber) },
-                onWhatsappClick = { context.openWhatsApp(client.phoneNumber) }
+                onCallClick = { onAction(DetailClientAction.OnCallClick(phoneNumber = client.phoneNumber)) },
+                onWhatsappClick = { onAction(DetailClientAction.OnWhatsappClick(phoneNumber = client.phoneNumber)) }
             )
         }
 

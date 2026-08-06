@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
@@ -16,6 +17,8 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.SnackbarType
 import yosel.dev.atti.core.components.showCustomSnackbar
 import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.core.utils.dialPhoneNumber
+import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.add_client.ui.AddClientEvent
 import yosel.dev.atti.screens.add_client.ui.AddClientScreen
 import yosel.dev.atti.screens.add_client.ui.AddClientViewModel
@@ -91,6 +94,7 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
             when(event){
@@ -100,6 +104,27 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                             message = event.message,
                             type = SnackbarType.ERROR
                         )
+                    }
+                }
+
+                is DetailClientEvent.OnCallClick -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono",
+                                type = SnackbarType.ERROR
+                            )
+                        }
+                    }
+                }
+                is DetailClientEvent.OnWhatsappClick -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp",
+                                type = SnackbarType.ERROR
+                            )
+                        }
                     }
                 }
             }
