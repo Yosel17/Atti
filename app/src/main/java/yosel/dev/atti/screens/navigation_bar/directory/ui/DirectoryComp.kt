@@ -72,6 +72,7 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
@@ -86,7 +87,7 @@ private data class DirectoryTabData(
 fun BodyDirectory(
     modifier: Modifier = Modifier,
     state: DirectoryState,
-    onClientClick: (String) -> Unit,
+    onNavigationMain: (Screens) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
     val tabs = remember {
@@ -187,6 +188,14 @@ fun BodyDirectory(
                                                 modifier = Modifier.fillMaxSize(),
                                                 clients = state.filteredClients,
                                                 onAction = onAction,
+                                                onClientClick = { clientId ->
+                                                    onNavigationMain(
+                                                        Screens.DetailClient(
+                                                            clientId = clientId,
+                                                            isLocalPatients = !state.isFirstPatients
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                     }
@@ -305,7 +314,8 @@ private enum class DirectoryUIStatus {
 fun ClientList(
     clients: List<ClientModel>,
     onAction: (DirectoryAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClientClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -317,7 +327,9 @@ fun ClientList(
                 client = client,
                 onCallClick = { onAction(DirectoryAction.OnCallClick(it)) },
                 onMessageClick = { onAction(DirectoryAction.OnWhatsappClick(it)) },
-                onClientClick = {  }
+                onClientClick = { clientId ->
+                    onClientClick(clientId)
+                }
             )
         }
     }
@@ -328,11 +340,11 @@ fun ClientItem(
     client: ClientModel,
     onCallClick: (String) -> Unit,
     onMessageClick: (String) -> Unit,
-    onClientClick: (ClientModel) -> Unit,
+    onClientClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        onClick = { onClientClick(client) },
+        onClick = { onClientClick(client.id) },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow

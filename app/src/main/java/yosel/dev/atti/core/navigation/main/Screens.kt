@@ -10,4 +10,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data object AddClient: Screens
+
+    @Serializable
+    data class DetailClient(val clientId: String, val isLocalPatients: Boolean): Screens
 }

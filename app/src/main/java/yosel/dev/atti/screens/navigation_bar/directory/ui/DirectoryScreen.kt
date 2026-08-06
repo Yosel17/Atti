@@ -34,7 +34,7 @@ fun DirectoryScreen(
     modifier: Modifier = Modifier,
     state: DirectoryState,
     snackBarHostState: SnackbarHostState,
-    onNavigation: (Screens) -> Unit,
+    onNavigationMain: (Screens) -> Unit,
     onAction: (DirectoryAction) -> Unit
 ) {
     Box(
@@ -44,8 +44,8 @@ fun DirectoryScreen(
         BodyDirectory(
             modifier = Modifier.fillMaxSize(),
             state = state,
-            onClientClick = { idClient ->
-
+            onNavigationMain = { screen ->
+                onNavigationMain(screen)
             },
             onAction = onAction
         )
@@ -72,7 +72,7 @@ fun DirectoryScreen(
         ) {
             ExtendedFloatingActionButton(
                 onClick = {
-                    onNavigation(Screens.AddClient)
+                    onNavigationMain(Screens.AddClient)
                 },
                 icon = {
                     Icon(

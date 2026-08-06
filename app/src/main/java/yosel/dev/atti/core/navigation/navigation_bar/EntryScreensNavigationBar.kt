@@ -80,7 +80,7 @@ fun EntryProviderScope<NavKey>.directoryEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
-            onNavigation = onNavigationMain,
+            onNavigationMain = onNavigationMain,
             onAction = viewModel::onAction
         )
     }
