@@ -20,13 +20,13 @@ import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +42,7 @@ fun BodyAddClient(
     state: AddClientState,
     onAction: (AddClientAction) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = modifier
     ) {
@@ -57,7 +58,10 @@ fun BodyAddClient(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onAction(AddClientAction.AddClient) },
+            onClick = {
+                focusManager.clearFocus()
+                onAction(AddClientAction.AddClient)
+            },
             enabled = state.formState.isValid
         ) {
             Row(
