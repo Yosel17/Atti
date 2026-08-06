@@ -57,7 +57,7 @@ fun BodyAddClient(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {},
+            onClick = { onAction(AddClientAction.AddClient) },
             enabled = state.formState.isValid
         ) {
             Row(
@@ -108,7 +108,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.firstName.isBlank(),
+                isError = formState.isError(Constants.FIRST_NAME_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
@@ -127,7 +127,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.lastName.isBlank(),
+                isError = formState.isError(Constants.LAST_NAME_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
@@ -145,7 +145,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.documentId.isBlank(),
+                isError = formState.isError(Constants.DOCUMENT_ID_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
@@ -163,7 +163,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
-                isError = formState.phoneNumber.isBlank(),
+                isError = formState.isError(Constants.PHONE_NUMBER_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
@@ -181,7 +181,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                isError = false,
+                isError = formState.isError(Constants.EMAIL_FIELD),
                 errorMessage = null
             )
         }
@@ -200,7 +200,7 @@ private fun ClientForm(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Done
                 ),
-                isError = formState.address.isBlank(),
+                isError = formState.isError(Constants.ADDRESS_FIELD),
                 errorMessage = "Este campo no puede estar vacío"
             )
         }
