@@ -1,4 +1,0 @@
-- [x] Update `DetailClientRepository.kt` interface
-- [x] Implement `getClientWithPatients` in `DetailClientRepositoryImpl.kt`
-- [x] Remove old functions from `DetailClientRepositoryImpl.kt`
-- [x] Verify build and consistency
