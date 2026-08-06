@@ -1,6 +1,7 @@
 package yosel.dev.atti.screens.detail_client.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,15 +12,19 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -43,11 +48,12 @@ fun DetailClientScreen(
                     IconButton(
                         onClick = {}
                     ) {
-
-                        Icon(
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = "editar"
-                        )
+                        if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){
+                            Icon(
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = "editar"
+                            )
+                        }
                     }
                 }
             )
@@ -95,5 +101,21 @@ fun DetailClientScreen(
                 }
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun DetailClientScreenPreview() {
+    AttiTheme {
+        DetailClientScreen(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            state = DetailClientState(
+                isLoading = false
+            ),
+            snackBarHostState = SnackbarHostState(),
+            onAction = {},
+            onBack = {}
+        )
     }
 }

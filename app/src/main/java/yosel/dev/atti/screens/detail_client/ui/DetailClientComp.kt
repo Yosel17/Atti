@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.detail_client.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +26,6 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.ButtonDefaults
@@ -46,15 +46,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.core.utils.openWhatsApp
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
 @Composable
@@ -127,11 +130,10 @@ private fun ProfileHeader(client: ClientModel) {
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
+                    Image(
+                        painter = painterResource(R.drawable.img_client),
                         contentDescription = null,
-                        modifier = Modifier.size(60.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        modifier = Modifier.size(120.dp),
                     )
                     // Comentado para uso futuro
                     // AsyncImage(model = client.photoUrl, contentDescription = null, ...)
@@ -167,32 +169,7 @@ private fun ProfileHeader(client: ClientModel) {
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // ID Cliente Badge
-        Surface(
-            shape = RoundedCornerShape(50),
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Pets,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "ID cliente: ${client.id.takeLast(5)}", // Mostramos parte del ID o el ID completo si es corto
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(6.dp))
     }
 }
 
@@ -228,8 +205,8 @@ private fun ActionButtons(
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.customColors.whatsappContainer,
-                contentColor = MaterialTheme.customColors.onWhatsappContainer
+                containerColor = MaterialTheme.customColors.whatsapp,
+                contentColor = MaterialTheme.customColors.onWhatsapp
             )
         ) {
             Icon(
@@ -528,6 +505,33 @@ private fun EmptyPetsState() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun DetailClientPreview() {
+    AttiTheme {
+        BodyDetailClient(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+            ,
+            state = DetailClientState(
+                clientWithPatients = ClientWithPatientsModel(
+                    client = ClientModel(
+                        id = "20c092a1-b934-446c-a9fc-2b9b44123548",
+                        firstName = "Carlos Yosel",
+                        lastName = "Alvizures Bran",
+                        createdAt = "2026-08-04 20:47:53.952805+00",
+                        documentId = "1273390-3",
+                        address = " fasdlfhaks dfjksdfh kjasdfh kajsdfh aksdfh akjsdfh askdjfh askj "
+                    )
+                )
+            ),
+            onAction = {}
         )
     }
 }
