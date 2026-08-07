@@ -1,10 +1,13 @@
 package yosel.dev.atti.core.utils
 
+import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.PatientDto
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
@@ -111,6 +114,18 @@ fun PatientModel.toEntity() = PatientEntity(
     createdAt = createdAt
 )
 
+fun PatientModel.toDtoInsert() = PatientDto(
+    clientId = clientId,
+    name = name,
+    speciesId = speciesId,
+    genderId = genderId,
+    breed = breed,
+    ageYears = ageYears,
+    ageMonths = ageMonths,
+    color = color,
+    isNeutered = isNeutered,
+)
+
 fun AddClientFormState.toModel() = ClientModel(
     firstName = firstName,
     lastName = lastName,
@@ -145,4 +160,29 @@ fun EditClientFormState.toModel() = ClientModel(
 fun ClientWithPatientsEntity.toModel() = ClientWithPatientsModel(
     client = client.toModel(),
     patients = patients.map { it.toModel() }
+)
+
+fun AppCatalogDto.toEntity() = AppCatalogEntity(
+    id = id ?: 0,
+    catalogTypeId = catalogTypeId,
+    name = name,
+    description = description.orEmpty(),
+    isActive = isActive ?: true,
+    createdAt = createdAt.orEmpty()
+)
+
+fun AppCatalogDto.toModel() = AppCatalogModel(
+    id = id ?: 0,
+    catalogTypeId = catalogTypeId,
+    name = name,
+    description = description.orEmpty(),
+    isActive = isActive ?: true,
+    createdAt = createdAt.orEmpty()
+)
+
+fun AppCatalogModel.toDtoForInsert() = AppCatalogDto(
+    catalogTypeId = catalogTypeId,
+    name = name,
+    description = description.ifBlank { null },
+    isActive = isActive
 )
