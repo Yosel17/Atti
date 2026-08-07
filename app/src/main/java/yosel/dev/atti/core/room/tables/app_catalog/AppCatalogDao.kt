@@ -10,13 +10,16 @@ interface AppCatalogDao {
 
     // --- LECTURAS
     @Query("SELECT * FROM app_catalogs ORDER BY name ASC")
-    fun getAllCatalogs(): List<AppCatalogEntity>
+    suspend fun getAllCatalogs(): List<AppCatalogEntity>
 
     @Query("SELECT * FROM app_catalogs WHERE id = :id LIMIT 1")
-    fun getCatalogById(id: Int): AppCatalogEntity?
+    suspend fun getCatalogById(id: Int): AppCatalogEntity?
 
-    @Query("SELECT * FROM app_catalogs WHERE catalog_type_id = :catalogTypeId ORDER BY name ASC")
-    fun getCatalogsByTypeId(catalogTypeId: Int): List<AppCatalogEntity>
+    @Query("SELECT * FROM app_catalogs WHERE catalog_type_id = :catalogTypeId")
+    suspend fun getCatalogsByTypeId(catalogTypeId: Int): List<AppCatalogEntity>
+
+    @Query("SELECT * FROM app_catalogs WHERE catalog_type_id IN (:catalogTypeIds)")
+    suspend fun getCatalogsByTypeIdList(catalogTypeIds: List<Int>): List<AppCatalogEntity>
 
     // --- ESCRITURAS ---
     @Upsert

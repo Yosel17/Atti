@@ -8,11 +8,13 @@ import javax.inject.Inject
 class AppCatalogsDataSource @Inject constructor(
     private val postGres: Postgrest
 ){
-    suspend fun getCatalogsByType(type: Int): List<AppCatalogDto>{
+    suspend fun getCatalogsByTypes(types: List<Int>): List<AppCatalogDto> {
+        if (types.isEmpty()) return emptyList()
+
         return postGres.from(Constants.APP_CATALOGS_SUPABASE)
             .select {
                 filter {
-                    eq("catalog_type_id", type)
+                    isIn("catalog_type_id", types)
                 }
             }
             .decodeList<AppCatalogDto>()
