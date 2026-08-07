@@ -7,5 +7,6 @@ data class DetailClientState(
     val clientWithPatients: ClientWithPatientsModel = ClientWithPatientsModel(),
     val isEditing: Boolean = false,
     val isLoadingUpdate: Boolean = false,
-    val editFormState: EditClientFormState = EditClientFormState()
+    val editFormState: EditClientFormState = EditClientFormState(),
+    val initialEditFormState: EditClientFormState = EditClientFormState()
 )

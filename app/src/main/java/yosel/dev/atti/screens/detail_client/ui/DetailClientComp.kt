@@ -374,7 +374,7 @@ fun EditClientBottomSheet(
                         onAction(DetailClientAction.OnUpdateClient)
                     }
                 },
-                enabled = state.editFormState.isValid
+                enabled = state.editFormState.isValid && state.editFormState.hasChangesFrom(state.initialEditFormState)
             ) {
                 Row(
                     modifier = Modifier
