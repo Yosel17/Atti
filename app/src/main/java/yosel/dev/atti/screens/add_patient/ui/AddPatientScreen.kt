@@ -58,7 +58,7 @@ fun AddPatientScreen(
                 targetState = state,
                 contentKey = { targetState ->
                     when{
-                        targetState.isLoadingCatalogs -> "LOADING"
+                        targetState.isLoadingDataInitial -> "LOADING"
                         targetState.speciesCatalog.isEmpty() && targetState.genderCatalog.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
@@ -66,7 +66,7 @@ fun AddPatientScreen(
                 label = "AddPatientScreenAnimation"
             ) { targetState ->
                 when {
-                    targetState.isLoadingCatalogs -> {
+                    targetState.isLoadingDataInitial -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             LoadingIndicator(
                                 modifier = Modifier.size(75.dp)
@@ -75,8 +75,8 @@ fun AddPatientScreen(
                     }
                     targetState.speciesCatalog.isEmpty() && targetState.genderCatalog.isEmpty() -> {
                         EmptyGlobal(
-                            title = "No se pudieron cargar los catálogos",
-                            subTitle = "No es posible registrar pacientes sin los catálogos. Inténtalo de nuevo.",
+                            title = "No se pudo cargar la información inicial",
+                            subTitle = "No es posible registrar pacientes sin esa información. Inténtalo de nuevo.",
                             icon = Icons.AutoMirrored.Outlined.ListAlt,
                             showAction = true,
                             onClickAction = { onAction(AddPatientAction.TryCatalogsAgain) }
@@ -104,7 +104,7 @@ private fun ScreenPreview() {
         AddPatientScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = AddPatientState(
-                isLoadingCatalogs = false
+                isLoadingDataInitial = false
             ),
             snackBarHostState = SnackbarHostState(),
             onAction = {},

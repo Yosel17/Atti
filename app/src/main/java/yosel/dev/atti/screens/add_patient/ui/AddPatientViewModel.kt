@@ -42,7 +42,7 @@ class AddPatientViewModel @Inject constructor(
     }
 
     private fun getCatalogs() {
-        _state.update { it.copy(isLoadingCatalogs = true) }
+        _state.update { it.copy(isLoadingDataInitial = true) }
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
                 types = listOf(
@@ -50,9 +50,9 @@ class AddPatientViewModel @Inject constructor(
                     Constants.GENDER_TYPE_CATALOG
                 )
             ).onSuccess { catalogs ->
-                successCatalogs(catalogs = catalogs)
+                successCatalogsAndGetClients(catalogs = catalogs)
             }.onFailure{
-                _state.update { it.copy(isLoadingCatalogs = false) }
+                _state.update { it.copy(isLoadingDataInitial = false) }
                 _eventChannel.send(
                     AddPatientEvent.ShowErrorSnackbar(
                         message = "No pudimos obtener los catalogos. Inténtalo de nuevo."
@@ -62,7 +62,7 @@ class AddPatientViewModel @Inject constructor(
         }
     }
 
-    private fun successCatalogs(catalogs: List<AppCatalogModel>) {
+    private suspend fun successCatalogsAndGetClients(catalogs: List<AppCatalogModel>) {
         val speciesCatalog = catalogs.filter { it.catalogTypeId == Constants.SPECIES_TYPE_CATALOG }
         val genderCatalog = catalogs.filter { it.catalogTypeId == Constants.GENDER_TYPE_CATALOG }
 
@@ -70,9 +70,29 @@ class AddPatientViewModel @Inject constructor(
             it.copy(
                 speciesCatalog = speciesCatalog,
                 genderCatalog = genderCatalog,
-                isLoadingCatalogs = false
             )
         }
+
+        getClients()
+    }
+
+    private suspend fun getClients() {
+        repository.getClients()
+            .onSuccess { clients ->
+                _state.update {
+                    it.copy(
+                        clients = clients,
+                        isLoadingDataInitial = false
+                    )
+                }
+            }.onFailure {
+                _state.update { it.copy(isLoadingDataInitial = false) }
+                _eventChannel.send(
+                    AddPatientEvent.ShowErrorSnackbar(
+                        message = "No pudimos obtener a los clientes. Inténtalo de nuevo."
+                    )
+                )
+            }
     }
 
     private fun registerPatient() {
