@@ -6,7 +6,7 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
-import yosel.dev.atti.core.utils.toDto
+import yosel.dev.atti.core.utils.toDtoForUpdate
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
@@ -39,7 +39,7 @@ class DetailClientRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateClient(client: ClientModel): Result<Unit> = runCatching {
-        clientsDataSource.updateClient(client = client.toDto())
+        clientsDataSource.updateClient(client = client.toDtoForUpdate())
         clientDao.upsertClient(client = client.toEntity())
     }
 

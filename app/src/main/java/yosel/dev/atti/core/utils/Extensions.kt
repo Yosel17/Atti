@@ -45,7 +45,16 @@ fun ClientModel.toEntity() = ClientEntity(
     createdAt = createdAt
 )
 
-fun ClientModel.toDto() = ClientDto(
+fun ClientModel.toDtoForInsert() = ClientDto(
+    firstName = firstName,
+    lastName = lastName,
+    documentId = documentId,
+    phoneNumber = phoneNumber,
+    email = email.ifBlank { null },
+    address = address,
+)
+
+fun ClientModel.toDtoForUpdate() = ClientDto(
     id = id,
     firstName = firstName,
     lastName = lastName,
