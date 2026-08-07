@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.toEditFormState
+import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import javax.inject.Inject
 
@@ -53,6 +56,82 @@ class DetailClientViewModel @AssistedInject constructor(
                     )
                 }
             }
+
+            DetailClientAction.OnEditClick -> {
+                _state.update {
+                    it.copy(
+                        isEditing = true,
+                        editFormState = it.clientWithPatients.client.toEditFormState()
+                    )
+                }
+            }
+
+            DetailClientAction.OnDismissEdit -> {
+                _state.update { it.copy(isEditing = false) }
+            }
+
+            is DetailClientAction.OnChangeEditFormValue -> {
+                onValueEditFormChange(action.value, action.field)
+            }
+
+            DetailClientAction.OnUpdateClient -> updateClient()
+        }
+    }
+
+    private fun onValueEditFormChange(value: String, field: Int) {
+        _state.update {
+            val newFormState = when (field) {
+                Constants.FIRST_NAME_FIELD -> it.editFormState.copy(firstName = value)
+                Constants.LAST_NAME_FIELD -> it.editFormState.copy(lastName = value)
+                Constants.DOCUMENT_ID_FIELD -> it.editFormState.copy(documentId = value)
+                Constants.PHONE_NUMBER_FIELD -> it.editFormState.copy(phoneNumber = value)
+                Constants.EMAIL_FIELD -> it.editFormState.copy(email = value)
+                Constants.ADDRESS_FIELD -> it.editFormState.copy(address = value)
+                else -> it.editFormState
+            }
+            it.copy(editFormState = newFormState.copy(touchedFields = newFormState.touchedFields + field))
+        }
+    }
+
+    private fun updateClient() {
+        val currentState = _state.value
+        if (!currentState.editFormState.isValid) {
+            _state.update {
+                it.copy(
+                    editFormState = it.editFormState.copy(
+                        touchedFields = setOf(
+                            Constants.FIRST_NAME_FIELD,
+                            Constants.LAST_NAME_FIELD,
+                            Constants.DOCUMENT_ID_FIELD,
+                            Constants.PHONE_NUMBER_FIELD,
+                            Constants.ADDRESS_FIELD
+                        )
+                    )
+                )
+            }
+            return
+        }
+
+        _state.update { it.copy(isLoadingUpdate = true) }
+
+        val updatedClient = currentState.editFormState.toModel()
+
+        viewModelScope.launch {
+            repository.updateClient(client = updatedClient)
+                .onSuccess {
+                    _state.update {
+                        it.copy(
+                            isLoadingUpdate = false,
+                            isEditing = false,
+                            clientWithPatients = it.clientWithPatients.copy(client = updatedClient)
+                        )
+                    }
+                    _eventChannel.send(DetailClientEvent.ShowSuccessSnackbar("Información actualizada correctamente."))
+                }
+                .onFailure {
+                    _state.update { it.copy(isLoadingUpdate = false) }
+                    _eventChannel.send(DetailClientEvent.ShowErrorSnackbar("No se pudo actualizar la información. Inténtalo de nuevo."))
+                }
         }
     }
 

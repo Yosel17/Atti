@@ -3,21 +3,27 @@ package yosel.dev.atti.screens.detail_client.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
@@ -26,33 +32,58 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Verified
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import yosel.dev.atti.R
+import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
@@ -132,6 +163,234 @@ fun BodyDetailClient(
 
         item {
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditClientBottomSheet(
+    state: DetailClientState,
+    onAction: (DetailClientAction) -> Unit
+) {
+    // 1. Iniciar en Hidden permite que Compose realice la animación de entrada al montarse
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+    )
+
+    val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // 2. Función helper para realizar la animación de salida antes de destruir el composable
+    fun dismissWithAnimation() {
+        coroutineScope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onAction(DetailClientAction.OnDismissEdit)
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            // Se ejecuta si el usuario presiona el botón atrás del sistema o toca el scrim exterior
+            onAction(DetailClientAction.OnDismissEdit)
+        },
+        sheetState = sheetState,
+        dragHandle = null, // Al quitar el handle evitas arrastres accidentales desde la cabecera
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding() // Mantiene el respetado de la barra de estado (Hora/WiFi)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 24.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Editar información",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                // Botón cerrar con salida animada
+                IconButton(onClick = { dismissWithAnimation() }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Cerrar",
+                        modifier = Modifier.clip(CircleShape)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Formulario
+            val lazyListState = rememberLazyListState()
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .nestedScroll(rememberNestedScrollInteropConnection()),
+                state = lazyListState,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Nombres",
+                        placeHolder = "ej. Juan Jose",
+                        value = state.editFormState.firstName,
+                        onValueChange = {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
+                        },
+                        leadingIcon = Icons.Outlined.Person,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = state.editFormState.isError(Constants.FIRST_NAME_FIELD),
+                        errorMessage = "Este campo no puede estar vacío"
+                    )
+                }
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Apellidos",
+                        placeHolder = "ej. Perez Hernandez",
+                        value = state.editFormState.lastName,
+                        onValueChange = {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
+                        },
+                        leadingIcon = Icons.Outlined.Person,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = state.editFormState.isError(Constants.LAST_NAME_FIELD),
+                        errorMessage = "Este campo no puede estar vacío"
+                    )
+                }
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Nit",
+                        placeHolder = "ej. 12345678",
+                        value = state.editFormState.documentId,
+                        onValueChange = {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
+                        },
+                        leadingIcon = Icons.Outlined.Badge,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = state.editFormState.isError(Constants.DOCUMENT_ID_FIELD),
+                        errorMessage = "Este campo no puede estar vacío"
+                    )
+                }
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Teléfono",
+                        placeHolder = "ej. 87654321",
+                        value = state.editFormState.phoneNumber,
+                        onValueChange = {
+                            if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                                onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
+                            }
+                        },
+                        leadingIcon = Icons.Outlined.Call,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = state.editFormState.isError(Constants.PHONE_NUMBER_FIELD),
+                        errorMessage = "Este campo no puede estar vacío"
+                    )
+                }
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Dirección",
+                        placeHolder = "ej. Palencia",
+                        value = state.editFormState.address,
+                        onValueChange = {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
+                        },
+                        leadingIcon = Icons.Outlined.Place,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = state.editFormState.isError(Constants.ADDRESS_FIELD),
+                        errorMessage = "Este campo no puede estar vacío"
+                    )
+                }
+                item {
+                    InputFieldWithTextGlobal(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Email (Opcional)",
+                        placeHolder = "ej. Ejemplo@gmail.com",
+                        value = state.editFormState.email,
+                        onValueChange = {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
+                        },
+                        leadingIcon = Icons.Outlined.Email,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Done
+                        ),
+                        isError = state.editFormState.isError(Constants.EMAIL_FIELD),
+                        errorMessage = null
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    focusManager.clearFocus()
+                    // Si deseas cerrar con animación al presionar guardar:
+                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                        onAction(DetailClientAction.OnUpdateClient)
+                    }
+                },
+                enabled = state.editFormState.isValid
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Save,
+                        contentDescription = "guardar cambios"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Guardar cambios")
+                }
+            }
         }
     }
 }

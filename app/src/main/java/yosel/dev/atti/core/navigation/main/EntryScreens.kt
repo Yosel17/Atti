@@ -107,6 +107,15 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                     }
                 }
 
+                is DetailClientEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+
                 is DetailClientEvent.OnCallClick -> {
                     if (!context.dialPhoneNumber(event.phoneNumber)) {
                         scope.launch {
