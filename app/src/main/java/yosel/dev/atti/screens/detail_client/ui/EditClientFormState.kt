@@ -31,4 +31,13 @@ data class EditClientFormState(
             else -> false
         }
     }
+
+    fun hasChangesFrom(initial: EditClientFormState): Boolean {
+        return firstName != initial.firstName ||
+                lastName != initial.lastName ||
+                documentId != initial.documentId ||
+                phoneNumber != initial.phoneNumber ||
+                email != initial.email ||
+                address != initial.address
+    }
 }

@@ -59,9 +59,11 @@ class DetailClientViewModel @AssistedInject constructor(
 
             DetailClientAction.OnEditClick -> {
                 _state.update {
+                    val editForm = it.clientWithPatients.client.toEditFormState()
                     it.copy(
                         isEditing = true,
-                        editFormState = it.clientWithPatients.client.toEditFormState()
+                        editFormState = editForm,
+                        initialEditFormState = editForm
                     )
                 }
             }
