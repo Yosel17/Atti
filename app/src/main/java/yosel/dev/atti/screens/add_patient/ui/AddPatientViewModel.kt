@@ -34,10 +34,15 @@ class AddPatientViewModel @Inject constructor(
             AddPatientAction.RegisterPatient -> {
                 registerPatient()
             }
+
+            AddPatientAction.TryCatalogsAgain -> {
+                getCatalogs()
+            }
         }
     }
 
     private fun getCatalogs() {
+        _state.update { it.copy(isLoadingCatalogs = true) }
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
                 types = listOf(
