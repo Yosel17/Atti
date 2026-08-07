@@ -284,6 +284,7 @@ fun CustomSnackbarHost(
 fun InputFieldGlobal(
     modifier: Modifier = Modifier,
     label: String,
+    placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
     leadingIcon: ImageVector,
@@ -316,6 +317,7 @@ fun InputFieldGlobal(
         value = value,
         onValueChange = onValueChange,
         label = { Text(text = label) },
+        placeholder = { Text(text = placeholder)},
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
