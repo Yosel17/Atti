@@ -31,7 +31,9 @@ class AddPatientViewModel @Inject constructor(
 
     fun onAction(action: AddPatientAction){
         when(action){
-            else -> {}
+            AddPatientAction.RegisterPatient -> {
+                registerPatient()
+            }
         }
     }
 
@@ -66,5 +68,9 @@ class AddPatientViewModel @Inject constructor(
                 isLoadingCatalogs = false
             )
         }
+    }
+
+    private fun registerPatient() {
+
     }
 }
