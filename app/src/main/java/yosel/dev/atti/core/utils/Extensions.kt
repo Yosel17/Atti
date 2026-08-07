@@ -9,6 +9,7 @@ import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
+import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
 
 fun ClientDto.toEntity() = ClientEntity(
     id = id.orEmpty(),
@@ -45,6 +46,7 @@ fun ClientModel.toEntity() = ClientEntity(
 )
 
 fun ClientModel.toDto() = ClientDto(
+    id = id,
     firstName = firstName,
     lastName = lastName,
     documentId = documentId,
@@ -107,6 +109,28 @@ fun AddClientFormState.toModel() = ClientModel(
     phoneNumber = phoneNumber,
     email = email,
     address = address
+)
+
+fun ClientModel.toEditFormState() = EditClientFormState(
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    documentId = documentId,
+    phoneNumber = phoneNumber,
+    email = email,
+    address = address,
+    createdAt = createdAt
+)
+
+fun EditClientFormState.toModel() = ClientModel(
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    documentId = documentId,
+    phoneNumber = phoneNumber,
+    email = email,
+    address = address,
+    createdAt = createdAt
 )
 
 fun ClientWithPatientsEntity.toModel() = ClientWithPatientsModel(

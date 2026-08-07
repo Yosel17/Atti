@@ -1,9 +1,12 @@
 package yosel.dev.atti.screens.detail_client.data
 
+import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
+import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
+import yosel.dev.atti.core.utils.toDto
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
@@ -11,6 +14,7 @@ import javax.inject.Inject
 
 class DetailClientRepositoryImpl @Inject constructor(
     private val patientsDataSource: PatientsDataSource,
+    private val clientsDataSource: ClientsDataSource,
     private val clientDao: ClientDao,
     private val patientDao: PatientDao
 ) : DetailClientRepository {
@@ -32,6 +36,11 @@ class DetailClientRepositoryImpl @Inject constructor(
         patientDao.upsertPatients(remotePatients.map { it.toEntity() })
 
         fetchLocalClientWithPatients(clientId)
+    }
+
+    override suspend fun updateClient(client: ClientModel): Result<Unit> = runCatching {
+        clientsDataSource.updateClient(client = client.toDto())
+        clientDao.upsertClient(client = client.toEntity())
     }
 
     private suspend fun fetchLocalClientWithPatients(clientId: String): ClientWithPatientsModel {

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -45,10 +46,11 @@ fun DetailClientScreen(
                 title = "",
                 onBack = onBack,
                 actions = {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){
+                    if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){
+                        IconButton(
+                            onClick = { onAction(DetailClientAction.OnEditClick) }
+                        ) {
+
                             Icon(
                                 imageVector = Icons.Rounded.Edit,
                                 contentDescription = "editar"
@@ -99,6 +101,20 @@ fun DetailClientScreen(
                         )
                     }
                 }
+            }
+
+            if (state.isEditing) {
+                EditClientBottomSheet(
+                    state = state,
+                    onAction = onAction
+                )
+            }
+
+            if (state.isLoadingUpdate) {
+                LoadingDialog(
+                    title = "Actualizando información",
+                    subtitle = "Por favor espera un momento..."
+                )
             }
         }
     }

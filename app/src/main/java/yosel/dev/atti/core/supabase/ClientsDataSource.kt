@@ -24,4 +24,13 @@ class ClientsDataSource @Inject constructor(
             }
             .decodeSingle<ClientDto>()
     }
+
+    suspend fun updateClient(client: ClientDto) {
+        postgrest.from(Constants.CLIENTS_SUPABASE)
+            .update(client) {
+                filter {
+                    eq("id", client.id ?: "")
+                }
+            }
+    }
 }

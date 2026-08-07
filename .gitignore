@@ -25,3 +25,6 @@ google-services*.json
 
 # --- Archivos temporales de sistema ---
 Thumbs.db
+
+# --- Agente de android studio ---
+.artifacts/
