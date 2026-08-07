@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
+import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -67,7 +70,13 @@ fun AddPatientScreen(
                         }
                     }
                     targetState.speciesCatalog.isEmpty() && targetState.genderCatalog.isEmpty() -> {
-
+                        EmptyGlobal(
+                            title = "No se pudieron cargar los catálogos",
+                            subTitle = "No es posible registrar clientes sin los catálogos. Inténtalo de nuevo.",
+                            icon = Icons.Outlined.Category,
+                            showAction = true,
+                            onClickAction = { onAction(AddPatientAction.TryCatalogsAgain) }
+                        )
                     }
                 }
             }

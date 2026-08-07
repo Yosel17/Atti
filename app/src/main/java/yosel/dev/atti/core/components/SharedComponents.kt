@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
@@ -496,7 +497,11 @@ fun EmptyGlobal(
     modifier: Modifier = Modifier,
     title: String,
     subTitle: String,
-    icon: ImageVector = Icons.Outlined.Inbox
+    icon: ImageVector = Icons.Outlined.Inbox,
+    showAction: Boolean = false,
+    onClickAction: () -> Unit = {},
+    iconButton: ImageVector = Icons.Outlined.Replay,
+    textButton: String = "Reintentar"
 ) {
     Column(
         modifier = modifier
@@ -534,5 +539,19 @@ fun EmptyGlobal(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+        if (showAction){
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onClickAction
+            ) {
+                Icon(
+                    imageVector = iconButton,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(text = textButton)
+            }
+        }
     }
 }
