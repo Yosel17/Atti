@@ -8,6 +8,7 @@ object Constants {
     //Supabase
     const val CLIENTS_SUPABASE = "clients"
     const val PATIENTS_SUPABASE = "patients"
+    const val APP_CATALOGS_SUPABASE = "app_catalogs"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

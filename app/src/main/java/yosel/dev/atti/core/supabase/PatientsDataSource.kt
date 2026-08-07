@@ -27,4 +27,12 @@ class PatientsDataSource @Inject constructor(
             }
             .decodeList<PatientDto>()
     }
+
+    suspend fun insertAndGetPatient(patient: PatientDto): PatientDto {
+        return postgrest.from(Constants.PATIENTS_SUPABASE)
+            .insert(patient) {
+                select()
+            }
+            .decodeSingle<PatientDto>()
+    }
 }
