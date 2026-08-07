@@ -18,4 +18,8 @@ object Constants {
     const val EMAIL_FIELD = 4
     const val ADDRESS_FIELD = 5
 
+    //tipos de catalogos
+    const val SPECIES_TYPE_CATALOG = 1
+    const val GENDER_TYPE_CATALOG = 2
+
 }
