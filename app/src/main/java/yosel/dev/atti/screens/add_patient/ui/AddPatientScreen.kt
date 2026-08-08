@@ -22,7 +22,10 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -94,6 +97,13 @@ fun AddPatientScreen(
                 }
             }
         }
+
+        if (state.isLoadingRegister) {
+            LoadingDialog(
+                title = "Registrando paciente...",
+                subtitle = "Estamos guardando la información del nuevo paciente."
+            )
+        }
     }
 }
 
@@ -104,7 +114,26 @@ private fun ScreenPreview() {
         AddPatientScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = AddPatientState(
-                isLoadingDataInitial = false
+                isLoadingDataInitial = false,
+                speciesCatalog = listOf(
+                    AppCatalogModel(
+                        id = 1,
+                        name = "Canino"
+                    )
+                ),
+                genderCatalog = listOf(
+                    AppCatalogModel(
+                        id = 4,
+                        name = "Macho"
+                    )
+                ),
+                clients = listOf(
+                    ClientModel(
+                        id = "adfjlkadfj-adfnkladfjn-afshdfa",
+                        firstName = "Carlos Yosel",
+                        lastName = "Alvizures Bran"
+                    )
+                )
             ),
             snackBarHostState = SnackbarHostState(),
             onAction = {},

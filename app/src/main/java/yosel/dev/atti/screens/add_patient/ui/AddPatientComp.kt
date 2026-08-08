@@ -34,6 +34,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import yosel.dev.atti.core.components.InputFieldGlobal
@@ -62,6 +64,7 @@ import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
 fun BodyAddPatient(
@@ -71,22 +74,18 @@ fun BodyAddPatient(
 ) {
     val focusManager = LocalFocusManager.current
 
-    if (state.isLoadingRegister) {
-        LoadingDialog(
-            title = "Registrando paciente...",
-            subtitle = "Estamos guardando la información del nuevo paciente."
-        )
-    }
-
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier.weight(1f)
         ) {
             item {
                 HeaderSection(speciesId = state.formState.speciesId)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(48.dp))
             }
 
             item {
@@ -94,6 +93,10 @@ fun BodyAddPatient(
                     title = "Datos Básicos",
                     icon = Icons.Outlined.Info
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -113,6 +116,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 CatalogSelection(
                     label = "Especie",
                     catalogs = state.speciesCatalog,
@@ -120,6 +127,10 @@ fun BodyAddPatient(
                     onSelect = { onAction(AddPatientAction.OnSelectSpecies(it)) },
                     isSpecies = true
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -139,6 +150,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 CatalogSelection(
                     label = "Género",
                     catalogs = state.genderCatalog,
@@ -149,10 +164,18 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+
+            item {
                 SectionTitle(
                     title = "Detalles",
                     icon = Icons.AutoMirrored.Outlined.Assignment
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -201,6 +224,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 InputFieldGlobal(
                     label = "Color",
                     placeholder = "Ej: Canela y Blanco",
@@ -217,10 +244,18 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
                 NeuteredSelection(
                     isNeutered = state.formState.isNeutered,
                     onToggle = { onAction(AddPatientAction.OnToggleNeutered(it)) }
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(48.dp))
             }
 
             item {
@@ -231,6 +266,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 ClientSelector(
                     clients = state.clients,
                     selectedClient = state.formState.selectedClient,
@@ -238,7 +277,9 @@ fun BodyAddPatient(
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -278,7 +319,7 @@ fun HeaderSection(speciesId: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -308,7 +349,6 @@ fun HeaderSection(speciesId: Int) {
 fun SectionTitle(title: String, icon: ImageVector) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = 8.dp)
     ) {
         Icon(
             imageVector = icon,
@@ -319,7 +359,7 @@ fun SectionTitle(title: String, icon: ImageVector) {
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -335,11 +375,12 @@ fun CatalogSelection(
     onSelect: (Int) -> Unit,
     isSpecies: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         FlowRow(
@@ -532,5 +573,40 @@ fun ClientSelector(
                 )
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyPreview() {
+    AttiTheme {
+        BodyAddPatient(
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            state = AddPatientState(
+                isLoadingDataInitial = false,
+                speciesCatalog = listOf(
+                    AppCatalogModel(
+                        id = 1,
+                        name = "Canino"
+                    )
+                ),
+                genderCatalog = listOf(
+                    AppCatalogModel(
+                        id = 4,
+                        name = "Macho"
+                    )
+                ),
+                clients = listOf(
+                    ClientModel(
+                        id = "adfjlkadfj-adfnkladfjn-afshdfa",
+                        firstName = "Carlos Yosel",
+                        lastName = "Alvizures Bran"
+                    )
+                )
+            ),
+            onAction = {}
+        )
     }
 }
