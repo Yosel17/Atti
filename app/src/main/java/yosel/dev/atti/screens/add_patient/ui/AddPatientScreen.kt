@@ -73,7 +73,7 @@ fun AddPatientScreen(
                             )
                         }
                     }
-                    targetState.speciesCatalog.isEmpty() && targetState.genderCatalog.isEmpty() -> {
+                    targetState.speciesCatalog.isEmpty() || targetState.genderCatalog.isEmpty() || targetState.clients.isEmpty() -> {
                         EmptyGlobal(
                             title = "No se pudo cargar la información inicial",
                             subTitle = "No es posible registrar pacientes sin esa información. Inténtalo de nuevo.",
