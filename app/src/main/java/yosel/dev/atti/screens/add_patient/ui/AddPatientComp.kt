@@ -79,6 +79,7 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
@@ -563,11 +564,6 @@ fun ClientSelectorSection(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Cliente / Propietario",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
                         text = selectedClient?.fullName ?: "Ningún cliente seleccionado",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (selectedClient != null) FontWeight.Bold else FontWeight.Normal,
@@ -657,28 +653,37 @@ fun SelectClientBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .nestedScroll(rememberNestedScrollInteropConnection()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                items(state.filteredClients, key = { it.id }) { client ->
-                    val isSelected = client.id == state.formState.selectedClient?.id
+            if (state.filteredClients.isEmpty()){
+                NoSearchResultsState(
+                    query = state.clientSearchQuery,
+                    onClearSearch = { onAction(AddPatientAction.OnSearchClientQueryChange("")) },
+                    nameResult = "clientes"
+                )
+            }else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .nestedScroll(rememberNestedScrollInteropConnection()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(state.filteredClients, key = { it.id }) { client ->
+                        val isSelected = client.id == state.formState.selectedClient?.id
 
-                    ClientSelectionCard(
-                        client = client,
-                        isSelected = isSelected,
-                        onClick = {
-                            dismissWithAnimation {
-                                onAction(AddPatientAction.OnSelectClient(client))
+                        ClientSelectionCard(
+                            client = client,
+                            isSelected = isSelected,
+                            onClick = {
+                                dismissWithAnimation {
+                                    onAction(AddPatientAction.OnSelectClient(client))
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+
         }
     }
 }
@@ -736,7 +741,7 @@ private fun ClientSelectionCard(
                 )
                 if (client.phoneNumber.isNotBlank()) {
                     Text(
-                        text = client.phoneNumber,
+                        text = "Tel. ${client.phoneNumber}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
