@@ -297,7 +297,8 @@ fun InputFieldGlobal(
     errorMessage: String? = null,
     onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    showCopyButton: Boolean = false
+    showCopyButton: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     val clipboard = LocalClipboard.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -325,7 +326,9 @@ fun InputFieldGlobal(
             )
         },
         trailingIcon = {
-            if (showCopyButton) {
+            if (trailingIcon != null) {
+                trailingIcon()
+            } else if (showCopyButton) {
                 IconButton(
                     onClick = {
                         coroutineScope.launch {

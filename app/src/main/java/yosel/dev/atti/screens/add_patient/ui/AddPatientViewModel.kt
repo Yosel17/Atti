@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
 import javax.inject.Inject
@@ -37,6 +38,49 @@ class AddPatientViewModel @Inject constructor(
 
             AddPatientAction.TryCatalogsAgain -> {
                 getCatalogs()
+            }
+
+            is AddPatientAction.OnChangeValueFormState -> {
+                _state.update {
+                    it.copy(
+                        formState = it.formState.copy(
+                            touchedFields = it.formState.touchedFields + action.field
+                        ).let { form ->
+                            when (action.field) {
+                                Constants.PATIENT_NAME_FIELD -> form.copy(name = action.value)
+                                Constants.PATIENT_BREED_FIELD -> form.copy(breed = action.value)
+                                Constants.PATIENT_AGE_YEARS_FIELD -> form.copy(ageYears = action.value)
+                                Constants.PATIENT_AGE_MONTHS_FIELD -> form.copy(ageMonths = action.value)
+                                Constants.PATIENT_COLOR_FIELD -> form.copy(color = action.value)
+                                else -> form
+                            }
+                        }
+                    )
+                }
+            }
+
+            is AddPatientAction.OnSelectSpecies -> {
+                _state.update {
+                    it.copy(formState = it.formState.copy(speciesId = action.id))
+                }
+            }
+
+            is AddPatientAction.OnSelectGender -> {
+                _state.update {
+                    it.copy(formState = it.formState.copy(genderId = action.id))
+                }
+            }
+
+            is AddPatientAction.OnSelectClient -> {
+                _state.update {
+                    it.copy(formState = it.formState.copy(selectedClient = action.client))
+                }
+            }
+
+            is AddPatientAction.OnToggleNeutered -> {
+                _state.update {
+                    it.copy(formState = it.formState.copy(isNeutered = action.value))
+                }
             }
         }
     }
@@ -96,6 +140,38 @@ class AddPatientViewModel @Inject constructor(
     }
 
     private fun registerPatient() {
+        val form = _state.value.formState
+        if (!form.isValid) return
 
+        _state.update { it.copy(isLoadingRegister = true) }
+
+        viewModelScope.launch {
+            val patient = PatientModel(
+                clientId = form.selectedClient?.id ?: "",
+                name = form.name,
+                speciesId = form.speciesId,
+                genderId = form.genderId,
+                breed = form.breed,
+                ageYears = form.ageYears.toIntOrNull() ?: 0,
+                ageMonths = form.ageMonths.toIntOrNull() ?: 0,
+                color = form.color,
+                isNeutered = form.isNeutered
+            )
+
+            repository.insertPatient(patient)
+                .onSuccess {
+                    _state.update {
+                        it.copy(
+                            isLoadingRegister = false,
+                            formState = AddPatientFormState()
+                        )
+                    }
+                    _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("Paciente registrado correctamente."))
+                }
+                .onFailure {
+                    _state.update { it.copy(isLoadingRegister = false) }
+                    _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No pudimos registrar al paciente. Inténtalo de nuevo."))
+                }
+        }
     }
 }

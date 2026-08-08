@@ -12,6 +12,9 @@ data class ClientModel(
     val address: String = "",
     val createdAt: String = ""
 ){
+    val fullName: String
+        get() = "$firstName $lastName"
+
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)
 }
