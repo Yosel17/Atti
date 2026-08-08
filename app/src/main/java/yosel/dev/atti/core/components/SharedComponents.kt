@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -288,63 +289,31 @@ fun InputFieldGlobal(
     value: String,
     onValueChange: (String) -> Unit,
     leadingIcon: ImageVector,
-    onCopyClick: (label: String, value: String) -> Unit = { _, _ -> },
     singleLine: Boolean = true,
     minLines: Int = 1,
     maxLines: Int = 1,
     readOnly: Boolean = false,
     isError: Boolean = false,
     errorMessage: String? = null,
-    onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    showCopyButton: Boolean = false,
-    trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    val clipboard = LocalClipboard.current
-    val interactionSource = remember { MutableInteractionSource() }
-    val coroutineScope = rememberCoroutineScope()
-
-    if (readOnly && onClick != null) {
-        LaunchedEffect(interactionSource) {
-            interactionSource.interactions.collect { interaction ->
-                if (interaction is PressInteraction.Release) {
-                    onClick()
-                }
-            }
-        }
-    }
 
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(text = label) },
-        placeholder = { Text(text = placeholder)},
+        label = {
+            Text(
+                text = label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        placeholder = { Text(text = placeholder) },
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
             )
-        },
-        trailingIcon = {
-            if (trailingIcon != null) {
-                trailingIcon()
-            } else if (showCopyButton) {
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            val clipData = ClipData.newPlainText(label, value)
-                            clipboard.setClipEntry(ClipEntry(clipData))
-                            onCopyClick(label, value)
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Copiar $label",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
         },
         isError = isError,
         supportingText = if (isError && !errorMessage.isNullOrEmpty()) {
@@ -355,7 +324,6 @@ fun InputFieldGlobal(
         minLines = minLines,
         maxLines = maxLines,
         keyboardOptions = keyboardOptions,
-        interactionSource = interactionSource,
         shape = RoundedCornerShape(12.dp),
         modifier = modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge,
@@ -375,7 +343,6 @@ fun InputFieldWithTextGlobal(
     value: String,
     onValueChange: (String) -> Unit,
     leadingIcon: ImageVector,
-    onCopyClick: (label: String, value: String) -> Unit = { _, _ -> },
     singleLine: Boolean = true,
     minLines: Int = 1,
     maxLines: Int = 1,
@@ -384,13 +351,8 @@ fun InputFieldWithTextGlobal(
     errorMessage: String? = null,
     onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    showCopyButton: Boolean = false
 ) {
-    val clipboard = LocalClipboard.current
-    val coroutineScope = rememberCoroutineScope()
-
     // Captura de lambdas para garantizar la versión más actualizada dentro de las corrutinas
-    val currentOnCopyClick by rememberUpdatedState(onCopyClick)
     val currentOnClick by rememberUpdatedState(onClick)
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -438,25 +400,6 @@ fun InputFieldWithTextGlobal(
                     imageVector = leadingIcon,
                     contentDescription = null
                 )
-            },
-            trailingIcon = {
-                if (showCopyButton) {
-                    IconButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                val clipData = ClipData.newPlainText(label, value)
-                                clipboard.setClipEntry(ClipEntry(clipData))
-                                currentOnCopyClick(label, value)
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ContentCopy,
-                            contentDescription = "Copiar $label",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
             },
             isError = isError,
             supportingText = if (isError && !errorMessage.isNullOrEmpty()) {
@@ -544,7 +487,7 @@ fun EmptyGlobal(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        if (showAction){
+        if (showAction) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onClickAction

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
@@ -139,7 +140,7 @@ fun BodyAddPatient(
                     placeholder = "Ej: Golden Retriever",
                     value = state.formState.breed,
                     onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_BREED_FIELD)) },
-                    leadingIcon = Icons.AutoMirrored.Outlined.Label,
+                    leadingIcon = Icons.Outlined.Fingerprint,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Done
@@ -185,7 +186,7 @@ fun BodyAddPatient(
                 ) {
                     InputFieldGlobal(
                         modifier = Modifier.weight(1f),
-                        label = "Edad (Años)",
+                        label = "Años",
                         placeholder = "0",
                         value = state.formState.ageYears,
                         onValueChange = {
@@ -530,13 +531,6 @@ fun ClientSelector(
                 expanded = true
             },
             leadingIcon = Icons.Outlined.Person,
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowDropDown,
-                    contentDescription = null,
-                    modifier = Modifier.clickable { expanded = !expanded }
-                )
-            },
             readOnly = false
         )
 
