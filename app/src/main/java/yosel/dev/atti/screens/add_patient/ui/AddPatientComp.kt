@@ -1,8 +1,6 @@
 package yosel.dev.atti.screens.add_patient.ui
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,19 +20,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -58,7 +59,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import yosel.dev.atti.core.components.InputFieldGlobal
-import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
@@ -91,7 +91,7 @@ fun BodyAddPatient(
             item {
                 SectionTitle(
                     title = "Datos Básicos",
-                    icon = Icons.Outlined.Info
+                    icon = Icons.Filled.Info
                 )
             }
 
@@ -170,7 +170,7 @@ fun BodyAddPatient(
             item {
                 SectionTitle(
                     title = "Detalles",
-                    icon = Icons.AutoMirrored.Outlined.Assignment
+                    icon = Icons.AutoMirrored.Filled.Assignment
                 )
             }
 
@@ -261,7 +261,7 @@ fun BodyAddPatient(
             item {
                 SectionTitle(
                     title = "Propietario",
-                    icon = Icons.Outlined.Person
+                    icon = Icons.Filled.Person
                 )
             }
 
@@ -366,7 +366,6 @@ fun SectionTitle(title: String, icon: ImageVector) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CatalogSelection(
     label: String,
@@ -387,7 +386,6 @@ fun CatalogSelection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            maxItemsInEachRow = if (isSpecies) 3 else 2
         ) {
             catalogs.forEach { catalog ->
                 val isSelected = catalog.id == selectedId
@@ -403,15 +401,13 @@ fun CatalogSelection(
                 )
             }
 
-            if (isSpecies) {
-                // Chip de "Otros"
-                CatalogChip(
-                    text = "Otros",
-                    icon = getSpeciesInfo(0).icon,
-                    isSelected = selectedId == -1,
-                    onClick = { /* TODO: Agregar funcionalidad de otros */ }
-                )
-            }
+            CatalogChip(
+                text = "Otros",
+                icon = if (isSpecies) getSpeciesInfo(0).icon else null,
+                iconVector = if (!isSpecies) getGenderInfo(0).icon else null,
+                isSelected = selectedId == -1,
+                onClick = { /* TODO: Agregar funcionalidad de otros */ }
+            )
         }
     }
 }
@@ -419,58 +415,61 @@ fun CatalogSelection(
 @Composable
 fun CatalogChip(
     text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     icon: Int? = null,
     iconVector: ImageVector? = null,
-    isSelected: Boolean,
-    onClick: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        label = "chipBackground"
-    )
-    val contentColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "chipContent"
-    )
-    val borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant
-
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = backgroundColor,
-        modifier = Modifier
-            .height(48.dp)
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            if (icon != null) {
+    val leadingIconContent: @Composable (() -> Unit)? = when {
+        icon != null -> {
+            {
                 Icon(
                     painter = painterResource(id = icon),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = contentColor
+                    modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-            } else if (iconVector != null) {
+            }
+        }
+        iconVector != null -> {
+            {
                 Icon(
                     imageVector = iconVector,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = contentColor
+                    modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
             }
+        }
+        else -> null
+    }
+
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = contentColor
+                style = MaterialTheme.typography.bodyLarge
             )
-        }
-    }
+        },
+        leadingIcon = leadingIconContent,
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = Color.Transparent,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = isSelected,
+            borderColor = MaterialTheme.colorScheme.outlineVariant,
+            selectedBorderColor = Color.Transparent
+        )
+    )
 }
 
 @Composable

@@ -110,6 +110,16 @@ class AddPatientViewModel @Inject constructor(
         val speciesCatalog = catalogs.filter { it.catalogTypeId == Constants.SPECIES_TYPE_CATALOG }
         val genderCatalog = catalogs.filter { it.catalogTypeId == Constants.GENDER_TYPE_CATALOG }
 
+        val canine = speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }
+        val female = genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }
+
+        if (canine != null){
+            _state.update { it.copy(formState = it.formState.copy(speciesId = canine.id)) }
+        }
+        if (female != null){
+            _state.update { it.copy(formState = it.formState.copy(genderId = female.id)) }
+        }
+
         _state.update {
             it.copy(
                 speciesCatalog = speciesCatalog,
