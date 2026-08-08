@@ -1,8 +1,6 @@
 package yosel.dev.atti.screens.add_patient.ui
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,16 +20,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -53,15 +56,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import yosel.dev.atti.core.components.InputFieldGlobal
-import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
 fun BodyAddPatient(
@@ -71,29 +75,29 @@ fun BodyAddPatient(
 ) {
     val focusManager = LocalFocusManager.current
 
-    if (state.isLoadingRegister) {
-        LoadingDialog(
-            title = "Registrando paciente...",
-            subtitle = "Estamos guardando la información del nuevo paciente."
-        )
-    }
-
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier.weight(1f)
         ) {
             item {
                 HeaderSection(speciesId = state.formState.speciesId)
             }
 
             item {
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+
+            item {
                 SectionTitle(
                     title = "Datos Básicos",
-                    icon = Icons.Outlined.Info
+                    icon = Icons.Filled.Info
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -113,6 +117,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 CatalogSelection(
                     label = "Especie",
                     catalogs = state.speciesCatalog,
@@ -123,12 +131,16 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 InputFieldGlobal(
                     label = "Raza",
                     placeholder = "Ej: Golden Retriever",
                     value = state.formState.breed,
                     onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_BREED_FIELD)) },
-                    leadingIcon = Icons.AutoMirrored.Outlined.Label,
+                    leadingIcon = Icons.Outlined.Fingerprint,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Done
@@ -136,6 +148,10 @@ fun BodyAddPatient(
                     isError = state.formState.isError(Constants.PATIENT_BREED_FIELD),
                     errorMessage = "La raza es obligatoria"
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -149,10 +165,18 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+
+            item {
                 SectionTitle(
                     title = "Detalles",
-                    icon = Icons.AutoMirrored.Outlined.Assignment
+                    icon = Icons.AutoMirrored.Filled.Assignment
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -162,7 +186,7 @@ fun BodyAddPatient(
                 ) {
                     InputFieldGlobal(
                         modifier = Modifier.weight(1f),
-                        label = "Edad (Años)",
+                        label = "Años",
                         placeholder = "0",
                         value = state.formState.ageYears,
                         onValueChange = {
@@ -201,6 +225,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
                 InputFieldGlobal(
                     label = "Color",
                     placeholder = "Ej: Canela y Blanco",
@@ -217,6 +245,10 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
                 NeuteredSelection(
                     isNeutered = state.formState.isNeutered,
                     onToggle = { onAction(AddPatientAction.OnToggleNeutered(it)) }
@@ -224,10 +256,18 @@ fun BodyAddPatient(
             }
 
             item {
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+
+            item {
                 SectionTitle(
                     title = "Propietario",
-                    icon = Icons.Outlined.Person
+                    icon = Icons.Filled.Person
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
@@ -238,7 +278,9 @@ fun BodyAddPatient(
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -278,7 +320,7 @@ fun HeaderSection(speciesId: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -308,7 +350,6 @@ fun HeaderSection(speciesId: Int) {
 fun SectionTitle(title: String, icon: ImageVector) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(top = 8.dp)
     ) {
         Icon(
             imageVector = icon,
@@ -319,14 +360,13 @@ fun SectionTitle(title: String, icon: ImageVector) {
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CatalogSelection(
     label: String,
@@ -335,18 +375,18 @@ fun CatalogSelection(
     onSelect: (Int) -> Unit,
     isSpecies: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            maxItemsInEachRow = if (isSpecies) 3 else 2
         ) {
             catalogs.forEach { catalog ->
                 val isSelected = catalog.id == selectedId
@@ -362,15 +402,13 @@ fun CatalogSelection(
                 )
             }
 
-            if (isSpecies) {
-                // Chip de "Otros"
-                CatalogChip(
-                    text = "Otros",
-                    icon = getSpeciesInfo(0).icon,
-                    isSelected = selectedId == -1,
-                    onClick = { /* TODO: Agregar funcionalidad de otros */ }
-                )
-            }
+            CatalogChip(
+                text = "Otros",
+                icon = if (isSpecies) getSpeciesInfo(0).icon else null,
+                iconVector = if (!isSpecies) getGenderInfo(0).icon else null,
+                isSelected = selectedId == -1,
+                onClick = { /* TODO: Agregar funcionalidad de otros */ }
+            )
         }
     }
 }
@@ -378,58 +416,61 @@ fun CatalogSelection(
 @Composable
 fun CatalogChip(
     text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     icon: Int? = null,
     iconVector: ImageVector? = null,
-    isSelected: Boolean,
-    onClick: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        label = "chipBackground"
-    )
-    val contentColor by animateColorAsState(
-        if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "chipContent"
-    )
-    val borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant
-
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = backgroundColor,
-        modifier = Modifier
-            .height(48.dp)
-            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            if (icon != null) {
+    val leadingIconContent: @Composable (() -> Unit)? = when {
+        icon != null -> {
+            {
                 Icon(
                     painter = painterResource(id = icon),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = contentColor
+                    modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-            } else if (iconVector != null) {
+            }
+        }
+        iconVector != null -> {
+            {
                 Icon(
                     imageVector = iconVector,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = contentColor
+                    modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
             }
+        }
+        else -> null
+    }
+
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = contentColor
+                style = MaterialTheme.typography.bodyLarge
             )
-        }
-    }
+        },
+        leadingIcon = leadingIconContent,
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = Color.Transparent,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = isSelected,
+            borderColor = MaterialTheme.colorScheme.outlineVariant,
+            selectedBorderColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
@@ -490,13 +531,6 @@ fun ClientSelector(
                 expanded = true
             },
             leadingIcon = Icons.Outlined.Person,
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowDropDown,
-                    contentDescription = null,
-                    modifier = Modifier.clickable { expanded = !expanded }
-                )
-            },
             readOnly = false
         )
 
@@ -532,5 +566,40 @@ fun ClientSelector(
                 )
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyPreview() {
+    AttiTheme {
+        BodyAddPatient(
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            state = AddPatientState(
+                isLoadingDataInitial = false,
+                speciesCatalog = listOf(
+                    AppCatalogModel(
+                        id = 1,
+                        name = "Canino"
+                    )
+                ),
+                genderCatalog = listOf(
+                    AppCatalogModel(
+                        id = 4,
+                        name = "Macho"
+                    )
+                ),
+                clients = listOf(
+                    ClientModel(
+                        id = "adfjlkadfj-adfnkladfjn-afshdfa",
+                        firstName = "Carlos Yosel",
+                        lastName = "Alvizures Bran"
+                    )
+                )
+            ),
+            onAction = {}
+        )
     }
 }

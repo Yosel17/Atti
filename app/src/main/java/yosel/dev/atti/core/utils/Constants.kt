@@ -29,4 +29,12 @@ object Constants {
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2
 
+    //Catalogos
+    const val CANINE_SPECIES_CATALOG = 1
+    const val FELINE_SPECIES_CATALOG = 3
+    const val WILD_SPECIES_CATALOG = 4
+
+    const val FEMALE_GENDER_CATALOG = 2
+    const val MALE_GENDER_CATALOG = 5
+
 }
