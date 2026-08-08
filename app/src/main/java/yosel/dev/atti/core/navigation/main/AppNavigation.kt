@@ -37,6 +37,11 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+            addPatientEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
         }
     )
 

@@ -22,6 +22,9 @@ import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.add_client.ui.AddClientEvent
 import yosel.dev.atti.screens.add_client.ui.AddClientScreen
 import yosel.dev.atti.screens.add_client.ui.AddClientViewModel
+import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
+import yosel.dev.atti.screens.add_patient.ui.AddPatientScreen
+import yosel.dev.atti.screens.add_patient.ui.AddPatientViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
@@ -145,6 +148,46 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.addPatientEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.AddPatient> {
+        val viewModel = hiltViewModel<AddPatientViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is AddPatientEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AddPatientEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
+
+        AddPatientScreen(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
         )
