@@ -86,9 +86,9 @@ data class SpeciesInfo(
 
 fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
     return when (speciesId) {
-        1 -> SpeciesInfo("Canino", R.drawable.ic_canine)
-        2 -> SpeciesInfo("Felino", R.drawable.ic_feline)// Puedes usar Pets o CrueltyFree según prefieras
-        3 -> SpeciesInfo("Silvestre", R.drawable.ic_wild)
+        Constants.CANINE_SPECIES_CATALOG -> SpeciesInfo("Canino", R.drawable.ic_canine)
+        Constants.FELINE_SPECIES_CATALOG -> SpeciesInfo("Felino", R.drawable.ic_feline)
+        Constants.WILD_SPECIES_CATALOG -> SpeciesInfo("Silvestre", R.drawable.ic_wild)
         else -> SpeciesInfo("Otro", R.drawable.ic_animals)
     }
 }
@@ -100,8 +100,8 @@ data class GenderInfo(
 
 fun getGenderInfo(genderId: Int): GenderInfo {
     return when (genderId) {
-        1 -> GenderInfo("Macho", Icons.Outlined.Male)
-        2 -> GenderInfo("Hembra", Icons.Outlined.Female)
+        Constants.MALE_GENDER_CATALOG -> GenderInfo("Macho", Icons.Outlined.Male)
+        Constants.FEMALE_GENDER_CATALOG -> GenderInfo("Hembra", Icons.Outlined.Female)
         else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
     }
 }
