@@ -104,6 +104,13 @@ fun AddPatientScreen(
                 subtitle = "Estamos guardando la información del nuevo paciente."
             )
         }
+
+        if (state.isClientSheetOpen) {
+            SelectClientBottomSheet(
+                state = state,
+                onAction = onAction
+            )
+        }
     }
 }
 

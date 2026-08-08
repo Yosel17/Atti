@@ -13,12 +13,13 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
+import java.text.Normalizer
 import javax.inject.Inject
 
 @HiltViewModel
 class AddPatientViewModel @Inject constructor(
     private val repository: AddPatientRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(AddPatientState())
     val state: StateFlow<AddPatientState> = _state
@@ -30,16 +31,10 @@ class AddPatientViewModel @Inject constructor(
         getCatalogs()
     }
 
-    fun onAction(action: AddPatientAction){
-        when(action){
-            AddPatientAction.RegisterPatient -> {
-                registerPatient()
-            }
-
-            AddPatientAction.TryCatalogsAgain -> {
-                getCatalogs()
-            }
-
+    fun onAction(action: AddPatientAction) {
+        when (action) {
+            AddPatientAction.RegisterPatient -> registerPatient()
+            AddPatientAction.TryCatalogsAgain -> getCatalogs()
             is AddPatientAction.OnChangeValueFormState -> {
                 _state.update {
                     it.copy(
@@ -58,31 +53,55 @@ class AddPatientViewModel @Inject constructor(
                     )
                 }
             }
-
             is AddPatientAction.OnSelectSpecies -> {
-                _state.update {
-                    it.copy(formState = it.formState.copy(speciesId = action.id))
-                }
+                _state.update { it.copy(formState = it.formState.copy(speciesId = action.id)) }
             }
-
             is AddPatientAction.OnSelectGender -> {
-                _state.update {
-                    it.copy(formState = it.formState.copy(genderId = action.id))
-                }
+                _state.update { it.copy(formState = it.formState.copy(genderId = action.id)) }
             }
-
+            is AddPatientAction.OnToggleNeutered -> {
+                _state.update { it.copy(formState = it.formState.copy(isNeutered = action.value)) }
+            }
+            // --- Sheet Actions ---
+            AddPatientAction.OnOpenClientSheet -> {
+                _state.update { it.copy(isClientSheetOpen = true, clientSearchQuery = "") }
+                filterClients("")
+            }
+            AddPatientAction.OnDismissClientSheet -> {
+                _state.update { it.copy(isClientSheetOpen = false) }
+            }
+            is AddPatientAction.OnSearchClientQueryChange -> {
+                _state.update { it.copy(clientSearchQuery = action.query) }
+                filterClients(action.query)
+            }
             is AddPatientAction.OnSelectClient -> {
                 _state.update {
-                    it.copy(formState = it.formState.copy(selectedClient = action.client))
-                }
-            }
-
-            is AddPatientAction.OnToggleNeutered -> {
-                _state.update {
-                    it.copy(formState = it.formState.copy(isNeutered = action.value))
+                    it.copy(
+                        formState = it.formState.copy(selectedClient = action.client)
+                    )
                 }
             }
         }
+    }
+
+    private fun filterClients(query: String) {
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.clients
+            } else {
+                state.clients.filter { client ->
+                    client.firstName.normalize().contains(normalizedQuery) ||
+                            client.lastName.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredClients = filtered)
+        }
+    }
+
+    private fun String.normalize(): String {
+        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+        return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
     }
 
     private fun getCatalogs() {
@@ -95,11 +114,11 @@ class AddPatientViewModel @Inject constructor(
                 )
             ).onSuccess { catalogs ->
                 successCatalogsAndGetClients(catalogs = catalogs)
-            }.onFailure{
+            }.onFailure {
                 _state.update { it.copy(isLoadingDataInitial = false) }
                 _eventChannel.send(
                     AddPatientEvent.ShowErrorSnackbar(
-                        message = "No pudimos obtener los catalogos. Inténtalo de nuevo."
+                        message = "No pudimos obtener los catálogos. Inténtalo de nuevo."
                     )
                 )
             }
@@ -109,24 +128,21 @@ class AddPatientViewModel @Inject constructor(
     private suspend fun successCatalogsAndGetClients(catalogs: List<AppCatalogModel>) {
         val speciesCatalog = catalogs.filter { it.catalogTypeId == Constants.SPECIES_TYPE_CATALOG }
         val genderCatalog = catalogs.filter { it.catalogTypeId == Constants.GENDER_TYPE_CATALOG }
-
         val canine = speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }
         val female = genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }
 
-        if (canine != null){
+        if (canine != null) {
             _state.update { it.copy(formState = it.formState.copy(speciesId = canine.id)) }
         }
-        if (female != null){
+        if (female != null) {
             _state.update { it.copy(formState = it.formState.copy(genderId = female.id)) }
         }
-
         _state.update {
             it.copy(
                 speciesCatalog = speciesCatalog,
                 genderCatalog = genderCatalog,
             )
         }
-
         getClients()
     }
 
@@ -136,6 +152,7 @@ class AddPatientViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         clients = clients,
+                        filteredClients = clients,
                         isLoadingDataInitial = false
                     )
                 }
@@ -152,9 +169,7 @@ class AddPatientViewModel @Inject constructor(
     private fun registerPatient() {
         val form = _state.value.formState
         if (!form.isValid) return
-
         _state.update { it.copy(isLoadingRegister = true) }
-
         viewModelScope.launch {
             val patient = PatientModel(
                 clientId = form.selectedClient?.id ?: "",
@@ -167,7 +182,6 @@ class AddPatientViewModel @Inject constructor(
                 color = form.color,
                 isNeutered = form.isNeutered
             )
-
             repository.insertPatient(patient)
                 .onSuccess {
                     _state.update {

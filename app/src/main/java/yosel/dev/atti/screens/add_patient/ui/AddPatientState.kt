@@ -9,5 +9,8 @@ data class AddPatientState(
     val speciesCatalog: List<AppCatalogModel> = emptyList(),
     val genderCatalog: List<AppCatalogModel> = emptyList(),
     val clients: List<ClientModel> = emptyList(),
+    val filteredClients: List<ClientModel> = emptyList(),
+    val clientSearchQuery: String = "",
+    val isClientSheetOpen: Boolean = false,
     val formState: AddPatientFormState = AddPatientFormState()
 )
