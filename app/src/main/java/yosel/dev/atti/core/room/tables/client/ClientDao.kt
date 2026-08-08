@@ -12,6 +12,9 @@ interface ClientDao {
     @Query("SELECT * FROM clients ORDER BY created_at DESC")
     fun getAllClientsFlow(): Flow<List<ClientEntity>>
 
+    @Query("SELECT * FROM clients ORDER BY created_at DESC")
+    fun getAllClients(): List<ClientEntity>
+
     @Query("SELECT * FROM clients WHERE id = :clientId")
     suspend fun getClientById(clientId: String): ClientEntity?
 

@@ -284,6 +284,7 @@ fun CustomSnackbarHost(
 fun InputFieldGlobal(
     modifier: Modifier = Modifier,
     label: String,
+    placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
     leadingIcon: ImageVector,
@@ -296,7 +297,8 @@ fun InputFieldGlobal(
     errorMessage: String? = null,
     onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    showCopyButton: Boolean = false
+    showCopyButton: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     val clipboard = LocalClipboard.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -316,6 +318,7 @@ fun InputFieldGlobal(
         value = value,
         onValueChange = onValueChange,
         label = { Text(text = label) },
+        placeholder = { Text(text = placeholder)},
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
@@ -323,7 +326,9 @@ fun InputFieldGlobal(
             )
         },
         trailingIcon = {
-            if (showCopyButton) {
+            if (trailingIcon != null) {
+                trailingIcon()
+            } else if (showCopyButton) {
                 IconButton(
                     onClick = {
                         coroutineScope.launch {
