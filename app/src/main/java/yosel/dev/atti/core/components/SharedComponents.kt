@@ -590,8 +590,6 @@ fun AddCatalogBottomSheet(
     )
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
-
-    // FocusRequester para abrir el teclado automáticamente
     val focusRequester = remember { FocusRequester() }
 
     var nameValue by remember { mutableStateOf("") }
@@ -599,26 +597,28 @@ fun AddCatalogBottomSheet(
 
     val isError = isTouched && nameValue.isBlank()
 
-    // Solicitar foco cuando se abra la hoja
     LaunchedEffect(Unit) {
-        delay(150.milliseconds)
+        delay(300.milliseconds)
         focusRequester.requestFocus()
     }
 
-    fun dismissWithAnimation(onComplete: (() -> Unit)? = null) {
+    // Cierre animado para interacciones manuales (Botón 'X' o toque fuera)
+    fun dismissWithAnimation() {
         coroutineScope.launch {
-            focusManager.clearFocus() // Ocultar teclado antes de cerrar
+            focusManager.clearFocus()
             sheetState.hide()
         }.invokeOnCompletion {
             if (!sheetState.isVisible) {
                 onDismiss()
-                onComplete?.invoke()
             }
         }
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            focusManager.clearFocus()
+            onDismiss()
+        },
         sheetState = sheetState,
         dragHandle = null,
         containerColor = MaterialTheme.colorScheme.background,
@@ -656,12 +656,12 @@ fun AddCatalogBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Campo de Texto con focusRequester adjuntado
+            // Campo de Texto
             InputFieldWithTextGlobal(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                label = "Nombre",
+                label = "Nombre $catalogName",
                 placeHolder = "ej. $catalogName",
                 value = nameValue,
                 onValueChange = {
@@ -686,10 +686,10 @@ fun AddCatalogBottomSheet(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
+                    // 1. Ocultar el teclado inmediatamente
                     focusManager.clearFocus()
-                    dismissWithAnimation {
-                        onSave(nameValue.trim())
-                    }
+                    // 2. Disparar el guardado sin cerrar la hoja localmente
+                    onSave(nameValue.trim())
                 },
                 enabled = nameValue.isNotBlank(),
                 shape = RoundedCornerShape(100.dp)

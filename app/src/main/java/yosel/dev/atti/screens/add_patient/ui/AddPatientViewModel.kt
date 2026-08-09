@@ -214,7 +214,7 @@ class AddPatientViewModel @Inject constructor(
 
         viewModelScope.launch {
             val newCatalog = AppCatalogModel(
-                id = 0, // Id vacío/0 para autoincremento en el backend
+                id = 0,
                 catalogTypeId = currentState.activeCatalogTypeId,
                 name = name,
                 description = "",
@@ -237,7 +237,6 @@ class AddPatientViewModel @Inject constructor(
                             state.genderCatalog
                         }
 
-                        // Selecciona automáticamente el catálogo recién creado en el formulario
                         val updatedFormState = if (state.activeCatalogTypeId == Constants.SPECIES_TYPE_CATALOG) {
                             state.formState.copy(speciesId = insertedCatalog.id)
                         } else {
@@ -246,7 +245,7 @@ class AddPatientViewModel @Inject constructor(
 
                         state.copy(
                             isLoadingAddCatalog = false,
-                            isAddCatalogSheetOpen = false,
+                            isAddCatalogSheetOpen = false, // Se cierra la hoja hasta que termina con éxito
                             speciesCatalog = updatedSpecies,
                             genderCatalog = updatedGender,
                             formState = updatedFormState
@@ -255,7 +254,12 @@ class AddPatientViewModel @Inject constructor(
                     _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("${currentState.activeCatalogTypeName} agregado correctamente."))
                 }
                 .onFailure {
-                    _state.update { it.copy(isLoadingAddCatalog = false) }
+                    _state.update {
+                        it.copy(
+                            isLoadingAddCatalog = false,
+                            isAddCatalogSheetOpen = false
+                        )
+                    }
                     _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No se pudo agregar el catálogo. Inténtalo de nuevo."))
                 }
         }
