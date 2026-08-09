@@ -12,6 +12,7 @@ import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
+import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
 import java.text.Normalizer
 
@@ -186,6 +187,18 @@ fun AppCatalogModel.toDtoForInsert() = AppCatalogDto(
     name = name,
     description = description.ifBlank { null },
     isActive = isActive
+)
+
+fun AddPatientFormState.toInsertModel() = PatientModel(
+    clientId = selectedClient?.id ?: "",
+    name = name,
+    speciesId = speciesId,
+    genderId = genderId,
+    breed = breed,
+    ageYears = ageYears.toIntOrNull() ?: 0,
+    ageMonths = ageMonths.toIntOrNull() ?: 0,
+    color = color,
+    isNeutered = isNeutered
 )
 
 fun String.normalize(): String {

@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
+import yosel.dev.atti.core.utils.toInsertModel
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
-import java.text.Normalizer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -137,21 +136,21 @@ class AddPatientViewModel @Inject constructor(
     private suspend fun successCatalogsAndGetClients(catalogs: List<AppCatalogModel>) {
         val speciesCatalog = catalogs.filter { it.catalogTypeId == Constants.SPECIES_TYPE_CATALOG }
         val genderCatalog = catalogs.filter { it.catalogTypeId == Constants.GENDER_TYPE_CATALOG }
-        val canine = speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }
-        val female = genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }
 
-        if (canine != null) {
-            _state.update { it.copy(formState = it.formState.copy(speciesId = canine.id)) }
-        }
-        if (female != null) {
-            _state.update { it.copy(formState = it.formState.copy(genderId = female.id)) }
-        }
-        _state.update {
-            it.copy(
+        val defaultSpeciesId = speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }?.id
+        val defaultGenderId = genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }?.id
+
+        _state.update { currentState ->
+            currentState.copy(
                 speciesCatalog = speciesCatalog,
                 genderCatalog = genderCatalog,
+                formState = currentState.formState.copy(
+                    speciesId = defaultSpeciesId ?: currentState.formState.speciesId,
+                    genderId = defaultGenderId ?: currentState.formState.genderId
+                )
             )
         }
+
         getClients()
     }
 
@@ -176,29 +175,28 @@ class AddPatientViewModel @Inject constructor(
     }
 
     private fun registerPatient() {
-        val form = _state.value.formState
-        if (!form.isValid) return
+        val cs = _state.value
+        if (!cs.formState.isValid) return
         _state.update { it.copy(isLoadingRegister = true) }
         viewModelScope.launch {
-            val patient = PatientModel(
-                clientId = form.selectedClient?.id ?: "",
-                name = form.name,
-                speciesId = form.speciesId,
-                genderId = form.genderId,
-                breed = form.breed,
-                ageYears = form.ageYears.toIntOrNull() ?: 0,
-                ageMonths = form.ageMonths.toIntOrNull() ?: 0,
-                color = form.color,
-                isNeutered = form.isNeutered
-            )
+
+            val patient = cs.formState.toInsertModel()
+
             repository.insertPatient(patient)
                 .onSuccess {
-                    _state.update {
-                        it.copy(
+                    val defaultSpeciesId = cs.speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }?.id ?: 0
+                    val defaultGenderId = cs.genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }?.id ?: 0
+
+                    _state.update { currentState ->
+                        currentState.copy(
                             isLoadingRegister = false,
-                            formState = AddPatientFormState()
+                            formState = AddPatientFormState(
+                                speciesId = defaultSpeciesId,
+                                genderId = defaultGenderId
+                            )
                         )
                     }
+
                     _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("Paciente registrado correctamente."))
                 }
                 .onFailure {
@@ -213,6 +211,7 @@ class AddPatientViewModel @Inject constructor(
         _state.update { it.copy(isLoadingAddCatalog = true) }
 
         viewModelScope.launch {
+
             val newCatalog = AppCatalogModel(
                 id = 0,
                 catalogTypeId = currentState.activeCatalogTypeId,
