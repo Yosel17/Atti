@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -103,7 +104,8 @@ fun DetailPatientScreen(
                     targetState.patient.id.isEmpty() ->{
                         EmptyGlobal(
                             title = "No se pudo encontrar al paciente",
-                            subTitle = "Intenta de nuevo más tarde"
+                            subTitle = "Intenta de nuevo más tarde",
+                            icon = Icons.Outlined.Pets
                         )
                     }
                     else ->{
