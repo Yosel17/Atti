@@ -13,6 +13,7 @@ import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
+import java.text.Normalizer
 
 fun ClientDto.toEntity() = ClientEntity(
     id = id.orEmpty(),
@@ -186,3 +187,8 @@ fun AppCatalogModel.toDtoForInsert() = AppCatalogDto(
     description = description.ifBlank { null },
     isActive = isActive
 )
+
+fun String.normalize(): String {
+    val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+    return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
+}

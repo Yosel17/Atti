@@ -67,6 +67,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
+import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.navigation.main.Screens
@@ -600,59 +601,6 @@ fun NotFoundPatientsState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer paciente")
-        }
-    }
-}
-
-@Composable
-fun NoSearchResultsState(
-    query: String,
-    onClearSearch: () -> Unit,
-    modifier: Modifier = Modifier,
-    nameResult: String
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.SearchOff,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(48.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "No se encontraron resultados",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "No encontramos $nameResult que coincidan con \"$query\". Prueba con otro nombre o limpia la búsqueda.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(28.dp))
-        FilledTonalButton(
-            onClick = onClearSearch,
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(text = "Limpiar búsqueda")
         }
     }
 }

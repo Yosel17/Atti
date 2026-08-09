@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,40 +29,57 @@ import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import kotlinx.coroutines.launch
+import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
@@ -271,10 +291,9 @@ fun BodyAddPatient(
             }
 
             item {
-                ClientSelector(
-                    clients = state.clients,
+                ClientSelectorSection(
                     selectedClient = state.formState.selectedClient,
-                    onSelect = { onAction(AddPatientAction.OnSelectClient(it)) }
+                    onOpenSheet = { onAction(AddPatientAction.OnOpenClientSheet) }
                 )
             }
 
@@ -508,61 +527,233 @@ fun NeuteredSelection(isNeutered: Boolean, onToggle: (Boolean) -> Unit) {
 }
 
 @Composable
-fun ClientSelector(
-    clients: List<ClientModel>,
+fun ClientSelectorSection(
     selectedClient: ClientModel?,
-    onSelect: (ClientModel) -> Unit
+    onOpenSheet: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf(selectedClient?.fullName ?: "") }
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = if (selectedClient != null) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = null,
+                            tint = if (selectedClient != null) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = selectedClient?.fullName ?: "Ningún cliente seleccionado",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = if (selectedClient != null) FontWeight.Bold else FontWeight.Normal,
+                        color = if (selectedClient != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            FilledTonalButton(
+                onClick = onOpenSheet,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(text = if (selectedClient == null) "Vincular" else "Cambiar")
+            }
+        }
+    }
+}
 
-    val filteredClients = remember(searchQuery, clients) {
-        if (searchQuery.isBlank()) clients
-        else clients.filter { it.fullName.contains(searchQuery, ignoreCase = true) }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectClientBottomSheet(
+    state: AddPatientState,
+    onAction: (AddPatientAction) -> Unit
+) {
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+    )
+    val coroutineScope = rememberCoroutineScope()
+
+    fun dismissWithAnimation(onComplete: (() -> Unit)? = null) {
+        coroutineScope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onAction(AddPatientAction.OnDismissClientSheet)
+                onComplete?.invoke()
+            }
+        }
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        InputFieldGlobal(
-            label = "Vincular a un Cliente",
-            placeholder = "Buscar cliente existente...",
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                expanded = true
-            },
-            leadingIcon = Icons.Outlined.Person,
-            readOnly = false
-        )
-
-        DropdownMenu(
-            expanded = expanded && filteredClients.isNotEmpty(),
-            onDismissRequest = { expanded = false },
-            properties = PopupProperties(focusable = false),
+    ModalBottomSheet(
+        onDismissRequest = {
+            onAction(AddPatientAction.OnDismissClientSheet)
+        },
+        sheetState = sheetState,
+        dragHandle = null,
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 24.dp)
         ) {
-            filteredClients.forEach { client ->
-                DropdownMenuItem(
-                    text = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                                tint = if (client.id == selectedClient?.id) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = client.fullName,
-                                fontWeight = if (client.id == selectedClient?.id) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                    },
-                    onClick = {
-                        onSelect(client)
-                        searchQuery = client.fullName
-                        expanded = false
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Seleccionar Cliente",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                IconButton(onClick = { dismissWithAnimation() }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Cerrar",
+                        modifier = Modifier.clip(CircleShape)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            AttiSearchBar(
+                value = state.clientSearchQuery,
+                onValueChange = { onAction(AddPatientAction.OnSearchClientQueryChange(it)) },
+                placeholder = "Buscar por nombre o apellido..."
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (state.filteredClients.isEmpty()){
+                NoSearchResultsState(
+                    query = state.clientSearchQuery,
+                    onClearSearch = { onAction(AddPatientAction.OnSearchClientQueryChange("")) },
+                    nameResult = "clientes"
+                )
+            }else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .nestedScroll(rememberNestedScrollInteropConnection()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(state.filteredClients, key = { it.id }) { client ->
+                        val isSelected = client.id == state.formState.selectedClient?.id
+
+                        ClientSelectionCard(
+                            client = client,
+                            isSelected = isSelected,
+                            onClick = {
+                                dismissWithAnimation {
+                                    onAction(AddPatientAction.OnSelectClient(client))
+                                }
+                            }
+                        )
                     }
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun ClientSelectionCard(
+    client: ClientModel,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+            else
+                MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = null,
+                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = client.fullName.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (client.phoneNumber.isNotBlank()) {
+                    Text(
+                        text = "Tel. ${client.phoneNumber}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = "Seleccionado",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
