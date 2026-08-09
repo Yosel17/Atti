@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
 import java.text.Normalizer
 import javax.inject.Inject
@@ -97,11 +98,6 @@ class AddPatientViewModel @Inject constructor(
             }
             state.copy(filteredClients = filtered)
         }
-    }
-
-    private fun String.normalize(): String {
-        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
-        return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
     }
 
     private fun getCatalogs() {

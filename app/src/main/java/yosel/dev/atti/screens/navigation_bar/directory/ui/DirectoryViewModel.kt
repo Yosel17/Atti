@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import java.text.Normalizer
 import javax.inject.Inject
@@ -142,10 +143,5 @@ class DirectoryViewModel @Inject constructor(
                     )
                 }
         }
-    }
-
-    private fun String.normalize(): String {
-        val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
-        return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
     }
 }
