@@ -281,6 +281,10 @@ fun BodyDirectory(
                                                     onCardClick = {}
                                                 )
                                             }
+
+                                            item {
+                                                Spacer(modifier = Modifier.height(80.dp))
+                                            }
                                         }
                                     }
                                 }
@@ -330,6 +334,9 @@ fun ClientList(
                     onClientClick(clientId)
                 }
             )
+        }
+        item {
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
