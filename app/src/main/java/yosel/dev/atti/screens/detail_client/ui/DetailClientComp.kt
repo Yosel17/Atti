@@ -98,7 +98,7 @@ fun BodyDetailClient(
     onAction: (DetailClientAction) -> Unit
 ) {
     val client = state.clientWithPatients.client
-    val patients = state.clientWithPatients.patients
+    val patients = state.clientWithPatients.sortedPatients
     val context = LocalContext.current
 
     LazyColumn(
