@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.AddCatalogBottomSheet
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
@@ -101,7 +102,16 @@ fun AddPatientScreen(
         if (state.isLoadingRegister) {
             LoadingDialog(
                 title = "Registrando paciente...",
-                subtitle = "Estamos guardando la información del nuevo paciente."
+                subtitle = "Estamos guardando la información del nuevo paciente.",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.isLoadingAddCatalog) {
+            LoadingDialog(
+                title = "Guardando ${state.activeCatalogTypeName.lowercase()}...",
+                subtitle = "Por favor espera un momento...",
+                colorTitle = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -109,6 +119,14 @@ fun AddPatientScreen(
             SelectClientBottomSheet(
                 state = state,
                 onAction = onAction
+            )
+        }
+
+        if (state.isAddCatalogSheetOpen) {
+            AddCatalogBottomSheet(
+                catalogName = state.activeCatalogTypeName,
+                onDismiss = { onAction(AddPatientAction.OnDismissAddCatalogSheet) },
+                onSave = { name -> onAction(AddPatientAction.OnSaveCatalog(name)) }
             )
         }
     }

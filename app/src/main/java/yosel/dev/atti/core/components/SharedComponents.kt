@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,12 +26,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Inbox
+import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Replay
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
@@ -38,12 +42,15 @@ import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
@@ -55,25 +62,36 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AttiSearchBar(
@@ -330,9 +348,13 @@ fun InputFieldGlobal(
         modifier = modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge,
         colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.primary,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
             unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            errorLeadingIconColor = MaterialTheme.colorScheme.error
+            errorLeadingIconColor = MaterialTheme.colorScheme.error,
+            errorPlaceholderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
         )
     )
 }
@@ -555,6 +577,143 @@ fun NoSearchResultsState(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(text = "Limpiar búsqueda")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddCatalogBottomSheet(
+    catalogName: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+    )
+    val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
+
+    var nameValue by remember { mutableStateOf("") }
+    var isTouched by remember { mutableStateOf(false) }
+
+    val isError = isTouched && nameValue.isBlank()
+
+    LaunchedEffect(Unit) {
+        delay(300.milliseconds)
+        focusRequester.requestFocus()
+    }
+
+    // Cierre animado para interacciones manuales (Botón 'X' o toque fuera)
+    fun dismissWithAnimation() {
+        coroutineScope.launch {
+            focusManager.clearFocus()
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismiss()
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            focusManager.clearFocus()
+            onDismiss()
+        },
+        sheetState = sheetState,
+        dragHandle = null,
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 24.dp)
+        ) {
+            // Header con Título y Botón 'X'
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Agregar $catalogName",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                IconButton(onClick = { dismissWithAnimation() }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Cerrar",
+                        modifier = Modifier.clip(CircleShape)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Campo de Texto
+            InputFieldWithTextGlobal(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                label = "Nombre $catalogName",
+                placeHolder = "ej. $catalogName",
+                value = nameValue,
+                onValueChange = {
+                    nameValue = it
+                    if (!isTouched && it.isNotBlank()) {
+                        isTouched = true
+                    }
+                },
+                leadingIcon = Icons.Outlined.Label,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                isError = isError,
+                errorMessage = "Este campo no puede estar vacío"
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de Guardar
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    // 1. Ocultar el teclado inmediatamente
+                    focusManager.clearFocus()
+                    // 2. Disparar el guardado sin cerrar la hoja localmente
+                    onSave(nameValue.trim())
+                },
+                enabled = nameValue.isNotBlank(),
+                shape = RoundedCornerShape(100.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Save,
+                        contentDescription = "Guardar"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Guardar $catalogName",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
         }
     }
 }

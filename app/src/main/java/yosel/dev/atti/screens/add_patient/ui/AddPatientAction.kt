@@ -15,4 +15,9 @@ sealed interface AddPatientAction {
     data object OnDismissClientSheet : AddPatientAction
     data class OnSearchClientQueryChange(val query: String) : AddPatientAction
     data class OnSelectClient(val client: ClientModel) : AddPatientAction
+
+    // Agregar estas acciones a AddPatientAction:
+    data class OnOpenAddCatalogSheet(val catalogTypeId: Int, val catalogTypeName: String) : AddPatientAction
+    data object OnDismissAddCatalogSheet : AddPatientAction
+    data class OnSaveCatalog(val name: String) : AddPatientAction
 }
