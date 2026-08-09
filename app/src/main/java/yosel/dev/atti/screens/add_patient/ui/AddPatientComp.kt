@@ -146,7 +146,15 @@ fun BodyAddPatient(
                     catalogs = state.speciesCatalog,
                     selectedId = state.formState.speciesId,
                     onSelect = { onAction(AddPatientAction.OnSelectSpecies(it)) },
-                    isSpecies = true
+                    isSpecies = true,
+                    onOtherClick = {
+                        onAction(
+                            AddPatientAction.OnOpenAddCatalogSheet(
+                                catalogTypeId = Constants.SPECIES_TYPE_CATALOG,
+                                catalogTypeName = "Especie"
+                            )
+                        )
+                    }
                 )
             }
 
@@ -180,7 +188,15 @@ fun BodyAddPatient(
                     catalogs = state.genderCatalog,
                     selectedId = state.formState.genderId,
                     onSelect = { onAction(AddPatientAction.OnSelectGender(it)) },
-                    isSpecies = false
+                    isSpecies = false,
+                    onOtherClick = {
+                        onAction(
+                            AddPatientAction.OnOpenAddCatalogSheet(
+                                catalogTypeId = Constants.GENDER_TYPE_CATALOG,
+                                catalogTypeName = "Género"
+                            )
+                        )
+                    }
                 )
             }
 
@@ -392,7 +408,8 @@ fun CatalogSelection(
     catalogs: List<AppCatalogModel>,
     selectedId: Int,
     onSelect: (Int) -> Unit,
-    isSpecies: Boolean
+    isSpecies: Boolean,
+    onOtherClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -426,7 +443,7 @@ fun CatalogSelection(
                 icon = if (isSpecies) getSpeciesInfo(0).icon else null,
                 iconVector = if (!isSpecies) getGenderInfo(0).icon else null,
                 isSelected = selectedId == -1,
-                onClick = { /* TODO: Agregar funcionalidad de otros */ }
+                onClick = onOtherClick
             )
         }
     }

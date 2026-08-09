@@ -82,6 +82,19 @@ class AddPatientViewModel @Inject constructor(
                     )
                 }
             }
+            is AddPatientAction.OnOpenAddCatalogSheet -> {
+                _state.update {
+                    it.copy(
+                        isAddCatalogSheetOpen = true,
+                        activeCatalogTypeId = action.catalogTypeId,
+                        activeCatalogTypeName = action.catalogTypeName
+                    )
+                }
+            }
+            AddPatientAction.OnDismissAddCatalogSheet -> {
+                _state.update { it.copy(isAddCatalogSheetOpen = false) }
+            }
+            is AddPatientAction.OnSaveCatalog -> saveCatalog(action.name)
         }
     }
 
@@ -191,6 +204,59 @@ class AddPatientViewModel @Inject constructor(
                 .onFailure {
                     _state.update { it.copy(isLoadingRegister = false) }
                     _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No pudimos registrar al paciente. Inténtalo de nuevo."))
+                }
+        }
+    }
+
+    private fun saveCatalog(name: String) {
+        val currentState = _state.value
+        _state.update { it.copy(isLoadingAddCatalog = true) }
+
+        viewModelScope.launch {
+            val newCatalog = AppCatalogModel(
+                id = 0, // Id vacío/0 para autoincremento en el backend
+                catalogTypeId = currentState.activeCatalogTypeId,
+                name = name,
+                description = "",
+                isActive = true,
+                createdAt = ""
+            )
+
+            repository.insertCatalog(newCatalog)
+                .onSuccess { insertedCatalog ->
+                    _state.update { state ->
+                        val updatedSpecies = if (state.activeCatalogTypeId == Constants.SPECIES_TYPE_CATALOG) {
+                            state.speciesCatalog + insertedCatalog
+                        } else {
+                            state.speciesCatalog
+                        }
+
+                        val updatedGender = if (state.activeCatalogTypeId == Constants.GENDER_TYPE_CATALOG) {
+                            state.genderCatalog + insertedCatalog
+                        } else {
+                            state.genderCatalog
+                        }
+
+                        // Selecciona automáticamente el catálogo recién creado en el formulario
+                        val updatedFormState = if (state.activeCatalogTypeId == Constants.SPECIES_TYPE_CATALOG) {
+                            state.formState.copy(speciesId = insertedCatalog.id)
+                        } else {
+                            state.formState.copy(genderId = insertedCatalog.id)
+                        }
+
+                        state.copy(
+                            isLoadingAddCatalog = false,
+                            isAddCatalogSheetOpen = false,
+                            speciesCatalog = updatedSpecies,
+                            genderCatalog = updatedGender,
+                            formState = updatedFormState
+                        )
+                    }
+                    _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("${currentState.activeCatalogTypeName} agregado correctamente."))
+                }
+                .onFailure {
+                    _state.update { it.copy(isLoadingAddCatalog = false) }
+                    _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No se pudo agregar el catálogo. Inténtalo de nuevo."))
                 }
         }
     }

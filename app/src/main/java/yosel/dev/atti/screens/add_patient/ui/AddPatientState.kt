@@ -12,5 +12,9 @@ data class AddPatientState(
     val filteredClients: List<ClientModel> = emptyList(),
     val clientSearchQuery: String = "",
     val isClientSheetOpen: Boolean = false,
-    val formState: AddPatientFormState = AddPatientFormState()
+    val formState: AddPatientFormState = AddPatientFormState(),
+    val isAddCatalogSheetOpen: Boolean = false,
+    val activeCatalogTypeId: Int = 0,
+    val activeCatalogTypeName: String = "",
+    val isLoadingAddCatalog: Boolean = false
 )
