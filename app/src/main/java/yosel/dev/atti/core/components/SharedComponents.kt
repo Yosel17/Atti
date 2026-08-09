@@ -74,6 +74,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipEntry
@@ -87,7 +89,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AttiSearchBar(
@@ -587,13 +591,23 @@ fun AddCatalogBottomSheet(
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
 
+    // FocusRequester para abrir el teclado automáticamente
+    val focusRequester = remember { FocusRequester() }
+
     var nameValue by remember { mutableStateOf("") }
     var isTouched by remember { mutableStateOf(false) }
 
     val isError = isTouched && nameValue.isBlank()
 
+    // Solicitar foco cuando se abra la hoja
+    LaunchedEffect(Unit) {
+        delay(150.milliseconds)
+        focusRequester.requestFocus()
+    }
+
     fun dismissWithAnimation(onComplete: (() -> Unit)? = null) {
         coroutineScope.launch {
+            focusManager.clearFocus() // Ocultar teclado antes de cerrar
             sheetState.hide()
         }.invokeOnCompletion {
             if (!sheetState.isVisible) {
@@ -642,10 +656,12 @@ fun AddCatalogBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Campo de Texto
+            // Campo de Texto con focusRequester adjuntado
             InputFieldWithTextGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Nombre $catalogName",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                label = "Nombre",
                 placeHolder = "ej. $catalogName",
                 value = nameValue,
                 onValueChange = {
@@ -654,7 +670,7 @@ fun AddCatalogBottomSheet(
                         isTouched = true
                     }
                 },
-                leadingIcon = Icons.AutoMirrored.Outlined.Label,
+                leadingIcon = Icons.Outlined.Label,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
