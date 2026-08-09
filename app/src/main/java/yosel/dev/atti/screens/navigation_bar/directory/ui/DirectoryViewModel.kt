@@ -115,7 +115,7 @@ class DirectoryViewModel @Inject constructor(
                 .onFailure {
                     _state.update { it.copy(isLoadingClients = false) }
                     _events.send(
-                        DirectoryEvent.ShowSnackBarError("Error al sincronizar los clientes")
+                        DirectoryEvent.ShowSnackBarError("Error al sincronizar a los clientes")
                     )
                 }
         }
