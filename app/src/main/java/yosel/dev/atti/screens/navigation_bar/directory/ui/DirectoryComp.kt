@@ -148,8 +148,8 @@ fun BodyDirectory(
             when (tabIndex) {
                 0 -> {
                     val clientState = when {
-                        state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
                         state.isLoadingClients -> DirectoryUIStatus.LOADING
+                        state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
                         else -> DirectoryUIStatus.EMPTY
                     }
 
