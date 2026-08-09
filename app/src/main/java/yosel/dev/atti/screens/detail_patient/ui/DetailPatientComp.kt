@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ColorLens
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -210,7 +212,9 @@ private fun PatientInformationCard(
                 icon = Icons.Outlined.ContentCut,
                 label = "Castrado",
                 value = if (patient.isNeutered) "Sí" else "No",
-                valueIcon = if (patient.isNeutered) Icons.Outlined.CheckCircle else null
+                valueIcon = if (patient.isNeutered) Icons.Outlined.CheckCircle else Icons.Outlined.Cancel,
+                colorValue = if (patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                colorIconValue = if (patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -242,6 +246,8 @@ private fun DetailRow(
     label: String,
     value: String,
     valueIcon: ImageVector? = null,
+    colorValue: Color = MaterialTheme.colorScheme.onSurface,
+    colorIconValue: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
         modifier = modifier
@@ -281,7 +287,7 @@ private fun DetailRow(
                 text = value,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = colorValue,
                 textAlign = TextAlign.End
             )
             if (valueIcon != null) {
@@ -289,7 +295,7 @@ private fun DetailRow(
                 Icon(
                     imageVector = valueIcon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = colorIconValue,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -315,11 +321,11 @@ private fun BodyDetailPatientPreview() {
                         ageYears = 3,
                         ageMonths = 2,
                         color = "Canela y Blanco",
-                        isNeutered = false
+                        isNeutered = true
                     ),
                     client = ClientModel(
-                        firstName = "Juan",
-                        lastName = "Pérez"
+                        firstName = "Yosel",
+                        lastName = "Alvizures"
                     )
                 )
             )

@@ -45,7 +45,7 @@ fun DetailPatientScreen(
                 title = "Detalle Paciente",
                 onBack = onBack,
                 actions = {
-                    if (!state.isLoading && state.patient.id == ""){
+                    if (!state.isLoading && state.patient.id != ""){
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -59,7 +59,7 @@ fun DetailPatientScreen(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
 
                             IconButton(
                                 onClick = { onAction(DetailPatientAction.OnDeleteClick) }
@@ -67,7 +67,7 @@ fun DetailPatientScreen(
                                 Icon(
                                     imageVector = Icons.Rounded.Delete,
                                     contentDescription = "eliminar",
-                                    tint = MaterialTheme.colorScheme.errorContainer
+                                    tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
