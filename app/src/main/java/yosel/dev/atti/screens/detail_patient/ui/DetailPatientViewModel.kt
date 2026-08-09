@@ -36,6 +36,13 @@ class DetailPatientViewModel @AssistedInject constructor(
     // Control para evitar llamadas repetidas a la red si el ID del cliente no cambia
     private var lastFetchedClientId: String? = null
 
+    fun onAction(action: DetailPatientAction){
+        when(action){
+            DetailPatientAction.OnDeleteClick -> {}
+            DetailPatientAction.OnEditClick -> {}
+        }
+    }
+
     init {
         observePatient()
     }
