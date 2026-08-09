@@ -26,12 +26,14 @@ class AddPatientRepositoryImpl @Inject constructor(
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
         val remoteAppCatalogs = appCatalogsDataSource.getCatalogsByTypes(types = types)
         val entities = remoteAppCatalogs.map { it.toEntity() }
-        appCatalogDao.insertAllCatalogs(catalogs = entities)
+        appCatalogDao.clearAndInsertCatalogs(catalogs = entities)
         remoteAppCatalogs.map { it.toModel() }
     }
 
     override suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel> = runCatching {
-        appCatalogsDataSource.insertAndGetCatalog(catalog = catalog.toDtoForInsert()).toModel()
+        val appCatalogDto = appCatalogsDataSource.insertAndGetCatalog(catalog = catalog.toDtoForInsert())
+        appCatalogDao.insertCatalog(catalog = appCatalogDto.toEntity())
+        appCatalogDto.toModel()
 
     }
 

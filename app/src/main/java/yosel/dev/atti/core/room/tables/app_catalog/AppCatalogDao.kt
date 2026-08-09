@@ -2,6 +2,7 @@ package yosel.dev.atti.core.room.tables.app_catalog
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 
@@ -37,4 +38,10 @@ interface AppCatalogDao {
 
     @Query("DELETE FROM app_catalogs")
     suspend fun deleteAllCatalogs()
+
+    @Transaction
+    suspend fun clearAndInsertCatalogs(catalogs: List<AppCatalogEntity>) {
+        deleteAllCatalogs()
+        insertAllCatalogs(catalogs)
+    }
 }
