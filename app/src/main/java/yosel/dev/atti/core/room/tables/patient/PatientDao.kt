@@ -17,7 +17,7 @@ interface PatientDao {
     fun getPatientsByClientIdFlow(clientId: String): Flow<List<PatientEntity>>
 
     @Query("SELECT * FROM patients WHERE client_id = :clientId ORDER BY created_at ASC")
-    fun getPatientsByClientId(clientId: String): List<PatientEntity>
+    suspend fun getPatientsByClientId(clientId: String): List<PatientEntity>
 
     @Query("SELECT * FROM patients WHERE id = :patientId")
     suspend fun getPatientById(patientId: String): PatientEntity?

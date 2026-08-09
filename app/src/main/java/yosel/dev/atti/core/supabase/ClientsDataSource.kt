@@ -33,4 +33,14 @@ class ClientsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun getClientById(id: String): ClientDto? {
+        return postgrest.from(Constants.CLIENTS_SUPABASE)
+            .select {
+                filter {
+                    eq("id", id)
+                }
+            }
+            .decodeSingleOrNull<ClientDto>()
+    }
 }
