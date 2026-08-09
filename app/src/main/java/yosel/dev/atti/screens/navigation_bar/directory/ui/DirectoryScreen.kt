@@ -54,7 +54,7 @@ fun DirectoryScreen(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.BottomEnd),
-            visible = state.selectedTabIndex == 0 && state.clients.isNotEmpty(),
+            visible = state.selectedTabIndex == 0 && state.clients.isNotEmpty() && !state.isLoadingClients,
             enter = slideInVertically(
                 initialOffsetY = { it / 2 },
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
@@ -90,7 +90,7 @@ fun DirectoryScreen(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.BottomEnd),
-            visible = state.selectedTabIndex == 1 && state.patients.isNotEmpty(),
+            visible = state.selectedTabIndex == 1 && state.patients.isNotEmpty() && !state.isLoadingPatients,
             enter = slideInVertically(
                 initialOffsetY = { it / 2 },
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)

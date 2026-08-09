@@ -31,16 +31,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FactCheck
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.DocumentScanner
-import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Pets
-import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -97,8 +97,8 @@ fun BodyDirectory(
 ) {
     val tabs = remember {
         listOf(
-            DirectoryTabData("Clientes", Icons.Outlined.People),
-            DirectoryTabData("Pacientes", Icons.Outlined.Pets)
+            DirectoryTabData("Clientes", Icons.Filled.People),
+            DirectoryTabData("Pacientes", Icons.Filled.Pets)
         )
     }
 
@@ -114,6 +114,8 @@ fun BodyDirectory(
                 Tab(
                     selected = state.selectedTabIndex == index,
                     onClick = { onAction(DirectoryAction.OnTabSelected(index)) },
+                    selectedContentColor = MaterialTheme.colorScheme.primary,
+                    unselectedContentColor = MaterialTheme.colorScheme.onBackground,
                     text = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -148,8 +150,8 @@ fun BodyDirectory(
             when (tabIndex) {
                 0 -> {
                     val clientState = when {
-                        state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
                         state.isLoadingClients -> DirectoryUIStatus.LOADING
+                        state.clients.isNotEmpty() -> DirectoryUIStatus.CONTENT
                         else -> DirectoryUIStatus.EMPTY
                     }
 

@@ -82,19 +82,23 @@ class DirectoryViewModel @Inject constructor(
             is DirectoryAction.OnTabSelected -> {
                 onTabSelected(index = event.index)
             }
+
             is DirectoryAction.OnCallClick -> {
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToPhone(event.phoneNumber))
                 }
             }
+
             is DirectoryAction.OnWhatsappClick -> {
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
                 }
             }
+
             is DirectoryAction.OnClientSearchQueryChange -> {
                 _state.update { it.copy(clientSearchQuery = event.query) }
             }
+
             is DirectoryAction.OnPatientSearchQueryChange -> {
                 _state.update { it.copy(patientSearchQuery = event.query) }
             }
@@ -103,7 +107,7 @@ class DirectoryViewModel @Inject constructor(
 
     private fun fetchRemoteClientsIfNeeded() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoadingClients = _state.value.clients.isEmpty()) }
+            _state.update { it.copy(isLoadingClients = true) }
             repository.syncClients()
                 .onSuccess {
                     _state.update { it.copy(isLoadingClients = false) }
@@ -111,7 +115,7 @@ class DirectoryViewModel @Inject constructor(
                 .onFailure {
                     _state.update { it.copy(isLoadingClients = false) }
                     _events.send(
-                        DirectoryEvent.ShowSnackBarError("Error al sincronizar los clientes")
+                        DirectoryEvent.ShowSnackBarError("Error al sincronizar a los clientes")
                     )
                 }
         }
@@ -137,7 +141,12 @@ class DirectoryViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
-                    _state.update { it.copy(isLoadingPatients = false) }
+                    _state.update {
+                        it.copy(
+                            isLoadingPatients = false,
+                            isFirstPatients = false
+                        )
+                    }
                     _events.send(
                         DirectoryEvent.ShowSnackBarError("Error al sincronizar a los pacientes")
                     )
