@@ -29,8 +29,10 @@ import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
@@ -230,7 +232,7 @@ fun BodyAddPatient(
                                 onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_YEARS_FIELD))
                             }
                         },
-                        leadingIcon = Icons.AutoMirrored.Outlined.Assignment,
+                        leadingIcon = Icons.Outlined.Cake,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
@@ -249,7 +251,7 @@ fun BodyAddPatient(
                                 onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_MONTHS_FIELD))
                             }
                         },
-                        leadingIcon = Icons.AutoMirrored.Outlined.Assignment,
+                        leadingIcon = Icons.Outlined.DateRange,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
