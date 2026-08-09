@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,7 +56,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,6 +101,9 @@ fun BodyDirectory(
             DirectoryTabData("Pacientes", Icons.Outlined.Pets)
         )
     }
+
+    val clientListState = rememberLazyListState()
+    val patientListState = rememberLazyListState()
 
     Column(modifier = modifier) {
         SecondaryTabRow(
@@ -186,6 +195,7 @@ fun BodyDirectory(
                                             ClientList(
                                                 modifier = Modifier.fillMaxSize(),
                                                 clients = state.filteredClients,
+                                                listState = clientListState,
                                                 onAction = onAction,
                                                 onClientClick = { clientId ->
                                                     onNavigationMain(
@@ -269,19 +279,12 @@ fun BodyDirectory(
                                             nameResult = "Pacientes"
                                         )
                                     } else {
-                                        LazyColumn(
+                                        PatientList(
                                             modifier = Modifier.fillMaxSize(),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                                            contentPadding = PaddingValues(vertical = 16.dp)
-                                        ) {
-                                            items(state.filteredPatients, key = { it.id }) { patient ->
-                                                // Componente Card de Paciente
-                                                PatientCard(
-                                                    patient = patient,
-                                                    onCardClick = {}
-                                                )
-                                            }
-                                        }
+                                            patients = state.filteredPatients,
+                                            listState = patientListState,
+                                            onPatientClick = {}
+                                        )
                                     }
                                 }
                             }
@@ -312,12 +315,24 @@ private enum class DirectoryUIStatus {
 @Composable
 fun ClientList(
     clients: List<ClientModel>,
+    listState: LazyListState,
     onAction: (DirectoryAction) -> Unit,
     modifier: Modifier = Modifier,
     onClientClick: (String) -> Unit
 ) {
+    var previousCount by remember { mutableIntStateOf(clients.size) }
+    val firstClientId = clients.firstOrNull()?.id
+
+    LaunchedEffect(clients.size, firstClientId) {
+        if (clients.size > previousCount && clients.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+        previousCount = clients.size
+    }
+
     LazyColumn(
         modifier = modifier,
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
@@ -330,6 +345,9 @@ fun ClientList(
                     onClientClick(clientId)
                 }
             )
+        }
+        item {
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
@@ -489,6 +507,42 @@ fun ClientItem(
                     Text(text = "Mensaje", style = MaterialTheme.typography.labelLarge)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun PatientList(
+    patients: List<PatientModel>,
+    listState: LazyListState,
+    modifier: Modifier = Modifier,
+    onPatientClick: (String) -> Unit
+) {
+    // 💡 REGLA 1: Detectar adición de un nuevo paciente para hacer auto-scroll
+    var previousCount by remember { mutableIntStateOf(patients.size) }
+    val firstPatientId = patients.firstOrNull()?.id
+
+    LaunchedEffect(patients.size, firstPatientId) {
+        if (patients.size > previousCount && patients.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+        previousCount = patients.size
+    }
+
+    LazyColumn(
+        modifier = modifier,
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
+    ) {
+        items(patients, key = { it.id }) { patient ->
+            PatientCard(
+                patient = patient,
+                onCardClick = { onPatientClick(patient.id) }
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
