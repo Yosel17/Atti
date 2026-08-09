@@ -22,6 +22,9 @@ interface PatientDao {
     @Query("SELECT * FROM patients WHERE id = :patientId")
     suspend fun getPatientById(patientId: String): PatientEntity?
 
+    @Query("SELECT * FROM patients WHERE id = :patientId")
+    fun getPatientByIdFlow(patientId: String): Flow<PatientEntity?>
+
     @Upsert
     suspend fun upsertPatients(patients: List<PatientEntity>)
 
