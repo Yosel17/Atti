@@ -69,6 +69,17 @@ fun ClientModel.toDtoForUpdate() = ClientDto(
     address = address,
 )
 
+fun ClientDto.toModel() = ClientModel(
+    id = id.orEmpty(),
+    firstName = firstName,
+    lastName = lastName,
+    documentId = documentId.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
+    email = email.orEmpty(),
+    address = address.orEmpty(),
+    createdAt = createdAt.orEmpty()
+)
+
 // DTO -> Entity
 fun PatientDto.toEntity() = PatientEntity(
     id = id.orEmpty(),
