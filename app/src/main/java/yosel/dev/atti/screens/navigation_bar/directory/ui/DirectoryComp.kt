@@ -285,7 +285,9 @@ fun BodyDirectory(
                                             modifier = Modifier.fillMaxSize(),
                                             patients = state.filteredPatients,
                                             listState = patientListState,
-                                            onPatientClick = {}
+                                            onPatientClick = { patientId ->
+                                                onNavigationMain(Screens.DetailPatient(patientId = patientId))
+                                            }
                                         )
                                     }
                                 }

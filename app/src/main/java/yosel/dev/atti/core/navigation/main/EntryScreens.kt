@@ -28,6 +28,9 @@ import yosel.dev.atti.screens.add_patient.ui.AddPatientViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientScreen
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 
 fun EntryProviderScope<NavKey>.mainEntry(
@@ -188,6 +191,47 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailPatientEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.DetailPatient> { detailPatientKey ->
+
+        val viewModel: DetailPatientViewModel = hiltViewModel(
+            creationCallback = { factory: DetailPatientViewModel.Factory ->
+                factory.create(
+                    patientId = detailPatientKey.patientId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is DetailPatientEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+            }
+        }
+
+        DetailPatientScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
         )
