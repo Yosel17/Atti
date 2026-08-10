@@ -283,7 +283,7 @@ class AddPatientViewModel @AssistedInject constructor(
     private fun updatePatient() {
         val cs = _state.value
         val currentPatient = cs.currentPatient ?: return
-        _state.update { it.copy(isLoadingRegister = true) }
+        _state.update { it.copy(isLoadingUpdatePatient = true) }
         viewModelScope.launch {
             val updatedPatient = cs.formState.toUpdateModel(
                 patientId = currentPatient.id,
@@ -295,16 +295,16 @@ class AddPatientViewModel @AssistedInject constructor(
                     val newForm = cs.formState
                     _state.update { currentState ->
                         currentState.copy(
-                            isLoadingRegister = false,
+                            isLoadingUpdatePatient = false,
                             currentPatient = updatedPatient,
                             formState = newForm,
                             initialFormState = newForm
                         )
                     }
-                    _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("Información del paciente actualizada correctamente."))
+                    _eventChannel.send(AddPatientEvent.ShowSuccessSnackbar("Paciente actualizado correctamente."))
                 }
                 .onFailure {
-                    _state.update { it.copy(isLoadingRegister = false) }
+                    _state.update { it.copy(isLoadingUpdatePatient = false) }
                     _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No pudimos actualizar la información del paciente. Inténtalo de nuevo."))
                 }
         }

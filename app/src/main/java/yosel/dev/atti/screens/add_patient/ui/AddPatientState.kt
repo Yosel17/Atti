@@ -21,5 +21,6 @@ data class AddPatientState(
     val isAddCatalogSheetOpen: Boolean = false,
     val activeCatalogTypeId: Int = 0,
     val activeCatalogTypeName: String = "",
-    val isLoadingAddCatalog: Boolean = false
+    val isLoadingAddCatalog: Boolean = false,
+    val isLoadingUpdatePatient: Boolean = false,
 )

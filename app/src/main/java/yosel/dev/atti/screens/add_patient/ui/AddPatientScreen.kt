@@ -115,6 +115,14 @@ fun AddPatientScreen(
             )
         }
 
+        if (state.isLoadingUpdatePatient) {
+            LoadingDialog(
+                title = "Actualizando paciente...",
+                subtitle = "Por favor espera un momento...",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
         if (state.isClientSheetOpen) {
             SelectClientBottomSheet(
                 state = state,
