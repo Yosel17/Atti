@@ -10,7 +10,8 @@ data class ClientModel(
     val phoneNumber: String = "",
     val email: String = "",
     val address: String = "",
-    val createdAt: String = ""
+    val createdAt: String = "",
+    val status: Int = 1
 ){
     val fullName: String
         get() = "$firstName $lastName"

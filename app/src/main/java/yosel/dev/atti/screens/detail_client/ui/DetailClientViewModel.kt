@@ -116,7 +116,9 @@ class DetailClientViewModel @AssistedInject constructor(
 
         _state.update { it.copy(isLoadingUpdate = true) }
 
-        val updatedClient = currentState.editFormState.toModel()
+        val updatedClient = currentState.editFormState.toModel(
+            status = currentState.clientWithPatients.client.status
+        )
 
         viewModelScope.launch {
             repository.updateClient(client = updatedClient)

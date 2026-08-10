@@ -24,7 +24,8 @@ fun ClientDto.toEntity() = ClientEntity(
     phoneNumber = phoneNumber.orEmpty(),
     email = email.orEmpty(),
     address = address.orEmpty(),
-    createdAt = createdAt.orEmpty()
+    createdAt = createdAt.orEmpty(),
+    status = status
 )
 
 
@@ -36,7 +37,8 @@ fun ClientEntity.toModel() = ClientModel(
     phoneNumber = phoneNumber,
     email = email,
     address = address,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun ClientModel.toEntity() = ClientEntity(
@@ -47,7 +49,8 @@ fun ClientModel.toEntity() = ClientEntity(
     phoneNumber = phoneNumber,
     email = email,
     address = address,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun ClientModel.toDtoForInsert() = ClientDto(
@@ -57,6 +60,7 @@ fun ClientModel.toDtoForInsert() = ClientDto(
     phoneNumber = phoneNumber,
     email = email.ifBlank { null },
     address = address,
+    status = status
 )
 
 fun ClientModel.toDtoForUpdate() = ClientDto(
@@ -67,6 +71,7 @@ fun ClientModel.toDtoForUpdate() = ClientDto(
     phoneNumber = phoneNumber,
     email = email.ifBlank { null },
     address = address,
+    status = status
 )
 
 fun ClientDto.toModel() = ClientModel(
@@ -77,7 +82,8 @@ fun ClientDto.toModel() = ClientModel(
     phoneNumber = phoneNumber.orEmpty(),
     email = email.orEmpty(),
     address = address.orEmpty(),
-    createdAt = createdAt.orEmpty()
+    createdAt = createdAt.orEmpty(),
+    status = status
 )
 
 // DTO -> Entity
@@ -93,7 +99,8 @@ fun PatientDto.toEntity() = PatientEntity(
     color = color.orEmpty(),
     isNeutered = isNeutered ?: false,
     photoUrl = photoUrl.orEmpty(),
-    createdAt = createdAt.orEmpty()
+    createdAt = createdAt.orEmpty(),
+    status = status
 )
 
 // Entity -> Model
@@ -109,7 +116,8 @@ fun PatientEntity.toModel() = PatientModel(
     color = color,
     isNeutered = isNeutered,
     photoUrl = photoUrl,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun PatientModel.toEntity() = PatientEntity(
@@ -124,7 +132,8 @@ fun PatientModel.toEntity() = PatientEntity(
     color = color,
     isNeutered = isNeutered,
     photoUrl = photoUrl,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun PatientModel.toDtoInsert() = PatientDto(
@@ -137,6 +146,7 @@ fun PatientModel.toDtoInsert() = PatientDto(
     ageMonths = ageMonths,
     color = color,
     isNeutered = isNeutered,
+    status = status
 )
 
 fun PatientModel.toDtoForUpdate() = PatientDto(
@@ -151,7 +161,8 @@ fun PatientModel.toDtoForUpdate() = PatientDto(
     color = color,
     isNeutered = isNeutered,
     photoUrl = photoUrl.ifBlank { null },
-    createdAt = createdAt.ifBlank { null }
+    createdAt = createdAt.ifBlank { null },
+    status = status
 )
 
 fun PatientModel.toAddPatientFormState(client: ClientModel?) = AddPatientFormState(
@@ -186,7 +197,7 @@ fun ClientModel.toEditFormState() = EditClientFormState(
     createdAt = createdAt
 )
 
-fun EditClientFormState.toModel() = ClientModel(
+fun EditClientFormState.toModel(status: Int) = ClientModel(
     id = id,
     firstName = firstName,
     lastName = lastName,
@@ -194,7 +205,8 @@ fun EditClientFormState.toModel() = ClientModel(
     phoneNumber = phoneNumber,
     email = email,
     address = address,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun ClientWithPatientsEntity.toModel() = ClientWithPatientsModel(
@@ -242,7 +254,8 @@ fun AddPatientFormState.toInsertModel() = PatientModel(
 fun AddPatientFormState.toUpdateModel(
     patientId: String,
     photoUrl: String = "",
-    createdAt: String = ""
+    createdAt: String = "",
+    status: Int = 1
 ) = PatientModel(
     id = patientId,
     clientId = selectedClient?.id ?: "",
@@ -255,7 +268,8 @@ fun AddPatientFormState.toUpdateModel(
     color = color,
     isNeutered = isNeutered,
     photoUrl = photoUrl,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun String.normalize(): String {

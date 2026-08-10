@@ -288,7 +288,8 @@ class AddPatientViewModel @AssistedInject constructor(
             val updatedPatient = cs.formState.toUpdateModel(
                 patientId = currentPatient.id,
                 photoUrl = currentPatient.photoUrl,
-                createdAt = currentPatient.createdAt
+                createdAt = currentPatient.createdAt,
+                status = currentPatient.status
             )
             repository.updatePatient(updatedPatient)
                 .onSuccess {
