@@ -12,5 +12,6 @@ data class ClientDto(
     @SerialName("phone_number") val phoneNumber: String? = null,
     @SerialName("email") val email: String? = null,
     @SerialName("address") val address: String? = null,
-    @SerialName("created_at") val createdAt: String? = null
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("status") val status: Int
 )

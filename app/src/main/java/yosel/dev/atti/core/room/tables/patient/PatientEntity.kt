@@ -55,5 +55,8 @@ data class PatientEntity(
     val photoUrl: String = "",
 
     @ColumnInfo(name = "created_at")
-    val createdAt: String = ""
+    val createdAt: String = "",
+
+    @ColumnInfo(name = "status")
+    val status: Int
 )
