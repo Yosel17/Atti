@@ -476,6 +476,7 @@ fun EmptyGlobal(
     title: String,
     subTitle: String,
     icon: ImageVector = Icons.Outlined.Inbox,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
     showAction: Boolean = false,
     onClickAction: () -> Unit = {},
     iconButton: ImageVector = Icons.Outlined.Replay,
@@ -499,7 +500,7 @@ fun EmptyGlobal(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = iconTint,
                 modifier = Modifier.size(48.dp)
             )
         }
