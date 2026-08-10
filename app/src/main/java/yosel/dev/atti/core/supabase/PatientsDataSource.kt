@@ -44,4 +44,17 @@ class PatientsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun updatePatientStatus(patientId: String, newStatus: Int) {
+        postgrest.from(Constants.PATIENTS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                }
+            ) {
+                filter {
+                    eq("id", patientId)
+                }
+            }
+    }
 }

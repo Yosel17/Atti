@@ -37,4 +37,8 @@ object Constants {
     const val FEMALE_GENDER_CATALOG = 2
     const val MALE_GENDER_CATALOG = 5
 
+    //Estados de los pacientes
+    const val ACTIVE_PATIENT_STATUS = 1
+    const val INACTIVE_PATIENT_STATUS = 2
+    const val DELETED_PATIENT_STATUS = 3
 }

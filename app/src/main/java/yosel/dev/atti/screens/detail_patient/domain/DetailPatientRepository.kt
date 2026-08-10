@@ -11,4 +11,6 @@ interface DetailPatientRepository {
     suspend fun getClientByIdRoom(clientId: String): Result<ClientModel>
 
     suspend fun getClientByIdSupabase(clientId: String): Result<ClientModel>
+
+    suspend fun changeStatusPatient(patientId: String, newStatus: Int): Result<Unit>
 }

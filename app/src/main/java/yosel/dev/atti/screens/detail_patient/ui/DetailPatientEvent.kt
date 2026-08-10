@@ -8,4 +8,6 @@ sealed interface DetailPatientEvent {
 
     data class OnNavigationMain(val screen: Screens) : DetailPatientEvent
 
+    data class ShowSuccessSnackbar(val message: String) : DetailPatientEvent
+
 }

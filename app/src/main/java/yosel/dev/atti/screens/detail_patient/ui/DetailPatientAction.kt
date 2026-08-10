@@ -4,5 +4,7 @@ sealed interface DetailPatientAction {
 
     data object OnEditClick: DetailPatientAction
 
-    data object OnDeleteClick: DetailPatientAction
+    data class ToggleShowDialogConfirmDelete(val show: Boolean): DetailPatientAction
+
+    data object DeletePatient: DetailPatientAction
 }
