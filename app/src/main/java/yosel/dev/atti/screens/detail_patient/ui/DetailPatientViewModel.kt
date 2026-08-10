@@ -49,8 +49,11 @@ class DetailPatientViewModel @AssistedInject constructor(
                     _eventChannel.send(OnNavigationMain(AddPatient(patientId)))
                 }
             }
-
             DetailPatientAction.DeletePatient -> deletePatient()
+            DetailPatientAction.RestorePatient -> restorePatient()
+            is DetailPatientAction.ToggleShowDialogConfirmRestore -> {
+                _state.update { it.copy(showDialogConfirmRestore = action.show) }
+            }
         }
     }
 
@@ -148,6 +151,41 @@ class DetailPatientViewModel @AssistedInject constructor(
                     }
                     _eventChannel.send(
                         ShowErrorSnackbar(message = "No se pudo eliminar el paciente")
+                    )
+                }
+            )
+        }
+    }
+
+    private fun restorePatient(){
+        val cs = _state.value
+
+        _state.update {
+            it.copy(isLoadingRestorePatient = true)
+        }
+
+        viewModelScope.launch {
+            repository.changeStatusPatient(
+                patientId = cs.patient.id, newStatus = Constants.ACTIVE_PATIENT_STATUS
+            ).fold(
+                onSuccess = {
+                    _state.update {
+                        it.copy(
+                            isLoadingRestorePatient = false,
+                            showDialogConfirmRestore = false,
+                            patient = it.patient.copy(status = Constants.ACTIVE_PATIENT_STATUS)
+                        )
+                    }
+                    _eventChannel.send(
+                        ShowSuccessSnackbar(message = "Paciente activado exitosamente")
+                    )
+                },
+                onFailure = {
+                    _state.update {
+                        it.copy(isLoadingRestorePatient = false, showDialogConfirmRestore = false)
+                    }
+                    _eventChannel.send(
+                        ShowErrorSnackbar(message = "No se pudo activar al paciente")
                     )
                 }
             )

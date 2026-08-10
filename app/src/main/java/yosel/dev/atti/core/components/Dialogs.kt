@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -105,7 +106,13 @@ fun DeleteConfirmationDialog(
     itemTargetName: String? = null,
     confirmButtonText: String = "Eliminar",
     cancelButtonText: String = "Cancelar",
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    icon: ImageVector = Icons.Outlined.WarningAmber,
+    iconBackgroundColor: Color = MaterialTheme.colorScheme.errorContainer,
+    iconTint: Color = MaterialTheme.colorScheme.onErrorContainer,
+    buttonContainerColor: Color = MaterialTheme.colorScheme.error,
+    buttonContentColor: Color = MaterialTheme.colorScheme.onError,
+    textButtonIsLoading: String = "Eliminando..."
 ) {
     Dialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
@@ -132,13 +139,13 @@ fun DeleteConfirmationDialog(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.errorContainer),
+                        .background(iconBackgroundColor),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.WarningAmber,
+                        imageVector = icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        tint = iconTint,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -226,13 +233,13 @@ fun DeleteConfirmationDialog(
                         onClick = onConfirmDelete,
                         enabled = !isLoading,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError
+                            containerColor = buttonContainerColor,
+                            contentColor = buttonContentColor
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = if (isLoading) "Eliminando..." else confirmButtonText,
+                            text = if (isLoading) textButtonIsLoading else confirmButtonText,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis

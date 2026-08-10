@@ -7,4 +7,8 @@ sealed interface DetailPatientAction {
     data class ToggleShowDialogConfirmDelete(val show: Boolean): DetailPatientAction
 
     data object DeletePatient: DetailPatientAction
+
+    data class ToggleShowDialogConfirmRestore(val show: Boolean): DetailPatientAction
+
+    data object RestorePatient: DetailPatientAction
 }
