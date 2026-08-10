@@ -97,6 +97,12 @@ fun BodyAddPatient(
 ) {
     val focusManager = LocalFocusManager.current
 
+    val isButtonEnabled = if (state.isEditMode) {
+        state.formState.isValid && state.formState.hasChangesFrom(state.initialFormState)
+    } else {
+        state.formState.isValid
+    }
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -104,7 +110,10 @@ fun BodyAddPatient(
             modifier = Modifier.weight(1f)
         ) {
             item {
-                HeaderSection(speciesId = state.formState.speciesId)
+                HeaderSection(
+                    speciesId = state.formState.speciesId,
+                    isEditMode = state.isEditMode
+                )
             }
 
             item {
@@ -328,7 +337,7 @@ fun BodyAddPatient(
                 focusManager.clearFocus()
                 onAction(AddPatientAction.RegisterPatient)
             },
-            enabled = state.formState.isValid,
+            enabled = isButtonEnabled,
             shape = RoundedCornerShape(100.dp)
         ) {
             Row(
@@ -342,7 +351,7 @@ fun BodyAddPatient(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Registrar paciente",
+                    text = if (state.isEditMode) "Guardar edición" else "Registrar paciente",
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -352,7 +361,7 @@ fun BodyAddPatient(
 }
 
 @Composable
-fun HeaderSection(speciesId: Int) {
+fun HeaderSection(speciesId: Int, isEditMode: Boolean = false) {
     val speciesInfo = getSpeciesInfo(speciesId)
     Column(
         modifier = Modifier
@@ -376,7 +385,7 @@ fun HeaderSection(speciesId: Int) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Completa el perfil del nuevo paciente",
+            text = if (isEditMode) "Edita el perfil del paciente" else "Completa el perfil del nuevo paciente",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -35,4 +35,13 @@ class PatientsDataSource @Inject constructor(
             }
             .decodeSingle<PatientDto>()
     }
+
+    suspend fun updatePatient(patient: PatientDto) {
+        postgrest.from(Constants.PATIENTS_SUPABASE)
+            .update(patient) {
+                filter {
+                    eq("id", patient.id ?: "")
+                }
+            }
+    }
 }

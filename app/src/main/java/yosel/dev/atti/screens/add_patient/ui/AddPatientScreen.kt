@@ -45,7 +45,7 @@ fun AddPatientScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "Registrar Paciente",
+                title = if (state.isEditMode) "Editar Paciente" else "Registrar Paciente",
                 onBack = onBack
             )
         }

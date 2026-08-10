@@ -160,8 +160,14 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
 fun EntryProviderScope<NavKey>.addPatientEntry(
     onBack: () -> Unit
 ){
-    entry<Screens.AddPatient> {
-        val viewModel = hiltViewModel<AddPatientViewModel>()
+    entry<Screens.AddPatient> { addPatientKey ->
+        val viewModel: AddPatientViewModel = hiltViewModel(
+            creationCallback = { factory: AddPatientViewModel.Factory ->
+                factory.create(
+                    patientId = addPatientKey.patientId
+                )
+            }
+        )
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
@@ -198,7 +204,8 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
 }
 
 fun EntryProviderScope<NavKey>.detailPatientEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ){
     entry<Screens.DetailPatient> { detailPatientKey ->
 
@@ -222,6 +229,10 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
                             type = SnackbarType.ERROR
                         )
                     }
+                }
+
+                is DetailPatientEvent.OnNavigationMain -> {
+                    onNavigationMain(event.screen)
                 }
             }
         }
