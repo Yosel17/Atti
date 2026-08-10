@@ -8,5 +8,7 @@ data class DetailPatientState(
     val patient: PatientModel = PatientModel(),
     val client: ClientModel = ClientModel(),
     val showDialogConfirmDelete: Boolean = false,
-    val isLoadingDeletePatient: Boolean = false
+    val isLoadingDeletePatient: Boolean = false,
+    val showDialogConfirmRestore: Boolean = false,
+    val isLoadingRestorePatient: Boolean = false
 )
