@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.DeleteConfirmationDialog
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.utils.Constants
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -63,19 +66,36 @@ fun DetailPatientScreen(
 
                             Spacer(modifier = Modifier.width(4.dp))
 
-                            IconButton(
-                                onClick = {
-                                    onAction(
-                                        DetailPatientAction.ToggleShowDialogConfirmDelete(show = true)
+                            if (state.patient.status == Constants.DELETED_PATIENT_STATUS){
+                                IconButton(
+                                    onClick = {
+                                        onAction(
+                                            DetailPatientAction.ToggleShowDialogConfirmRestore(show = true)
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Restore,
+                                        contentDescription = "Restaurar",
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Delete,
-                                    contentDescription = "eliminar",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                            }else{
+                                IconButton(
+                                    onClick = {
+                                        onAction(
+                                            DetailPatientAction.ToggleShowDialogConfirmDelete(show = true)
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = "eliminar",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
+
                         }
                     }
                 }
@@ -134,6 +154,25 @@ fun DetailPatientScreen(
                 onConfirmDelete = { onAction(DetailPatientAction.DeletePatient) },
                 onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmDelete(show = false)) },
                 isLoading = state.isLoadingDeletePatient
+            )
+        }
+
+        if (state.showDialogConfirmRestore){
+            DeleteConfirmationDialog(
+                title = "Restaurar paciente",
+                message = "¿Estás seguro de que deseas restaurar al paciente",
+                itemTargetName = state.patient.name,
+                warningNote = "El paciente volverá a estar activo y su información vinculada aparecerá nuevamente en las listas principales.",
+                onConfirmDelete = { onAction(DetailPatientAction.RestorePatient) },
+                onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmRestore(show = false)) },
+                isLoading = state.isLoadingRestorePatient,
+                icon = Icons.Outlined.Restore,
+                iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+                confirmButtonText = "Restaurar",
+                buttonContainerColor = MaterialTheme.colorScheme.primary,
+                buttonContentColor = MaterialTheme.colorScheme.onPrimary,
+                textButtonIsLoading = "Restaurando..."
             )
         }
     }
