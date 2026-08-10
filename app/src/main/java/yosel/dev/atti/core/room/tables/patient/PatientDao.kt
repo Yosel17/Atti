@@ -40,6 +40,9 @@ interface PatientDao {
     @Query("DELETE FROM patients")
     suspend fun clearAllPatients()
 
+    @Query("UPDATE patients SET status = :newStatus WHERE id = :patientId")
+    suspend fun updatePatientStatus(patientId: String, newStatus: Int)
+
     @Transaction
     suspend fun clearAndInsertPatients(patients: List<PatientEntity>) {
         clearAllPatients()
