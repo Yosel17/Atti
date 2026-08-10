@@ -8,5 +8,9 @@ data class DetailClientState(
     val isEditing: Boolean = false,
     val isLoadingUpdate: Boolean = false,
     val editFormState: EditClientFormState = EditClientFormState(),
-    val initialEditFormState: EditClientFormState = EditClientFormState()
+    val initialEditFormState: EditClientFormState = EditClientFormState(),
+    val showDialogConfirmDelete: Boolean = false,
+    val isLoadingDeleteClient: Boolean = false,
+    val showDialogConfirmRestore: Boolean = false,
+    val isLoadingRestoreClient: Boolean = false
 )

@@ -7,4 +7,12 @@ sealed interface DetailClientAction {
     data object OnDismissEdit : DetailClientAction
     data object OnUpdateClient : DetailClientAction
     data class OnChangeEditFormValue(val value: String, val field: Int) : DetailClientAction
+
+    data class ToggleShowDialogConfirmDelete(val show: Boolean): DetailClientAction
+
+    data object DeleteClient: DetailClientAction
+
+    data class ToggleShowDialogConfirmRestore(val show: Boolean): DetailClientAction
+
+    data object RestoreClient: DetailClientAction
 }

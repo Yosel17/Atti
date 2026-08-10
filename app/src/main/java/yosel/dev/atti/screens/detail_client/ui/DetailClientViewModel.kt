@@ -12,18 +12,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.toEditFormState
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
-import javax.inject.Inject
+import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent.OnCallClick
+import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent.OnWhatsappClick
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent.ShowSuccessSnackbar
 
 @HiltViewModel(assistedFactory = DetailClientViewModel.Factory::class)
 class DetailClientViewModel @AssistedInject constructor(
     private val repository: DetailClientRepository,
     @Assisted private val clienteId: String,
     @Assisted private val isLocalPatients: Boolean,
-): ViewModel() {
+) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
@@ -40,19 +43,20 @@ class DetailClientViewModel @AssistedInject constructor(
         getClientWithPatients(clientId = clienteId, isLocalPatients = isLocalPatients)
     }
 
-    fun onAction(action: DetailClientAction){
-        when(action){
+    fun onAction(action: DetailClientAction) {
+        when (action) {
             is DetailClientAction.OnCallClick -> {
                 viewModelScope.launch {
                     _eventChannel.send(
-                        DetailClientEvent.OnCallClick(phoneNumber = action.phoneNumber)
+                        OnCallClick(phoneNumber = action.phoneNumber)
                     )
                 }
             }
+
             is DetailClientAction.OnWhatsappClick -> {
                 viewModelScope.launch {
                     _eventChannel.send(
-                        DetailClientEvent.OnWhatsappClick(phoneNumber = action.phoneNumber)
+                        OnWhatsappClick(phoneNumber = action.phoneNumber)
                     )
                 }
             }
@@ -77,6 +81,15 @@ class DetailClientViewModel @AssistedInject constructor(
             }
 
             DetailClientAction.OnUpdateClient -> updateClient()
+            DetailClientAction.DeleteClient -> deletePatients()
+            DetailClientAction.RestoreClient -> restorePatients()
+            is DetailClientAction.ToggleShowDialogConfirmDelete -> {
+                _state.update { it.copy(showDialogConfirmDelete = action.show) }
+            }
+
+            is DetailClientAction.ToggleShowDialogConfirmRestore -> {
+                _state.update { it.copy(showDialogConfirmRestore = action.show) }
+            }
         }
     }
 
@@ -158,5 +171,140 @@ class DetailClientViewModel @AssistedInject constructor(
                     )
                 }
         }
+    }
+
+    private fun deletePatients() {
+        val cs = _state.value
+
+        _state.update {
+            it.copy(isLoadingDeleteClient = true)
+        }
+
+        val patientsIds = cs.clientWithPatients.patients.map { it.id }
+
+        viewModelScope.launch {
+            repository.updatePatientsStatus(
+                patientIds = patientsIds, newStatus = Constants.DELETED_PATIENT_STATUS
+            ).fold(
+                onSuccess = {
+                    val newPatients = cs.clientWithPatients.patients.map {
+                        it.copy(status = Constants.DELETED_PATIENT_STATUS)
+                    }
+                    deleteClient(
+                        clientId = cs.clientWithPatients.client.id,
+                        patients = newPatients
+                    )
+                },
+                onFailure = {
+                    _state.update {
+                        it.copy(isLoadingDeleteClient = false, showDialogConfirmDelete = false)
+                    }
+                    _eventChannel.send(
+                        DetailClientEvent.ShowErrorSnackbar(message = "No se pudo eliminar a los pacientes del cliente")
+                    )
+                }
+            )
+        }
+    }
+
+    private suspend fun deleteClient(clientId: String, patients: List<PatientModel>) {
+        repository.updateClientStatus(
+            clientId = clientId, newStatus = Constants.DELETED_CLIENT_STATUS
+        ).fold(
+            onSuccess = {
+                _state.update {
+                    it.copy(
+                        isLoadingDeleteClient = false,
+                        showDialogConfirmDelete = false,
+                        clientWithPatients = it.clientWithPatients.copy(
+                            client = it.clientWithPatients.client.copy(
+                                status = Constants.DELETED_CLIENT_STATUS
+                            ),
+                            patients = patients
+                        )
+                    )
+                }
+                _eventChannel.send(
+                    DetailClientEvent.ShowSuccessSnackbar(message = "Cliente eliminado exitosamente")
+                )
+            },
+            onFailure = {
+                _state.update {
+                    it.copy(isLoadingDeleteClient = false, showDialogConfirmDelete = false)
+                }
+                _eventChannel.send(
+                    DetailClientEvent.ShowErrorSnackbar(message = "No se pudo eliminar al cliente")
+                )
+            }
+        )
+    }
+
+    private fun restorePatients() {
+        val cs = _state.value
+
+        _state.update {
+            it.copy(isLoadingRestoreClient = true)
+        }
+
+        val patientsIds = cs.clientWithPatients.patients.map { it.id }
+
+        viewModelScope.launch {
+            repository.updatePatientsStatus(
+                patientIds = patientsIds, newStatus = Constants.ACTIVE_PATIENT_STATUS
+            ).fold(
+                onSuccess = {
+                    val newPatients = cs.clientWithPatients.patients.map {
+                        it.copy(status = Constants.ACTIVE_PATIENT_STATUS)
+                    }
+                    restoreClient(
+                        clientId = cs.clientWithPatients.client.id,
+                        patients = newPatients
+                    )
+                },
+                onFailure = {
+                    _state.update {
+                        it.copy(isLoadingRestoreClient = false, showDialogConfirmRestore = false)
+                    }
+                    _eventChannel.send(
+                        DetailClientEvent.ShowErrorSnackbar(message = "No se pudo restaurar a los pacientes del cliente")
+                    )
+                }
+            )
+        }
+    }
+
+    private suspend fun restoreClient(
+        clientId: String,
+        patients: List<PatientModel>
+    ) {
+        repository.updateClientStatus(
+            clientId = clientId, newStatus = Constants.ACTIVE_CLIENT_STATUS
+        ).fold(
+            onSuccess = {
+                _state.update {
+                    it.copy(
+                        isLoadingRestoreClient = false,
+                        showDialogConfirmRestore = false,
+                        clientWithPatients = it.clientWithPatients.copy(
+                            client = it.clientWithPatients.client.copy(
+                                status = Constants.ACTIVE_CLIENT_STATUS
+                            ),
+                            patients = patients
+                        )
+                    )
+                }
+                _eventChannel.send(
+                    DetailClientEvent.ShowSuccessSnackbar(message = "Cliente restaurado exitosamente")
+                )
+            },
+            onFailure = {
+                _state.update {
+                    it.copy(isLoadingRestoreClient = false, showDialogConfirmRestore = false)
+                }
+                _eventChannel.send(
+                    DetailClientEvent.ShowErrorSnackbar(message = "No se pudo restaurar al cliente")
+                )
+            }
+        )
     }
 }

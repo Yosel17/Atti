@@ -41,4 +41,9 @@ object Constants {
     const val ACTIVE_PATIENT_STATUS = 1
     const val INACTIVE_PATIENT_STATUS = 2
     const val DELETED_PATIENT_STATUS = 3
+
+    //Estados de los clientes
+    const val ACTIVE_CLIENT_STATUS = 1
+    const val INACTIVE_CLIENT_STATUS = 2
+    const val DELETED_CLIENT_STATUS = 3
 }
