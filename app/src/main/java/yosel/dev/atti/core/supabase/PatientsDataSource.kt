@@ -58,4 +58,20 @@ class PatientsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun updatePatientsStatus(patientIds: List<String>, newStatus: Int) {
+
+        if (patientIds.isEmpty()) return
+
+        postgrest.from(Constants.PATIENTS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                }
+            ) {
+                filter {
+                    isIn("id", patientIds)
+                }
+            }
+    }
 }
