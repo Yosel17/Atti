@@ -13,6 +13,7 @@ class PatientsDataSource @Inject constructor(
     suspend fun getAllPatients(): List<PatientDto>{
         return postgrest.from(Constants.PATIENTS_SUPABASE)
             .select{
+                order("status", Order.ASCENDING)
                 order("created_at", Order.DESCENDING)
             }
             .decodeList<PatientDto>()
