@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
+import yosel.dev.atti.core.components.DeleteConfirmationDialog
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
 
@@ -122,6 +123,18 @@ fun DetailPatientScreen(
                     }
                 }
             }
+        }
+
+        if (state.showDialogConfirmDelete){
+            DeleteConfirmationDialog(
+                title = "Eliminar paciente",
+                message = "¿Estás seguro de que deseas eliminar al paciente",
+                itemTargetName = state.patient.name,
+                warningNote = "Este registro se ocultará de los pacientes activos junto con toda su información vinculada. Podrás volver a activarlo en cualquier momento.",
+                onConfirmDelete = { onAction(DetailPatientAction.DeletePatient) },
+                onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmDelete(show = false)) },
+                isLoading = state.isLoadingDeletePatient
+            )
         }
     }
 }

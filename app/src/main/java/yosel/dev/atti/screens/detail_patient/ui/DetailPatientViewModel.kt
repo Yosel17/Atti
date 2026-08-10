@@ -121,8 +121,9 @@ class DetailPatientViewModel @AssistedInject constructor(
 
     private fun deletePatient(){
         val cs = _state.value
+
         _state.update {
-            it.copy(showDialogConfirmDelete = false, isLoadingDeletePatient = true)
+            it.copy(isLoadingDeletePatient = true)
         }
 
         viewModelScope.launch {
@@ -133,6 +134,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                     _state.update {
                         it.copy(
                             isLoadingDeletePatient = false,
+                            showDialogConfirmDelete = false,
                             patient = it.patient.copy(status = Constants.DELETED_PATIENT_STATUS)
                         )
                     }
@@ -141,7 +143,9 @@ class DetailPatientViewModel @AssistedInject constructor(
                     )
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoadingDeletePatient = false,) }
+                    _state.update {
+                        it.copy(isLoadingDeletePatient = false, showDialogConfirmDelete = false)
+                    }
                     _eventChannel.send(
                         ShowErrorSnackbar(message = "No se pudo eliminar el paciente")
                     )

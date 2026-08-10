@@ -234,6 +234,15 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
                 is DetailPatientEvent.OnNavigationMain -> {
                     onNavigationMain(event.screen)
                 }
+
+                is DetailPatientEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
             }
         }
 
