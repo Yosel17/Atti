@@ -27,6 +27,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.DocumentScanner
 import androidx.compose.material.icons.outlined.FolderOpen
@@ -57,6 +60,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -91,6 +95,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.ui.theme.customColors
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -714,6 +720,93 @@ fun AddCatalogBottomSheet(
                     )
                 }
             }
+        }
+    }
+}
+
+private data class StatusChipConfig(
+    val backgroundColor: Color,
+    val textColor: Color,
+    val circleColor: Color,
+    val iconColor: Color,
+    val label: String,
+    val icon: ImageVector
+)
+
+@Composable
+fun StatusChip(
+    status: Int,
+    modifier: Modifier = Modifier
+) {
+    val customColors = MaterialTheme.customColors
+
+    // Mapeo de colores, texto e ícono según el estado
+    val (backgroundColor, textColor, containerIconColor, iconColor, label, icon) = when (status) {
+        Constants.ACTIVE_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.active,
+            textColor = customColors.onActive,
+            circleColor = customColors.activeContainer,
+            iconColor = customColors.onActiveContainer,
+            label = "Activo",
+            icon = Icons.Default.Check
+        )
+        Constants.INACTIVE_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.inactive,
+            textColor = customColors.onInactive,
+            circleColor = customColors.inactiveContainer,
+            iconColor = customColors.onInactiveContainer,
+            label = "Inactivo",
+            icon = Icons.Default.Close
+        )
+        Constants.DELETED_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.deleted,
+            textColor = customColors.onDeleted,
+            circleColor = customColors.deletedContainer,
+            iconColor = customColors.onDeletedContainer,
+            label = "Eliminado",
+            icon = Icons.Default.Delete
+        )
+        else -> StatusChipConfig(
+            backgroundColor = customColors.inactive,
+            textColor = customColors.onInactive,
+            circleColor = customColors.inactiveContainer,
+            iconColor = customColors.onInactiveContainer,
+            label = "Desconocido",
+            icon = Icons.Default.Close
+        )
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = CircleShape, // Forma de cápsula (Pill Shape)
+        color = backgroundColor
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Círculo para el ícono (tal como en la imagen)
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(color = containerIconColor, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+
+            // Texto del estado
+            Text(
+                text = label,
+                color = textColor,
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }

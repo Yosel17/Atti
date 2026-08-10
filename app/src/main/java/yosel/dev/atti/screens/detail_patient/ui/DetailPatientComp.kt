@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.Card
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.getGenderInfo
@@ -232,6 +234,17 @@ private fun PatientInformationCard(
                 label = "Propietario",
                 value = ownerName
             )
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+            DetailRow(
+                icon = Icons.Outlined.Info,
+                label = "Estado",
+                value = "",
+                valueComposable = {
+                    StatusChip(status = patient.status)
+                }
+            )
         }
     }
 }
@@ -247,7 +260,8 @@ private fun DetailRow(
     value: String,
     valueIcon: ImageVector? = null,
     colorValue: Color = MaterialTheme.colorScheme.onSurface,
-    colorIconValue: Color = MaterialTheme.colorScheme.primary
+    colorIconValue: Color = MaterialTheme.colorScheme.primary,
+    valueComposable: @Composable (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -278,26 +292,30 @@ private fun DetailRow(
         Spacer(modifier = Modifier.width(8.dp))
 
         // Lado Derecho: Valor + Icono opcional (ej: Check)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.weight(1.2f)
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = colorValue,
-                textAlign = TextAlign.End
-            )
-            if (valueIcon != null) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = valueIcon,
-                    contentDescription = null,
-                    tint = colorIconValue,
-                    modifier = Modifier.size(18.dp)
+        if (valueComposable != null){
+            valueComposable()
+        }else{
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.weight(1.2f)
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorValue,
+                    textAlign = TextAlign.End
                 )
+                if (valueIcon != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = valueIcon,
+                        contentDescription = null,
+                        tint = colorIconValue,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }
@@ -321,7 +339,8 @@ private fun BodyDetailPatientPreview() {
                         ageYears = 3,
                         ageMonths = 2,
                         color = "Canela y Blanco",
-                        isNeutered = true
+                        isNeutered = true,
+                        status = 3
                     ),
                     client = ClientModel(
                         firstName = "Yosel",
