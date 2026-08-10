@@ -36,4 +36,16 @@ data class AddPatientFormState(
             else -> false
         }
     }
+
+    fun hasChangesFrom(initial: AddPatientFormState): Boolean {
+        return name != initial.name ||
+                speciesId != initial.speciesId ||
+                breed != initial.breed ||
+                genderId != initial.genderId ||
+                ageYears != initial.ageYears ||
+                ageMonths != initial.ageMonths ||
+                color != initial.color ||
+                isNeutered != initial.isNeutered ||
+                selectedClient?.id != initial.selectedClient?.id
+    }
 }

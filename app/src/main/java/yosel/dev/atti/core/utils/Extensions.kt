@@ -139,6 +139,33 @@ fun PatientModel.toDtoInsert() = PatientDto(
     isNeutered = isNeutered,
 )
 
+fun PatientModel.toDtoForUpdate() = PatientDto(
+    id = id,
+    clientId = clientId,
+    name = name,
+    speciesId = speciesId,
+    genderId = genderId,
+    breed = breed,
+    ageYears = ageYears,
+    ageMonths = ageMonths,
+    color = color,
+    isNeutered = isNeutered,
+    photoUrl = photoUrl.ifBlank { null },
+    createdAt = createdAt.ifBlank { null }
+)
+
+fun PatientModel.toAddPatientFormState(client: ClientModel?) = AddPatientFormState(
+    name = name,
+    speciesId = speciesId,
+    breed = breed,
+    genderId = genderId,
+    ageYears = if (ageYears > 0) ageYears.toString() else "",
+    ageMonths = if (ageMonths > 0) ageMonths.toString() else "",
+    color = color,
+    isNeutered = isNeutered,
+    selectedClient = client
+)
+
 fun AddClientFormState.toModel() = ClientModel(
     firstName = firstName,
     lastName = lastName,
@@ -210,6 +237,25 @@ fun AddPatientFormState.toInsertModel() = PatientModel(
     ageMonths = ageMonths.toIntOrNull() ?: 0,
     color = color,
     isNeutered = isNeutered
+)
+
+fun AddPatientFormState.toUpdateModel(
+    patientId: String,
+    photoUrl: String = "",
+    createdAt: String = ""
+) = PatientModel(
+    id = patientId,
+    clientId = selectedClient?.id ?: "",
+    name = name,
+    speciesId = speciesId,
+    genderId = genderId,
+    breed = breed,
+    ageYears = ageYears.toIntOrNull() ?: 0,
+    ageMonths = ageMonths.toIntOrNull() ?: 0,
+    color = color,
+    isNeutered = isNeutered,
+    photoUrl = photoUrl,
+    createdAt = createdAt
 )
 
 fun String.normalize(): String {

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
 
 @HiltViewModel(assistedFactory = DetailPatientViewModel.Factory::class)
@@ -39,7 +40,11 @@ class DetailPatientViewModel @AssistedInject constructor(
     fun onAction(action: DetailPatientAction){
         when(action){
             DetailPatientAction.OnDeleteClick -> {}
-            DetailPatientAction.OnEditClick -> {}
+            DetailPatientAction.OnEditClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(DetailPatientEvent.OnNavigationMain(Screens.AddPatient(patientId)))
+                }
+            }
         }
     }
 

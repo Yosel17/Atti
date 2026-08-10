@@ -45,7 +45,7 @@ fun AddPatientScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "Registrar Paciente",
+                title = if (state.isEditMode) "Editar Paciente" else "Registrar Paciente",
                 onBack = onBack
             )
         }
@@ -110,6 +110,14 @@ fun AddPatientScreen(
         if (state.isLoadingAddCatalog) {
             LoadingDialog(
                 title = "Guardando ${state.activeCatalogTypeName.lowercase()}...",
+                subtitle = "Por favor espera un momento...",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.isLoadingUpdatePatient) {
+            LoadingDialog(
+                title = "Actualizando paciente...",
                 subtitle = "Por favor espera un momento...",
                 colorTitle = MaterialTheme.colorScheme.primary
             )
