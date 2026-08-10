@@ -228,8 +228,43 @@ val onWhatsappLight = Color(0xFFFFFFFF)
 val whatsappContainerLight = Color(0xFFA2F6C2)
 val onWhatsappContainerLight = Color(0xFF002113)
 
+// Patient Active (Light)
+val activeLight = Color(0xFF2E6C38)
+val onActiveLight = Color(0xFFFFFFFF)
+val activeContainerLight = Color(0xFFB0F5B3)
+val onActiveContainerLight = Color(0xFF002107)
+
+// Patient Inactive (Light)
+val inactiveLight = Color(0xFF5B5F65)
+val onInactiveLight = Color(0xFFFFFFFF)
+val inactiveContainerLight = Color(0xFFE0E2EC)
+val onInactiveContainerLight = Color(0xFF181C22)
+
+// Patient Deleted (Light)
+val deletedLight = Color(0xFF904A46)
+val onDeletedLight = Color(0xFFFFFFFF)
+val deletedContainerLight = Color(0xFFFFDAD7)
+val onDeletedContainerLight = Color(0xFF3B0909)
+
 // Dark Scheme
 val whatsappDark = Color(0xFF86D9A7)
 val onWhatsappDark = Color(0xFF003822)
 val whatsappContainerDark = Color(0xFF005234)
 val onWhatsappContainerDark = Color(0xFFA2F6C2)
+
+val activeDark = Color(0xFF95D899)
+val onActiveDark = Color(0xFF003912)
+val activeContainerDark = Color(0xFF135323)
+val onActiveContainerDark = Color(0xFFB0F5B3)
+
+// Patient Inactive (Dark)
+val inactiveDark = Color(0xFFC4C6CF)
+val onInactiveDark = Color(0xFF2D3137)
+val inactiveContainerDark = Color(0xFF43474E)
+val onInactiveContainerDark = Color(0xFFE0E2EC)
+
+// Patient Deleted (Dark)
+val deletedDark = Color(0xFFFFB3AD)
+val onDeletedDark = Color(0xFF561D1C)
+val deletedContainerDark = Color(0xFF733330)
+val onDeletedContainerDark = Color(0xFFFFDAD7)
