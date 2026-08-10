@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,16 +18,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ColorLens
@@ -40,8 +39,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
@@ -56,11 +53,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,7 +70,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.InputFieldGlobal
@@ -106,227 +98,179 @@ fun BodyAddPatient(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier.weight(1f)
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
         ) {
-            item {
-                HeaderSection(
-                    speciesId = state.formState.speciesId,
-                    isEditMode = state.isEditMode
-                )
-            }
+            HeaderSection(
+                speciesId = state.formState.speciesId,
+                isEditMode = state.isEditMode
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-            }
+            Spacer(modifier = Modifier.height(48.dp))
 
-            item {
-                SectionTitle(
-                    title = "Datos Básicos",
-                    icon = Icons.Filled.Info
-                )
-            }
+            SectionTitle(
+                title = "Datos Básicos",
+                icon = Icons.Filled.Info
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            item {
-                InputFieldGlobal(
-                    label = "Nombre de la mascota",
-                    placeholder = "Ej: Max",
-                    value = state.formState.name,
-                    onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_NAME_FIELD)) },
-                    leadingIcon = Icons.Outlined.Pets,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
-                    ),
-                    isError = state.formState.isError(Constants.PATIENT_NAME_FIELD),
-                    errorMessage = "El nombre es obligatorio"
-                )
-            }
+            InputFieldGlobal(
+                label = "Nombre de la mascota",
+                placeholder = "Ej: Max",
+                value = state.formState.name,
+                onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_NAME_FIELD)) },
+                leadingIcon = Icons.Outlined.Pets,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                isError = state.formState.isError(Constants.PATIENT_NAME_FIELD),
+                errorMessage = "El nombre es obligatorio"
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            item {
-                CatalogSelection(
-                    label = "Especie",
-                    catalogs = state.speciesCatalog,
-                    selectedId = state.formState.speciesId,
-                    onSelect = { onAction(AddPatientAction.OnSelectSpecies(it)) },
-                    isSpecies = true,
-                    onOtherClick = {
-                        onAction(
-                            AddPatientAction.OnOpenAddCatalogSheet(
-                                catalogTypeId = Constants.SPECIES_TYPE_CATALOG,
-                                catalogTypeName = "Especie"
-                            )
+            CatalogSelection(
+                label = "Especie",
+                catalogs = state.speciesCatalog,
+                selectedId = state.formState.speciesId,
+                onSelect = { onAction(AddPatientAction.OnSelectSpecies(it)) },
+                isSpecies = true,
+                onOtherClick = {
+                    onAction(
+                        AddPatientAction.OnOpenAddCatalogSheet(
+                            catalogTypeId = Constants.SPECIES_TYPE_CATALOG,
+                            catalogTypeName = "Especie"
                         )
-                    }
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item {
-                InputFieldGlobal(
-                    label = "Raza",
-                    placeholder = "Ej: Golden Retriever",
-                    value = state.formState.breed,
-                    onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_BREED_FIELD)) },
-                    leadingIcon = Icons.Outlined.Fingerprint,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
-                    ),
-                    isError = state.formState.isError(Constants.PATIENT_BREED_FIELD),
-                    errorMessage = "La raza es obligatoria"
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item {
-                CatalogSelection(
-                    label = "Género",
-                    catalogs = state.genderCatalog,
-                    selectedId = state.formState.genderId,
-                    onSelect = { onAction(AddPatientAction.OnSelectGender(it)) },
-                    isSpecies = false,
-                    onOtherClick = {
-                        onAction(
-                            AddPatientAction.OnOpenAddCatalogSheet(
-                                catalogTypeId = Constants.GENDER_TYPE_CATALOG,
-                                catalogTypeName = "Género"
-                            )
-                        )
-                    }
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-            }
-
-            item {
-                SectionTitle(
-                    title = "Detalles",
-                    icon = Icons.AutoMirrored.Filled.Assignment
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    InputFieldGlobal(
-                        modifier = Modifier.weight(1f),
-                        label = "Años",
-                        placeholder = "0",
-                        value = state.formState.ageYears,
-                        onValueChange = {
-                            if (it.all { char -> char.isDigit() }) {
-                                onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_YEARS_FIELD))
-                            }
-                        },
-                        leadingIcon = Icons.Outlined.Cake,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.formState.isError(Constants.PATIENT_AGE_YEARS_FIELD),
-                        errorMessage = "Requerido"
-                    )
-
-                    InputFieldGlobal(
-                        modifier = Modifier.weight(1f),
-                        label = "Meses",
-                        placeholder = "0",
-                        value = state.formState.ageMonths,
-                        onValueChange = {
-                            if (it.all { char -> char.isDigit() }) {
-                                onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_MONTHS_FIELD))
-                            }
-                        },
-                        leadingIcon = Icons.Outlined.DateRange,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.formState.isError(Constants.PATIENT_AGE_MONTHS_FIELD),
-                        errorMessage = "Requerido"
                     )
                 }
-            }
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            item {
+            InputFieldGlobal(
+                label = "Raza",
+                placeholder = "Ej: Golden Retriever",
+                value = state.formState.breed,
+                onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_BREED_FIELD)) },
+                leadingIcon = Icons.Outlined.Fingerprint,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                isError = state.formState.isError(Constants.PATIENT_BREED_FIELD),
+                errorMessage = "La raza es obligatoria"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CatalogSelection(
+                label = "Género",
+                catalogs = state.genderCatalog,
+                selectedId = state.formState.genderId,
+                onSelect = { onAction(AddPatientAction.OnSelectGender(it)) },
+                isSpecies = false,
+                onOtherClick = {
+                    onAction(
+                        AddPatientAction.OnOpenAddCatalogSheet(
+                            catalogTypeId = Constants.GENDER_TYPE_CATALOG,
+                            catalogTypeName = "Género"
+                        )
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            SectionTitle(
+                title = "Detalles",
+                icon = Icons.AutoMirrored.Filled.Assignment
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 InputFieldGlobal(
-                    label = "Color",
-                    placeholder = "Ej: Canela y Blanco",
-                    value = state.formState.color,
-                    onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_COLOR_FIELD)) },
-                    leadingIcon = Icons.Outlined.ColorLens,
+                    modifier = Modifier.weight(1f),
+                    label = "Años",
+                    placeholder = "0",
+                    value = state.formState.ageYears,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() }) {
+                            onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_YEARS_FIELD))
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.Cake,
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
                     ),
-                    isError = state.formState.isError(Constants.PATIENT_COLOR_FIELD),
-                    errorMessage = "El color es obligatorio"
+                    isError = state.formState.isError(Constants.PATIENT_AGE_YEARS_FIELD),
+                    errorMessage = "Requerido"
+                )
+
+                InputFieldGlobal(
+                    modifier = Modifier.weight(1f),
+                    label = "Meses",
+                    placeholder = "0",
+                    value = state.formState.ageMonths,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() }) {
+                            onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_AGE_MONTHS_FIELD))
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.DateRange,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.formState.isError(Constants.PATIENT_AGE_MONTHS_FIELD),
+                    errorMessage = "Requerido"
                 )
             }
 
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            item {
-                NeuteredSelection(
-                    isNeutered = state.formState.isNeutered,
-                    onToggle = { onAction(AddPatientAction.OnToggleNeutered(it)) }
-                )
-            }
+            InputFieldGlobal(
+                label = "Color",
+                placeholder = "Ej: Canela y Blanco",
+                value = state.formState.color,
+                onValueChange = { onAction(AddPatientAction.OnChangeValueFormState(it, Constants.PATIENT_COLOR_FIELD)) },
+                leadingIcon = Icons.Outlined.ColorLens,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                isError = state.formState.isError(Constants.PATIENT_COLOR_FIELD),
+                errorMessage = "El color es obligatorio"
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(48.dp))
-            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-            item {
-                SectionTitle(
-                    title = "Propietario",
-                    icon = Icons.Filled.Person
-                )
-            }
+            NeuteredSelection(
+                isNeutered = state.formState.isNeutered,
+                onToggle = { onAction(AddPatientAction.OnToggleNeutered(it)) }
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Spacer(modifier = Modifier.height(48.dp))
 
-            item {
-                ClientSelectorSection(
-                    selectedClient = state.formState.selectedClient,
-                    onOpenSheet = { onAction(AddPatientAction.OnOpenClientSheet) }
-                )
-            }
+            SectionTitle(
+                title = "Propietario",
+                icon = Icons.Filled.Person
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ClientSelectorSection(
+                selectedClient = state.formState.selectedClient,
+                onOpenSheet = { onAction(AddPatientAction.OnOpenClientSheet) }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -10,7 +10,12 @@ import yosel.dev.atti.core.room.tables.client.ClientEntity
 @Dao
 interface PatientDao {
 
-    @Query("SELECT * FROM patients ORDER BY created_at DESC")
+    @Query("""
+    SELECT * FROM patients 
+    ORDER BY 
+        CASE WHEN status = 3 THEN 1 ELSE 0 END ASC,
+        created_at DESC
+""")
     fun getAllPatientsFlow(): Flow<List<PatientEntity>>
 
     @Query("SELECT * FROM patients WHERE client_id = :clientId ORDER BY name ASC")

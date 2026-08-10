@@ -74,9 +74,11 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -816,6 +818,16 @@ fun PatientCard(
                     fontWeight = FontWeight.Bold,
                     color = if(patient.isNeutered) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
                 )
+            }
+
+            if (patient.status == Constants.DELETED_PATIENT_STATUS){
+                Spacer(modifier = Modifier.height(8.dp))
+
+                StatusChip(
+                    modifier = Modifier.align(Alignment.End),
+                    status = patient.status
+                )
+
             }
 
             Spacer(modifier = Modifier.height(12.dp))

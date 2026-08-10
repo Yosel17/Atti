@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -87,13 +89,22 @@ fun AddPatientScreen(
                         )
                     }
                     else -> {
-                        BodyAddPatient(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            state = state,
-                            onAction = onAction
-                        )
+                        if (state.currentPatient != null && state.currentPatient.status == Constants.DELETED_PATIENT_STATUS){
+                            EmptyGlobal(
+                                title = "El paciente ${state.currentPatient.name} se encuentra eliminado",
+                                subTitle = "Este paciente se encuentra eliminado y su información no se puede modificar. Restablécelo para poder editarlo.",
+                                icon = Icons.Outlined.DeleteForever,
+                                iconTint = MaterialTheme.colorScheme.error
+                            )
+                        }else{
+                            BodyAddPatient(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 24.dp),
+                                state = state,
+                                onAction = onAction
+                            )
+                        }
                     }
                 }
             }
