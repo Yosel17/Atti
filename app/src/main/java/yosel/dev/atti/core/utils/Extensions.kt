@@ -197,7 +197,7 @@ fun ClientModel.toEditFormState() = EditClientFormState(
     createdAt = createdAt
 )
 
-fun EditClientFormState.toModel() = ClientModel(
+fun EditClientFormState.toModel(status: Int) = ClientModel(
     id = id,
     firstName = firstName,
     lastName = lastName,
@@ -205,7 +205,8 @@ fun EditClientFormState.toModel() = ClientModel(
     phoneNumber = phoneNumber,
     email = email,
     address = address,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun ClientWithPatientsEntity.toModel() = ClientWithPatientsModel(
@@ -253,7 +254,8 @@ fun AddPatientFormState.toInsertModel() = PatientModel(
 fun AddPatientFormState.toUpdateModel(
     patientId: String,
     photoUrl: String = "",
-    createdAt: String = ""
+    createdAt: String = "",
+    status: Int = 1
 ) = PatientModel(
     id = patientId,
     clientId = selectedClient?.id ?: "",
@@ -266,7 +268,8 @@ fun AddPatientFormState.toUpdateModel(
     color = color,
     isNeutered = isNeutered,
     photoUrl = photoUrl,
-    createdAt = createdAt
+    createdAt = createdAt,
+    status = status
 )
 
 fun String.normalize(): String {
