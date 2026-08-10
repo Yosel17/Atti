@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.navigation.main.Screens.*
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent.*
 
 @HiltViewModel(assistedFactory = DetailPatientViewModel.Factory::class)
 class DetailPatientViewModel @AssistedInject constructor(
@@ -39,12 +41,16 @@ class DetailPatientViewModel @AssistedInject constructor(
 
     fun onAction(action: DetailPatientAction){
         when(action){
-            DetailPatientAction.OnDeleteClick -> {}
+            is DetailPatientAction.ToggleShowDialogConfirmDelete -> {
+                _state.update { it.copy(showDialogConfirmDelete = action.show) }
+            }
             DetailPatientAction.OnEditClick -> {
                 viewModelScope.launch {
-                    _eventChannel.send(DetailPatientEvent.OnNavigationMain(Screens.AddPatient(patientId)))
+                    _eventChannel.send(OnNavigationMain(AddPatient(patientId)))
                 }
             }
+
+            DetailPatientAction.DeletePatient -> deletePatient()
         }
     }
 
@@ -73,7 +79,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                     },
                     onFailure = { throwable ->
                         _state.update { it.copy(isLoading = false) }
-                        _eventChannel.send(DetailPatientEvent.ShowErrorSnackbar("Error al cargar el paciente"))
+                        _eventChannel.send(ShowErrorSnackbar("Error al cargar el paciente"))
                     }
                 )
             }
@@ -99,7 +105,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                         updateClientState(client)
                     },
                     onFailure = { throwable ->
-                        _eventChannel.send(DetailPatientEvent.ShowErrorSnackbar("No se pudo recuperar la información del cliente"))
+                        _eventChannel.send(ShowErrorSnackbar("No se pudo recuperar la información del cliente"))
                     }
                 )
             }
@@ -110,6 +116,37 @@ class DetailPatientViewModel @AssistedInject constructor(
         lastFetchedClientId = client.id
         _state.update { currentState ->
             currentState.copy(client = client)
+        }
+    }
+
+    private fun deletePatient(){
+        val cs = _state.value
+        _state.update {
+            it.copy(showDialogConfirmDelete = false, isLoadingDeletePatient = true)
+        }
+
+        viewModelScope.launch {
+            repository.changeStatusPatient(
+                patientId = cs.patient.id, newStatus = Constants.DELETED_PATIENT_STATUS
+            ).fold(
+                onSuccess = {
+                    _state.update {
+                        it.copy(
+                            isLoadingDeletePatient = false,
+                            patient = it.patient.copy(status = Constants.DELETED_PATIENT_STATUS)
+                        )
+                    }
+                    _eventChannel.send(
+                        ShowSuccessSnackbar(message = "Paciente eliminado exitosamente")
+                    )
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDeletePatient = false,) }
+                    _eventChannel.send(
+                        ShowErrorSnackbar(message = "No se pudo eliminar el paciente")
+                    )
+                }
+            )
         }
     }
 }

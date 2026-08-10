@@ -63,7 +63,11 @@ fun DetailPatientScreen(
                             Spacer(modifier = Modifier.width(4.dp))
 
                             IconButton(
-                                onClick = { onAction(DetailPatientAction.OnDeleteClick) }
+                                onClick = {
+                                    onAction(
+                                        DetailPatientAction.ToggleShowDialogConfirmDelete(show = true)
+                                    )
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Delete,
