@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.navigation_bar.directory.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,11 +30,11 @@ class DirectoryViewModel @Inject constructor(
         repository.getAllClients().catch {
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         },
-        repository.getAllPatients().catch {
+        repository.getAllPatientsWithCatalogs().catch {
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los pacientes locales"))
         },
         _state
-    ) { clients, patients, localState ->
+    ) { clients, patientsWithCatalogs, localState ->
         val clientQueryNormalized = localState.clientSearchQuery.normalize()
         val patientQueryNormalized = localState.patientSearchQuery.normalize()
 
@@ -48,21 +49,21 @@ class DirectoryViewModel @Inject constructor(
             }
         }
 
-        val filteredPatients = if (patientQueryNormalized.isBlank()) {
-            patients
+        val filteredPatientsWithCatalogs = if (patientQueryNormalized.isBlank()) {
+            patientsWithCatalogs
         } else {
-            patients.filter { patient ->
-                patient.name.normalize().contains(patientQueryNormalized) ||
-                        patient.breed.normalize().contains(patientQueryNormalized) ||
-                        patient.color.normalize().contains(patientQueryNormalized)
+            patientsWithCatalogs.filter { patientWithCatalogs ->
+                patientWithCatalogs.patient.name.normalize().contains(patientQueryNormalized) ||
+                        patientWithCatalogs.patient.breed.normalize().contains(patientQueryNormalized) ||
+                        patientWithCatalogs.patient.color.normalize().contains(patientQueryNormalized)
             }
         }
 
         localState.copy(
             clients = clients,
             filteredClients = filteredClients,
-            patients = patients,
-            filteredPatients = filteredPatients
+            patientsWithCatalogs = patientsWithCatalogs,
+            filteredPatientsWithCatalogs = filteredPatientsWithCatalogs
         )
     }.stateIn(
         scope = viewModelScope,

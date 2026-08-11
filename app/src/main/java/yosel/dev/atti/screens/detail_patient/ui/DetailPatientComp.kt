@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -64,12 +65,12 @@ fun BodyDetailPatient(
     ) {
         item {
             PatientProfileHeader(
-                patient = state.patient
+                patientWithCatalogs = state.patientWithCatalogs
             )
         }
         item {
             PatientInformationCard(
-                patient = state.patient,
+                patientWithCatalogs = state.patientWithCatalogs,
                 client = state.client
             )
         }
@@ -84,10 +85,10 @@ fun BodyDetailPatient(
  */
 @Composable
 private fun PatientProfileHeader(
-    patient: PatientModel,
+    patientWithCatalogs: PatientWithCatalogsModel,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patient.speciesId)
+    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -139,7 +140,7 @@ private fun PatientProfileHeader(
 
         // Nombre del paciente
         Text(
-            text = patient.name.ifBlank { "Sin nombre" },
+            text = patientWithCatalogs.patient.name.ifBlank { "Sin nombre" },
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -155,12 +156,12 @@ private fun PatientProfileHeader(
  */
 @Composable
 private fun PatientInformationCard(
-    patient: PatientModel,
+    patientWithCatalogs: PatientWithCatalogsModel,
     client: ClientModel,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patient.speciesId)
-    val genderInfo = getGenderInfo(patient.genderId)
+    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
+    val genderInfo = getGenderInfo(patientWithCatalogs.patient.genderId)
 
     val ownerName = "${client.firstName} ${client.lastName}".trim().ifBlank { "Sin información" }
 
@@ -181,7 +182,7 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = Icons.Outlined.Event,
                 label = "Edad",
-                value = patient.formattedAge
+                value = patientWithCatalogs.patient.formattedAge
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -189,7 +190,7 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = Icons.Outlined.Category,
                 label = "Especie",
-                value = speciesInfo.label
+                value = patientWithCatalogs.species.name
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -197,7 +198,7 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = Icons.Outlined.Fingerprint,
                 label = "Raza",
-                value = patient.breed.ifBlank { "Sin información" }
+                value = patientWithCatalogs.patient.breed.ifBlank { "Sin información" }
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -205,7 +206,7 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = genderInfo.icon,
                 label = "Género",
-                value = genderInfo.label
+                value = patientWithCatalogs.gender.name
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -213,10 +214,10 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = Icons.Outlined.ContentCut,
                 label = "Castrado",
-                value = if (patient.isNeutered) "Sí" else "No",
-                valueIcon = if (patient.isNeutered) Icons.Outlined.CheckCircle else Icons.Outlined.Cancel,
-                colorValue = if (patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                colorIconValue = if (patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                value = if (patientWithCatalogs.patient.isNeutered) "Sí" else "No",
+                valueIcon = if (patientWithCatalogs.patient.isNeutered) Icons.Outlined.CheckCircle else Icons.Outlined.Cancel,
+                colorValue = if (patientWithCatalogs.patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                colorIconValue = if (patientWithCatalogs.patient.isNeutered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -224,7 +225,7 @@ private fun PatientInformationCard(
             DetailRow(
                 icon = Icons.Outlined.ColorLens,
                 label = "Color de pelaje",
-                value = patient.color.ifBlank { "Sin información" }
+                value = patientWithCatalogs.patient.color.ifBlank { "Sin información" }
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
@@ -242,7 +243,7 @@ private fun PatientInformationCard(
                 label = "Estado",
                 value = "",
                 valueComposable = {
-                    StatusChip(status = patient.status)
+                    StatusChip(status = patientWithCatalogs.patient.status)
                 }
             )
         }
@@ -317,37 +318,6 @@ private fun DetailRow(
                     )
                 }
             }
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun BodyDetailPatientPreview() {
-    AttiTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            BodyDetailPatient(
-                modifier = Modifier.padding(24.dp),
-                state = DetailPatientState(
-                    isLoading = false,
-                    patient = PatientModel(
-                        id = "1",
-                        name = "Max",
-                        speciesId = 1,
-                        breed = "Golden Ret.",
-                        genderId = 5,
-                        ageYears = 3,
-                        ageMonths = 2,
-                        color = "Canela y Blanco",
-                        isNeutered = true,
-                        status = 3
-                    ),
-                    client = ClientModel(
-                        firstName = "Yosel",
-                        lastName = "Alvizures"
-                    )
-                )
-            )
         }
     }
 }

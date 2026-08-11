@@ -51,4 +51,8 @@ interface ClientDao {
         clearAllClients()
         upsertClients(clients)
     }
+
+    @Transaction
+    @Query("SELECT * FROM clients WHERE id = :clientId")
+    fun getClientWithPatientsWithCatalogsFlow(clientId: String): Flow<ClientWithPatientsWithCatalogsEntity?>
 }

@@ -50,7 +50,7 @@ fun DetailPatientScreen(
                 title = "Detalle Paciente",
                 onBack = onBack,
                 actions = {
-                    if (!state.isLoading && state.patient.id != ""){
+                    if (!state.isLoading && state.patientWithCatalogs.patient.id != ""){
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -66,7 +66,7 @@ fun DetailPatientScreen(
 
                             Spacer(modifier = Modifier.width(4.dp))
 
-                            if (state.patient.status == Constants.DELETED_PATIENT_STATUS){
+                            if (state.patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS){
                                 IconButton(
                                     onClick = {
                                         onAction(
@@ -112,7 +112,7 @@ fun DetailPatientScreen(
                 contentKey = { targetState ->
                     when{
                         targetState.isLoading -> "LOADING"
-                        targetState.patient.id.isEmpty() -> "EMPTY"
+                        targetState.patientWithCatalogs.patient.id.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
@@ -126,7 +126,7 @@ fun DetailPatientScreen(
                             )
                         }
                     }
-                    targetState.patient.id.isEmpty() ->{
+                    targetState.patientWithCatalogs.patient.id.isEmpty() ->{
                         EmptyGlobal(
                             title = "No se pudo encontrar al paciente",
                             subTitle = "Intenta de nuevo más tarde",
@@ -149,7 +149,7 @@ fun DetailPatientScreen(
             DeleteConfirmationDialog(
                 title = "Eliminar paciente",
                 message = "¿Estás seguro de que deseas eliminar al paciente",
-                itemTargetName = state.patient.name,
+                itemTargetName = state.patientWithCatalogs.patient.name,
                 warningNote = "Este registro se ocultará de los pacientes activos junto con toda su información vinculada. Podrás volver a activarlo en cualquier momento.",
                 onConfirmDelete = { onAction(DetailPatientAction.DeletePatient) },
                 onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmDelete(show = false)) },
@@ -161,7 +161,7 @@ fun DetailPatientScreen(
             DeleteConfirmationDialog(
                 title = "Restaurar paciente",
                 message = "¿Estás seguro de que deseas restaurar al paciente",
-                itemTargetName = state.patient.name,
+                itemTargetName = state.patientWithCatalogs.patient.name,
                 warningNote = "El paciente volverá a estar activo y su información vinculada aparecerá nuevamente en las listas principales.",
                 onConfirmDelete = { onAction(DetailPatientAction.RestorePatient) },
                 onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmRestore(show = false)) },

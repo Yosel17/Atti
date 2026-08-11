@@ -47,7 +47,7 @@ class DetailClientViewModel @AssistedInject constructor(
     private fun observeClientWithPatients() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            repository.getClientWithPatientsFlow(clienteId)
+            repository.getClientWithPatientsWithCatalogsFlow(clienteId)
                 .catch {
                     _state.update { currentState -> currentState.copy(isLoading = false) }
                     _eventChannel.send(
@@ -56,10 +56,10 @@ class DetailClientViewModel @AssistedInject constructor(
                         )
                     )
                 }
-                .collectLatest { clientWithPatientsModel ->
+                .collectLatest { clientWithPatientsWithCatalogsModel ->
                     _state.update { currentState ->
                         currentState.copy(
-                            clientWithPatients = clientWithPatientsModel ?: currentState.clientWithPatients,
+                            clientWithPatientsWithCatalogs = clientWithPatientsWithCatalogsModel ?: currentState.clientWithPatientsWithCatalogs,
                             isLoading = false
                         )
                     }
@@ -98,7 +98,7 @@ class DetailClientViewModel @AssistedInject constructor(
             }
             DetailClientAction.OnEditClick -> {
                 _state.update {
-                    val editForm = it.clientWithPatients.client.toEditFormState()
+                    val editForm = it.clientWithPatientsWithCatalogs.client.toEditFormState()
                     it.copy(
                         isEditing = true,
                         editFormState = editForm,
@@ -168,7 +168,7 @@ class DetailClientViewModel @AssistedInject constructor(
         }
         _state.update { it.copy(isLoadingUpdate = true) }
         val updatedClient = currentState.editFormState.toModel(
-            status = currentState.clientWithPatients.client.status
+            status = currentState.clientWithPatientsWithCatalogs.client.status
         )
         viewModelScope.launch {
             repository.updateClient(client = updatedClient)
@@ -193,13 +193,13 @@ class DetailClientViewModel @AssistedInject constructor(
         _state.update {
             it.copy(isLoadingDeleteClient = true)
         }
-        val patientsIds = cs.clientWithPatients.patients.map { it.id }
+        val patientsIds = cs.clientWithPatientsWithCatalogs.patients.map { it.patient.id }
         viewModelScope.launch {
             repository.updatePatientsStatus(
                 patientIds = patientsIds, newStatus = Constants.DELETED_PATIENT_STATUS
             ).fold(
                 onSuccess = {
-                    deleteClient(clientId = cs.clientWithPatients.client.id)
+                    deleteClient(clientId = cs.clientWithPatientsWithCatalogs.client.id)
                 },
                 onFailure = {
                     _state.update {
@@ -244,13 +244,13 @@ class DetailClientViewModel @AssistedInject constructor(
         _state.update {
             it.copy(isLoadingRestoreClient = true)
         }
-        val patientsIds = cs.clientWithPatients.patients.map { it.id }
+        val patientsIds = cs.clientWithPatientsWithCatalogs.patients.map { it.patient.id }
         viewModelScope.launch {
             repository.updatePatientsStatus(
                 patientIds = patientsIds, newStatus = Constants.ACTIVE_PATIENT_STATUS
             ).fold(
                 onSuccess = {
-                    restoreClient(clientId = cs.clientWithPatients.client.id)
+                    restoreClient(clientId = cs.clientWithPatientsWithCatalogs.client.id)
                 },
                 onFailure = {
                     _state.update {

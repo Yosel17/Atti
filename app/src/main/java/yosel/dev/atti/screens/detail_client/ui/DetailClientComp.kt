@@ -92,6 +92,7 @@ import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.dialPhoneNumber
@@ -107,8 +108,8 @@ fun BodyDetailClient(
     state: DetailClientState,
     onAction: (DetailClientAction) -> Unit
 ) {
-    val client = state.clientWithPatients.client
-    val patients = state.clientWithPatients.sortedPatients
+    val client = state.clientWithPatientsWithCatalogs.client
+    val patients = state.clientWithPatientsWithCatalogs.sortedPatients
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -153,7 +154,7 @@ fun BodyDetailClient(
                 onAddPetClick = {
                     onAction(
                         DetailClientAction.OnNavigationMain(
-                            Screens.AddPatient(clientId = state.clientWithPatients.client.id)
+                            Screens.AddPatient(clientId = state.clientWithPatientsWithCatalogs.client.id)
                         )
                     )
                 }
@@ -169,9 +170,9 @@ fun BodyDetailClient(
                 EmptyPetsState()
             }
         } else {
-            items(patients, key = { it.id }) { patient ->
+            items(patients, key = { it.patient.id }) { patient ->
                 DetailPatientCard(
-                    patient = patient,
+                    patientWithCatalogs = patient,
                     onCardClick = { patientId ->
                         onAction(DetailClientAction.OnNavigationMain(Screens.DetailPatient(patientId)))
                     }
@@ -736,11 +737,11 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
 
 @Composable
 private fun DetailPatientCard(
-    patient: PatientModel,
+    patientWithCatalogs: PatientWithCatalogsModel,
     onCardClick: (String) -> Unit
 ) {
-    val speciesInfo = getSpeciesInfo(patient.speciesId)
-    val genderInfo = getGenderInfo(patient.genderId)
+    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
+    val genderInfo = getGenderInfo(patientWithCatalogs.patient.genderId)
 
     Card(
         modifier = Modifier
@@ -750,7 +751,7 @@ private fun DetailPatientCard(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
         onClick = {
-            onCardClick(patient.id)
+            onCardClick(patientWithCatalogs.patient.id)
         }
     ) {
         Row(
@@ -779,14 +780,14 @@ private fun DetailPatientCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = patient.name.ifBlank { "Sin nombre" },
+                    text = patientWithCatalogs.patient.name.ifBlank { "Sin nombre" },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = "${speciesInfo.label} • ${patient.breed.ifBlank { "Sin raza" }}",
+                    text = "${patientWithCatalogs.species.name} • ${patientWithCatalogs.patient.breed.ifBlank { "Sin raza" }}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -808,13 +809,13 @@ private fun DetailPatientCard(
                     )
                 }
 
-                if (patient.status == Constants.DELETED_PATIENT_STATUS) {
+                if (patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     StatusChipShort(
                         modifier = Modifier.align(Alignment.End),
-                        status = patient.status
+                        status = patientWithCatalogs.patient.status
                     )
                 }
 
@@ -863,32 +864,6 @@ private fun EmptyPetsState() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
-        )
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun DetailClientPreview() {
-    AttiTheme {
-        BodyDetailClient(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(24.dp),
-            state = DetailClientState(
-                clientWithPatients = ClientWithPatientsModel(
-                    client = ClientModel(
-                        id = "20c092a1-b934-446c-a9fc-2b9b44123548",
-                        firstName = "Carlos Yosel",
-                        lastName = "Alvizures Bran",
-                        createdAt = "2026-08-04 20:47:53.952805+00",
-                        documentId = "1273390-3",
-                        address = " fasdlfhaks dfjksdfh kjasdfh kajsdfh aksdfh akjsdfh askdjfh askj "
-                    )
-                )
-            ),
-            onAction = {}
         )
     }
 }
@@ -954,21 +929,5 @@ fun DialogInformativeEdition(
                 }
             }
         }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun CardPatientPreview() {
-    AttiTheme {
-        DetailPatientCard(
-            patient = PatientModel(
-                name = "klfklasdjf safklj saklfjlas dfjlksd j asdf asdf asdf asdf asd",
-                speciesId = 1,
-                breed = "Pastora aleman adf asdfa sdfa sdfas fasdf asdf asdf sadf asdf",
-                genderId = 1
-            ),
-            onCardClick = {}
-        )
     }
 }
