@@ -88,6 +88,7 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.components.StatusChip
+import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
@@ -536,7 +537,7 @@ private fun ClientMainInfoCard(client: ClientModel) {
                 label = "Estado",
                 value = "",
                 valueComposable = {
-                    StatusChip(status = client.status)
+                    StatusChipShort(status = client.status)
                 }
             )
         }
@@ -768,6 +769,17 @@ private fun DetailPatientCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                if (patient.status == Constants.DELETED_PATIENT_STATUS){
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    StatusChipShort(
+                        modifier = Modifier.align(Alignment.End),
+                        status = patient.status
+                    )
+                }
+
             }
 
             Icon(

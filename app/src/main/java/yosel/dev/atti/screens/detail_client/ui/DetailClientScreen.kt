@@ -50,7 +50,7 @@ fun DetailClientScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "",
+                title = "Detalle Cliente",
                 onBack = onBack,
                 actions = {
                     if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){

@@ -787,7 +787,12 @@ fun StatusChip(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Círculo para el ícono (tal como en la imagen)
+            Text(
+                text = label,
+                color = textColor,
+                style = MaterialTheme.typography.labelLarge
+            )
+
             Box(
                 modifier = Modifier
                     .size(20.dp)
@@ -801,13 +806,6 @@ fun StatusChip(
                     modifier = Modifier.size(14.dp)
                 )
             }
-
-            // Texto del estado
-            Text(
-                text = label,
-                color = textColor,
-                style = MaterialTheme.typography.labelLarge
-            )
         }
     }
 }
@@ -860,7 +858,7 @@ fun StatusChipShort(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Círculo para el ícono (tal como en la imagen)
+
         Box(
             modifier = Modifier
                 .size(20.dp)
@@ -875,7 +873,6 @@ fun StatusChipShort(
             )
         }
 
-        // Texto del estado
         Text(
             text = label,
             color = textColor,
