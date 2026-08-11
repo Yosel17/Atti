@@ -11,6 +11,9 @@ import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
+import yosel.dev.atti.core.room.tables.product.ProductDao
+import yosel.dev.atti.core.room.tables.service.ServiceDao
+import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.utils.Constants
 import javax.inject.Singleton
 
@@ -42,4 +45,16 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideAppCatalogDao(appDatabase: AppDatabase): AppCatalogDao = appDatabase.appCatalogDao()
+
+    @Singleton
+    @Provides
+    fun provideSupplierDao(appDatabase: AppDatabase): SupplierDao = appDatabase.supplierDao()
+
+    @Singleton
+    @Provides
+    fun provideProductDao(appDatabase: AppDatabase): ProductDao = appDatabase.productDao()
+
+    @Singleton
+    @Provides
+    fun provideServiceDao(appDatabase: AppDatabase): ServiceDao = appDatabase.serviceDao()
 }
