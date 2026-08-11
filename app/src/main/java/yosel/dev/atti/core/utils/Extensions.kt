@@ -6,11 +6,13 @@ import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
+import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
+import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
@@ -287,6 +289,11 @@ fun PatientWithCatalogsEntity.toModel() = PatientWithCatalogsModel(
     patient = patient.toModel(),
     species = species?.toModel() ?: AppCatalogModel(),
     gender = gender?.toModel() ?: AppCatalogModel()
+)
+
+fun ClientWithPatientsWithCatalogsEntity.toModel() = ClientWithPatientsWithCatalogsModel(
+    client = client.toModel(),
+    patients = patients.map { it.toModel() }
 )
 
 fun String.normalize(): String {

@@ -53,10 +53,10 @@ fun DetailClientScreen(
                 title = "Detalle Cliente",
                 onBack = onBack,
                 actions = {
-                    if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){
+                    if (!state.isLoading && state.clientWithPatientsWithCatalogs.client.id.isNotEmpty()){
                         IconButton(
                             onClick = {
-                                if (state.clientWithPatients.client.status == Constants.DELETED_CLIENT_STATUS){
+                                if (state.clientWithPatientsWithCatalogs.client.status == Constants.DELETED_CLIENT_STATUS){
                                     onAction(
                                         DetailClientAction.ToggleShowDialogInformation(show = true)
                                     )
@@ -74,7 +74,7 @@ fun DetailClientScreen(
 
                         Spacer(modifier = Modifier.width(4.dp))
 
-                        if (state.clientWithPatients.client.status == Constants.DELETED_CLIENT_STATUS){
+                        if (state.clientWithPatientsWithCatalogs.client.status == Constants.DELETED_CLIENT_STATUS){
                             IconButton(
                                 onClick = {
                                     onAction(
@@ -118,7 +118,7 @@ fun DetailClientScreen(
                 contentKey = { targetState ->
                     when{
                         targetState.isLoading -> "LOADING"
-                        targetState.clientWithPatients.client.id.isEmpty() -> "EMPTY"
+                        targetState.clientWithPatientsWithCatalogs.client.id.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
@@ -132,7 +132,7 @@ fun DetailClientScreen(
                             )
                         }
                     }
-                    targetState.clientWithPatients.client.id.isEmpty() ->{
+                    targetState.clientWithPatientsWithCatalogs.client.id.isEmpty() ->{
                         EmptyGlobal(
                             title = "No se pudo encontrar al cliente",
                             subTitle = "Intenta de nuevo más tarde"
@@ -168,7 +168,7 @@ fun DetailClientScreen(
                 DeleteConfirmationDialog(
                     title = "Eliminar cliente",
                     message = "¿Estás seguro de que deseas eliminar al cliente",
-                    itemTargetName = "${state.clientWithPatients.client.firstName} ${state.clientWithPatients.client.lastName}",
+                    itemTargetName = "${state.clientWithPatientsWithCatalogs.client.firstName} ${state.clientWithPatientsWithCatalogs.client.lastName}",
                     warningNote = "Este registro se ocultará de los clientes activos junto con toda su información vinculada. Podrás volver a activarlo en cualquier momento.",
                     onConfirmDelete = { onAction(DetailClientAction.DeleteClient) },
                     onDismiss = { onAction(DetailClientAction.ToggleShowDialogConfirmDelete(show = false)) },
@@ -180,7 +180,7 @@ fun DetailClientScreen(
                 DeleteConfirmationDialog(
                     title = "Restaurar cliente",
                     message = "¿Estás seguro de que deseas restaurar al cliente",
-                    itemTargetName = "${state.clientWithPatients.client.firstName} ${state.clientWithPatients.client.lastName}",
+                    itemTargetName = "${state.clientWithPatientsWithCatalogs.client.firstName} ${state.clientWithPatientsWithCatalogs.client.lastName}",
                     warningNote = "El cliente volverá a estar activo y su información vinculada aparecerá nuevamente en las listas principales.",
                     onConfirmDelete = { onAction(DetailClientAction.RestoreClient) },
                     onDismiss = { onAction(DetailClientAction.ToggleShowDialogConfirmRestore(show = false)) },
@@ -197,7 +197,7 @@ fun DetailClientScreen(
 
             if (state.showDialogInformation){
                 DialogInformativeEdition(
-                    name = "${state.clientWithPatients.client.firstName} ${state.clientWithPatients.client.lastName}",
+                    name = "${state.clientWithPatientsWithCatalogs.client.firstName} ${state.clientWithPatientsWithCatalogs.client.lastName}",
                     onDismiss = {
                         onAction(DetailClientAction.ToggleShowDialogInformation(show = false))
                     }
