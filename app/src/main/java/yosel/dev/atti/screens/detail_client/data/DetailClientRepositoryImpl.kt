@@ -43,6 +43,22 @@ class DetailClientRepositoryImpl @Inject constructor(
         clientDao.upsertClient(client = client.toEntity())
     }
 
+    override suspend fun updateClientStatus(
+        clientId: String,
+        newStatus: Int
+    ): Result<Unit> = runCatching {
+        clientsDataSource.updateClientStatus(clientId = clientId, newStatus = newStatus)
+        clientDao.updateClientStatus(clientId = clientId, newStatus = newStatus)
+    }
+
+    override suspend fun updatePatientsStatus(
+        patientIds: List<String>,
+        newStatus: Int
+    ): Result<Unit> = runCatching {
+        patientsDataSource.updatePatientsStatus(patientIds = patientIds, newStatus = newStatus)
+        patientDao.updatePatientsStatus(patientIds = patientIds, newStatus = newStatus)
+    }
+
     private suspend fun fetchLocalClientWithPatients(clientId: String): ClientWithPatientsModel {
         return clientDao.getClientWithPatients(clientId = clientId)?.toModel()
             ?: throw NoSuchElementException("Cliente no encontrado con id: $clientId")

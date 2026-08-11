@@ -30,6 +30,9 @@ interface ClientDao {
     @Query("DELETE FROM clients")
     suspend fun clearAllClients()
 
+    @Query("UPDATE clients SET status = :newStatus WHERE id = :clientId")
+    suspend fun updateClientStatus(clientId: String, newStatus: Int)
+
     @Transaction
     @Query("SELECT * FROM clients WHERE id = :clientId")
     fun getClientWithPatientsFlow(clientId: String): Flow<ClientWithPatientsEntity?>
