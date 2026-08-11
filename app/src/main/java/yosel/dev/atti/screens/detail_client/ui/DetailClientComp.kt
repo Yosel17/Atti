@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
@@ -80,6 +81,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
+import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
@@ -99,7 +101,6 @@ fun BodyDetailClient(
 ) {
     val client = state.clientWithPatients.client
     val patients = state.clientWithPatients.sortedPatients
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -523,12 +524,26 @@ private fun ClientMainInfoCard(client: ClientModel) {
                 label = "NIT / Documento",
                 value = client.documentId.ifBlank { "No registrado" }
             )
+
+            InfoRow(
+                icon = Icons.Outlined.Info,
+                label = "Estado",
+                value = "",
+                valueComposable = {
+                    StatusChip(status = client.status)
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun InfoRow(icon: ImageVector, label: String, value: String) {
+private fun InfoRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    valueComposable: @Composable (() -> Unit)? = null
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -549,20 +564,25 @@ private fun InfoRow(icon: ImageVector, label: String, value: String) {
         }
         
         Spacer(modifier = Modifier.width(16.dp))
-        
         Column {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (valueComposable != null){
+                Spacer(modifier = Modifier.height(4.dp))
+                valueComposable()
+            }else{
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
+
     }
 }
 
