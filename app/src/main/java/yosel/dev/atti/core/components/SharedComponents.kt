@@ -787,7 +787,12 @@ fun StatusChip(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Círculo para el ícono (tal como en la imagen)
+            Text(
+                text = label,
+                color = textColor,
+                style = MaterialTheme.typography.labelLarge
+            )
+
             Box(
                 modifier = Modifier
                     .size(20.dp)
@@ -801,13 +806,77 @@ fun StatusChip(
                     modifier = Modifier.size(14.dp)
                 )
             }
+        }
+    }
+}
 
-            // Texto del estado
-            Text(
-                text = label,
-                color = textColor,
-                style = MaterialTheme.typography.labelLarge
+@Composable
+fun StatusChipShort(
+    status: Int,
+    modifier: Modifier = Modifier
+) {
+    val customColors = MaterialTheme.customColors
+
+    // Mapeo de colores, texto e ícono según el estado
+    val (backgroundColor, textColor, containerIconColor, iconColor, label, icon) = when (status) {
+        Constants.ACTIVE_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.active,
+            textColor = customColors.active,
+            circleColor = customColors.active,
+            iconColor = customColors.onActive,
+            label = "Activo",
+            icon = Icons.Default.Check
+        )
+        Constants.INACTIVE_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.inactive,
+            textColor = customColors.inactive,
+            circleColor = customColors.inactive,
+            iconColor = customColors.onInactive,
+            label = "Inactivo",
+            icon = Icons.Default.Close
+        )
+        Constants.DELETED_PATIENT_STATUS -> StatusChipConfig(
+            backgroundColor = customColors.deleted,
+            textColor = customColors.deleted,
+            circleColor = customColors.deleted,
+            iconColor = customColors.onDeleted,
+            label = "Eliminado",
+            icon = Icons.Default.Delete
+        )
+        else -> StatusChipConfig(
+            backgroundColor = customColors.inactive,
+            textColor = customColors.inactive,
+            circleColor = customColors.inactive,
+            iconColor = customColors.onInactive,
+            label = "Desconocido",
+            icon = Icons.Default.Close
+        )
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(color = containerIconColor, shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(14.dp)
             )
         }
+
+        Text(
+            text = label,
+            color = textColor,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }

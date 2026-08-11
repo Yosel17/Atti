@@ -12,6 +12,7 @@ class ClientsDataSource @Inject constructor(
     suspend fun getAllClients(): List<ClientDto> {
         return postgrest.from(Constants.CLIENTS_SUPABASE)
             .select {
+                order("status", Order.ASCENDING)
                 order("created_at", Order.DESCENDING)
             }
             .decodeList<ClientDto>()

@@ -15,4 +15,6 @@ sealed interface DetailClientAction {
     data class ToggleShowDialogConfirmRestore(val show: Boolean): DetailClientAction
 
     data object RestoreClient: DetailClientAction
+
+    data class ToggleShowDialogInformation(val show: Boolean): DetailClientAction
 }

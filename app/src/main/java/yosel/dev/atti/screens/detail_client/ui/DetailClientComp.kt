@@ -21,16 +21,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
@@ -38,6 +42,7 @@ import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Verified
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -77,9 +82,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import yosel.dev.atti.R
+import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
+import yosel.dev.atti.core.components.StatusChip
+import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
@@ -99,7 +108,6 @@ fun BodyDetailClient(
 ) {
     val client = state.clientWithPatients.client
     val patients = state.clientWithPatients.sortedPatients
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -236,131 +244,122 @@ fun EditClientBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Formulario
-            val lazyListState = rememberLazyListState()
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .nestedScroll(rememberNestedScrollInteropConnection()),
-                state = lazyListState,
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Nombres",
-                        placeHolder = "ej. Juan Jose",
-                        value = state.editFormState.firstName,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Person,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.FIRST_NAME_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Apellidos",
-                        placeHolder = "ej. Perez Hernandez",
-                        value = state.editFormState.lastName,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Person,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.LAST_NAME_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Nit",
-                        placeHolder = "ej. 12345678",
-                        value = state.editFormState.documentId,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Badge,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.DOCUMENT_ID_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Teléfono",
-                        placeHolder = "ej. 87654321",
-                        value = state.editFormState.phoneNumber,
-                        onValueChange = {
-                            if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
-                                onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
-                            }
-                        },
-                        leadingIcon = Icons.Outlined.Call,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Phone,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.PHONE_NUMBER_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Dirección",
-                        placeHolder = "ej. Palencia",
-                        value = state.editFormState.address,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Place,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.ADDRESS_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Email (Opcional)",
-                        placeHolder = "ej. Ejemplo@gmail.com",
-                        value = state.editFormState.email,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Email,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Done
-                        ),
-                        isError = state.editFormState.isError(Constants.EMAIL_FIELD),
-                        errorMessage = null
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nombres",
+                    placeHolder = "ej. Juan Jose",
+                    value = state.editFormState.firstName,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Person,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.FIRST_NAME_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Apellidos",
+                    placeHolder = "ej. Perez Hernandez",
+                    value = state.editFormState.lastName,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Person,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.LAST_NAME_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nit",
+                    placeHolder = "ej. 12345678",
+                    value = state.editFormState.documentId,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Badge,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.DOCUMENT_ID_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Teléfono",
+                    placeHolder = "ej. 87654321",
+                    value = state.editFormState.phoneNumber,
+                    onValueChange = {
+                        if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.Call,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.PHONE_NUMBER_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Dirección",
+                    placeHolder = "ej. Palencia",
+                    value = state.editFormState.address,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Place,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.ADDRESS_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Email (Opcional)",
+                    placeHolder = "ej. Ejemplo@gmail.com",
+                    value = state.editFormState.email,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Email,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    isError = state.editFormState.isError(Constants.EMAIL_FIELD),
+                    errorMessage = null
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -523,12 +522,26 @@ private fun ClientMainInfoCard(client: ClientModel) {
                 label = "NIT / Documento",
                 value = client.documentId.ifBlank { "No registrado" }
             )
+
+            InfoRow(
+                icon = Icons.Outlined.Info,
+                label = "Estado",
+                value = "",
+                valueComposable = {
+                    StatusChipShort(status = client.status)
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun InfoRow(icon: ImageVector, label: String, value: String) {
+private fun InfoRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    valueComposable: @Composable (() -> Unit)? = null
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -549,20 +562,25 @@ private fun InfoRow(icon: ImageVector, label: String, value: String) {
         }
         
         Spacer(modifier = Modifier.width(16.dp))
-        
         Column {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (valueComposable != null){
+                Spacer(modifier = Modifier.height(4.dp))
+                valueComposable()
+            }else{
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
+
     }
 }
 
@@ -656,7 +674,10 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
             onClick = onAddPetClick,
             modifier = Modifier
                 .size(40.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    CircleShape
+                )
         ) {
             Icon(
                 imageVector = Icons.Outlined.Add,
@@ -739,6 +760,17 @@ private fun DetailPatientCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                if (patient.status == Constants.DELETED_PATIENT_STATUS){
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    StatusChipShort(
+                        modifier = Modifier.align(Alignment.End),
+                        status = patient.status
+                    )
+                }
+
             }
 
             Icon(
@@ -812,6 +844,70 @@ private fun DetailClientPreview() {
             ),
             onAction = {}
         )
+    }
+}
+
+@Composable
+fun DialogInformativeEdition(
+    modifier: Modifier = Modifier,
+    name: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.errorContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.DeleteForever,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "El cliente $name se encuentra eliminado",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Este cliente se encuentra eliminado y su información no se puede modificar. Restablécelo para poder editarlo.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = onDismiss
+                ) {
+                    Text("Entiendo")
+                }
+            }
+        }
     }
 }
 

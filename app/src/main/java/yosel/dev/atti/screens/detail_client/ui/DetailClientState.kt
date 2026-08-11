@@ -12,5 +12,6 @@ data class DetailClientState(
     val showDialogConfirmDelete: Boolean = false,
     val isLoadingDeleteClient: Boolean = false,
     val showDialogConfirmRestore: Boolean = false,
-    val isLoadingRestoreClient: Boolean = false
+    val isLoadingRestoreClient: Boolean = false,
+    val showDialogInformation: Boolean = false
 )

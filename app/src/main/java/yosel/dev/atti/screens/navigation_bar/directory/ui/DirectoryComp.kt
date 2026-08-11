@@ -75,6 +75,7 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChip
+import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.navigation.main.Screens
@@ -454,6 +455,15 @@ fun ClientItem(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                    if (client.status == Constants.DELETED_CLIENT_STATUS){
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        StatusChipShort(
+                            modifier = Modifier.align(Alignment.End),
+                            status = client.status
+                        )
+                    }
                 }
             }
 
@@ -823,36 +833,11 @@ fun PatientCard(
             if (patient.status == Constants.DELETED_PATIENT_STATUS){
                 Spacer(modifier = Modifier.height(8.dp))
 
-                StatusChip(
+                StatusChipShort(
                     modifier = Modifier.align(Alignment.End),
                     status = patient.status
                 )
 
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // --- FOOTER: Ver Historia Clínica ---
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Ver historia clínica",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.FactCheck,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
             }
         }
     }

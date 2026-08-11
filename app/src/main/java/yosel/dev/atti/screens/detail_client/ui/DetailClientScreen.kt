@@ -31,6 +31,7 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.screens.detail_patient.ui.DetailPatientAction
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -49,12 +50,20 @@ fun DetailClientScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "",
+                title = "Detalle Cliente",
                 onBack = onBack,
                 actions = {
                     if (!state.isLoading && state.clientWithPatients.client.id.isNotEmpty()){
                         IconButton(
-                            onClick = { onAction(DetailClientAction.OnEditClick) }
+                            onClick = {
+                                if (state.clientWithPatients.client.status == Constants.DELETED_CLIENT_STATUS){
+                                    onAction(
+                                        DetailClientAction.ToggleShowDialogInformation(show = true)
+                                    )
+                                }else{
+                                    onAction(DetailClientAction.OnEditClick)
+                                }
+                            }
                         ) {
 
                             Icon(
@@ -183,6 +192,15 @@ fun DetailClientScreen(
                     buttonContainerColor = MaterialTheme.colorScheme.primary,
                     buttonContentColor = MaterialTheme.colorScheme.onPrimary,
                     textButtonIsLoading = "Restaurando..."
+                )
+            }
+
+            if (state.showDialogInformation){
+                DialogInformativeEdition(
+                    name = "${state.clientWithPatients.client.firstName} ${state.clientWithPatients.client.lastName}",
+                    onDismiss = {
+                        onAction(DetailClientAction.ToggleShowDialogInformation(show = false))
+                    }
                 )
             }
         }
