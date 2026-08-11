@@ -31,17 +31,4 @@ interface AppCatalogDao {
 
     @Update
     suspend fun updateCatalog(catalog: AppCatalogEntity)
-
-    // --- ELIMINACIONES ---
-    @Query("DELETE FROM app_catalogs WHERE id = :id")
-    suspend fun deleteCatalogById(id: Int)
-
-    @Query("DELETE FROM app_catalogs")
-    suspend fun deleteAllCatalogs()
-
-    @Transaction
-    suspend fun clearAndInsertCatalogs(catalogs: List<AppCatalogEntity>) {
-        deleteAllCatalogs()
-        insertAllCatalogs(catalogs)
-    }
 }
