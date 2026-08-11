@@ -56,4 +56,13 @@ interface PatientDao {
         clearAllPatients()
         upsertPatients(patients)
     }
+
+    @Transaction
+    @Query("""
+    SELECT * FROM patients 
+    ORDER BY 
+        CASE WHEN status = 3 THEN 1 ELSE 0 END ASC,
+        created_at DESC
+""")
+    fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithCatalogsEntity>>
 }

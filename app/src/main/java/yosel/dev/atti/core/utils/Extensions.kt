@@ -7,10 +7,12 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
+import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
@@ -239,6 +241,15 @@ fun AppCatalogModel.toDtoForInsert() = AppCatalogDto(
     isActive = isActive
 )
 
+fun AppCatalogEntity.toModel() = AppCatalogModel(
+    id = id,
+    catalogTypeId = catalogTypeId,
+    name = name,
+    description = description,
+    isActive = isActive,
+    createdAt = createdAt
+)
+
 fun AddPatientFormState.toInsertModel() = PatientModel(
     clientId = selectedClient?.id ?: "",
     name = name,
@@ -270,6 +281,12 @@ fun AddPatientFormState.toUpdateModel(
     photoUrl = photoUrl,
     createdAt = createdAt,
     status = status
+)
+
+fun PatientWithCatalogsEntity.toModel() = PatientWithCatalogsModel(
+    patient = patient.toModel(),
+    species = species?.toModel() ?: AppCatalogModel(),
+    gender = gender?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {

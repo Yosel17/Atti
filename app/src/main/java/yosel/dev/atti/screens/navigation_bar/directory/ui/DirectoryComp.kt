@@ -30,7 +30,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.Badge
@@ -69,20 +68,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
-import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getGenderInfo
 import yosel.dev.atti.core.utils.getSpeciesInfo
-import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
 private data class DirectoryTabData(
@@ -237,7 +233,7 @@ fun BodyDirectory(
                 1 -> {
                     val patientStatus = when {
                         state.isLoadingPatients -> DirectoryUIStatus.LOADING
-                        state.patients.isNotEmpty() -> DirectoryUIStatus.CONTENT
+                        state.patientsWithCatalogs.isNotEmpty() -> DirectoryUIStatus.CONTENT
                         else -> DirectoryUIStatus.EMPTY
                     }
 
@@ -271,7 +267,7 @@ fun BodyDirectory(
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    if (state.filteredPatients.isEmpty()) {
+                                    if (state.filteredPatientsWithCatalogs.isEmpty()) {
                                         NoSearchResultsState(
                                             query = state.patientSearchQuery,
                                             onClearSearch = {
@@ -286,7 +282,7 @@ fun BodyDirectory(
                                     } else {
                                         PatientList(
                                             modifier = Modifier.fillMaxSize(),
-                                            patients = state.filteredPatients,
+                                            patientsWithCatalogs = state.filteredPatientsWithCatalogs,
                                             listState = patientListState,
                                             onPatientClick = { patientId ->
                                                 onNavigationMain(Screens.DetailPatient(patientId = patientId))
@@ -529,20 +525,20 @@ fun ClientItem(
 
 @Composable
 fun PatientList(
-    patients: List<PatientModel>,
+    patientsWithCatalogs: List<PatientWithCatalogsModel>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     onPatientClick: (String) -> Unit
 ) {
     // 💡 REGLA 1: Detectar adición de un nuevo paciente para hacer auto-scroll
-    var previousCount by remember { mutableIntStateOf(patients.size) }
-    val firstPatientId = patients.firstOrNull()?.id
+    var previousCount by remember { mutableIntStateOf(patientsWithCatalogs.size) }
+    val firstPatientId = patientsWithCatalogs.firstOrNull()?.patient?.id
 
-    LaunchedEffect(patients.size, firstPatientId) {
-        if (patients.size > previousCount && patients.isNotEmpty()) {
+    LaunchedEffect(patientsWithCatalogs.size, firstPatientId) {
+        if (patientsWithCatalogs.size > previousCount && patientsWithCatalogs.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
-        previousCount = patients.size
+        previousCount = patientsWithCatalogs.size
     }
 
     LazyColumn(
@@ -551,10 +547,10 @@ fun PatientList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        items(patients, key = { it.id }) { patient ->
+        items(patientsWithCatalogs, key = { it.patient.id }) { patientWithCatalogs ->
             PatientCard(
-                patient = patient,
-                onCardClick = { onPatientClick(patient.id) }
+                patientWithCatalogs = patientWithCatalogs,
+                onCardClick = { onPatientClick(patientWithCatalogs.patient.id) }
             )
         }
         item {
@@ -677,12 +673,12 @@ fun NotFoundPatientsState(
 
 @Composable
 fun PatientCard(
-    patient: PatientModel,
+    patientWithCatalogs: PatientWithCatalogsModel,
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patient.speciesId)
-    val genderInfo = getGenderInfo(patient.genderId)
+    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
+    val genderInfo = getGenderInfo(patientWithCatalogs.patient.genderId)
 
     Card(
         modifier = modifier
@@ -714,7 +710,7 @@ fun PatientCard(
                 ) {
                     Icon(
                         painter = painterResource(speciesInfo.icon),
-                        contentDescription = speciesInfo.label,
+                        contentDescription = patientWithCatalogs.species.name,
                         modifier = Modifier.size(28.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -727,7 +723,7 @@ fun PatientCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = patient.name.ifBlank { "Sin nombre" },
+                        text = patientWithCatalogs.patient.name.ifBlank { "Sin nombre" },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -736,7 +732,7 @@ fun PatientCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (patient.breed.isNotBlank()) "Raza: ${patient.breed}" else "Raza no especificada",
+                        text = if (patientWithCatalogs.patient.breed.isNotBlank()) "Raza: ${patientWithCatalogs.patient.breed}" else "Raza no especificada",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -753,7 +749,7 @@ fun PatientCard(
                     color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Text(
-                        text = speciesInfo.label,
+                        text = patientWithCatalogs.species.name,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
@@ -783,7 +779,7 @@ fun PatientCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = patient.formattedAge,
+                        text = patientWithCatalogs.patient.formattedAge,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -823,45 +819,22 @@ fun PatientCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = if (patient.isNeutered) "Sí" else "No",
+                    text = if (patientWithCatalogs.patient.isNeutered) "Sí" else "No",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if(patient.isNeutered) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
+                    color = if(patientWithCatalogs.patient.isNeutered) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
                 )
             }
 
-            if (patient.status == Constants.DELETED_PATIENT_STATUS){
+            if (patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS){
                 Spacer(modifier = Modifier.height(8.dp))
 
                 StatusChipShort(
                     modifier = Modifier.align(Alignment.End),
-                    status = patient.status
+                    status = patientWithCatalogs.patient.status
                 )
 
             }
         }
-    }
-}
-
-@PreviewLightDark
-@Composable
-fun ItemClientsPreview() {
-    AttiTheme {
-        PatientCard(
-            patient = PatientModel(
-                id = "1",
-                clientId = "1",
-                name = "Max",
-                speciesId = 1,
-                genderId = 1,
-                breed = "Labrador",
-                ageYears = 2,
-                ageMonths = 1,
-                color = "Blanco",
-                isNeutered = true,
-                photoUrl = "",
-            ),
-            onCardClick = {}
-        )
     }
 }
