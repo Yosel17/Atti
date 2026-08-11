@@ -26,12 +26,16 @@ import javax.inject.Inject
 @HiltViewModel(assistedFactory = AddPatientViewModel.Factory::class)
 class AddPatientViewModel @AssistedInject constructor(
     private val repository: AddPatientRepository,
-    @Assisted private val patientId: String?
+    @Assisted("patientId") private val patientId: String?,
+    @Assisted("clienteId") private val clienteId: String?
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(patientId: String?): AddPatientViewModel
+        fun create(
+            @Assisted("patientId") patientId: String?,
+            @Assisted("clienteId") clienteId: String?
+        ): AddPatientViewModel
     }
 
     private val _state = MutableStateFlow(
@@ -142,12 +146,14 @@ class AddPatientViewModel @AssistedInject constructor(
                 val genderCatalog = catalogs.filter { it.catalogTypeId == Constants.GENDER_TYPE_CATALOG }
 
                 repository.getClients().onSuccess { clients ->
+                    val client = clients.find { it.id == clienteId }
                     _state.update { currentState ->
                         currentState.copy(
                             speciesCatalog = speciesCatalog,
                             genderCatalog = genderCatalog,
                             clients = clients,
-                            filteredClients = clients
+                            filteredClients = clients,
+                            formState = currentState.formState.copy(selectedClient = client)
                         )
                     }
 
@@ -262,12 +268,14 @@ class AddPatientViewModel @AssistedInject constructor(
                 .onSuccess {
                     val defaultSpeciesId = cs.speciesCatalog.find { it.id == Constants.CANINE_SPECIES_CATALOG }?.id ?: 0
                     val defaultGenderId = cs.genderCatalog.find { it.id == Constants.FEMALE_GENDER_CATALOG }?.id ?: 0
+                    val client = cs.clients.find { it.id == clienteId }
                     _state.update { currentState ->
                         currentState.copy(
                             isLoadingRegister = false,
                             formState = AddPatientFormState(
                                 speciesId = defaultSpeciesId,
-                                genderId = defaultGenderId
+                                genderId = defaultGenderId,
+                                selectedClient = client
                             )
                         )
                     }

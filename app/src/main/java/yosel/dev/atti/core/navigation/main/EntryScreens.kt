@@ -86,7 +86,8 @@ fun EntryProviderScope<NavKey>.addClientEntry(
 }
 
 fun EntryProviderScope<NavKey>.detailClientEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation:(Screens) -> Unit
 ){
     entry<Screens.DetailClient> { detailClientKey ->
         val viewModel: DetailClientViewModel = hiltViewModel(
@@ -142,6 +143,9 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                         }
                     }
                 }
+                is DetailClientEvent.OnNavigationMain -> {
+                    onNavigation(event.screen)
+                }
             }
         }
 
@@ -164,7 +168,8 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
         val viewModel: AddPatientViewModel = hiltViewModel(
             creationCallback = { factory: AddPatientViewModel.Factory ->
                 factory.create(
-                    patientId = addPatientKey.patientId
+                    patientId = addPatientKey.patientId,
+                    clienteId = addPatientKey.clientId
                 )
             }
         )

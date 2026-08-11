@@ -1,5 +1,7 @@
 package yosel.dev.atti.screens.detail_client.ui
 
+import yosel.dev.atti.core.navigation.main.Screens
+
 sealed interface DetailClientAction {
     data class OnCallClick(val phoneNumber: String) : DetailClientAction
     data class OnWhatsappClick(val phoneNumber: String) : DetailClientAction
@@ -17,4 +19,6 @@ sealed interface DetailClientAction {
     data object RestoreClient: DetailClientAction
 
     data class ToggleShowDialogInformation(val show: Boolean): DetailClientAction
+
+    data class OnNavigationMain(val screen: Screens): DetailClientAction
 }

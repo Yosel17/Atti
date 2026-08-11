@@ -92,6 +92,7 @@ import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.getGenderInfo
@@ -148,7 +149,15 @@ fun BodyDetailClient(
         }
 
         item {
-            PetsSectionHeader(onAddPetClick = { /* Funcionalidad posterior */ })
+            PetsSectionHeader(
+                onAddPetClick = {
+                    onAction(
+                        DetailClientAction.OnNavigationMain(
+                            Screens.AddPatient(clientId = state.clientWithPatients.client.id)
+                        )
+                    )
+                }
+            )
         }
 
         item {
@@ -163,7 +172,9 @@ fun BodyDetailClient(
             items(patients, key = { it.id }) { patient ->
                 DetailPatientCard(
                     patient = patient,
-                    onCardClick = { /* Navegación posterior */ }
+                    onCardClick = { patientId ->
+                        onAction(DetailClientAction.OnNavigationMain(Screens.DetailPatient(patientId)))
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -257,7 +268,12 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. Juan Jose",
                     value = state.editFormState.firstName,
                     onValueChange = {
-                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
+                        onAction(
+                            DetailClientAction.OnChangeEditFormValue(
+                                it,
+                                Constants.FIRST_NAME_FIELD
+                            )
+                        )
                     },
                     leadingIcon = Icons.Outlined.Person,
                     keyboardOptions = KeyboardOptions(
@@ -275,7 +291,12 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. Perez Hernandez",
                     value = state.editFormState.lastName,
                     onValueChange = {
-                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
+                        onAction(
+                            DetailClientAction.OnChangeEditFormValue(
+                                it,
+                                Constants.LAST_NAME_FIELD
+                            )
+                        )
                     },
                     leadingIcon = Icons.Outlined.Person,
                     keyboardOptions = KeyboardOptions(
@@ -293,7 +314,12 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. 12345678",
                     value = state.editFormState.documentId,
                     onValueChange = {
-                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
+                        onAction(
+                            DetailClientAction.OnChangeEditFormValue(
+                                it,
+                                Constants.DOCUMENT_ID_FIELD
+                            )
+                        )
                     },
                     leadingIcon = Icons.Outlined.Badge,
                     keyboardOptions = KeyboardOptions(
@@ -311,7 +337,12 @@ fun EditClientBottomSheet(
                     value = state.editFormState.phoneNumber,
                     onValueChange = {
                         if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
+                            onAction(
+                                DetailClientAction.OnChangeEditFormValue(
+                                    it,
+                                    Constants.PHONE_NUMBER_FIELD
+                                )
+                            )
                         }
                     },
                     leadingIcon = Icons.Outlined.Call,
@@ -329,7 +360,12 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. Palencia",
                     value = state.editFormState.address,
                     onValueChange = {
-                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
+                        onAction(
+                            DetailClientAction.OnChangeEditFormValue(
+                                it,
+                                Constants.ADDRESS_FIELD
+                            )
+                        )
                     },
                     leadingIcon = Icons.Outlined.Place,
                     keyboardOptions = KeyboardOptions(
@@ -347,7 +383,12 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. Ejemplo@gmail.com",
                     value = state.editFormState.email,
                     onValueChange = {
-                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
+                        onAction(
+                            DetailClientAction.OnChangeEditFormValue(
+                                it,
+                                Constants.EMAIL_FIELD
+                            )
+                        )
                     },
                     leadingIcon = Icons.Outlined.Email,
                     keyboardOptions = KeyboardOptions(
@@ -417,7 +458,7 @@ private fun ProfileHeader(client: ClientModel) {
                     // AsyncImage(model = client.photoUrl, contentDescription = null, ...)
                 }
             }
-            
+
             // Badge Circular Primary
             Surface(
                 modifier = Modifier
@@ -471,7 +512,11 @@ private fun ActionButtons(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Icon(imageVector = Icons.Outlined.Call, contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(
+                imageVector = Icons.Outlined.Call,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Llamar", style = MaterialTheme.typography.labelLarge)
         }
@@ -516,7 +561,7 @@ private fun ClientMainInfoCard(client: ClientModel) {
                 label = "Miembro desde",
                 value = client.formattedCreatedAt.ifBlank { "Sin fecha" }
             )
-            
+
             InfoRow(
                 icon = Icons.Outlined.Badge,
                 label = "NIT / Documento",
@@ -560,7 +605,7 @@ private fun InfoRow(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(
@@ -568,10 +613,10 @@ private fun InfoRow(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (valueComposable != null){
+            if (valueComposable != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 valueComposable()
-            }else{
+            } else {
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodyLarge,
@@ -637,9 +682,9 @@ private fun ContactItem(icon: ImageVector, label: String, value: String) {
             modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.width(16.dp))
-        
+
         Column {
             Text(
                 text = label,
@@ -669,7 +714,7 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         IconButton(
             onClick = onAddPetClick,
             modifier = Modifier
@@ -692,19 +737,21 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
 @Composable
 private fun DetailPatientCard(
     patient: PatientModel,
-    onCardClick: () -> Unit
+    onCardClick: (String) -> Unit
 ) {
     val speciesInfo = getSpeciesInfo(patient.speciesId)
     val genderInfo = getGenderInfo(patient.genderId)
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCardClick() },
+            .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
+        ),
+        onClick = {
+            onCardClick(patient.id)
+        }
     ) {
         Row(
             modifier = Modifier
@@ -737,15 +784,15 @@ private fun DetailPatientCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Text(
                     text = "${speciesInfo.label} • ${patient.breed.ifBlank { "Sin raza" }}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = genderInfo.icon,
@@ -761,7 +808,7 @@ private fun DetailPatientCard(
                     )
                 }
 
-                if (patient.status == Constants.DELETED_PATIENT_STATUS){
+                if (patient.status == Constants.DELETED_PATIENT_STATUS) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -828,8 +875,7 @@ private fun DetailClientPreview() {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(24.dp)
-            ,
+                .padding(24.dp),
             state = DetailClientState(
                 clientWithPatients = ClientWithPatientsModel(
                     client = ClientModel(
@@ -861,7 +907,7 @@ fun DialogInformativeEdition(
             shape = AlertDialogDefaults.shape,
             color = AlertDialogDefaults.containerColor,
             tonalElevation = AlertDialogDefaults.TonalElevation
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
