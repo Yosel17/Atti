@@ -168,7 +168,8 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
         val viewModel: AddPatientViewModel = hiltViewModel(
             creationCallback = { factory: AddPatientViewModel.Factory ->
                 factory.create(
-                    patientId = addPatientKey.patientId
+                    patientId = addPatientKey.patientId,
+                    clienteId = addPatientKey.clientId
                 )
             }
         )
