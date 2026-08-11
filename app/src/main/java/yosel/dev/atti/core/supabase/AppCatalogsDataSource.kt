@@ -15,6 +15,7 @@ class AppCatalogsDataSource @Inject constructor(
             .select {
                 filter {
                     isIn("catalog_type_id", types)
+                    eq("is_active", true)
                 }
             }
             .decodeList<AppCatalogDto>()

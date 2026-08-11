@@ -44,15 +44,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
-import yosel.dev.atti.core.utils.getGenderInfo
-import yosel.dev.atti.core.utils.getSpeciesInfo
-import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.core.utils.getIconGender
+import yosel.dev.atti.core.utils.getIconSpecies
 
 @Composable
 fun BodyDetailPatient(
@@ -88,7 +85,7 @@ private fun PatientProfileHeader(
     patientWithCatalogs: PatientWithCatalogsModel,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
+    val iconSpecie = getIconSpecies(patientWithCatalogs.patient.speciesId)
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -112,8 +109,8 @@ private fun PatientProfileHeader(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = speciesInfo.icon),
-                    contentDescription = speciesInfo.label,
+                    painter = painterResource(id = iconSpecie),
+                    contentDescription = null,
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -160,8 +157,7 @@ private fun PatientInformationCard(
     client: ClientModel,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
-    val genderInfo = getGenderInfo(patientWithCatalogs.patient.genderId)
+    val iconGender = getIconGender(patientWithCatalogs.patient.genderId)
 
     val ownerName = "${client.firstName} ${client.lastName}".trim().ifBlank { "Sin información" }
 
@@ -204,7 +200,7 @@ private fun PatientInformationCard(
 
             // Género
             DetailRow(
-                icon = genderInfo.icon,
+                icon = iconGender,
                 label = "Género",
                 value = patientWithCatalogs.gender.name
             )

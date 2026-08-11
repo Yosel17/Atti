@@ -29,12 +29,6 @@ interface ClientDao {
     @Upsert
     suspend fun upsertClient(client: ClientEntity)
 
-    @Query("DELETE FROM clients WHERE id = :clientId")
-    suspend fun deleteClientById(clientId: String)
-
-    @Query("DELETE FROM clients")
-    suspend fun clearAllClients()
-
     @Query("UPDATE clients SET status = :newStatus WHERE id = :clientId")
     suspend fun updateClientStatus(clientId: String, newStatus: Int)
 
@@ -45,12 +39,6 @@ interface ClientDao {
     @Transaction
     @Query("SELECT * FROM clients WHERE id = :clientId")
     suspend fun getClientWithPatients(clientId: String): ClientWithPatientsEntity?
-
-    @Transaction
-    suspend fun clearAndInsertClients(clients: List<ClientEntity>) {
-        clearAllClients()
-        upsertClients(clients)
-    }
 
     @Transaction
     @Query("SELECT * FROM clients WHERE id = :clientId")

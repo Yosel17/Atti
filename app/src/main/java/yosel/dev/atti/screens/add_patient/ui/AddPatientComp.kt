@@ -77,8 +77,8 @@ import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
-import yosel.dev.atti.core.utils.getGenderInfo
-import yosel.dev.atti.core.utils.getSpeciesInfo
+import yosel.dev.atti.core.utils.getIconGender
+import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
@@ -306,7 +306,7 @@ fun BodyAddPatient(
 
 @Composable
 fun HeaderSection(speciesId: Int, isEditMode: Boolean = false) {
-    val speciesInfo = getSpeciesInfo(speciesId)
+    val iconSpecie = getIconSpecies(speciesId)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -321,7 +321,7 @@ fun HeaderSection(speciesId: Int, isEditMode: Boolean = false) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = speciesInfo.icon),
+                painter = painterResource(id = iconSpecie),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp)
@@ -381,13 +381,13 @@ fun CatalogSelection(
         ) {
             catalogs.forEach { catalog ->
                 val isSelected = catalog.id == selectedId
-                val info = if (isSpecies) getSpeciesInfo(catalog.id) else null
-                val genderInfo = if (!isSpecies) getGenderInfo(catalog.id) else null
+                val iconSpecie = if (isSpecies) getIconSpecies(catalog.id) else null
+                val iconGender = if (!isSpecies) getIconGender(catalog.id) else null
 
                 CatalogChip(
                     text = catalog.name,
-                    icon = info?.icon,
-                    iconVector = genderInfo?.icon,
+                    icon = iconSpecie,
+                    iconVector = iconGender,
                     isSelected = isSelected,
                     onClick = { onSelect(catalog.id) }
                 )
@@ -395,8 +395,8 @@ fun CatalogSelection(
 
             CatalogChip(
                 text = "Otros",
-                icon = if (isSpecies) getSpeciesInfo(0).icon else null,
-                iconVector = if (!isSpecies) getGenderInfo(0).icon else null,
+                icon = if (isSpecies) getIconSpecies(0) else null,
+                iconVector = if (!isSpecies) getIconGender(0) else null,
                 isSelected = selectedId == -1,
                 onClick = onOtherClick
             )

@@ -39,7 +39,7 @@ class DirectoryRepositoryImpl @Inject constructor(
         val remoteClients = clientsDataSource.getAllClients()
         val entities = remoteClients.map { it.toEntity() }
 
-        clientDao.clearAndInsertClients(entities)
+        clientDao.upsertClients(entities)
     }
 
     override fun getAllPatientsWithCatalogs(): Flow<List<PatientWithCatalogsModel>> =
@@ -57,6 +57,6 @@ class DirectoryRepositoryImpl @Inject constructor(
             remotePatients.mapNotNull { it.species?.toEntity() ?: it.gender?.toEntity() }
 
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
-        patientDao.clearAndInsertPatients(entities)
+        patientDao.upsertPatients(entities)
     }
 }

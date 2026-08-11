@@ -3,6 +3,9 @@ package yosel.dev.atti.core.utils
 import android.content.Context
 import android.content.Intent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.CrueltyFree
 import androidx.compose.material.icons.outlined.Female
 import androidx.compose.material.icons.outlined.Male
@@ -78,30 +81,21 @@ fun Context.openWhatsApp(phoneNumber: String): Boolean {
         false
     }
 }
-
-data class SpeciesInfo(
-    val label: String,
-    val icon: Int
-)
-
-fun getSpeciesInfo(speciesId: Int): SpeciesInfo {
+fun getIconSpecies(speciesId: Int): Int {
     return when (speciesId) {
-        Constants.CANINE_SPECIES_CATALOG -> SpeciesInfo("Canino", R.drawable.ic_canine)
-        Constants.FELINE_SPECIES_CATALOG -> SpeciesInfo("Felino", R.drawable.ic_feline)
-        Constants.WILD_SPECIES_CATALOG -> SpeciesInfo("Silvestre", R.drawable.ic_wild)
-        else -> SpeciesInfo("Otro", R.drawable.ic_animals)
+        0 -> R.drawable.ic_circule_add
+        Constants.CANINE_SPECIES_CATALOG -> R.drawable.ic_canine
+        Constants.FELINE_SPECIES_CATALOG -> R.drawable.ic_feline
+        Constants.WILD_SPECIES_CATALOG -> R.drawable.ic_wild
+        else -> R.drawable.ic_animals
     }
 }
 
-data class GenderInfo(
-    val label: String,
-    val icon: ImageVector
-)
-
-fun getGenderInfo(genderId: Int): GenderInfo {
+fun getIconGender(genderId: Int): ImageVector {
     return when (genderId) {
-        Constants.MALE_GENDER_CATALOG -> GenderInfo("Macho", Icons.Outlined.Male)
-        Constants.FEMALE_GENDER_CATALOG -> GenderInfo("Hembra", Icons.Outlined.Female)
-        else -> GenderInfo("Desconocido", Icons.Outlined.QuestionMark)
+        0 -> Icons.Outlined.AddCircleOutline
+        Constants.MALE_GENDER_CATALOG -> Icons.Outlined.Male
+        Constants.FEMALE_GENDER_CATALOG -> Icons.Outlined.Female
+        else -> Icons.Outlined.QuestionMark
     }
 }
