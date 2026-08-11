@@ -65,4 +65,8 @@ interface PatientDao {
         created_at DESC
 """)
     fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithCatalogsEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM patients WHERE id = :patientId")
+    fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithCatalogsEntity?>
 }

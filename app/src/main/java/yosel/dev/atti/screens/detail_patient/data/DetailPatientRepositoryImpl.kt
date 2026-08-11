@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
@@ -22,15 +23,9 @@ class DetailPatientRepositoryImpl @Inject constructor(
     private val patientsDataSource: PatientsDataSource
 ): DetailPatientRepository {
 
-    override fun getPatientByIdFlow(patientId: String): Flow<Result<PatientModel>> =
-        patientDao.getPatientByIdFlow(patientId = patientId)
-            .map { entity ->
-                if (entity != null) {
-                    Result.success(entity.toModel())
-                } else {
-                    Result.failure(NoSuchElementException("No se encontró el paciente con ID: $patientId"))
-                }
-            }
+    override fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithCatalogsModel?> =
+        patientDao.getPatientWithCatalogsByIdFlow(patientId = patientId)
+            .map { entity -> entity?.toModel() }
             .flowOn(Dispatchers.IO)
 
 
