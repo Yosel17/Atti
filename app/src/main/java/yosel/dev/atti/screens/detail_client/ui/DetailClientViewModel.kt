@@ -90,6 +90,10 @@ class DetailClientViewModel @AssistedInject constructor(
             is DetailClientAction.ToggleShowDialogConfirmRestore -> {
                 _state.update { it.copy(showDialogConfirmRestore = action.show) }
             }
+
+            is DetailClientAction.ToggleShowDialogInformation -> {
+                _state.update { it.copy(showDialogInformation = action.show) }
+            }
         }
     }
 
