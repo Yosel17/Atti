@@ -124,6 +124,12 @@ class DetailClientViewModel @AssistedInject constructor(
             is DetailClientAction.ToggleShowDialogInformation -> {
                 _state.update { it.copy(showDialogInformation = action.show) }
             }
+
+            is DetailClientAction.OnNavigationMain -> {
+                viewModelScope.launch {
+                    _eventChannel.send(DetailClientEvent.OnNavigationMain(screen = action.screen))
+                }
+            }
         }
     }
 

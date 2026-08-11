@@ -92,6 +92,7 @@ import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.getGenderInfo
@@ -163,7 +164,9 @@ fun BodyDetailClient(
             items(patients, key = { it.id }) { patient ->
                 DetailPatientCard(
                     patient = patient,
-                    onCardClick = { /* Navegación posterior */ }
+                    onCardClick = { patientId ->
+                        onAction(DetailClientAction.OnNavigationMain(Screens.DetailPatient(patientId)))
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -692,19 +695,21 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
 @Composable
 private fun DetailPatientCard(
     patient: PatientModel,
-    onCardClick: () -> Unit
+    onCardClick: (String) -> Unit
 ) {
     val speciesInfo = getSpeciesInfo(patient.speciesId)
     val genderInfo = getGenderInfo(patient.genderId)
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCardClick() },
+            .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
+        ),
+        onClick = {
+            onCardClick(patient.id)
+        }
     ) {
         Row(
             modifier = Modifier
