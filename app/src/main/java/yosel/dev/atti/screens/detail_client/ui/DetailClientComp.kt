@@ -244,131 +244,122 @@ fun EditClientBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Formulario
-            val lazyListState = rememberLazyListState()
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .nestedScroll(rememberNestedScrollInteropConnection()),
-                state = lazyListState,
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Nombres",
-                        placeHolder = "ej. Juan Jose",
-                        value = state.editFormState.firstName,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Person,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.FIRST_NAME_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Apellidos",
-                        placeHolder = "ej. Perez Hernandez",
-                        value = state.editFormState.lastName,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Person,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.LAST_NAME_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Nit",
-                        placeHolder = "ej. 12345678",
-                        value = state.editFormState.documentId,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Badge,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.DOCUMENT_ID_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Teléfono",
-                        placeHolder = "ej. 87654321",
-                        value = state.editFormState.phoneNumber,
-                        onValueChange = {
-                            if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
-                                onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
-                            }
-                        },
-                        leadingIcon = Icons.Outlined.Call,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Phone,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.PHONE_NUMBER_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Dirección",
-                        placeHolder = "ej. Palencia",
-                        value = state.editFormState.address,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Place,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences,
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = state.editFormState.isError(Constants.ADDRESS_FIELD),
-                        errorMessage = "Este campo no puede estar vacío"
-                    )
-                }
-                item {
-                    InputFieldWithTextGlobal(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Email (Opcional)",
-                        placeHolder = "ej. Ejemplo@gmail.com",
-                        value = state.editFormState.email,
-                        onValueChange = {
-                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
-                        },
-                        leadingIcon = Icons.Outlined.Email,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Done
-                        ),
-                        isError = state.editFormState.isError(Constants.EMAIL_FIELD),
-                        errorMessage = null
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nombres",
+                    placeHolder = "ej. Juan Jose",
+                    value = state.editFormState.firstName,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.FIRST_NAME_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Person,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.FIRST_NAME_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Apellidos",
+                    placeHolder = "ej. Perez Hernandez",
+                    value = state.editFormState.lastName,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.LAST_NAME_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Person,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.LAST_NAME_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nit",
+                    placeHolder = "ej. 12345678",
+                    value = state.editFormState.documentId,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.DOCUMENT_ID_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Badge,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.DOCUMENT_ID_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Teléfono",
+                    placeHolder = "ej. 87654321",
+                    value = state.editFormState.phoneNumber,
+                    onValueChange = {
+                        if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                            onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.PHONE_NUMBER_FIELD))
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.Call,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.PHONE_NUMBER_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Dirección",
+                    placeHolder = "ej. Palencia",
+                    value = state.editFormState.address,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.ADDRESS_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Place,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.editFormState.isError(Constants.ADDRESS_FIELD),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Email (Opcional)",
+                    placeHolder = "ej. Ejemplo@gmail.com",
+                    value = state.editFormState.email,
+                    onValueChange = {
+                        onAction(DetailClientAction.OnChangeEditFormValue(it, Constants.EMAIL_FIELD))
+                    },
+                    leadingIcon = Icons.Outlined.Email,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Done
+                    ),
+                    isError = state.editFormState.isError(Constants.EMAIL_FIELD),
+                    errorMessage = null
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
             }
 
             Spacer(modifier = Modifier.height(16.dp))
