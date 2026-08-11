@@ -1,5 +1,9 @@
 package yosel.dev.atti.screens.detail_client.data
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
@@ -19,23 +23,25 @@ class DetailClientRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao
 ) : DetailClientRepository {
 
-    override suspend fun getClientWithPatients(
+    override fun getClientWithPatientsFlow(clientId: String): Flow<ClientWithPatientsModel?> {
+        return clientDao.getClientWithPatientsFlow(clientId = clientId)
+            .map { entity -> entity?.toModel() }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun syncPatientsIfNeeded(
         clientId: String,
         isLocalPatients: Boolean
-    ): Result<ClientWithPatientsModel> = runCatching {
-        if (isLocalPatients) {
-            return@runCatching fetchLocalClientWithPatients(clientId)
-        }
+    ): Result<Unit> = runCatching {
+        if (isLocalPatients) return@runCatching
 
         val clientExists = clientDao.getClientById(clientId) != null
         if (!clientExists) {
-            throw NoSuchElementException("Cliente no encontrado localmente con id: $clientId. No se puede sincronizar pacientes sin el cliente.")
+            throw NoSuchElementException("Cliente no encontrado localmente con id: $clientId.")
         }
 
         val remotePatients = patientsDataSource.getPatientsByClientId(clientId = clientId)
         patientDao.upsertPatients(remotePatients.map { it.toEntity() })
-
-        fetchLocalClientWithPatients(clientId)
     }
 
     override suspend fun updateClient(client: ClientModel): Result<Unit> = runCatching {
@@ -57,10 +63,5 @@ class DetailClientRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         patientsDataSource.updatePatientsStatus(patientIds = patientIds, newStatus = newStatus)
         patientDao.updatePatientsStatus(patientIds = patientIds, newStatus = newStatus)
-    }
-
-    private suspend fun fetchLocalClientWithPatients(clientId: String): ClientWithPatientsModel {
-        return clientDao.getClientWithPatients(clientId = clientId)?.toModel()
-            ?: throw NoSuchElementException("Cliente no encontrado con id: $clientId")
     }
 }
