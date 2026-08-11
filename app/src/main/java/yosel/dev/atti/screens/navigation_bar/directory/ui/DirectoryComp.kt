@@ -77,8 +77,8 @@ import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
-import yosel.dev.atti.core.utils.getGenderInfo
-import yosel.dev.atti.core.utils.getSpeciesInfo
+import yosel.dev.atti.core.utils.getIconGender
+import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.ui.theme.customColors
 
 private data class DirectoryTabData(
@@ -677,8 +677,8 @@ fun PatientCard(
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val speciesInfo = getSpeciesInfo(patientWithCatalogs.patient.speciesId)
-    val genderInfo = getGenderInfo(patientWithCatalogs.patient.genderId)
+    val iconSpecie = getIconSpecies(patientWithCatalogs.patient.speciesId)
+    val iconGender = getIconGender(patientWithCatalogs.patient.genderId)
 
     Card(
         modifier = modifier
@@ -709,7 +709,7 @@ fun PatientCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(speciesInfo.icon),
+                        painter = painterResource(iconSpecie),
                         contentDescription = patientWithCatalogs.species.name,
                         modifier = Modifier.size(28.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -788,14 +788,14 @@ fun PatientCard(
                 // Género
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = genderInfo.icon,
+                        imageVector = iconGender,
                         contentDescription = "Género",
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = genderInfo.label,
+                        text = patientWithCatalogs.gender.name,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
