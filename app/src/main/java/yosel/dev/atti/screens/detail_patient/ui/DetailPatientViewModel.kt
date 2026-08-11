@@ -9,11 +9,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.navigation.main.Screens.*
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
@@ -23,10 +25,10 @@ import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent.*
 class DetailPatientViewModel @AssistedInject constructor(
     private val repository: DetailPatientRepository,
     @Assisted private val patientId: String,
-): ViewModel() {
+) : ViewModel() {
 
     @AssistedFactory
-    interface Factory{
+    interface Factory {
         fun create(patientId: String): DetailPatientViewModel
     }
 
@@ -39,16 +41,18 @@ class DetailPatientViewModel @AssistedInject constructor(
     // Control para evitar llamadas repetidas a la red si el ID del cliente no cambia
     private var lastFetchedClientId: String? = null
 
-    fun onAction(action: DetailPatientAction){
-        when(action){
+    fun onAction(action: DetailPatientAction) {
+        when (action) {
             is DetailPatientAction.ToggleShowDialogConfirmDelete -> {
                 _state.update { it.copy(showDialogConfirmDelete = action.show) }
             }
+
             DetailPatientAction.OnEditClick -> {
                 viewModelScope.launch {
                     _eventChannel.send(OnNavigationMain(AddPatient(patientId)))
                 }
             }
+
             DetailPatientAction.DeletePatient -> deletePatient()
             DetailPatientAction.RestorePatient -> restorePatient()
             is DetailPatientAction.ToggleShowDialogConfirmRestore -> {
@@ -65,27 +69,26 @@ class DetailPatientViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            repository.getPatientByIdFlow(patientId).collectLatest { patientResult ->
-                patientResult.fold(
-                    onSuccess = { patient ->
-                        _state.update { currentState ->
-                            currentState.copy(
-                                patient = patient,
-                                isLoading = false
-                            )
-                        }
-
-                        // Si tenemos un clientId válido, cargamos los datos del cliente
-                        if (patient.clientId.isNotBlank()) {
-                            fetchClientIfNeeded(patient.clientId)
-                        }
-                    },
-                    onFailure = { throwable ->
-                        _state.update { it.copy(isLoading = false) }
-                        _eventChannel.send(ShowErrorSnackbar("Error al cargar el paciente"))
+            repository.getPatientWithCatalogsByIdFlow(patientId)
+                .catch {
+                    _state.update { it.copy(isLoading = false) }
+                    _eventChannel.send(ShowErrorSnackbar("Error al cargar el paciente"))
+                }
+                .collectLatest { patientWithCatalogsModel ->
+                    _state.update { currentState ->
+                        currentState.copy(
+                            patientWithCatalogs = patientWithCatalogsModel ?: PatientWithCatalogsModel(),
+                            isLoading = false
+                        )
                     }
-                )
-            }
+
+                    val isValid = patientWithCatalogsModel?.patient?.clientId?.isNotBlank() ?: false
+
+                    // Si tenemos un clientId válido, cargamos los datos del cliente
+                    if (isValid) {
+                        fetchClientIfNeeded(patientWithCatalogsModel.patient.clientId)
+                    }
+                }
         }
     }
 
@@ -122,7 +125,7 @@ class DetailPatientViewModel @AssistedInject constructor(
         }
     }
 
-    private fun deletePatient(){
+    private fun deletePatient() {
         val cs = _state.value
 
         _state.update {
@@ -131,14 +134,13 @@ class DetailPatientViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             repository.changeStatusPatient(
-                patientId = cs.patient.id, newStatus = Constants.DELETED_PATIENT_STATUS
+                patientId = cs.patientWithCatalogs.patient.id, newStatus = Constants.DELETED_PATIENT_STATUS
             ).fold(
                 onSuccess = {
-                    _state.update {
-                        it.copy(
+                    _state.update { currentState ->
+                        currentState.copy(
                             isLoadingDeletePatient = false,
                             showDialogConfirmDelete = false,
-                            patient = it.patient.copy(status = Constants.DELETED_PATIENT_STATUS)
                         )
                     }
                     _eventChannel.send(
@@ -157,7 +159,7 @@ class DetailPatientViewModel @AssistedInject constructor(
         }
     }
 
-    private fun restorePatient(){
+    private fun restorePatient() {
         val cs = _state.value
 
         _state.update {
@@ -166,14 +168,13 @@ class DetailPatientViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             repository.changeStatusPatient(
-                patientId = cs.patient.id, newStatus = Constants.ACTIVE_PATIENT_STATUS
+                patientId = cs.patientWithCatalogs.patient.id, newStatus = Constants.ACTIVE_PATIENT_STATUS
             ).fold(
                 onSuccess = {
                     _state.update {
                         it.copy(
                             isLoadingRestorePatient = false,
                             showDialogConfirmRestore = false,
-                            patient = it.patient.copy(status = Constants.ACTIVE_PATIENT_STATUS)
                         )
                     }
                     _eventChannel.send(
