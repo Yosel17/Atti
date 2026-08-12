@@ -5,4 +5,8 @@ sealed interface InventoryAction {
     data class OnProductSearchQueryChange(val query: String) : InventoryAction
     data class OnServiceSearchQueryChange(val query: String) : InventoryAction
     data class OnSupplierSearchQueryChange(val query: String) : InventoryAction
+
+    data class OnCallClick(val phoneNumber: String): InventoryAction
+
+    data class OnWhatsappClick(val phoneNumber: String): InventoryAction
 }

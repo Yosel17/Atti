@@ -331,7 +331,8 @@ fun BodyInventory(
                                             SupplierList(
                                                 modifier = Modifier.fillMaxSize(),
                                                 suppliers = state.filteredSuppliers,
-                                                listState = supplierListState
+                                                listState = supplierListState,
+                                                onAction = onAction
                                             )
                                         }
                                     }
@@ -480,9 +481,10 @@ fun ServiceItem(
 
 @Composable
 fun SupplierList(
+    modifier: Modifier = Modifier,
     suppliers: List<SupplierModel>,
     listState: LazyListState,
-    modifier: Modifier = Modifier
+    onAction:(InventoryAction) -> Unit,
 ) {
     var previousCount by remember { mutableIntStateOf(suppliers.size) }
     val firstSupplierId = suppliers.firstOrNull()?.id
@@ -502,8 +504,12 @@ fun SupplierList(
         items(suppliers, key = { it.id }) { supplier ->
             SupplierItem(
                 supplier = supplier,
-                onCallClick = {},
-                onWhatsAppClick = {},
+                onCallClick = {
+                    onAction(InventoryAction.OnCallClick(phoneNumber = it))
+                },
+                onWhatsAppClick = {
+                    onAction(InventoryAction.OnWhatsappClick(phoneNumber = it))
+                },
                 onItemClick = {}
             )
         }
