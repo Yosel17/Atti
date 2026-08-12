@@ -140,7 +140,7 @@ fun InventoryScreen(
         ){
             ExtendedFloatingActionButton(
                 onClick = {
-
+                    onNavigationMain(Screens.AddSupplier)
                 },
                 icon = {
                     Icon(

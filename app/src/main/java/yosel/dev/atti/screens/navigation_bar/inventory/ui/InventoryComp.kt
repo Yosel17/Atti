@@ -327,7 +327,9 @@ fun BodyInventory(
                             }
                             InventoryUIStatus.EMPTY -> {
                                 EmptySuppliersState(
-                                    onAddSupplierClick = {}
+                                    onAddSupplierClick = {
+                                        onNavigationMain(Screens.AddSupplier)
+                                    }
                                 )
                             }
                         }

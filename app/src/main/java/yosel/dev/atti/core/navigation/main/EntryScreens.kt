@@ -25,6 +25,9 @@ import yosel.dev.atti.screens.add_client.ui.AddClientViewModel
 import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
 import yosel.dev.atti.screens.add_patient.ui.AddPatientScreen
 import yosel.dev.atti.screens.add_patient.ui.AddPatientViewModel
+import yosel.dev.atti.screens.add_supplier.ui.AddSupplierEvent
+import yosel.dev.atti.screens.add_supplier.ui.AddSupplierScreen
+import yosel.dev.atti.screens.add_supplier.ui.AddSupplierViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
@@ -257,6 +260,48 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.addSupplierEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.AddSupplier> {
+        val viewModel = hiltViewModel<AddSupplierViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is AddSupplierEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AddSupplierEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
+
+        AddSupplierScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
         )
