@@ -115,7 +115,9 @@ fun BodyInventory(
                             )
                             Text(
                                 text = tabData.title,
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
