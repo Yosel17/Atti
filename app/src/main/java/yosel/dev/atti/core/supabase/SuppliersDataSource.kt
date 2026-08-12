@@ -25,4 +25,13 @@ class SuppliersDataSource @Inject constructor(
             }
             .decodeSingle<SupplierDto>()
     }
+
+    suspend fun updateSupplier(supplier: SupplierDto) {
+        postgrest.from(Constants.SUPPLIERS_SUPABASE)
+            .update(supplier) {
+                filter {
+                    eq("id", supplier.id ?: "")
+                }
+            }
+    }
 }
