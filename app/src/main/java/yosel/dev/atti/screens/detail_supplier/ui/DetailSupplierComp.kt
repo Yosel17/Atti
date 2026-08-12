@@ -35,12 +35,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,7 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,15 +58,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
-import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
 @Composable
@@ -150,11 +151,9 @@ private fun SupplierMainInfoCard(
                         text = supplier.name.ifBlank { "Sin nombre" },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    StatusChipShort(status = supplier.status)
+                    StatusChip(status = supplier.status)
                 }
             }
 
@@ -271,7 +270,6 @@ private fun SupplierContactCard(
     }
 }
 
-// Composable ActionButtons idéntico al de detail_client
 @Composable
 private fun ActionButtons(
     onCallClick: () -> Unit,
@@ -281,15 +279,15 @@ private fun ActionButtons(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        FilledTonalButton(
+        OutlinedButton(
             onClick = onCallClick,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Icon(
@@ -301,15 +299,15 @@ private fun ActionButtons(
             Text(text = "Llamar", style = MaterialTheme.typography.labelLarge)
         }
 
-        FilledTonalButton(
+        OutlinedButton(
             onClick = onWhatsappClick,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.customColors.whatsapp,
-                contentColor = MaterialTheme.customColors.onWhatsapp
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.customColors.whatsapp
             )
         ) {
             Icon(
@@ -647,5 +645,26 @@ fun DialogInformativeSupplierEdition(
                 }
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyDetailPreview() {
+    AttiTheme {
+        BodyDetailSupplier(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(24.dp),
+            state = DetailSupplierState(
+                isLoading = false,
+                supplier = SupplierModel(
+                    id = "asdfnjkasdfhjkf",
+                    name = "Distribuidora la bendicion",
+                    taxId = "95997725k",
+                    phoneNumber = "30915902",
+                    address = "4 av. 0-60 canton agua tibia palencia"
+                )
+            ),
+            onAction = {}
+        )
     }
 }
