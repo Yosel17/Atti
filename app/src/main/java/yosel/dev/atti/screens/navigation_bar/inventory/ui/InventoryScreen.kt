@@ -43,7 +43,8 @@ fun InventoryScreen(
         BodyInventory(
             modifier = Modifier.fillMaxSize(),
             state = state,
-            onAction = onAction
+            onAction = onAction,
+            onNavigationMain = onNavigationMain
         )
 
         AnimatedVisibility(
