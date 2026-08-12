@@ -5,7 +5,7 @@ import yosel.dev.atti.core.models.model.SupplierModel
 
 interface DetailSupplierRepository {
 
-    suspend fun getSupplierByIdFlow(supplierId: String): Flow<SupplierModel>
+    suspend fun getSupplierByIdFlow(supplierId: String): Flow<SupplierModel?>
 
     suspend fun updateSupplier(supplier: SupplierModel): Result<Unit>
 
