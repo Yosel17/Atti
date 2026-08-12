@@ -78,10 +78,12 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
@@ -596,6 +598,16 @@ fun SupplierItem(
                             text = supplier.address
                         )
                     }
+
+                    if (supplier.status == Constants.DELETED_STATUS){
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        StatusChipShort(
+                            modifier = Modifier.align(Alignment.End),
+                            status = supplier.status
+                        )
+                    }
                 }
             }
 
@@ -874,7 +886,8 @@ private fun ItemSupplierPreview() {
                     name = "Distribuidora Médica Global",
                     taxId = "987654-3",
                     phoneNumber = "+54 11 4567-890012342341234-1341-13134 134 134134 134",
-                    address = "Av. de los Incas 1200, CABA"
+                    address = "Av. de los Incas 1200, CABA",
+                    status = 3
                 ),
                 onCallClick = {},
                 onWhatsAppClick = {},
