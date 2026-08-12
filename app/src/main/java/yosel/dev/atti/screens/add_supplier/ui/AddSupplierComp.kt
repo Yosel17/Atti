@@ -125,7 +125,6 @@ private fun SupplierForm(
             },
             leadingIcon = Icons.Outlined.Badge,
             keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
