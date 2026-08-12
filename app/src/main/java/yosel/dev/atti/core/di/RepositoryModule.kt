@@ -8,6 +8,8 @@ import yosel.dev.atti.screens.add_client.data.AddClientRepositoryImpl
 import yosel.dev.atti.screens.add_client.domain.AddClientRepository
 import yosel.dev.atti.screens.add_patient.data.AddPatientRepositoryImpl
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
+import yosel.dev.atti.screens.add_supplier.data.AddSupplierRepositoryImpl
+import yosel.dev.atti.screens.add_supplier.domain.AddSupplierRepository
 import yosel.dev.atti.screens.detail_client.data.DetailClientRepositoryImpl
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import yosel.dev.atti.screens.detail_patient.data.DetailPatientRepositoryImpl
@@ -57,4 +59,10 @@ abstract class RepositoryModule {
     abstract fun bindInventoryRepository(
         impl: InventoryRepositoryImpl
     ): InventoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAddSupplierRepository(
+        impl: AddSupplierRepositoryImpl
+    ): AddSupplierRepository
 }
