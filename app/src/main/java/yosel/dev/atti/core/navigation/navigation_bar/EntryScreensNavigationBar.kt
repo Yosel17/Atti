@@ -107,6 +107,7 @@ fun EntryProviderScope<NavKey>.inventoryEntry(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
@@ -115,6 +116,24 @@ fun EntryProviderScope<NavKey>.inventoryEntry(
                         snackBarHostState.showSnackbar(
                             message = event.message
                         )
+                    }
+                }
+                is InventoryEvent.NavigateToPhone -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono"
+                            )
+                        }
+                    }
+                }
+                is InventoryEvent.NavigateToWhatsapp -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp"
+                            )
+                        }
                     }
                 }
             }

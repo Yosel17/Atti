@@ -106,6 +106,16 @@ class InventoryViewModel @Inject constructor(
             is InventoryAction.OnSupplierSearchQueryChange -> {
                 _state.update { it.copy(supplierSearchQuery = event.query) }
             }
+            is InventoryAction.OnCallClick -> {
+                viewModelScope.launch {
+                    _events.send(InventoryEvent.NavigateToPhone(phoneNumber = event.phoneNumber))
+                }
+            }
+            is InventoryAction.OnWhatsappClick -> {
+                viewModelScope.launch {
+                    _events.send(InventoryEvent.NavigateToWhatsapp(phoneNumber = event.phoneNumber))
+                }
+            }
         }
     }
 
