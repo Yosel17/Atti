@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
@@ -73,7 +74,7 @@ fun InventoryScreen(
                 },
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.Inventory2,
+                        imageVector = Icons.Filled.Medication,
                         contentDescription = "new product"
                     )
                 },
@@ -145,7 +146,7 @@ fun InventoryScreen(
                 },
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.Medication,
+                        imageVector = Icons.Filled.LocalShipping,
                         contentDescription = "new suppliers"
                     )
                 },
