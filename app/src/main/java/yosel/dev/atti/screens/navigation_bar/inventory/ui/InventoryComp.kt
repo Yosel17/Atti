@@ -31,20 +31,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.Chat
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.Medication
-import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -334,7 +329,13 @@ fun BodyInventory(
                                                 modifier = Modifier.fillMaxSize(),
                                                 suppliers = state.filteredSuppliers,
                                                 listState = supplierListState,
-                                                onAction = onAction
+                                                onAction = onAction,
+                                                onItemClick = { supplierId ->
+                                                    onNavigationMain(Screens.DetailSupplier(
+                                                        supplierId = supplierId
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                     }
@@ -487,6 +488,7 @@ fun SupplierList(
     suppliers: List<SupplierModel>,
     listState: LazyListState,
     onAction:(InventoryAction) -> Unit,
+    onItemClick: (String) -> Unit
 ) {
     var previousCount by remember { mutableIntStateOf(suppliers.size) }
     val firstSupplierId = suppliers.firstOrNull()?.id
@@ -512,7 +514,9 @@ fun SupplierList(
                 onWhatsAppClick = {
                     onAction(InventoryAction.OnWhatsappClick(phoneNumber = it))
                 },
-                onItemClick = {}
+                onItemClick = { supplierId ->
+                    onItemClick(supplierId)
+                }
             )
         }
         item {
@@ -527,13 +531,13 @@ fun SupplierItem(
     onCallClick: (phoneNumber: String) -> Unit,
     onWhatsAppClick: (phoneNumber: String) -> Unit,
     modifier: Modifier = Modifier,
-    onItemClick:() -> Unit
+    onItemClick:(String) -> Unit
 ) {
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth(),
         onClick = {
-            onItemClick()
+            onItemClick(supplier.id)
         }
     ) {
         Column(
