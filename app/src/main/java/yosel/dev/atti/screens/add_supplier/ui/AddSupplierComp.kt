@@ -107,7 +107,7 @@ private fun SupplierForm(
             },
             leadingIcon = Icons.Outlined.Business,
             keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
+                capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
@@ -125,7 +125,7 @@ private fun SupplierForm(
             },
             leadingIcon = Icons.Outlined.Badge,
             keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
+                capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
