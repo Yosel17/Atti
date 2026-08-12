@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Business
@@ -86,105 +87,89 @@ private fun SupplierForm(
     formState: AddSupplierFormState,
     onInputChanged: (String, Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier,
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        item {
-            Text(
-                text = "Complete los datos para dar de alta a un nuevo proveedor.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+        Text(
+            text = "Complete los datos para dar de alta a un nuevo proveedor.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
 
-        // 3.1 Nombre del proveedor
-        item {
-            InputFieldWithTextGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Nombre del proveedor",
-                placeHolder = "ej. Distribuidora San Carlos",
-                value = formState.name,
-                onValueChange = {
-                    onInputChanged(it, Constants.SUPPLIER_NAME_FIELD)
-                },
-                leadingIcon = Icons.Outlined.Business,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                isError = formState.isError(Constants.SUPPLIER_NAME_FIELD),
-                errorMessage = "Este campo no puede estar vacío"
-            )
-        }
+        InputFieldWithTextGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Nombre del proveedor",
+            placeHolder = "ej. Distribuidora San Carlos",
+            value = formState.name,
+            onValueChange = {
+                onInputChanged(it, Constants.SUPPLIER_NAME_FIELD)
+            },
+            leadingIcon = Icons.Outlined.Business,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            isError = formState.isError(Constants.SUPPLIER_NAME_FIELD),
+            errorMessage = "Este campo no puede estar vacío"
+        )
 
-        // 3.2 Nit del proveedor
-        item {
-            InputFieldWithTextGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "NIT del proveedor",
-                placeHolder = "ej. 1234567-8",
-                value = formState.taxId,
-                onValueChange = {
-                    onInputChanged(it, Constants.SUPPLIER_TAX_ID_FIELD)
-                },
-                leadingIcon = Icons.Outlined.Badge,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                isError = formState.isError(Constants.SUPPLIER_TAX_ID_FIELD),
-                errorMessage = "Este campo no puede estar vacío"
-            )
-        }
+        InputFieldWithTextGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            label = "NIT del proveedor",
+            placeHolder = "ej. 1234567-8",
+            value = formState.taxId,
+            onValueChange = {
+                onInputChanged(it, Constants.SUPPLIER_TAX_ID_FIELD)
+            },
+            leadingIcon = Icons.Outlined.Badge,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            isError = formState.isError(Constants.SUPPLIER_TAX_ID_FIELD),
+            errorMessage = "Este campo no puede estar vacío"
+        )
 
-        // 3.3 Teléfono de contacto (sólo dígitos)
-        item {
-            InputFieldWithTextGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Teléfono de contacto",
-                placeHolder = "ej. 55554444",
-                value = formState.phoneNumber,
-                onValueChange = { newValue ->
-                    if (newValue.isEmpty() || newValue.matches(Regex("""^\d*$"""))) {
-                        onInputChanged(newValue, Constants.SUPPLIER_PHONE_FIELD)
-                    }
-                },
-                leadingIcon = Icons.Outlined.Phone,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                isError = formState.isError(Constants.SUPPLIER_PHONE_FIELD),
-                errorMessage = "Este campo no puede estar vacío"
-            )
-        }
+        InputFieldWithTextGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Teléfono de contacto",
+            placeHolder = "ej. 55554444",
+            value = formState.phoneNumber,
+            onValueChange = { newValue ->
+                if (newValue.isEmpty() || newValue.matches(Regex("""^\d*$"""))) {
+                    onInputChanged(newValue, Constants.SUPPLIER_PHONE_FIELD)
+                }
+            },
+            leadingIcon = Icons.Outlined.Phone,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            ),
+            isError = formState.isError(Constants.SUPPLIER_PHONE_FIELD),
+            errorMessage = "Este campo no puede estar vacío"
+        )
 
-        // 3.4 Dirección Completa
-        item {
-            InputFieldWithTextGlobal(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Dirección completa",
-                placeHolder = "ej. Calle Principal Z.1, Palencia",
-                value = formState.address,
-                onValueChange = {
-                    onInputChanged(it, Constants.SUPPLIER_ADDRESS_FIELD)
-                },
-                leadingIcon = Icons.Outlined.Place,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                isError = formState.isError(Constants.SUPPLIER_ADDRESS_FIELD),
-                errorMessage = "Este campo no puede estar vacío"
-            )
-        }
+        InputFieldWithTextGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Dirección completa",
+            placeHolder = "ej. Calle Principal Z.1, Palencia",
+            value = formState.address,
+            onValueChange = {
+                onInputChanged(it, Constants.SUPPLIER_ADDRESS_FIELD)
+            },
+            leadingIcon = Icons.Outlined.Place,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            isError = formState.isError(Constants.SUPPLIER_ADDRESS_FIELD),
+            errorMessage = "Este campo no puede estar vacío"
+        )
 
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
