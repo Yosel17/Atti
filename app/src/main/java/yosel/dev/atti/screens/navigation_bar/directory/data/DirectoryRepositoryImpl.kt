@@ -53,8 +53,12 @@ class DirectoryRepositoryImpl @Inject constructor(
     override suspend fun syncPatients(): Result<Unit> = runCatching {
         val remotePatients = patientsDataSource.getAllPatientsWithCatalogs()
         val entities = remotePatients.map { it.toEntity() }
-        val appCatalogsEntities =
-            remotePatients.mapNotNull { it.species?.toEntity() ?: it.gender?.toEntity() }
+        val appCatalogsEntities = remotePatients.flatMap { patient ->
+            listOfNotNull(
+                patient.species?.toEntity(),
+                patient.gender?.toEntity()
+            )
+        }.distinctBy { it.id }
 
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
         patientDao.upsertPatients(entities)

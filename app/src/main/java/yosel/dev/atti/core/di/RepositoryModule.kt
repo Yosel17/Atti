@@ -14,6 +14,8 @@ import yosel.dev.atti.screens.detail_patient.data.DetailPatientRepositoryImpl
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
 import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
+import yosel.dev.atti.screens.navigation_bar.inventory.data.InventoryRepositoryImpl
+import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
 import javax.inject.Singleton
 
 @Module
@@ -49,4 +51,10 @@ abstract class RepositoryModule {
     abstract fun bindDetailPatientRepository(
         impl: DetailPatientRepositoryImpl
     ): DetailPatientRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindInventoryRepository(
+        impl: InventoryRepositoryImpl
+    ): InventoryRepository
 }
