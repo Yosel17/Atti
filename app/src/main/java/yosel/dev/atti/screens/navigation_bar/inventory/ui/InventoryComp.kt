@@ -7,17 +7,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -27,25 +31,34 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Call
+import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,16 +69,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.ui.theme.customColors
 
 private data class InventoryTabData(
     val title: String,
@@ -478,11 +496,16 @@ fun SupplierList(
     LazyColumn(
         modifier = modifier,
         state = listState,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(suppliers, key = { it.id }) { supplier ->
-            SupplierItem(supplier = supplier)
+            SupplierItem(
+                supplier = supplier,
+                onCallClick = {},
+                onWhatsAppClick = {},
+                onItemClick = {}
+            )
         }
         item {
             Spacer(modifier = Modifier.height(80.dp))
@@ -493,29 +516,176 @@ fun SupplierList(
 @Composable
 fun SupplierItem(
     supplier: SupplierModel,
+    onCallClick: (phoneNumber: String) -> Unit,
+    onWhatsAppClick: (phoneNumber: String) -> Unit,
+    modifier: Modifier = Modifier,
+    onItemClick:() -> Unit
+) {
+    OutlinedCard(
+        modifier = modifier
+            .fillMaxWidth(),
+        onClick = {
+            onItemClick()
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Content Area
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Circular Icon Container (Avatar)
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocalShipping,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                // Details Column
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Name
+                    Text(
+                        text = supplier.name,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    // Phone Number
+                    SupplierInfoRow(
+                        icon = Icons.Outlined.Phone,
+                        text = supplier.phoneNumber
+                    )
+
+                    // Tax ID (NIT)
+                    if (supplier.taxId.isNotBlank()) {
+                        SupplierInfoRow(
+                            icon = Icons.Outlined.Badge,
+                            text = "NIT: ${supplier.taxId}"
+                        )
+                    }
+
+                    // Address
+                    if (supplier.address.isNotBlank()) {
+                        SupplierInfoRow(
+                            icon = Icons.Outlined.LocationOn,
+                            text = supplier.address
+                        )
+                    }
+                }
+            }
+
+            // Divider before bottom actions
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Bottom Actions Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                // Call Action Button
+                Row(
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable(onClick = { onCallClick(supplier.phoneNumber) })
+                        .padding(vertical = 12.dp, horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Call,
+                        contentDescription = "Llamar",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Llamar",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // Vertical Divider between buttons
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // WhatsApp Action Button
+                Row(
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable(onClick = { onWhatsAppClick(supplier.phoneNumber) })
+                        .padding(vertical = 12.dp, horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.whatsapp),
+                        contentDescription = "WhatsApp",
+                        tint = MaterialTheme.customColors.whatsapp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "WhatsApp",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.customColors.whatsapp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SupplierInfoRow(
+    icon: ImageVector,
+    text: String,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        modifier = modifier.fillMaxWidth()
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = supplier.name.ifBlank { "Sin nombre de proveedor" },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -683,6 +853,27 @@ fun EmptySuppliersState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Agregar primer proveedor")
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ItemSupplierPreview() {
+    AttiTheme {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)) {
+            SupplierItem(
+                supplier = SupplierModel(
+                    id = "1",
+                    name = "Distribuidora Médica Global",
+                    taxId = "987654-3",
+                    phoneNumber = "+54 11 4567-890012342341234-1341-13134 134 134134 134",
+                    address = "Av. de los Incas 1200, CABA"
+                ),
+                onCallClick = {},
+                onWhatsAppClick = {},
+                onItemClick = {}
+            )
         }
     }
 }
