@@ -99,7 +99,9 @@ fun EntryProviderScope<NavKey>.consultationEntry(){
     }
 }
 
-fun EntryProviderScope<NavKey>.inventoryEntry(){
+fun EntryProviderScope<NavKey>.inventoryEntry(
+    onNavigationMain: (Screens) -> Unit
+){
     entry<ScreensNavigationBar.Inventory> {
         val viewModel = hiltViewModel<InventoryViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -124,7 +126,8 @@ fun EntryProviderScope<NavKey>.inventoryEntry(){
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
         )
     }
 }

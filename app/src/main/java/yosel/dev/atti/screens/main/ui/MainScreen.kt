@@ -130,7 +130,9 @@ fun MainScreen(
                     onNavigationMain = onNavigationMain
                 )
                 consultationEntry()
-                inventoryEntry()
+                inventoryEntry(
+                    onNavigationMain = onNavigationMain
+                )
             }
         )
     }
