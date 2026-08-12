@@ -3,18 +3,31 @@ package yosel.dev.atti.core.utils
 import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.PatientDto
+import yosel.dev.atti.core.models.dto.ProductDto
+import yosel.dev.atti.core.models.dto.ServiceDto
+import yosel.dev.atti.core.models.dto.SupplierDto
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.ProductModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.ServiceModel
+import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.product.ProductEntity
+import yosel.dev.atti.core.room.tables.product.ProductWithDetailsEntity
+import yosel.dev.atti.core.room.tables.service.ServiceEntity
+import yosel.dev.atti.core.room.tables.service.ServiceWithDetailsEntity
+import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
@@ -294,6 +307,90 @@ fun PatientWithCatalogsEntity.toModel() = PatientWithCatalogsModel(
 fun ClientWithPatientsWithCatalogsEntity.toModel() = ClientWithPatientsWithCatalogsModel(
     client = client.toModel(),
     patients = patients.map { it.toModel() }
+)
+
+fun ProductDto.toEntity() = ProductEntity(
+    id = id.orEmpty(),
+    supplierId = supplierId,
+    categoryId = categoryId ?: 0,
+    unitTypeId = unitTypeId ?: 0,
+    commercialName = commercialName,
+    brand = brand.orEmpty(),
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock ?: 0.00,
+    createdAt = createdAt.orEmpty() ,
+    status = status
+)
+
+fun ServiceDto.toEntity() = ServiceEntity(
+    id = id.orEmpty(),
+    categoryId = categoryId ?: 0,
+    name = name,
+    description = description.orEmpty(),
+    salePrice = salePrice,
+    estimatedCost = estimatedCost ?: 0.00,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun SupplierDto.toEntity() = SupplierEntity(
+    id = id.orEmpty(),
+    name = name,
+    taxId = taxId.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
+    address = address.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ProductEntity.toModel() = ProductModel(
+    id = id,
+    supplierId = supplierId,
+    categoryId = categoryId,
+    unitTypeId = unitTypeId,
+    commercialName = commercialName,
+    brand = brand,
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ServiceEntity.toModel() = ServiceModel(
+    id = id,
+    categoryId = categoryId,
+    name = name,
+    description = description,
+    salePrice = salePrice,
+    estimatedCost = estimatedCost,
+    createdAt = createdAt,
+    status = status
+)
+
+fun SupplierEntity.toModel() = SupplierModel(
+    id = id,
+    name = name,
+    taxId = taxId,
+    phoneNumber = phoneNumber,
+    address = address,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
+    product = product.toModel(),
+    supplier = supplier?.toModel() ?: SupplierModel(),
+    category = category?.toModel() ?: AppCatalogModel(),
+    unitType = unitType?.toModel() ?: AppCatalogModel()
+)
+
+fun ServiceWithDetailsEntity.toModel() = ServiceWithDetailsModel(
+    service = service.toModel(),
+    category = category?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {

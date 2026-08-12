@@ -9,6 +9,9 @@ object Constants {
     const val CLIENTS_SUPABASE = "clients"
     const val PATIENTS_SUPABASE = "patients"
     const val APP_CATALOGS_SUPABASE = "app_catalogs"
+    const val PRODUCTS_SUPABASE = "products"
+    const val SERVICES_SUPABASE = "services"
+    const val SUPPLIERS_SUPABASE = "suppliers"
 
     //inputs
     const val FIRST_NAME_FIELD = 0
