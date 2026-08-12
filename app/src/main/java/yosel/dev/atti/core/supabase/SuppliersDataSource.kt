@@ -17,4 +17,12 @@ class SuppliersDataSource @Inject constructor(
             }
             .decodeList<SupplierDto>()
     }
+
+    suspend fun insertAndGetSupplier(supplier: SupplierDto): SupplierDto {
+        return postgrest.from(Constants.SUPPLIERS_SUPABASE)
+            .insert(supplier) {
+                select()
+            }
+            .decodeSingle<SupplierDto>()
+    }
 }
