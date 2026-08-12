@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -61,6 +63,7 @@ import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
+import yosel.dev.atti.core.navigation.main.Screens
 
 private data class InventoryTabData(
     val title: String,
@@ -78,7 +81,8 @@ private enum class InventoryUIStatus {
 fun BodyInventory(
     modifier: Modifier = Modifier,
     state: InventoryState,
-    onAction: (InventoryAction) -> Unit
+    onAction: (InventoryAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val tabs = remember {
         listOf(
@@ -115,7 +119,9 @@ fun BodyInventory(
                             )
                             Text(
                                 text = tabData.title,
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -192,7 +198,9 @@ fun BodyInventory(
                                 }
                             }
                             InventoryUIStatus.EMPTY -> {
-                                EmptyProductsState()
+                                EmptyProductsState(
+                                    onAddProductClick = {}
+                                )
                             }
                         }
                     }
@@ -254,7 +262,9 @@ fun BodyInventory(
                                 }
                             }
                             InventoryUIStatus.EMPTY -> {
-                                EmptyServicesState()
+                                EmptyServicesState(
+                                    onAddServiceClick = {}
+                                )
                             }
                         }
                     }
@@ -316,7 +326,9 @@ fun BodyInventory(
                                 }
                             }
                             InventoryUIStatus.EMPTY -> {
-                                EmptySuppliersState()
+                                EmptySuppliersState(
+                                    onAddSupplierClick = {}
+                                )
                             }
                         }
                     }
@@ -505,7 +517,8 @@ fun SupplierItem(
 
 @Composable
 fun EmptyProductsState(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddProductClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -543,12 +556,25 @@ fun EmptyProductsState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(28.dp))
+        Button(
+            onClick = onAddProductClick
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Inventory2,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(text = "Agregar primer producto")
+        }
     }
 }
 
 @Composable
 fun EmptyServicesState(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddServiceClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -586,12 +612,25 @@ fun EmptyServicesState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(28.dp))
+        Button(
+            onClick = onAddServiceClick
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.MedicalServices,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(text = "Agregar primer servicio")
+        }
     }
 }
 
 @Composable
 fun EmptySuppliersState(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddSupplierClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -629,5 +668,17 @@ fun EmptySuppliersState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(28.dp))
+        Button(
+            onClick = onAddSupplierClick
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.LocalShipping,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(text = "Agregar primer proveedor")
+        }
     }
 }
