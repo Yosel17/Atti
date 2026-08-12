@@ -34,4 +34,17 @@ class SuppliersDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun updateSupplierStatus(supplierId: String, newStatus: Int){
+        postgrest.from(Constants.SUPPLIERS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                }
+            ) {
+                filter {
+                    eq("id", supplierId)
+                }
+            }
+    }
 }
