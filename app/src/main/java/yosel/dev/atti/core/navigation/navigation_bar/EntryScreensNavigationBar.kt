@@ -23,6 +23,9 @@ import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryEvent
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryScreen
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryViewModel
+import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryEvent
+import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryScreen
+import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(){
     entry<ScreensNavigationBar.Home> {
@@ -98,10 +101,30 @@ fun EntryProviderScope<NavKey>.consultationEntry(){
 
 fun EntryProviderScope<NavKey>.inventoryEntry(){
     entry<ScreensNavigationBar.Inventory> {
-        Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.error)
-        ){
-            Text(text = "InventoryScreen", color = MaterialTheme.colorScheme.onError)
+        val viewModel = hiltViewModel<InventoryViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is InventoryEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = event.message
+                        )
+                    }
+                }
+            }
         }
+
+        InventoryScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction
+        )
     }
 }
