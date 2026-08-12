@@ -389,6 +389,25 @@ fun SupplierModel.toDtoForInsert() = SupplierDto(
     status = status
 )
 
+fun SupplierModel.toDtoForUpdate() = SupplierDto(
+    id = id,
+    name = name,
+    taxId = taxId,
+    phoneNumber = phoneNumber,
+    address = address,
+    status = status
+)
+
+fun SupplierModel.toEntity() = SupplierEntity(
+    id = id,
+    name = name,
+    taxId = taxId,
+    phoneNumber = phoneNumber,
+    address = address,
+    createdAt = createdAt,
+    status = status
+)
+
 fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
     product = product.toModel(),
     supplier = supplier?.toModel() ?: SupplierModel(),
