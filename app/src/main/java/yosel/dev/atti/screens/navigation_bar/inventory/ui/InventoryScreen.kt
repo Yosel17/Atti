@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -140,11 +141,11 @@ fun InventoryScreen(
         ){
             ExtendedFloatingActionButton(
                 onClick = {
-
+                    onNavigationMain(Screens.AddSupplier)
                 },
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.LocalShipping,
+                        imageVector = Icons.Filled.Medication,
                         contentDescription = "new suppliers"
                     )
                 },

@@ -30,9 +30,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -86,7 +88,7 @@ fun BodyInventory(
 ) {
     val tabs = remember {
         listOf(
-            InventoryTabData("Productos", Icons.Filled.Inventory2),
+            InventoryTabData("Productos", Icons.Filled.Medication),
             InventoryTabData("Servicios", Icons.Filled.MedicalServices),
             InventoryTabData("Proveedores", Icons.Filled.LocalShipping)
         )
@@ -327,7 +329,9 @@ fun BodyInventory(
                             }
                             InventoryUIStatus.EMPTY -> {
                                 EmptySuppliersState(
-                                    onAddSupplierClick = {}
+                                    onAddSupplierClick = {
+                                        onNavigationMain(Screens.AddSupplier)
+                                    }
                                 )
                             }
                         }
@@ -536,7 +540,7 @@ fun EmptyProductsState(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Outlined.Inventory2,
+                imageVector = Icons.Outlined.Medication,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(48.dp)
@@ -561,7 +565,7 @@ fun EmptyProductsState(
             onClick = onAddProductClick
         ) {
             Icon(
-                imageVector = Icons.Outlined.Inventory2,
+                imageVector = Icons.Outlined.Medication,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)
             )

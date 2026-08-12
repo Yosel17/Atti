@@ -28,6 +28,12 @@ object Constants {
     const val PATIENT_AGE_MONTHS_FIELD = 9
     const val PATIENT_COLOR_FIELD = 10
 
+    //inputs supplier
+    const val SUPPLIER_NAME_FIELD = 0
+    const val SUPPLIER_TAX_ID_FIELD = 1
+    const val SUPPLIER_PHONE_FIELD = 2
+    const val SUPPLIER_ADDRESS_FIELD = 3
+
     //tipos de catalogos
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2
