@@ -40,6 +40,7 @@ class ProductFormViewModel @AssistedInject constructor(
     fun onAction(action: ProductFormAction){
         when(action){
             ProductFormAction.RegisterProduct -> TODO()
+            ProductFormAction.TryCatalogsAgain -> getCatalogsAndSuppliers()
         }
 
     }
