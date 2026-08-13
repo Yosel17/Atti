@@ -38,6 +38,9 @@ import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
+import yosel.dev.atti.screens.product_form.ui.ProductFormEvent
+import yosel.dev.atti.screens.product_form.ui.ProductFormScreen
+import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
@@ -388,5 +391,53 @@ fun EntryProviderScope<NavKey>.detailSupplierEntry(
             onBack = onBack
         )
 
+    }
+}
+
+fun EntryProviderScope<NavKey>.productFormEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.ProductForm> { productFormKey ->
+        val viewModel: ProductFormViewModel = hiltViewModel(
+            creationCallback = { factory: ProductFormViewModel.Factory ->
+                factory.create(
+                    productId = productFormKey.productId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is ProductFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ProductFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
+
+        ProductFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
     }
 }

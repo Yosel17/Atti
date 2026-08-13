@@ -216,7 +216,9 @@ fun BodyInventory(
                             }
                             InventoryUIStatus.EMPTY -> {
                                 EmptyProductsState(
-                                    onAddProductClick = {}
+                                    onAddProductClick = {
+                                        onNavigationMain(Screens.ProductForm())
+                                    }
                                 )
                             }
                         }
