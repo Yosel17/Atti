@@ -28,4 +28,12 @@ class ProductsDataSource @Inject constructor(
             }
             .decodeList<ProductDto>()
     }
+
+    suspend fun insertAndGetProduct(product: ProductDto): ProductDto {
+        return postgrest.from(Constants.PRODUCTS_SUPABASE)
+            .insert(product) {
+                select()
+            }
+            .decodeSingle<ProductDto>()
+    }
 }
