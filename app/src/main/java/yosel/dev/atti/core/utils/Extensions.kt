@@ -346,6 +346,16 @@ fun SupplierDto.toEntity() = SupplierEntity(
     status = status
 )
 
+fun SupplierDto.toModel() = SupplierModel(
+    id = id.orEmpty(),
+    name = name,
+    taxId = taxId.orEmpty(),
+    phoneNumber = phoneNumber.orEmpty(),
+    address = address.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
 fun ProductEntity.toModel() = ProductModel(
     id = id,
     supplierId = supplierId,
