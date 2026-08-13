@@ -20,6 +20,8 @@ import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryI
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import yosel.dev.atti.screens.navigation_bar.inventory.data.InventoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
+import yosel.dev.atti.screens.product_form.data.ProductFormRepositoryImpl
+import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
 import javax.inject.Singleton
 
 @Module
@@ -73,4 +75,10 @@ abstract class RepositoryModule {
     abstract fun bindDetailSupplierRepository(
         impl: DetailSupplierRepositoryImpl
     ): DetailSupplierRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProductFormRepository(
+        impl: ProductFormRepositoryImpl
+    ): ProductFormRepository
 }
