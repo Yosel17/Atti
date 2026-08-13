@@ -34,14 +34,19 @@ import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientScreen
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientViewModel
+import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
+import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
+import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
-){
+) {
     entry<Screens.Main> {
         MainScreen(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             onNavigationMain = onNavigation
         )
     }
@@ -49,7 +54,7 @@ fun EntryProviderScope<NavKey>.mainEntry(
 
 fun EntryProviderScope<NavKey>.addClientEntry(
     onBack: () -> Unit
-){
+) {
     entry<Screens.AddClient> {
         val viewModel = hiltViewModel<AddClientViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -57,7 +62,7 @@ fun EntryProviderScope<NavKey>.addClientEntry(
         val scope = rememberCoroutineScope()
 
         ObserveAsEvents(viewModel.events) { event ->
-            when(event){
+            when (event) {
                 is AddClientEvent.ShowErrorSnackbar -> {
                     scope.launch {
                         snackBarHostState.showCustomSnackbar(
@@ -66,6 +71,7 @@ fun EntryProviderScope<NavKey>.addClientEntry(
                         )
                     }
                 }
+
                 is AddClientEvent.ShowSuccessSnackbar -> {
                     scope.launch {
                         snackBarHostState.showCustomSnackbar(
@@ -78,7 +84,8 @@ fun EntryProviderScope<NavKey>.addClientEntry(
         }
 
         AddClientScreen(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
@@ -90,8 +97,8 @@ fun EntryProviderScope<NavKey>.addClientEntry(
 
 fun EntryProviderScope<NavKey>.detailClientEntry(
     onBack: () -> Unit,
-    onNavigation:(Screens) -> Unit
-){
+    onNavigation: (Screens) -> Unit
+) {
     entry<Screens.DetailClient> { detailClientKey ->
         val viewModel: DetailClientViewModel = hiltViewModel(
             creationCallback = { factory: DetailClientViewModel.Factory ->
@@ -107,7 +114,7 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
         val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
-            when(event){
+            when (event) {
                 is DetailClientEvent.ShowErrorSnackbar -> {
                     scope.launch {
                         snackbarHostState.showCustomSnackbar(
@@ -136,6 +143,7 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                         }
                     }
                 }
+
                 is DetailClientEvent.OnWhatsappClick -> {
                     if (!context.openWhatsApp(event.phoneNumber)) {
                         scope.launch {
@@ -146,6 +154,7 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
                         }
                     }
                 }
+
                 is DetailClientEvent.OnNavigationMain -> {
                     onNavigation(event.screen)
                 }
@@ -166,7 +175,7 @@ fun EntryProviderScope<NavKey>.detailClientEntry(
 
 fun EntryProviderScope<NavKey>.addPatientEntry(
     onBack: () -> Unit
-){
+) {
     entry<Screens.AddPatient> { addPatientKey ->
         val viewModel: AddPatientViewModel = hiltViewModel(
             creationCallback = { factory: AddPatientViewModel.Factory ->
@@ -181,7 +190,7 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
         val scope = rememberCoroutineScope()
 
         ObserveAsEvents(viewModel.events) { event ->
-            when(event){
+            when (event) {
                 is AddPatientEvent.ShowErrorSnackbar -> {
                     scope.launch {
                         snackBarHostState.showCustomSnackbar(
@@ -190,6 +199,7 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
                         )
                     }
                 }
+
                 is AddPatientEvent.ShowSuccessSnackbar -> {
                     scope.launch {
                         snackBarHostState.showCustomSnackbar(
@@ -202,7 +212,9 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
         }
 
         AddPatientScreen(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
@@ -214,7 +226,7 @@ fun EntryProviderScope<NavKey>.addPatientEntry(
 fun EntryProviderScope<NavKey>.detailPatientEntry(
     onBack: () -> Unit,
     onNavigationMain: (Screens) -> Unit
-){
+) {
     entry<Screens.DetailPatient> { detailPatientKey ->
 
         val viewModel: DetailPatientViewModel = hiltViewModel(
@@ -229,7 +241,7 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
         val scope = rememberCoroutineScope()
 
         ObserveAsEvents(viewModel.events) { event ->
-            when(event){
+            when (event) {
                 is DetailPatientEvent.ShowErrorSnackbar -> {
                     scope.launch {
                         snackbarHostState.showCustomSnackbar(
@@ -285,6 +297,7 @@ fun EntryProviderScope<NavKey>.addSupplierEntry(
                         )
                     }
                 }
+
                 is AddSupplierEvent.ShowSuccessSnackbar -> {
                     scope.launch {
                         snackBarHostState.showCustomSnackbar(
@@ -305,5 +318,75 @@ fun EntryProviderScope<NavKey>.addSupplierEntry(
             onAction = viewModel::onAction,
             onBack = onBack
         )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailSupplierEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.DetailSupplier> { detailSupplierKey ->
+        val viewModel: DetailSupplierViewModel = hiltViewModel(
+            creationCallback = { factory: DetailSupplierViewModel.Factory ->
+                factory.create(
+                    supplierId = detailSupplierKey.supplierId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is DetailSupplierEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is DetailSupplierEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is DetailSupplierEvent.OnCallClick -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono",
+                                type = SnackbarType.ERROR
+                            )
+                        }
+                    }
+                }
+                is DetailSupplierEvent.OnWhatsappClick -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackbarHostState.showCustomSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp",
+                                type = SnackbarType.ERROR
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        DetailSupplierScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+
     }
 }

@@ -58,6 +58,11 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+            detailSupplierEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
         }
     )
 

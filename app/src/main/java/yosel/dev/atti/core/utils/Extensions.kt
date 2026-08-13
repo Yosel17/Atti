@@ -31,6 +31,7 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
+import yosel.dev.atti.screens.detail_supplier.ui.EditSupplierFormState
 import java.text.Normalizer
 
 fun ClientDto.toEntity() = ClientEntity(
@@ -408,6 +409,15 @@ fun SupplierModel.toEntity() = SupplierEntity(
     status = status
 )
 
+fun SupplierModel.toEditFormState() = EditSupplierFormState(
+    id = id,
+    name = name,
+    taxId = taxId,
+    phoneNumber = phoneNumber,
+    address = address,
+    createdAt = createdAt
+)
+
 fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
     product = product.toModel(),
     supplier = supplier?.toModel() ?: SupplierModel(),
@@ -418,6 +428,16 @@ fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
 fun ServiceWithDetailsEntity.toModel() = ServiceWithDetailsModel(
     service = service.toModel(),
     category = category?.toModel() ?: AppCatalogModel()
+)
+
+fun EditSupplierFormState.toModel(status: Int) = SupplierModel(
+    id = id,
+    name = name,
+    taxId = taxId,
+    phoneNumber = phoneNumber,
+    address = address,
+    createdAt = createdAt,
+    status = status
 )
 
 fun String.normalize(): String {
