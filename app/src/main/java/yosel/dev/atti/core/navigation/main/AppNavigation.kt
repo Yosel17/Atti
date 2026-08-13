@@ -63,8 +63,11 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+            productFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
         }
     )
-
-
 }
