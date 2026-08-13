@@ -38,6 +38,9 @@ object Constants {
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2
 
+    const val PRODUCT_CATEGORY_TYPE_CATALOG = 3
+    const val PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG = 4
+
     //Catalogos
     const val CANINE_SPECIES_CATALOG = 1
     const val FELINE_SPECIES_CATALOG = 3
