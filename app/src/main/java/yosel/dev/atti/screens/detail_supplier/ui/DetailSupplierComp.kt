@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.components.StatusChip
+import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -153,7 +154,7 @@ private fun SupplierMainInfoCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    StatusChip(status = supplier.status)
+                    StatusChipShort(status = supplier.status)
                 }
             }
 
@@ -559,8 +560,11 @@ fun EditSupplierBottomSheet(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    focusManager.clearFocus()
-                    coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+
+                    coroutineScope.launch {
+                        focusManager.clearFocus()
+                        sheetState.hide()
+                    }.invokeOnCompletion {
                         onAction(DetailSupplierAction.OnUpdateSupplier)
                     }
                 },
