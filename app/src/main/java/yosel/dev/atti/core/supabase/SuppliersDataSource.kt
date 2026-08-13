@@ -18,6 +18,17 @@ class SuppliersDataSource @Inject constructor(
             .decodeList<SupplierDto>()
     }
 
+    suspend fun getSuppliersActives(): List<SupplierDto> {
+        return postgrest.from(Constants.SUPPLIERS_SUPABASE)
+            .select {
+                filter {
+                    eq("status", Constants.ACTIVE_STATUS)
+                }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<SupplierDto>()
+    }
+
     suspend fun insertAndGetSupplier(supplier: SupplierDto): SupplierDto {
         return postgrest.from(Constants.SUPPLIERS_SUPABASE)
             .insert(supplier) {
