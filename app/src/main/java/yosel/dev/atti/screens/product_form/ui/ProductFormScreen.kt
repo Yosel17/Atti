@@ -68,7 +68,7 @@ fun ProductFormScreen(
                             )
                         }
                     }
-                    targetState.productCategoryCatalog.isEmpty() || targetState.productUnitOfMeasureCatalog.isEmpty() -> {
+                    !targetState.isSuccessGetCategory -> {
                         EmptyGlobal(
                             title = "No se pudo cargar la información inicial",
                             subTitle = "No es posible registrar products sin esa información. Inténtalo de nuevo.",

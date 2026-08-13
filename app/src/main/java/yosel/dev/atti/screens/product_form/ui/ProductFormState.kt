@@ -6,4 +6,5 @@ data class ProductFormState(
     val isLoadingDataInitial: Boolean = true,
     val productCategoryCatalog: List<AppCatalogModel> = emptyList(),
     val productUnitOfMeasureCatalog: List<AppCatalogModel> = emptyList(),
+    val isSuccessGetCategory: Boolean = false
 )

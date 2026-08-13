@@ -63,6 +63,7 @@ class ProductFormViewModel @AssistedInject constructor(
                         currentState.copy(
                             productCategoryCatalog = productCategoryCatalog,
                             productUnitOfMeasureCatalog = productUnitOfMeasureCatalog,
+                            isSuccessGetCategory = true,
                             isLoadingDataInitial = false,
                         )
                     }
