@@ -59,14 +59,27 @@ class ProductFormViewModel @AssistedInject constructor(
                     val productCategoryCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
                     val productUnitOfMeasureCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
 
-                    _state.update { currentState ->
-                        currentState.copy(
-                            productCategoryCatalog = productCategoryCatalog,
-                            productUnitOfMeasureCatalog = productUnitOfMeasureCatalog,
-                            isSuccessGetCategory = true,
-                            isLoadingDataInitial = false,
-                        )
-                    }
+                    repository.getSuppliers().fold(
+                        onSuccess = { suppliers ->
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    productCategoryCatalog = productCategoryCatalog,
+                                    productUnitOfMeasureCatalog = productUnitOfMeasureCatalog,
+                                    suppliers = suppliers,
+                                    filteredSuppliers = suppliers,
+                                    isSuccessGetCategory = true,
+                                    isSuccessGetSuppliers = true,
+                                    isLoadingDataInitial = false,
+                                )
+                            }
+                        },
+                        onFailure = {
+                            _state.update { it.copy(isLoadingDataInitial = false) }
+                            _eventChannel.send(
+                                ProductFormEvent.ShowErrorSnackbar("No pudimos obtener a los proveedores. Inténtalo de nuevo.")
+                            )
+                        }
+                    )
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
