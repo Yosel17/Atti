@@ -134,5 +134,36 @@ fun ProductFormScreen(
                 }
             )
         }
+
+        if (state.isUnitsOfMeasurementSheetOpen){
+            SelectAppCatalogBottomSheet(
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissUnitsMeasurementSheet)
+                },
+                title = "Selecciona una unidad de medida",
+                search = state.unitsOfMeasurementSearchQuery,
+                onSearchChange = {
+                    onAction(ProductFormAction.OnSearchUnitsMeasurementQueryChange(it))
+                },
+                filteredAppCatalogs = state.filteredUnitsOfMeasurement,
+                selectedAppCatalog = state.formInputState.selectedUnitType,
+                onSelectAppCatalog = { unitsOfMeasurement ->
+                    onAction(
+                        ProductFormAction.OnSelectUnitsMeasurement(
+                            unitsOfMeasurement = unitsOfMeasurement
+                        )
+                    )
+                },
+                showAddAppCatalogDialog = {
+                    onAction(
+                        ProductFormAction.OnShowAddCatalogDialog(
+                            catalogTypeId = Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG,
+                            catalogTypeName = "unidad de medida"
+                        )
+                    )
+                },
+                catalogosEmpty = state.unitsOfMeasurement.isEmpty()
+            )
+        }
     }
 }

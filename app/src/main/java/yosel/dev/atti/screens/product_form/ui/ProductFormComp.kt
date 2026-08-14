@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -145,10 +146,29 @@ private fun BasicInformationSection(
             AppCatalogSelector(
                 selectedCatalog = formInputState.selectedCategory,
                 onOpenSheet = {
-                    onAction(ProductFormAction.OnOpenClientSheet)
+                    onAction(ProductFormAction.OnOpenCategorySheet)
                 },
                 icon = Icons.Filled.Category,
                 emptyText = "Selecciona una categoria"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SectionTitle(
+                title = "Unidad de medida",
+                icon = Icons.Filled.Straighten,
+                showIcon = false
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            AppCatalogSelector(
+                selectedCatalog = formInputState.selectedUnitType,
+                onOpenSheet = {
+                    onAction(ProductFormAction.OnOpenUnitsMeasurementSheet)
+                },
+                icon = Icons.Filled.Straighten,
+                emptyText = "Selecciona una unidad de medida"
             )
         }
     }

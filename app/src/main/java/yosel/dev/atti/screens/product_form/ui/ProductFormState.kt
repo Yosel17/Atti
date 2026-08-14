@@ -20,4 +20,6 @@ data class ProductFormState(
     val activeCatalogTypeId: Int = 0,
     val activeCatalogTypeName: String = "",
     val isLoadingAddCatalog: Boolean = false,
+    val isUnitsOfMeasurementSheetOpen: Boolean = false,
+    val unitsOfMeasurementSearchQuery: String = "",
 )

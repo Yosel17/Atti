@@ -1034,6 +1034,7 @@ fun SelectAppCatalogBottomSheet(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = { dismissWithAnimation() }) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
@@ -1081,7 +1082,7 @@ fun SelectAppCatalogBottomSheet(
                     NoSearchResultsState(
                         query = search,
                         onClearSearch = { onSearchChange("") },
-                        nameResult = "clientes"
+                        nameResult = "catalogos"
                     )
                 }
                 else ->{

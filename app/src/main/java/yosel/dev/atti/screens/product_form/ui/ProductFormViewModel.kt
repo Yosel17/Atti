@@ -47,7 +47,7 @@ class ProductFormViewModel @AssistedInject constructor(
             is ProductFormAction.OnChangeValueFormInputState -> {
                 changeValueFormInputState(value = action.value, field = action.field)
             }
-            ProductFormAction.OnOpenClientSheet -> {
+            ProductFormAction.OnOpenCategorySheet -> {
                 _state.update { it.copy(isCategorySheetOpen = true, categorySearchQuery = "") }
                 filterCategory(query = "")
             }
@@ -84,6 +84,28 @@ class ProductFormViewModel @AssistedInject constructor(
                 }
             }
             is ProductFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
+            ProductFormAction.OnOpenUnitsMeasurementSheet -> {
+                _state.update {
+                    it.copy(isUnitsOfMeasurementSheetOpen = true, unitsOfMeasurementSearchQuery = "")
+                }
+                filterUnitsOfMeasurement(query = "")
+            }
+            ProductFormAction.OnDismissUnitsMeasurementSheet -> {
+                _state.update { it.copy(isUnitsOfMeasurementSheetOpen = false) }
+            }
+            is ProductFormAction.OnSearchUnitsMeasurementQueryChange -> {
+                _state.update { it.copy(unitsOfMeasurementSearchQuery = action.query) }
+                filterUnitsOfMeasurement(query = action.query)
+            }
+            is ProductFormAction.OnSelectUnitsMeasurement ->{
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(
+                            selectedUnitType = action.unitsOfMeasurement
+                        )
+                    )
+                }
+            }
         }
 
     }
@@ -225,6 +247,20 @@ class ProductFormViewModel @AssistedInject constructor(
                         _eventChannel.send(ProductFormEvent.ShowToast("No se pudo agregar el catálogo. Inténtalo de nuevo."))
                     }
                 )
+        }
+    }
+
+    private fun filterUnitsOfMeasurement(query: String){
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.unitsOfMeasurement
+            } else {
+                state.unitsOfMeasurement.filter { category ->
+                    category.name.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredUnitsOfMeasurement = filtered)
         }
     }
 }
