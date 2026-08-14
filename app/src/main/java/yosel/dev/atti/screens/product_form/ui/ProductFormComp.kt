@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
@@ -76,7 +77,6 @@ import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.Constants
-import yosel.dev.atti.screens.add_patient.ui.AddPatientAction
 
 @Composable
 fun BodyProductForm(
@@ -108,7 +108,7 @@ fun BodyProductForm(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -125,7 +125,7 @@ fun BodyProductForm(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Assignment,
+                    imageVector = Icons.Filled.AddBox,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
