@@ -204,12 +204,14 @@ class ProductFormViewModel @AssistedInject constructor(
                             state.copy(
                                 categories = updatedCategories,
                                 unitsOfMeasurement = updatedUnitsOfMeasurement,
+                                filteredCategories = updatedCategories,
+                                filteredUnitsOfMeasurement = updatedUnitsOfMeasurement,
                                 formInputState = updateFormInputsState,
                                 isLoadingAddCatalog = false,
                                 showAddAppCatalogDialog = false,
                             )
                         }
-                        _eventChannel.send(ProductFormEvent.ShowSuccessSnackbar("${currentState.activeCatalogTypeName} agregado correctamente."))
+                        _eventChannel.send(ProductFormEvent.ShowToast("${currentState.activeCatalogTypeName} agregado correctamente."))
                     },
                     onFailure = {
                         _state.update {
@@ -218,7 +220,7 @@ class ProductFormViewModel @AssistedInject constructor(
                                 showAddAppCatalogDialog = false
                             )
                         }
-                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No se pudo agregar el catálogo. Inténtalo de nuevo."))
+                        _eventChannel.send(ProductFormEvent.ShowToast("No se pudo agregar el catálogo. Inténtalo de nuevo."))
                     }
                 )
         }

@@ -1,5 +1,6 @@
 package yosel.dev.atti.core.navigation.main
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -408,6 +409,7 @@ fun EntryProviderScope<NavKey>.productFormEntry(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
             when(event){
@@ -426,6 +428,9 @@ fun EntryProviderScope<NavKey>.productFormEntry(
                             type = SnackbarType.SUCCESS
                         )
                     }
+                }
+                is ProductFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

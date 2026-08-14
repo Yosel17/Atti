@@ -8,6 +8,7 @@ data class ProductFormState(
     val categories: List<AppCatalogModel> = emptyList(),
     val filteredCategories: List<AppCatalogModel> = emptyList(),
     val unitsOfMeasurement: List<AppCatalogModel> = emptyList(),
+    val filteredUnitsOfMeasurement: List<AppCatalogModel> = emptyList(),
     val isSuccessGetCategory: Boolean = false,
     val suppliers: List<SupplierModel> = emptyList(),
     val filteredSuppliers: List<SupplierModel> = emptyList(),
