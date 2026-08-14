@@ -136,7 +136,9 @@ private fun BasicInformationSection(
 
             AppCatalogSelector(
                 selectedCatalog = formInputState.selectedCategory,
-                onOpenSheet = {},
+                onOpenSheet = {
+                    onAction(ProductFormAction.OnOpenClientSheet)
+                },
                 icon = Icons.Filled.Category,
                 emptyText = "Selecciona una categoria"
             )

@@ -13,8 +13,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
+import kotlin.text.contains
 
 @HiltViewModel(assistedFactory = ProductFormViewModel.Factory::class)
 class ProductFormViewModel @AssistedInject constructor(
@@ -44,6 +46,24 @@ class ProductFormViewModel @AssistedInject constructor(
             is ProductFormAction.OnChangeValueFormInputState -> {
                 changeValueFormInputState(value = action.value, field = action.field)
             }
+            ProductFormAction.OnOpenClientSheet -> {
+                _state.update { it.copy(isCategorySheetOpen = true, categorySearchQuery = "") }
+                filterCategory(query = "")
+            }
+            is ProductFormAction.OnSearchCategoryQueryChange -> {
+                _state.update { it.copy(categorySearchQuery = action.query) }
+                filterCategory(query = action.query)
+            }
+            is ProductFormAction.OnSelectCategory -> {
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(selectedCategory = action.category)
+                    )
+                }
+            }
+            ProductFormAction.OnDismissCategorySheet -> {
+                _state.update { it.copy(isCategorySheetOpen = false) }
+            }
         }
 
     }
@@ -59,17 +79,17 @@ class ProductFormViewModel @AssistedInject constructor(
                 )
             ).fold(
                 onSuccess = {
-                    val productCategoryCatalog =
+                    val categories =
                         it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
-                    val productUnitOfMeasureCatalog =
+                    val unitsOfMeasurement =
                         it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
 
                     repository.getSuppliers().fold(
                         onSuccess = { suppliers ->
                             _state.update { currentState ->
                                 currentState.copy(
-                                    productCategoryCatalog = productCategoryCatalog,
-                                    productUnitOfMeasureCatalog = productUnitOfMeasureCatalog,
+                                    categories = categories,
+                                    unitsOfMeasurement = unitsOfMeasurement,
                                     suppliers = suppliers,
                                     filteredSuppliers = suppliers,
                                     isSuccessGetCategory = true,
@@ -113,6 +133,20 @@ class ProductFormViewModel @AssistedInject constructor(
                     }
                 }
             )
+        }
+    }
+
+    private fun filterCategory(query: String){
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.categories
+            } else {
+                state.categories.filter { category ->
+                    category.name.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredCategories = filtered)
         }
     }
 }

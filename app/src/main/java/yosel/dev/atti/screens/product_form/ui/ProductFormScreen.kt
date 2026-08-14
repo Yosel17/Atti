@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -54,7 +55,7 @@ fun ProductFormScreen(
                 contentKey = { targetState ->
                     when{
                         targetState.isLoadingDataInitial -> "LOADING"
-                        targetState.productCategoryCatalog.isEmpty() && targetState.productUnitOfMeasureCatalog.isEmpty() -> "EMPTY"
+                        targetState.categories.isEmpty() && targetState.unitsOfMeasurement.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
@@ -88,6 +89,24 @@ fun ProductFormScreen(
                     }
                 }
             }
+        }
+
+        if (state.isCategorySheetOpen){
+            SelectAppCatalogBottomSheet(
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissCategorySheet)
+                },
+                title = "Selecciona una categoría",
+                search = state.categorySearchQuery,
+                onSearchChange = {
+                    onAction(ProductFormAction.OnSearchCategoryQueryChange(it))
+                },
+                filteredAppCatalogs = state.filteredCategories,
+                selectedAppCatalog = state.formInputState.selectedCategory,
+                onSelectAppCatalog = { category ->
+                    onAction(ProductFormAction.OnSelectCategory(category = category))
+                }
+            )
         }
     }
 }
