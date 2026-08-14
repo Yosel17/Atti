@@ -21,11 +21,11 @@ data class ProductFormInputsState(
                 brand.isNotBlank() &&
                 selectedCategory != null &&
                 selectedUnitType != null &&
-                purchasePrice.isBlank() &&
-                salePrice.isBlank() &&
+                purchasePrice.isNotBlank() &&
+                salePrice.isNotBlank() &&
                 selectedSupplier != null &&
-                stock.isBlank() &&
-                minStock.isBlank()
+                stock.isNotBlank() &&
+                minStock.isNotBlank()
 
     fun isError(field: Int): Boolean {
         if (field !in touchedFields) return false

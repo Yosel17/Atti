@@ -15,9 +15,8 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
-import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
+import yosel.dev.atti.core.utils.toInsertModel
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
-import kotlin.text.contains
 
 @HiltViewModel(assistedFactory = ProductFormViewModel.Factory::class)
 class ProductFormViewModel @AssistedInject constructor(
@@ -42,7 +41,7 @@ class ProductFormViewModel @AssistedInject constructor(
 
     fun onAction(action: ProductFormAction) {
         when (action) {
-            ProductFormAction.RegisterProduct -> TODO()
+            ProductFormAction.RegisterProduct -> registerProduct()
             ProductFormAction.TryCatalogsAgain -> getCatalogsAndSuppliers()
             is ProductFormAction.OnChangeValueFormInputState -> {
                 changeValueFormInputState(value = action.value, field = action.field)
@@ -176,6 +175,34 @@ class ProductFormViewModel @AssistedInject constructor(
                     )
                 }
             )
+        }
+    }
+
+    private fun registerProduct() {
+        val cs = _state.value
+        if (!cs.formInputState.isValid) return
+
+        _state.update { it.copy(isLoadingRegisterProduct = true) }
+
+        viewModelScope.launch {
+            val product = cs.formInputState.toInsertModel()
+
+            repository.insertProduct(product = product)
+                .fold(
+                    onSuccess = {
+                        _state.update {
+                            it.copy(
+                                formInputState = ProductFormInputsState(),
+                                isLoadingRegisterProduct = false
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowSuccessSnackbar("Producto registrado correctamente."))
+                    },
+                    onFailure = {
+                        _state.update { it.copy(isLoadingRegisterProduct = false) }
+                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No pudimos registrar al paciente. Inténtalo de nuevo."))
+                    }
+                )
         }
     }
 

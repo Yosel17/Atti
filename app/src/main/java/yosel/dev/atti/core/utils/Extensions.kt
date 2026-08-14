@@ -32,6 +32,7 @@ import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
 import yosel.dev.atti.screens.detail_supplier.ui.EditSupplierFormState
+import yosel.dev.atti.screens.product_form.ui.ProductFormInputsState
 import java.text.Normalizer
 
 fun ClientDto.toEntity() = ClientEntity(
@@ -463,7 +464,26 @@ fun EditSupplierFormState.toModel(status: Int) = SupplierModel(
     status = status
 )
 
+fun ProductFormInputsState.toInsertModel() = ProductModel(
+    supplierId = selectedSupplier?.id ?: "",
+    categoryId = selectedCategory?.id ?: 0,
+    unitTypeId = selectedUnitType?.id ?: 0,
+    commercialName = commercialName,
+    brand = brand,
+    purchasePrice = purchasePrice.parseToDouble(),
+    salePrice = salePrice.parseToDouble(),
+    stock = stock.parseToDouble(),
+    minStock = minStock.parseToDouble(),
+    status = Constants.ACTIVE_STATUS
+)
+
 fun String.normalize(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
     return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "").lowercase()
+}
+
+fun String.parseToDouble(): Double {
+    return this.trim()
+        .replace(',', '.') // Maneja teclados que insertan coma como decimal
+        .toDoubleOrNull() ?: 0.0
 }
