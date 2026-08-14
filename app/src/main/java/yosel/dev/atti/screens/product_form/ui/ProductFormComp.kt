@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Card
@@ -27,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.utils.Constants
 
 @Composable
@@ -76,7 +79,7 @@ private fun BasicInformationSection(
                 Icon(
                     imageVector = Icons.Filled.Info,
                     contentDescription = "Informacion",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -123,6 +126,19 @@ private fun BasicInformationSection(
                 ),
                 isError = formInputState.isError(Constants.PRODUCT_BRAND_FIELD),
                 errorMessage = "El nombre de la marca es obligatorio"
+            )
+
+            SectionTitle(
+                title = "Categoria",
+                icon = Icons.Filled.Category,
+                showIcon = false
+            )
+
+            AppCatalogSelector(
+                selectedCatalog = formInputState.selectedCategory,
+                onOpenSheet = {},
+                icon = Icons.Filled.Category,
+                emptyText = "Selecciona una categoria"
             )
         }
     }
