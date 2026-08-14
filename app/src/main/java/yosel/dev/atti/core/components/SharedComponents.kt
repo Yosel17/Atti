@@ -895,7 +895,8 @@ fun AppCatalogSelector(
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onOpenSheet
     ) {
         Row(
             modifier = Modifier

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -69,8 +70,7 @@ private fun BasicInformationSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ){
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -89,6 +89,8 @@ private fun BasicInformationSection(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             InputFieldGlobal(
                 label = "Nombre comercial",
@@ -109,6 +111,8 @@ private fun BasicInformationSection(
                 errorMessage = "El nombre comercial es obligatorio"
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             InputFieldGlobal(
                 label = "Marca",
                 placeholder = "Ej: BioVet Labs",
@@ -128,11 +132,15 @@ private fun BasicInformationSection(
                 errorMessage = "El nombre de la marca es obligatorio"
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             SectionTitle(
                 title = "Categoria",
                 icon = Icons.Filled.Category,
                 showIcon = false
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             AppCatalogSelector(
                 selectedCatalog = formInputState.selectedCategory,

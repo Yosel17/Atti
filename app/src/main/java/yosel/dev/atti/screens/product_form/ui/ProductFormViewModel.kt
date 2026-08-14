@@ -98,11 +98,13 @@ class ProductFormViewModel @AssistedInject constructor(
                     Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG
                 )
             ).fold(
-                onSuccess = {
+                onSuccess = { appCatalogs ->
                     val categories =
-                        it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                            .sortedBy { it.name.lowercase() }
                     val unitsOfMeasurement =
-                        it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                            .sortedBy { it.name.lowercase() }
 
                     repository.getSuppliers().fold(
                         onSuccess = { suppliers ->
@@ -187,12 +189,12 @@ class ProductFormViewModel @AssistedInject constructor(
                     onSuccess = { insertedCatalog ->
                         _state.update { state ->
                             val updatedCategories = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
-                                state.categories + insertedCatalog
+                                (state.categories + insertedCatalog).sortedBy { it.name.lowercase() }
                             }else{
                                 state.categories
                             }
                             val updatedUnitsOfMeasurement = if (currentState.activeCatalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG) {
-                                state.unitsOfMeasurement + insertedCatalog
+                                (state.unitsOfMeasurement + insertedCatalog).sortedBy { it.name.lowercase() }
                             }else{
                                 state.unitsOfMeasurement
                             }
