@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Inbox
@@ -936,7 +938,7 @@ fun AppCatalogSelector(
             ) {
                 Icon(
                     modifier = Modifier.size(32.dp),
-                    imageVector = if (selectedCatalog == null) Icons.Filled.AddCircle else Icons.Filled.Edit,
+                    imageVector = if (selectedCatalog == null) Icons.Filled.Link else Icons.Filled.LinkOff,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -981,7 +983,8 @@ fun SelectAppCatalogBottomSheet(
     onSearchChange:(String) -> Unit,
     filteredAppCatalogs: List<AppCatalogModel>,
     selectedAppCatalog: AppCatalogModel?,
-    onSelectAppCatalog:(AppCatalogModel) -> Unit
+    onSelectAppCatalog:(AppCatalogModel) -> Unit,
+    showAddAppCatalogDialog:() -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -1040,11 +1043,28 @@ fun SelectAppCatalogBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            AttiSearchBar(
-                value = search,
-                onValueChange = { onSearchChange(it) },
-                placeholder = "Buscar por nombre"
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AttiSearchBar(
+                    modifier = Modifier.weight(1f),
+                    value = search,
+                    onValueChange = { onSearchChange(it) },
+                    placeholder = "Buscar por nombre"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = showAddAppCatalogDialog
+                ) {
+                    Icon(
+                        modifier = Modifier.size(48.dp),
+                        imageVector = Icons.Filled.AddCircle,
+                        contentDescription = "Agregar catalog"
+                    )
+                }
+            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -8,7 +8,7 @@ data class ProductFormInputsState(
     val commercialName: String = "",
     val brand: String = "",
     val selectedCategory: AppCatalogModel? = null,
-    val unitTypeId: AppCatalogModel? = null,
+    val selectedUnitType: AppCatalogModel? = null,
     val purchasePrice: String = "",
     val salePrice: String = "",
     val stock: String = "",
@@ -20,7 +20,7 @@ data class ProductFormInputsState(
         get() = commercialName.isNotBlank() &&
                 brand.isNotBlank() &&
                 selectedCategory != null &&
-                unitTypeId != null &&
+                selectedUnitType != null &&
                 purchasePrice.isBlank() &&
                 salePrice.isBlank() &&
                 supplierId != null &&
@@ -33,7 +33,7 @@ data class ProductFormInputsState(
             Constants.PRODUCT_COMMERCIAL_NAME_FIELD -> commercialName.isBlank()
             Constants.PRODUCT_BRAND_FIELD -> brand.isBlank()
             Constants.PRODUCT_CATEGORY_FIELD -> selectedCategory == null
-            Constants.PRODUCT_UNIT_TYPE_FIELD -> unitTypeId == null
+            Constants.PRODUCT_UNIT_TYPE_FIELD -> selectedUnitType == null
             Constants.PRODUCT_PURCHASE_PRICE_FIELD -> purchasePrice.isBlank()
             Constants.PRODUCT_SALE_PRICE_FIELD -> salePrice.isBlank()
             Constants.PRODUCT_STOCK_FIELD -> stock.isBlank()
@@ -47,7 +47,7 @@ data class ProductFormInputsState(
         return commercialName != initial.commercialName ||
                 brand != initial.brand ||
                 selectedCategory?.id != initial.selectedCategory?.id ||
-                unitTypeId?.id != initial.unitTypeId?.id ||
+                selectedUnitType?.id != initial.selectedUnitType?.id ||
                 purchasePrice != initial.purchasePrice ||
                 salePrice != initial.salePrice ||
                 stock != initial.stock ||

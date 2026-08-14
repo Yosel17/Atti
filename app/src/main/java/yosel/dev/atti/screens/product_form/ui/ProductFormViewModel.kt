@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
@@ -64,6 +65,25 @@ class ProductFormViewModel @AssistedInject constructor(
             ProductFormAction.OnDismissCategorySheet -> {
                 _state.update { it.copy(isCategorySheetOpen = false) }
             }
+            is ProductFormAction.OnShowAddCatalogDialog -> {
+                _state.update {
+                    it.copy(
+                        activeCatalogTypeId = action.catalogTypeId,
+                        activeCatalogTypeName = action.catalogTypeName,
+                        showAddAppCatalogDialog = true,
+                    )
+                }
+            }
+            ProductFormAction.OnDismissAddAppCatalogDialog -> {
+                _state.update {
+                    it.copy(
+                        showAddAppCatalogDialog = false,
+                        activeCatalogTypeId = 0,
+                        activeCatalogTypeName = "",
+                    )
+                }
+            }
+            is ProductFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
         }
 
     }
@@ -147,6 +167,60 @@ class ProductFormViewModel @AssistedInject constructor(
                 }
             }
             state.copy(filteredCategories = filtered)
+        }
+    }
+
+    private fun onSaveAppCatalog(name: String) {
+        val currentState = _state.value
+        _state.update { it.copy(isLoadingAddCatalog = true) }
+        viewModelScope.launch {
+            val newCatalog = AppCatalogModel(
+                id = 0,
+                catalogTypeId = currentState.activeCatalogTypeId,
+                name = name,
+                description = "",
+                isActive = true,
+                createdAt = ""
+            )
+            repository.insertCatalog(catalog = newCatalog)
+                .fold(
+                    onSuccess = { insertedCatalog ->
+                        _state.update { state ->
+                            val updatedCategories = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
+                                state.categories + insertedCatalog
+                            }else{
+                                state.categories
+                            }
+                            val updatedUnitsOfMeasurement = if (currentState.activeCatalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG) {
+                                state.unitsOfMeasurement + insertedCatalog
+                            }else{
+                                state.unitsOfMeasurement
+                            }
+                            val updateFormInputsState = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
+                                state.formInputState.copy(selectedCategory = insertedCatalog)
+                            }else{
+                                state.formInputState.copy(selectedUnitType = insertedCatalog)
+                            }
+                            state.copy(
+                                categories = updatedCategories,
+                                unitsOfMeasurement = updatedUnitsOfMeasurement,
+                                formInputState = updateFormInputsState,
+                                isLoadingAddCatalog = false,
+                                showAddAppCatalogDialog = false,
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowSuccessSnackbar("${currentState.activeCatalogTypeName} agregado correctamente."))
+                    },
+                    onFailure = {
+                        _state.update {
+                            it.copy(
+                                isLoadingAddCatalog = false,
+                                showAddAppCatalogDialog = false
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No se pudo agregar el catálogo. Inténtalo de nuevo."))
+                    }
+                )
         }
     }
 }

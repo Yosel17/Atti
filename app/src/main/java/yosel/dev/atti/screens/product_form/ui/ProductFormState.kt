@@ -14,5 +14,9 @@ data class ProductFormState(
     val isSuccessGetSuppliers: Boolean = false,
     val formInputState: ProductFormInputsState = ProductFormInputsState(),
     val isCategorySheetOpen: Boolean = false,
-    val categorySearchQuery: String = ""
+    val categorySearchQuery: String = "",
+    val showAddAppCatalogDialog: Boolean = false,
+    val activeCatalogTypeId: Int = 0,
+    val activeCatalogTypeName: String = "",
+    val isLoadingAddCatalog: Boolean = false,
 )
