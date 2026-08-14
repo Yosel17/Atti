@@ -106,8 +106,27 @@ class ProductFormViewModel @AssistedInject constructor(
                     )
                 }
             }
+            ProductFormAction.OnOpenSupplierSheet -> {
+                _state.update { it.copy(isSupplierSheetOpen = true, supplierSearchQuery = "") }
+                filterSupplier(query = "")
+            }
+            ProductFormAction.OnDismissSupplierSheet -> {
+                _state.update { it.copy(isSupplierSheetOpen = false) }
+            }
+            is ProductFormAction.OnSearchSupplierQueryChange -> {
+                _state.update { it.copy(supplierSearchQuery = action.query) }
+                filterSupplier(query = action.query)
+            }
+            is ProductFormAction.OnSelectSupplier -> {
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(
+                            selectedSupplier = action.supplier
+                        )
+                    )
+                }
+            }
         }
-
     }
 
     private fun getCatalogsAndSuppliers() {
@@ -261,6 +280,20 @@ class ProductFormViewModel @AssistedInject constructor(
                 }
             }
             state.copy(filteredUnitsOfMeasurement = filtered)
+        }
+    }
+
+    private fun filterSupplier(query: String){
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.suppliers
+            } else {
+                state.suppliers.filter { category ->
+                    category.name.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredSuppliers = filtered)
         }
     }
 }

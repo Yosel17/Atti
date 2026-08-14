@@ -13,7 +13,7 @@ data class ProductFormInputsState(
     val salePrice: String = "",
     val stock: String = "",
     val minStock: String = "",
-    val supplierId: SupplierModel? = null,
+    val selectedSupplier: SupplierModel? = null,
     val touchedFields: Set<Int> = emptySet()
 ){
     val isValid: Boolean
@@ -23,7 +23,7 @@ data class ProductFormInputsState(
                 selectedUnitType != null &&
                 purchasePrice.isBlank() &&
                 salePrice.isBlank() &&
-                supplierId != null &&
+                selectedSupplier != null &&
                 stock.isBlank() &&
                 minStock.isBlank()
 
@@ -38,7 +38,7 @@ data class ProductFormInputsState(
             Constants.PRODUCT_SALE_PRICE_FIELD -> salePrice.isBlank()
             Constants.PRODUCT_STOCK_FIELD -> stock.isBlank()
             Constants.PRODUCT_MIN_STOCK_FIELD -> minStock.isBlank()
-            Constants.PRODUCT_SUPPLIER_FIELD -> supplierId == null
+            Constants.PRODUCT_SUPPLIER_FIELD -> selectedSupplier == null
             else -> false
         }
     }
@@ -52,7 +52,7 @@ data class ProductFormInputsState(
                 salePrice != initial.salePrice ||
                 stock != initial.stock ||
                 minStock != initial.minStock ||
-                supplierId?.id != initial.supplierId?.id
+                selectedSupplier?.id != initial.selectedSupplier?.id
     }
 
 }

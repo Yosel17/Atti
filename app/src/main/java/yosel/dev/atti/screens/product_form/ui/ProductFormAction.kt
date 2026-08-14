@@ -2,6 +2,7 @@ package yosel.dev.atti.screens.product_form.ui
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.SupplierModel
 
 sealed interface ProductFormAction {
 
@@ -19,4 +20,8 @@ sealed interface ProductFormAction {
     data object OnDismissUnitsMeasurementSheet: ProductFormAction
     data class OnSearchUnitsMeasurementQueryChange(val query: String) : ProductFormAction
     data class OnSelectUnitsMeasurement(val unitsOfMeasurement: AppCatalogModel) : ProductFormAction
+    data object OnOpenSupplierSheet: ProductFormAction
+    data object OnDismissSupplierSheet: ProductFormAction
+    data class OnSearchSupplierQueryChange(val query: String) : ProductFormAction
+    data class OnSelectSupplier(val supplier: SupplierModel) : ProductFormAction
 }

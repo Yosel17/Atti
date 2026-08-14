@@ -22,4 +22,6 @@ data class ProductFormState(
     val isLoadingAddCatalog: Boolean = false,
     val isUnitsOfMeasurementSheetOpen: Boolean = false,
     val unitsOfMeasurementSearchQuery: String = "",
+    val isSupplierSheetOpen: Boolean = false,
+    val supplierSearchQuery: String = "",
 )

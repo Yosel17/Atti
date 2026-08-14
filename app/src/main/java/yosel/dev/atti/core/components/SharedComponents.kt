@@ -938,7 +938,7 @@ fun AppCatalogSelector(
                 onClick = onOpenSheet
             ) {
                 Icon(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(24.dp),
                     imageVector = if (selectedCatalog == null) Icons.Filled.Link else Icons.Filled.LinkOff,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -964,8 +964,9 @@ fun SectionTitle(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp) // Un poco más grande que el diseño
             )
+            Spacer(modifier = Modifier.width(12.dp))
         }
-        Spacer(modifier = Modifier.width(12.dp))
+
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

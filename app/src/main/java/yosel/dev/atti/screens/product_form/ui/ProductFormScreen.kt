@@ -165,5 +165,24 @@ fun ProductFormScreen(
                 catalogosEmpty = state.unitsOfMeasurement.isEmpty()
             )
         }
+
+        if (state.isSupplierSheetOpen){
+            SelectSupplierBottomSheet(
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissSupplierSheet)
+                },
+                title = "Selecciona un proveedor",
+                search = state.supplierSearchQuery,
+                onSearchChange = {
+                    onAction(ProductFormAction.OnSearchSupplierQueryChange(query = it))
+                },
+                filteredSuppliers = state.filteredSuppliers,
+                selectedSupplier = state.formInputState.selectedSupplier,
+                onSelectSupplier = { supplier ->
+                    onAction(ProductFormAction.OnSelectSupplier(supplier = supplier))
+                },
+                suppliersEmpty = state.suppliers.isEmpty()
+            )
+        }
     }
 }
