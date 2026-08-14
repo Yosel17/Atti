@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AllInbox
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
@@ -35,13 +35,12 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Warehouse
-import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.NotificationImportant
 import androidx.compose.material.icons.outlined.Warehouse
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -84,6 +84,8 @@ fun BodyProductForm(
     state: ProductFormState,
     onAction: (ProductFormAction) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
     ) {
@@ -104,8 +106,36 @@ fun BodyProductForm(
                 formInputState = state.formInputState,
                 onAction = onAction
             )
-
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                focusManager.clearFocus()
+                onAction(ProductFormAction.RegisterProduct)
+            },
+            enabled = state.formInputState.isValid,
+            shape = RoundedCornerShape(100.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Assignment,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Registrar producto",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
     }
 }
