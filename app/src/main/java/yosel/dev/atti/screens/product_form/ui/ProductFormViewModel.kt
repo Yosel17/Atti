@@ -20,7 +20,7 @@ import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
 class ProductFormViewModel @AssistedInject constructor(
     private val repository: ProductFormRepository,
     @Assisted("productId") private val productId: String?
-): ViewModel() {
+) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
@@ -37,10 +37,13 @@ class ProductFormViewModel @AssistedInject constructor(
         getCatalogsAndSuppliers()
     }
 
-    fun onAction(action: ProductFormAction){
-        when(action){
+    fun onAction(action: ProductFormAction) {
+        when (action) {
             ProductFormAction.RegisterProduct -> TODO()
             ProductFormAction.TryCatalogsAgain -> getCatalogsAndSuppliers()
+            is ProductFormAction.OnChangeValueFormInputState -> {
+                changeValueFormInputState(value = action.value, field = action.field)
+            }
         }
 
     }
@@ -56,8 +59,10 @@ class ProductFormViewModel @AssistedInject constructor(
                 )
             ).fold(
                 onSuccess = {
-                    val productCategoryCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
-                    val productUnitOfMeasureCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                    val productCategoryCatalog =
+                        it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                    val productUnitOfMeasureCatalog =
+                        it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
 
                     repository.getSuppliers().fold(
                         onSuccess = { suppliers ->
@@ -86,6 +91,26 @@ class ProductFormViewModel @AssistedInject constructor(
                     _eventChannel.send(
                         ProductFormEvent.ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo.")
                     )
+                }
+            )
+        }
+    }
+
+    private fun changeValueFormInputState(value: String, field: Int) {
+        _state.update {
+            it.copy(
+                formInputState = it.formInputState.copy(
+                    touchedFields = it.formInputState.touchedFields + field
+                ).let { form ->
+                    when (field) {
+                        Constants.PRODUCT_COMMERCIAL_NAME_FIELD -> form.copy(commercialName = value)
+                        Constants.PRODUCT_BRAND_FIELD -> form.copy(brand = value)
+                        Constants.PRODUCT_PURCHASE_PRICE_FIELD -> form.copy(purchasePrice = value)
+                        Constants.PRODUCT_SALE_PRICE_FIELD -> form.copy(salePrice = value)
+                        Constants.PRODUCT_STOCK_FIELD -> form.copy(stock = value)
+                        Constants.PRODUCT_MIN_STOCK_FIELD -> form.copy(minStock = value)
+                        else -> form
+                    }
                 }
             )
         }

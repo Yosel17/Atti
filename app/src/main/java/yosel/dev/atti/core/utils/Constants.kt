@@ -34,6 +34,17 @@ object Constants {
     const val SUPPLIER_PHONE_FIELD = 2
     const val SUPPLIER_ADDRESS_FIELD = 3
 
+    //inputs Product
+    const val PRODUCT_COMMERCIAL_NAME_FIELD = 0
+    const val PRODUCT_BRAND_FIELD = 1
+    const val PRODUCT_CATEGORY_FIELD = 2
+    const val PRODUCT_UNIT_TYPE_FIELD = 3
+    const val PRODUCT_PURCHASE_PRICE_FIELD = 4
+    const val PRODUCT_SALE_PRICE_FIELD = 5
+    const val PRODUCT_STOCK_FIELD = 6
+    const val PRODUCT_MIN_STOCK_FIELD = 7
+    const val PRODUCT_SUPPLIER_FIELD = 8
+
     //tipos de catalogos
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2

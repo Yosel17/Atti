@@ -11,4 +11,5 @@ data class ProductFormState(
     val suppliers: List<SupplierModel> = emptyList(),
     val filteredSuppliers: List<SupplierModel> = emptyList(),
     val isSuccessGetSuppliers: Boolean = false,
+    val formInputState: ProductFormInputsState = ProductFormInputsState()
 )
