@@ -24,7 +24,7 @@ class SuppliersDataSource @Inject constructor(
                 filter {
                     eq("status", Constants.ACTIVE_STATUS)
                 }
-                order("created_at", Order.DESCENDING)
+                order(column = "name", order = Order.ASCENDING)
             }
             .decodeList<SupplierDto>()
     }
