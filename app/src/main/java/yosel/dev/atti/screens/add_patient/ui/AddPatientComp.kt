@@ -74,6 +74,7 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.utils.Constants
@@ -332,27 +333,6 @@ fun HeaderSection(speciesId: Int, isEditMode: Boolean = false) {
             text = if (isEditMode) "Edita el perfil del paciente" else "Completa el perfil del nuevo paciente",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-fun SectionTitle(title: String, icon: ImageVector) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(28.dp) // Un poco más grande que el diseño
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

@@ -12,15 +12,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.add_patient.ui.AddPatientEvent
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
+import kotlin.text.contains
 
 @HiltViewModel(assistedFactory = ProductFormViewModel.Factory::class)
 class ProductFormViewModel @AssistedInject constructor(
     private val repository: ProductFormRepository,
     @Assisted("productId") private val productId: String?
-): ViewModel() {
+) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
@@ -37,10 +40,72 @@ class ProductFormViewModel @AssistedInject constructor(
         getCatalogsAndSuppliers()
     }
 
-    fun onAction(action: ProductFormAction){
-        when(action){
+    fun onAction(action: ProductFormAction) {
+        when (action) {
             ProductFormAction.RegisterProduct -> TODO()
             ProductFormAction.TryCatalogsAgain -> getCatalogsAndSuppliers()
+            is ProductFormAction.OnChangeValueFormInputState -> {
+                changeValueFormInputState(value = action.value, field = action.field)
+            }
+            ProductFormAction.OnOpenCategorySheet -> {
+                _state.update { it.copy(isCategorySheetOpen = true, categorySearchQuery = "") }
+                filterCategory(query = "")
+            }
+            is ProductFormAction.OnSearchCategoryQueryChange -> {
+                _state.update { it.copy(categorySearchQuery = action.query) }
+                filterCategory(query = action.query)
+            }
+            is ProductFormAction.OnSelectCategory -> {
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(selectedCategory = action.category)
+                    )
+                }
+            }
+            ProductFormAction.OnDismissCategorySheet -> {
+                _state.update { it.copy(isCategorySheetOpen = false) }
+            }
+            is ProductFormAction.OnShowAddCatalogDialog -> {
+                _state.update {
+                    it.copy(
+                        activeCatalogTypeId = action.catalogTypeId,
+                        activeCatalogTypeName = action.catalogTypeName,
+                        showAddAppCatalogDialog = true,
+                    )
+                }
+            }
+            ProductFormAction.OnDismissAddAppCatalogDialog -> {
+                _state.update {
+                    it.copy(
+                        showAddAppCatalogDialog = false,
+                        activeCatalogTypeId = 0,
+                        activeCatalogTypeName = "",
+                    )
+                }
+            }
+            is ProductFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
+            ProductFormAction.OnOpenUnitsMeasurementSheet -> {
+                _state.update {
+                    it.copy(isUnitsOfMeasurementSheetOpen = true, unitsOfMeasurementSearchQuery = "")
+                }
+                filterUnitsOfMeasurement(query = "")
+            }
+            ProductFormAction.OnDismissUnitsMeasurementSheet -> {
+                _state.update { it.copy(isUnitsOfMeasurementSheetOpen = false) }
+            }
+            is ProductFormAction.OnSearchUnitsMeasurementQueryChange -> {
+                _state.update { it.copy(unitsOfMeasurementSearchQuery = action.query) }
+                filterUnitsOfMeasurement(query = action.query)
+            }
+            is ProductFormAction.OnSelectUnitsMeasurement ->{
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(
+                            selectedUnitType = action.unitsOfMeasurement
+                        )
+                    )
+                }
+            }
         }
 
     }
@@ -55,16 +120,20 @@ class ProductFormViewModel @AssistedInject constructor(
                     Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG
                 )
             ).fold(
-                onSuccess = {
-                    val productCategoryCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
-                    val productUnitOfMeasureCatalog = it.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                onSuccess = { appCatalogs ->
+                    val categories =
+                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                            .sortedBy { it.name.lowercase() }
+                    val unitsOfMeasurement =
+                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                            .sortedBy { it.name.lowercase() }
 
                     repository.getSuppliers().fold(
                         onSuccess = { suppliers ->
                             _state.update { currentState ->
                                 currentState.copy(
-                                    productCategoryCatalog = productCategoryCatalog,
-                                    productUnitOfMeasureCatalog = productUnitOfMeasureCatalog,
+                                    categories = categories,
+                                    unitsOfMeasurement = unitsOfMeasurement,
                                     suppliers = suppliers,
                                     filteredSuppliers = suppliers,
                                     isSuccessGetCategory = true,
@@ -88,6 +157,110 @@ class ProductFormViewModel @AssistedInject constructor(
                     )
                 }
             )
+        }
+    }
+
+    private fun changeValueFormInputState(value: String, field: Int) {
+        _state.update {
+            it.copy(
+                formInputState = it.formInputState.copy(
+                    touchedFields = it.formInputState.touchedFields + field
+                ).let { form ->
+                    when (field) {
+                        Constants.PRODUCT_COMMERCIAL_NAME_FIELD -> form.copy(commercialName = value)
+                        Constants.PRODUCT_BRAND_FIELD -> form.copy(brand = value)
+                        Constants.PRODUCT_PURCHASE_PRICE_FIELD -> form.copy(purchasePrice = value)
+                        Constants.PRODUCT_SALE_PRICE_FIELD -> form.copy(salePrice = value)
+                        Constants.PRODUCT_STOCK_FIELD -> form.copy(stock = value)
+                        Constants.PRODUCT_MIN_STOCK_FIELD -> form.copy(minStock = value)
+                        else -> form
+                    }
+                }
+            )
+        }
+    }
+
+    private fun filterCategory(query: String){
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.categories
+            } else {
+                state.categories.filter { category ->
+                    category.name.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredCategories = filtered)
+        }
+    }
+
+    private fun onSaveAppCatalog(name: String) {
+        val currentState = _state.value
+        _state.update { it.copy(isLoadingAddCatalog = true) }
+        viewModelScope.launch {
+            val newCatalog = AppCatalogModel(
+                id = 0,
+                catalogTypeId = currentState.activeCatalogTypeId,
+                name = name,
+                description = "",
+                isActive = true,
+                createdAt = ""
+            )
+            repository.insertCatalog(catalog = newCatalog)
+                .fold(
+                    onSuccess = { insertedCatalog ->
+                        _state.update { state ->
+                            val updatedCategories = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
+                                (state.categories + insertedCatalog).sortedBy { it.name.lowercase() }
+                            }else{
+                                state.categories
+                            }
+                            val updatedUnitsOfMeasurement = if (currentState.activeCatalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG) {
+                                (state.unitsOfMeasurement + insertedCatalog).sortedBy { it.name.lowercase() }
+                            }else{
+                                state.unitsOfMeasurement
+                            }
+                            val updateFormInputsState = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
+                                state.formInputState.copy(selectedCategory = insertedCatalog)
+                            }else{
+                                state.formInputState.copy(selectedUnitType = insertedCatalog)
+                            }
+                            state.copy(
+                                categories = updatedCategories,
+                                unitsOfMeasurement = updatedUnitsOfMeasurement,
+                                filteredCategories = updatedCategories,
+                                filteredUnitsOfMeasurement = updatedUnitsOfMeasurement,
+                                formInputState = updateFormInputsState,
+                                isLoadingAddCatalog = false,
+                                showAddAppCatalogDialog = false,
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowToast("${currentState.activeCatalogTypeName} agregado correctamente."))
+                    },
+                    onFailure = {
+                        _state.update {
+                            it.copy(
+                                isLoadingAddCatalog = false,
+                                showAddAppCatalogDialog = false
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowToast("No se pudo agregar el catálogo. Inténtalo de nuevo."))
+                    }
+                )
+        }
+    }
+
+    private fun filterUnitsOfMeasurement(query: String){
+        val normalizedQuery = query.normalize()
+        _state.update { state ->
+            val filtered = if (normalizedQuery.isBlank()) {
+                state.unitsOfMeasurement
+            } else {
+                state.unitsOfMeasurement.filter { category ->
+                    category.name.normalize().contains(normalizedQuery)
+                }
+            }
+            state.copy(filteredUnitsOfMeasurement = filtered)
         }
     }
 }

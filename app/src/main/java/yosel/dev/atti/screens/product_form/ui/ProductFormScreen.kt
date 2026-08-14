@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,9 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.AddAppCatalogDialog
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.utils.Constants
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -54,7 +58,7 @@ fun ProductFormScreen(
                 contentKey = { targetState ->
                     when{
                         targetState.isLoadingDataInitial -> "LOADING"
-                        targetState.productCategoryCatalog.isEmpty() && targetState.productUnitOfMeasureCatalog.isEmpty() -> "EMPTY"
+                        targetState.categories.isEmpty() && targetState.unitsOfMeasurement.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
@@ -88,6 +92,78 @@ fun ProductFormScreen(
                     }
                 }
             }
+        }
+
+        if (state.isCategorySheetOpen){
+            SelectAppCatalogBottomSheet(
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissCategorySheet)
+                },
+                title = "Selecciona una categoría",
+                search = state.categorySearchQuery,
+                onSearchChange = {
+                    onAction(ProductFormAction.OnSearchCategoryQueryChange(it))
+                },
+                filteredAppCatalogs = state.filteredCategories,
+                selectedAppCatalog = state.formInputState.selectedCategory,
+                onSelectAppCatalog = { category ->
+                    onAction(ProductFormAction.OnSelectCategory(category = category))
+                },
+                showAddAppCatalogDialog = {
+                    onAction(
+                        ProductFormAction.OnShowAddCatalogDialog(
+                            catalogTypeId = Constants.PRODUCT_CATEGORY_TYPE_CATALOG,
+                            catalogTypeName = "Categoria"
+                        )
+                    )
+                },
+                catalogosEmpty = state.categories.isEmpty()
+            )
+        }
+
+        if (state.showAddAppCatalogDialog){
+            AddAppCatalogDialog(
+                modifier = Modifier.fillMaxWidth(0.9f),
+                isLoading = state.isLoadingAddCatalog,
+                catalogName = state.activeCatalogTypeName,
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissAddAppCatalogDialog)
+                },
+                onSave = {
+                    onAction(ProductFormAction.OnSaveAppCatalog(name = it))
+                }
+            )
+        }
+
+        if (state.isUnitsOfMeasurementSheetOpen){
+            SelectAppCatalogBottomSheet(
+                onDismiss = {
+                    onAction(ProductFormAction.OnDismissUnitsMeasurementSheet)
+                },
+                title = "Selecciona una unidad de medida",
+                search = state.unitsOfMeasurementSearchQuery,
+                onSearchChange = {
+                    onAction(ProductFormAction.OnSearchUnitsMeasurementQueryChange(it))
+                },
+                filteredAppCatalogs = state.filteredUnitsOfMeasurement,
+                selectedAppCatalog = state.formInputState.selectedUnitType,
+                onSelectAppCatalog = { unitsOfMeasurement ->
+                    onAction(
+                        ProductFormAction.OnSelectUnitsMeasurement(
+                            unitsOfMeasurement = unitsOfMeasurement
+                        )
+                    )
+                },
+                showAddAppCatalogDialog = {
+                    onAction(
+                        ProductFormAction.OnShowAddCatalogDialog(
+                            catalogTypeId = Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG,
+                            catalogTypeName = "unidad de medida"
+                        )
+                    )
+                },
+                catalogosEmpty = state.unitsOfMeasurement.isEmpty()
+            )
         }
     }
 }
