@@ -16,6 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.PointOfSale
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.Card
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
@@ -51,6 +55,12 @@ fun BodyProductForm(
                 formInputState = state.formInputState,
                 onAction = onAction
             )
+            Spacer(modifier = Modifier.height(24.dp))
+            PriceAndSupplier(
+                formInputState = state.formInputState,
+                onAction = onAction
+            )
+
         }
 
     }
@@ -106,7 +116,7 @@ private fun BasicInformationSection(
                 leadingIcon = Icons.Filled.Badge,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Done
                 ),
                 isError = formInputState.isError(Constants.PRODUCT_COMMERCIAL_NAME_FIELD),
                 errorMessage = "El nombre comercial es obligatorio"
@@ -169,6 +179,97 @@ private fun BasicInformationSection(
                 },
                 icon = Icons.Filled.Straighten,
                 emptyText = "Selecciona una unidad de medida"
+            )
+        }
+    }
+}
+
+@Composable
+fun PriceAndSupplier(
+    modifier: Modifier = Modifier,
+    formInputState: ProductFormInputsState,
+    onAction: (ProductFormAction) -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ){
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ){
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Payments,
+                    contentDescription = "precio",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Precios y proveedor",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            InputFieldGlobal(
+                label = "Precio de compra",
+                placeholder = "0.00",
+                value = formInputState.purchasePrice,
+                onValueChange = { input ->
+                    val sanitizedInput = input.replace(',', '.')
+
+                    if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
+                        onAction(
+                            ProductFormAction.OnChangeValueFormInputState(
+                                value = sanitizedInput,
+                                field = Constants.PRODUCT_PURCHASE_PRICE_FIELD
+                            )
+                        )
+                    }
+                },
+                leadingIcon = Icons.Filled.ShoppingCart,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Next
+                ),
+                isError = formInputState.isError(Constants.PRODUCT_PURCHASE_PRICE_FIELD),
+                errorMessage = "El precio de compra es obligatorio"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            InputFieldGlobal(
+                label = "Precio de venta",
+                placeholder = "0.00",
+                value = formInputState.salePrice,
+                onValueChange = { input ->
+                    val sanitizedInput = input.replace(',', '.')
+
+                    if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
+                        onAction(ProductFormAction.OnChangeValueFormInputState(
+                            value = input,
+                            field = Constants.PRODUCT_SALE_PRICE_FIELD)
+                        )
+                    }
+
+                },
+                leadingIcon = Icons.Filled.PointOfSale,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done
+                ),
+                isError = formInputState.isError(Constants.PRODUCT_SALE_PRICE_FIELD),
+                errorMessage = "El precio de venta es obligatorio"
             )
         }
     }
