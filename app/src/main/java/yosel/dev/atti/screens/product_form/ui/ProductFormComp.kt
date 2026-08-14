@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Info
@@ -34,10 +34,13 @@ import androidx.compose.material.icons.filled.PointOfSale
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.LocalShipping
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.NotificationImportant
+import androidx.compose.material.icons.outlined.Warehouse
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -70,10 +74,9 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.SectionTitle
-import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.screens.add_patient.ui.AddPatientAction
 
 @Composable
 fun BodyProductForm(
@@ -81,6 +84,8 @@ fun BodyProductForm(
     state: ProductFormState,
     onAction: (ProductFormAction) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
     ) {
@@ -96,8 +101,41 @@ fun BodyProductForm(
                 formInputState = state.formInputState,
                 onAction = onAction
             )
-
+            Spacer(modifier = Modifier.height(28.dp))
+            Stock(
+                formInputState = state.formInputState,
+                onAction = onAction
+            )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                focusManager.clearFocus()
+                onAction(ProductFormAction.RegisterProduct)
+            },
+            enabled = state.formInputState.isValid,
+            shape = RoundedCornerShape(100.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Assignment,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Registrar producto",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
     }
 }
@@ -578,6 +616,98 @@ private fun SupplierSelectionCard(
                     contentDescription = "Seleccionado",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Stock(
+    modifier: Modifier = Modifier,
+    formInputState: ProductFormInputsState,
+    onAction: (ProductFormAction) -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ){
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Warehouse,
+                    contentDescription = "stock",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Stock",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                InputFieldGlobal(
+                    modifier = Modifier.weight(1f),
+                    label = "Stock",
+                    placeholder = "0",
+                    value = formInputState.stock,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() }) {
+                            onAction(
+                                ProductFormAction.OnChangeValueFormInputState(
+                                    value = it, field = Constants.PRODUCT_STOCK_FIELD
+                                )
+                            )
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.Warehouse,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = formInputState.isError(Constants.PRODUCT_STOCK_FIELD),
+                    errorMessage = "Requerido"
+                )
+
+                InputFieldGlobal(
+                    modifier = Modifier.weight(1f),
+                    label = "Stock min.",
+                    placeholder = "0",
+                    value = formInputState.minStock,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() }) {
+                            onAction(
+                                ProductFormAction.OnChangeValueFormInputState(
+                                    value = it, field = Constants.PRODUCT_MIN_STOCK_FIELD
+                                )
+                            )
+                        }
+                    },
+                    leadingIcon = Icons.Outlined.NotificationImportant,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    isError = formInputState.isError(Constants.PRODUCT_MIN_STOCK_FIELD),
+                    errorMessage = "Requerido"
                 )
             }
         }
