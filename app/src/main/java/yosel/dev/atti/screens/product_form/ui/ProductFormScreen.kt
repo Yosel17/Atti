@@ -116,7 +116,8 @@ fun ProductFormScreen(
                             catalogTypeName = "Categoria"
                         )
                     )
-                }
+                },
+                catalogosEmpty = state.categories.isEmpty()
             )
         }
 

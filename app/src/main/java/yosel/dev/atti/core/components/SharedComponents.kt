@@ -984,7 +984,8 @@ fun SelectAppCatalogBottomSheet(
     filteredAppCatalogs: List<AppCatalogModel>,
     selectedAppCatalog: AppCatalogModel?,
     onSelectAppCatalog:(AppCatalogModel) -> Unit,
-    showAddAppCatalogDialog:() -> Unit
+    showAddAppCatalogDialog:() -> Unit,
+    catalogosEmpty: Boolean
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -1068,33 +1069,42 @@ fun SelectAppCatalogBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (filteredAppCatalogs.isEmpty()){
-                NoSearchResultsState(
-                    query = search,
-                    onClearSearch = { onSearchChange("") },
-                    nameResult = "clientes"
-                )
-            }else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .nestedScroll(rememberNestedScrollInteropConnection()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(filteredAppCatalogs, key = { it.id }) { appCatalog ->
-                        val isSelected = appCatalog.id == selectedAppCatalog?.id
+            when{
+                catalogosEmpty ->{
+                    EmptyGlobal(
+                        title = "Aún no hay catálogos",
+                        subTitle = "Agrega tu primer catálogo para comenzar con la configuración."
+                    )
+                }
+                filteredAppCatalogs.isEmpty() -> {
+                    NoSearchResultsState(
+                        query = search,
+                        onClearSearch = { onSearchChange("") },
+                        nameResult = "clientes"
+                    )
+                }
+                else ->{
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .nestedScroll(rememberNestedScrollInteropConnection()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(filteredAppCatalogs, key = { it.id }) { appCatalog ->
+                            val isSelected = appCatalog.id == selectedAppCatalog?.id
 
-                        AppCatalogSelectionCard(
-                            appCatalog = appCatalog,
-                            isSelected = isSelected,
-                            onClick = {
-                                dismissWithAnimation {
-                                    onSelectAppCatalog(appCatalog)
+                            AppCatalogSelectionCard(
+                                appCatalog = appCatalog,
+                                isSelected = isSelected,
+                                onClick = {
+                                    dismissWithAnimation {
+                                        onSelectAppCatalog(appCatalog)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
