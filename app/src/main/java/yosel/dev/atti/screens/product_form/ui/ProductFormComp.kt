@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Category
@@ -106,9 +105,10 @@ fun BodyProductForm(
                 formInputState = state.formInputState,
                 onAction = onAction
             )
+            Spacer(modifier = Modifier.height(28.dp))
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -135,7 +135,8 @@ fun BodyProductForm(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
 
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AddAppCatalogDialog
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
@@ -182,6 +184,14 @@ fun ProductFormScreen(
                     onAction(ProductFormAction.OnSelectSupplier(supplier = supplier))
                 },
                 suppliersEmpty = state.suppliers.isEmpty()
+            )
+        }
+
+        if (state.isLoadingRegisterProduct){
+            LoadingDialog(
+                title = "Registrando producto...",
+                subtitle = "Estamos guardando la información del nuevo producto.",
+                colorTitle = MaterialTheme.colorScheme.primary
             )
         }
     }

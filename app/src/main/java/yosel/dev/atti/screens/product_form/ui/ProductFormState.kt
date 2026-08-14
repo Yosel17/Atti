@@ -24,4 +24,5 @@ data class ProductFormState(
     val unitsOfMeasurementSearchQuery: String = "",
     val isSupplierSheetOpen: Boolean = false,
     val supplierSearchQuery: String = "",
+    val isLoadingRegisterProduct: Boolean = false
 )
