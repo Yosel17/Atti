@@ -1,24 +1,28 @@
 package yosel.dev.atti.screens.navigation_bar.directory.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
-import java.text.Normalizer
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class DirectoryViewModel @Inject constructor(
     private val repository: DirectoryRepository
@@ -26,44 +30,69 @@ class DirectoryViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(DirectoryState())
 
-    val state: StateFlow<DirectoryState> = combine(
+    // 1. Flujos con debounce para cada buscador
+    private val debouncedClientQuery = _state
+        .map { it.clientSearchQuery }
+        .distinctUntilChanged()
+        .debounce(300L.milliseconds)
+
+    private val debouncedPatientQuery = _state
+        .map { it.patientSearchQuery }
+        .distinctUntilChanged()
+        .debounce(300L.milliseconds)
+
+    // 2. Filtrado independiente de clientes
+    private val clientsFlow = combine(
         repository.getAllClients().catch {
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         },
-        repository.getAllPatientsWithCatalogs().catch {
-            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los pacientes locales"))
-        },
-        _state
-    ) { clients, patientsWithCatalogs, localState ->
-        val clientQueryNormalized = localState.clientSearchQuery.normalize()
-        val patientQueryNormalized = localState.patientSearchQuery.normalize()
-
-        val filteredClients = if (clientQueryNormalized.isBlank()) {
+        debouncedClientQuery
+    ) { clients, query ->
+        val queryNormalized = query.normalize()
+        val filtered = if (queryNormalized.isBlank()) {
             clients
         } else {
             clients.filter { client ->
-                client.firstName.normalize().contains(clientQueryNormalized) ||
-                        client.lastName.normalize().contains(clientQueryNormalized) ||
-                        client.phoneNumber.normalize().contains(clientQueryNormalized) ||
-                        client.documentId.normalize().contains(clientQueryNormalized)
+                client.firstName.normalize().contains(queryNormalized) ||
+                        client.lastName.normalize().contains(queryNormalized) ||
+                        client.phoneNumber.normalize().contains(queryNormalized) ||
+                        client.documentId.normalize().contains(queryNormalized)
             }
         }
+        clients to filtered
+    }
 
-        val filteredPatientsWithCatalogs = if (patientQueryNormalized.isBlank()) {
-            patientsWithCatalogs
+    // 3. Filtrado independiente de pacientes
+    private val patientsFlow = combine(
+        repository.getAllPatientsWithCatalogs().catch {
+            _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los pacientes locales"))
+        },
+        debouncedPatientQuery
+    ) { patients, query ->
+        val queryNormalized = query.normalize()
+        val filtered = if (queryNormalized.isBlank()) {
+            patients
         } else {
-            patientsWithCatalogs.filter { patientWithCatalogs ->
-                patientWithCatalogs.patient.name.normalize().contains(patientQueryNormalized) ||
-                        patientWithCatalogs.patient.breed.normalize().contains(patientQueryNormalized) ||
-                        patientWithCatalogs.patient.color.normalize().contains(patientQueryNormalized)
+            patients.filter { patientWithCatalogs ->
+                patientWithCatalogs.patient.name.normalize().contains(queryNormalized) ||
+                        patientWithCatalogs.patient.breed.normalize().contains(queryNormalized) ||
+                        patientWithCatalogs.patient.color.normalize().contains(queryNormalized)
             }
         }
+        patients to filtered
+    }
 
+    // 4. Estado unificado para la UI
+    val state: StateFlow<DirectoryState> = combine(
+        clientsFlow,
+        patientsFlow,
+        _state
+    ) { (clients, filteredClients), (patients, filteredPatients), localState ->
         localState.copy(
             clients = clients,
             filteredClients = filteredClients,
-            patientsWithCatalogs = patientsWithCatalogs,
-            filteredPatientsWithCatalogs = filteredPatientsWithCatalogs
+            patientsWithCatalogs = patients,
+            filteredPatientsWithCatalogs = filteredPatients
         )
     }.stateIn(
         scope = viewModelScope,
@@ -83,23 +112,19 @@ class DirectoryViewModel @Inject constructor(
             is DirectoryAction.OnTabSelected -> {
                 onTabSelected(index = event.index)
             }
-
             is DirectoryAction.OnCallClick -> {
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToPhone(event.phoneNumber))
                 }
             }
-
             is DirectoryAction.OnWhatsappClick -> {
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToWhatsapp(event.phoneNumber))
                 }
             }
-
             is DirectoryAction.OnClientSearchQueryChange -> {
                 _state.update { it.copy(clientSearchQuery = event.query) }
             }
-
             is DirectoryAction.OnPatientSearchQueryChange -> {
                 _state.update { it.copy(patientSearchQuery = event.query) }
             }
@@ -141,7 +166,7 @@ class DirectoryViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { error ->
+                .onFailure {
                     _state.update {
                         it.copy(
                             isLoadingPatients = false,

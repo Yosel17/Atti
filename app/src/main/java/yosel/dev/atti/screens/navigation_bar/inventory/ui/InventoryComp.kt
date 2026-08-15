@@ -41,6 +41,9 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,6 +54,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -63,6 +67,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,15 +77,20 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
+import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.ui.theme.CustomColors
 import yosel.dev.atti.ui.theme.customColors
+import java.util.Locale
 
 private data class InventoryTabData(
     val title: String,
@@ -184,6 +194,12 @@ fun BodyInventory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredProducts.size,
+                                        title = "Total de productos"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AnimatedContent(
                                         targetState = state.filteredProducts.isEmpty(),
                                         label = "ProductSearchAnimation"
@@ -314,6 +330,12 @@ fun BodyInventory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredSuppliers.size,
+                                        title = "Total de proveedores"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AnimatedContent(
                                         targetState = state.filteredSuppliers.isEmpty(),
                                         label = "SupplierSearchAnimation"
@@ -388,7 +410,10 @@ fun ProductList(
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(products, key = { it.product.id }) { productWithDetails ->
-            ProductItem(productWithDetails = productWithDetails)
+            ProductCard(
+                productDetails = productWithDetails,
+                onClick = {}
+            )
         }
         item {
             Spacer(modifier = Modifier.height(80.dp))
@@ -396,31 +421,183 @@ fun ProductList(
     }
 }
 
+enum class ProductStockStatus(
+    val label: String,
+    val icon: ImageVector
+) {
+    OUT_OF_STOCK("Agotado", Icons.Rounded.Block),
+    LOW_STOCK("Stock Bajo", Icons.Rounded.WarningAmber),
+    IN_STOCK("En Stock", Icons.Rounded.CheckCircle);
+
+    companion object {
+        fun fromStock(stock: Double, minStock: Double): ProductStockStatus {
+            return when {
+                stock <= 0.0 -> OUT_OF_STOCK
+                stock <= minStock -> LOW_STOCK
+                else -> IN_STOCK
+            }
+        }
+    }
+
+    fun getColors(customColors: CustomColors): Pair<Color, Color> {
+        return when (this) {
+            OUT_OF_STOCK -> customColors.deleted to customColors.onDeleted
+            LOW_STOCK -> customColors.inactiveContainer to customColors.onInactiveContainer
+            IN_STOCK -> customColors.active to customColors.onActive
+        }
+    }
+}
+
 @Composable
-fun ProductItem(
-    productWithDetails: ProductWithDetailsModel,
+fun ProductCard(
+    productDetails: ProductWithDetailsModel,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    val product = productDetails.product
+    val unitType = productDetails.unitType
+    val customColors = MaterialTheme.customColors
+
+    val stockStatus = remember(product.stock, product.minStock) {
+        ProductStockStatus.fromStock(product.stock, product.minStock)
+    }
+
+    val (chipBgColor, chipContentColor) = stockStatus.getColors(customColors)
+
+    OutlinedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
+        colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        modifier = modifier.fillMaxWidth()
+        border = CardDefaults.outlinedCardBorder()
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            // 1. Fila Superior: Solo Nombre y Chip de Estado
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = product.commercialName.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
+
+                // Chip de Estado de Stock
+                Surface(
+                    shape = CircleShape,
+                    color = chipBgColor,
+                    contentColor = chipContentColor
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = stockStatus.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = stockStatus.label,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+            }
+
+            if (unitType.name.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest
+                ) {
+                    Text(
+                        text = unitType.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = productWithDetails.product.commercialName.ifBlank { "Sin nombre de producto" },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = "Marca: ${product.brand.ifBlank { "Sin marca" }}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
+
+            // Divisor
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Fila Inferior: Precios y Stock
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column {
+                    Text(
+                        text = "Precio de venta",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Q%.2f".format(Locale.US, product.salePrice),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                val stockFormatted = if (product.stock % 1.0 == 0.0) {
+                    product.stock.toInt().toString()
+                } else {
+                    "%.2f".format(Locale.US, product.stock)
+                }
+
+                Text(
+                    text = "Stock: $stockFormatted",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = if (product.stock <= 0.0) {
+                        customColors.deleted
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+                )
+            }
         }
     }
 }
@@ -886,18 +1063,21 @@ fun EmptySuppliersState(
 private fun ItemSupplierPreview() {
     AttiTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)) {
-            SupplierItem(
-                supplier = SupplierModel(
-                    id = "1",
-                    name = "Distribuidora Médica Global",
-                    taxId = "987654-3",
-                    phoneNumber = "+54 11 4567-890012342341234-1341-13134 134 134134 134",
-                    address = "Av. de los Incas 1200, CABA",
-                    status = 3
+            ProductCard(
+                productDetails = ProductWithDetailsModel(
+                    product = ProductModel(
+                        id = "asdfasdfadsfa",
+                        commercialName = "Comida para perros",
+                        brand = "Dog Chow",
+                        stock = 0.0,
+                        minStock = 10.0,
+                        salePrice = 38.00
+                    ),
+                    unitType = AppCatalogModel(
+                        name = "Gramos"
+                    )
                 ),
-                onCallClick = {},
-                onWhatsAppClick = {},
-                onItemClick = {}
+                onClick = {}
             )
         }
     }
