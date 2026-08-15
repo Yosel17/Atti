@@ -18,12 +18,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Inventory
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.Straighten
 import androidx.compose.material.icons.outlined.ToggleOn
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialogDefaults
@@ -55,10 +57,11 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 import java.util.Locale
@@ -155,7 +158,7 @@ private fun ProductGeneralInfoCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Info,
+                    imageVector = Icons.Filled.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -175,7 +178,7 @@ private fun ProductGeneralInfoCard(
             )
 
             ProductInfoTile(
-                icon = Icons.Outlined.Medication,
+                icon = Icons.Outlined.Straighten,
                 label = "Unidad de medida",
                 value = productWithDetails.unitType.name.ifBlank { "Sin unidad" }
             )
@@ -690,7 +693,16 @@ private fun BodyDetailProductPreview() {
                     product = ProductModel(
                         commercialName = "Comida para perro",
                         brand = "Dog Chow",
-                        status = 3
+                        status = 1
+                    ),
+                    category = AppCatalogModel(
+                        name = "Alimentos"
+                    ),
+                    unitType = AppCatalogModel(
+                        name = "30 Libras"
+                    ),
+                    supplier = SupplierModel(
+                        name = "Fabrica S.A"
                     )
                 )
             )
