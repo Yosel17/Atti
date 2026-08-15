@@ -13,8 +13,8 @@ data class ProductDto(
     @SerialName("brand") val brand: String? = null,
     @SerialName("purchase_price") val purchasePrice: Double = 0.0,
     @SerialName("sale_price") val salePrice: Double = 0.0,
-    @SerialName("stock") val stock: Double = 0.0,
-    @SerialName("min_stock") val minStock: Double? = 0.0,
+    @SerialName("stock") val stock: Int = 0,
+    @SerialName("min_stock") val minStock: Int? = 0,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("status") val status: Int,
 

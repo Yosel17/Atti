@@ -57,9 +57,9 @@ data class ProductEntity(
     @ColumnInfo(name = "sale_price")
     val salePrice: Double = 0.0,
     @ColumnInfo(name = "stock")
-    val stock: Double = 0.0,
+    val stock: Int = 0,
     @ColumnInfo(name = "min_stock")
-    val minStock: Double = 0.0,
+    val minStock: Int = 0,
     @ColumnInfo(name = "created_at")
     val createdAt: String = "",
     @ColumnInfo(name = "status")

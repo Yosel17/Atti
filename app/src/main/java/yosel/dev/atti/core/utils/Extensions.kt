@@ -321,7 +321,7 @@ fun ProductDto.toEntity() = ProductEntity(
     purchasePrice = purchasePrice,
     salePrice = salePrice,
     stock = stock,
-    minStock = minStock ?: 0.00,
+    minStock = minStock ?: 0,
     createdAt = createdAt.orEmpty() ,
     status = status
 )
@@ -472,8 +472,8 @@ fun ProductFormInputsState.toInsertModel() = ProductModel(
     brand = brand,
     purchasePrice = purchasePrice.parseToDouble(),
     salePrice = salePrice.parseToDouble(),
-    stock = stock.parseToDouble(),
-    minStock = minStock.parseToDouble(),
+    stock = stock.parseToInt(),
+    minStock = minStock.parseToInt(),
     status = Constants.ACTIVE_STATUS
 )
 
@@ -486,4 +486,16 @@ fun String.parseToDouble(): Double {
     return this.trim()
         .replace(',', '.') // Maneja teclados que insertan coma como decimal
         .toDoubleOrNull() ?: 0.0
+}
+
+fun String.parseToInt(defaultValue: Int = 0): Int {
+    val cleanInput = this.trim()
+
+    // Intenta parsear directamente como entero
+    return cleanInput.toIntOrNull()
+    // Si el usuario ingresó decimales (ej. "12.0" o "12,5"), extrae la parte entera
+        ?: cleanInput.replace(',', '.')
+            .toDoubleOrNull()
+            ?.toInt()
+        ?: defaultValue
 }
