@@ -385,6 +385,35 @@ fun ProductModel.toDtoForInsert() = ProductDto(
     status = status
 )
 
+fun ProductModel.toDtoForUpdate() = ProductDto(
+    id = id,
+    supplierId = supplierId,
+    categoryId = categoryId,
+    unitTypeId = unitTypeId,
+    commercialName = commercialName,
+    brand = brand,
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock,
+    status = status
+)
+
+fun ProductModel.toEntity() = ProductEntity(
+    id = id,
+    supplierId = supplierId,
+    categoryId = categoryId,
+    unitTypeId = unitTypeId,
+    commercialName = commercialName,
+    brand = brand,
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock,
+    createdAt = createdAt,
+    status = status
+)
+
 fun ServiceEntity.toModel() = ServiceModel(
     id = id,
     categoryId = categoryId,

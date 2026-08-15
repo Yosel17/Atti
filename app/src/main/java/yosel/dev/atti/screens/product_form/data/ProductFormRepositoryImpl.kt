@@ -10,6 +10,7 @@ import yosel.dev.atti.core.supabase.AppCatalogsDataSource
 import yosel.dev.atti.core.supabase.ProductsDataSource
 import yosel.dev.atti.core.supabase.SuppliersDataSource
 import yosel.dev.atti.core.utils.toDtoForInsert
+import yosel.dev.atti.core.utils.toDtoForUpdate
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
@@ -47,5 +48,10 @@ class ProductFormRepositoryImpl @Inject constructor(
         val entities = suppliersDto.map { it.toEntity() }
         suppliersDao.upsertSuppliers(suppliers = entities)
         suppliersDto.map { it.toModel() }
+    }
+
+    override suspend fun updateProduct(product: ProductModel): Result<Unit> = runCatching {
+        productsDataSource.updateProduct(product = product.toDtoForUpdate())
+        productDao.upsertProduct(product = product.toEntity())
     }
 }
