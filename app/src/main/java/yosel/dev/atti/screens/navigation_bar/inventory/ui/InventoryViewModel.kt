@@ -3,12 +3,16 @@ package yosel.dev.atti.screens.navigation_bar.inventory.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -16,7 +20,9 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class InventoryViewModel @Inject constructor(
     private val repository: InventoryRepository
@@ -24,23 +30,31 @@ class InventoryViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(InventoryState())
 
-    val state: StateFlow<InventoryState> = combine(
+    // 1. Flujos con debounce para cada pestaña
+    private val debouncedProductQuery = _state
+        .map { it.productSearchQuery }
+        .distinctUntilChanged()
+        .debounce(300L.milliseconds)
+
+    private val debouncedServiceQuery = _state
+        .map { it.serviceSearchQuery }
+        .distinctUntilChanged()
+        .debounce(300L.milliseconds)
+
+    private val debouncedSupplierQuery = _state
+        .map { it.supplierSearchQuery }
+        .distinctUntilChanged()
+        .debounce(300L.milliseconds)
+
+    // 2. Filtrado de productos
+    private val productsFlow = combine(
         repository.getAllProducts().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los productos locales"))
         },
-        repository.getAllServices().catch {
-            _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los servicios locales"))
-        },
-        repository.getAllSuppliers().catch {
-            _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los proveedores locales"))
-        },
-        _state
-    ) { products, services, suppliers, localState ->
-        val productQueryNormalized = localState.productSearchQuery.normalize()
-        val serviceQueryNormalized = localState.serviceSearchQuery.normalize()
-        val supplierQueryNormalized = localState.supplierSearchQuery.normalize()
-
-        val filteredProducts = if (productQueryNormalized.isBlank()) {
+        debouncedProductQuery
+    ) { products, query ->
+        val productQueryNormalized = query.normalize()
+        val filtered = if (productQueryNormalized.isBlank()) {
             products
         } else {
             products.filter { productWithDetails ->
@@ -50,8 +64,18 @@ class InventoryViewModel @Inject constructor(
                         productWithDetails.supplier.name.normalize().contains(productQueryNormalized)
             }
         }
+        products to filtered
+    }
 
-        val filteredServices = if (serviceQueryNormalized.isBlank()) {
+    // 3. Filtrado de servicios
+    private val servicesFlow = combine(
+        repository.getAllServices().catch {
+            _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los servicios locales"))
+        },
+        debouncedServiceQuery
+    ) { services, query ->
+        val serviceQueryNormalized = query.normalize()
+        val filtered = if (serviceQueryNormalized.isBlank()) {
             services
         } else {
             services.filter { serviceWithDetails ->
@@ -60,8 +84,18 @@ class InventoryViewModel @Inject constructor(
                         serviceWithDetails.category.name.normalize().contains(serviceQueryNormalized)
             }
         }
+        services to filtered
+    }
 
-        val filteredSuppliers = if (supplierQueryNormalized.isBlank()) {
+    // 4. Filtrado de proveedores
+    private val suppliersFlow = combine(
+        repository.getAllSuppliers().catch {
+            _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los proveedores locales"))
+        },
+        debouncedSupplierQuery
+    ) { suppliers, query ->
+        val supplierQueryNormalized = query.normalize()
+        val filtered = if (supplierQueryNormalized.isBlank()) {
             suppliers
         } else {
             suppliers.filter { supplier ->
@@ -70,7 +104,16 @@ class InventoryViewModel @Inject constructor(
                         supplier.phoneNumber.normalize().contains(supplierQueryNormalized)
             }
         }
+        suppliers to filtered
+    }
 
+    // 5. Estado unificado para la UI
+    val state: StateFlow<InventoryState> = combine(
+        productsFlow,
+        servicesFlow,
+        suppliersFlow,
+        _state
+    ) { (products, filteredProducts), (services, filteredServices), (suppliers, filteredSuppliers), localState ->
         localState.copy(
             products = products,
             filteredProducts = filteredProducts,
