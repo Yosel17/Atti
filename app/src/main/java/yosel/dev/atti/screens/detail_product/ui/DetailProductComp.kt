@@ -293,7 +293,7 @@ private fun ProductInventoryCard(
     }
 
     val progressValue = if (minStock > 0) {
-        (stock / minStock).coerceIn(0.0, 1.0).toFloat()
+        (stock / minStock).coerceIn(0, 1).toFloat()
     } else if (stock > 0) 1.0f else 0.0f
 
     val animatedProgress by animateFloatAsState(
@@ -360,7 +360,7 @@ private fun ProductInventoryCard(
                         )
                     }
                     Text(
-                        text = stock.formatQuantity(),
+                        text = stock.toString(),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.ExtraBold,
                         lineHeight = 36.sp
@@ -398,7 +398,7 @@ private fun ProductInventoryCard(
                         )
                     }
                     Text(
-                        text = minStock.formatQuantity(),
+                        text = minStock.toString(),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -671,8 +671,8 @@ private fun BodyDetailProductPreview() {
                         commercialName = "Comida para perro",
                         brand = "Dog Chow",
                         status = 1,
-                        stock = 2.00,
-                        minStock = 4.00
+                        stock = 2,
+                        minStock = 4
                     ),
                     category = AppCatalogModel(
                         name = "Alimentos"

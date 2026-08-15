@@ -438,9 +438,9 @@ enum class ProductStockStatus(
     IN_STOCK("En Stock", Icons.Rounded.CheckCircle);
 
     companion object {
-        fun fromStock(stock: Double, minStock: Double): ProductStockStatus {
+        fun fromStock(stock: Int, minStock: Int): ProductStockStatus {
             return when {
-                stock <= 0.0 -> OUT_OF_STOCK
+                stock <= 0 -> OUT_OF_STOCK
                 stock <= minStock -> LOW_STOCK
                 else -> IN_STOCK
             }
@@ -1077,8 +1077,8 @@ private fun ItemSupplierPreview() {
                         id = "asdfasdfadsfa",
                         commercialName = "Comida para perros",
                         brand = "Dog Chow",
-                        stock = 0.0,
-                        minStock = 10.0,
+                        stock = 0,
+                        minStock = 10,
                         salePrice = 38.00
                     ),
                     unitType = AppCatalogModel(
