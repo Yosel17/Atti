@@ -28,4 +28,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class ProductForm(val productId: String? = null): Screens
+
+    @Serializable
+    data class DetailProduct(val productId: String): Screens
 }

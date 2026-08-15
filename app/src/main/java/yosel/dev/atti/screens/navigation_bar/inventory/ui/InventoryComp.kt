@@ -216,7 +216,14 @@ fun BodyInventory(
                                             ProductList(
                                                 modifier = Modifier.fillMaxSize(),
                                                 products = state.filteredProducts,
-                                                listState = productListState
+                                                listState = productListState,
+                                                onItemClick = { productId ->
+                                                    onNavigationMain(
+                                                        Screens.DetailProduct(
+                                                            productId = productId
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                     }
@@ -392,7 +399,8 @@ fun BodyInventory(
 fun ProductList(
     products: List<ProductWithDetailsModel>,
     listState: LazyListState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onItemClick: (String) -> Unit
 ) {
     var previousCount by remember { mutableIntStateOf(products.size) }
     val firstProductId = products.firstOrNull()?.product?.id
@@ -412,7 +420,7 @@ fun ProductList(
         items(products, key = { it.product.id }) { productWithDetails ->
             ProductCard(
                 productDetails = productWithDetails,
-                onClick = {}
+                onClick = onItemClick
             )
         }
         item {
@@ -451,7 +459,7 @@ enum class ProductStockStatus(
 @Composable
 fun ProductCard(
     productDetails: ProductWithDetailsModel,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val product = productDetails.product
@@ -468,7 +476,7 @@ fun ProductCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .clickable { onClick() },
+            .clickable { onClick(productDetails.product.id) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
