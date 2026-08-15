@@ -18,19 +18,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Inventory
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
-import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.Straighten
+import androidx.compose.material.icons.outlined.ToggleOn
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
@@ -50,11 +51,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import yosel.dev.atti.core.components.StatusChip
+import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.SupplierModel
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 import java.util.Locale
 
@@ -97,10 +103,7 @@ private fun ProductHeaderSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        StatusChip(status = productWithDetails.product.status)
-
         Text(
             text = productWithDetails.product.commercialName.ifBlank { "Sin nombre comercial" },
             style = MaterialTheme.typography.headlineMedium,
@@ -153,7 +156,7 @@ private fun ProductGeneralInfoCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Info,
+                    imageVector = Icons.Filled.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -173,7 +176,7 @@ private fun ProductGeneralInfoCard(
             )
 
             ProductInfoTile(
-                icon = Icons.Outlined.Medication,
+                icon = Icons.Outlined.Straighten,
                 label = "Unidad de medida",
                 value = productWithDetails.unitType.name.ifBlank { "Sin unidad" }
             )
@@ -183,6 +186,15 @@ private fun ProductGeneralInfoCard(
                 label = "Proveedor",
                 value = productWithDetails.supplier.name.ifBlank { "Sin proveedor" }
             )
+
+            ProductInfoTile(
+                icon = Icons.Outlined.ToggleOn,
+                label = "Estado",
+                value = "",
+                valueComposable = {
+                    StatusChipShort(status = productWithDetails.product.status)
+                }
+            )
         }
     }
 }
@@ -191,7 +203,8 @@ private fun ProductGeneralInfoCard(
 private fun ProductInfoTile(
     icon: ImageVector,
     label: String,
-    value: String
+    value: String,
+    valueComposable: @Composable (() -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -218,12 +231,17 @@ private fun ProductInfoTile(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (valueComposable != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                valueComposable()
+            }else{
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
@@ -300,7 +318,7 @@ private fun ProductInventoryCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Inventory2,
+                    imageVector = Icons.Filled.Inventory2,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -341,23 +359,12 @@ private fun ProductInventoryCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = stock.formatQuantity(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            lineHeight = 36.sp
-                        )
-                        Text(
-                            text = unitName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
+                    Text(
+                        text = stock.formatQuantity(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        lineHeight = 36.sp
+                    )
                 }
             }
 
@@ -390,25 +397,13 @@ private fun ProductInventoryCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = minStock.formatQuantity(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 36.sp
-                        )
-                        Text(
-                            text = unitName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
+                    Text(
+                        text = minStock.formatQuantity(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 36.sp
+                    )
                 }
             }
 
@@ -423,7 +418,7 @@ private fun ProductInventoryCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Nivel de Reabastecimiento",
+                        text = "Nivel",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -442,7 +437,9 @@ private fun ProductInventoryCard(
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp)),
                     color = progressColor,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    gapSize = 0.dp,
+                    drawStopIndicator = {} // Al dejarlo vacío se anula el dibujo del punto final
                 )
             }
         }
@@ -659,4 +656,35 @@ private fun Double.formatQuantity(): String {
 
 private fun Double.formatPrice(): String {
     return String.format(Locale.US, "%.2f", this)
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyDetailProductPreview() {
+    AttiTheme {
+        BodyDetailProduct(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .padding(24.dp),
+            state = DetailProductState(
+                productWithDetails = ProductWithDetailsModel(
+                    product = ProductModel(
+                        commercialName = "Comida para perro",
+                        brand = "Dog Chow",
+                        status = 1,
+                        stock = 2.00,
+                        minStock = 4.00
+                    ),
+                    category = AppCatalogModel(
+                        name = "Alimentos"
+                    ),
+                    unitType = AppCatalogModel(
+                        name = "30 Libras"
+                    ),
+                    supplier = SupplierModel(
+                        name = "Fabrica S.A"
+                    )
+                )
+            )
+        )
+    }
 }
