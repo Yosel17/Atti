@@ -49,4 +49,13 @@ class ProductsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun updateProduct(product: ProductDto){
+        postgrest.from(Constants.PRODUCTS_SUPABASE)
+            .update(product){
+                filter {
+                    eq("id", product.id ?: "")
+                }
+            }
+    }
 }
