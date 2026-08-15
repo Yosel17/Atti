@@ -19,16 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Inventory
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalShipping
-import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -320,7 +318,7 @@ private fun ProductInventoryCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Inventory2,
+                    imageVector = Icons.Filled.Inventory2,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
@@ -361,23 +359,12 @@ private fun ProductInventoryCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = stock.formatQuantity(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            lineHeight = 36.sp
-                        )
-                        Text(
-                            text = unitName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
+                    Text(
+                        text = stock.formatQuantity(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        lineHeight = 36.sp
+                    )
                 }
             }
 
@@ -410,25 +397,13 @@ private fun ProductInventoryCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = minStock.formatQuantity(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 36.sp
-                        )
-                        Text(
-                            text = unitName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
+                    Text(
+                        text = minStock.formatQuantity(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 36.sp
+                    )
                 }
             }
 
@@ -443,7 +418,7 @@ private fun ProductInventoryCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Nivel de Reabastecimiento",
+                        text = "Nivel",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -462,7 +437,9 @@ private fun ProductInventoryCard(
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp)),
                     color = progressColor,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    gapSize = 0.dp,
+                    drawStopIndicator = {} // Al dejarlo vacío se anula el dibujo del punto final
                 )
             }
         }
@@ -693,7 +670,9 @@ private fun BodyDetailProductPreview() {
                     product = ProductModel(
                         commercialName = "Comida para perro",
                         brand = "Dog Chow",
-                        status = 1
+                        status = 1,
+                        stock = 2.00,
+                        minStock = 4.00
                     ),
                     category = AppCatalogModel(
                         name = "Alimentos"
