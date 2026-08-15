@@ -11,8 +11,8 @@ data class ProductModel(
     val brand: String = "",
     val purchasePrice: Double = 0.0,
     val salePrice: Double = 0.0,
-    val stock: Double = 0.0,
-    val minStock: Double = 0.0,
+    val stock: Int = 0,
+    val minStock: Int = 0,
     val createdAt: String = "",
     val status: Int = 1
 ) {
