@@ -36,4 +36,17 @@ class ProductsDataSource @Inject constructor(
             }
             .decodeSingle<ProductDto>()
     }
+
+    suspend fun updateProductStatus(productId: String, newStatus: Int){
+        postgrest.from(Constants.PRODUCTS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                }
+            ) {
+                filter {
+                    eq("id", productId)
+                }
+            }
+    }
 }
