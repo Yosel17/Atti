@@ -71,6 +71,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
+import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
@@ -175,6 +176,12 @@ fun BodyDirectory(
                                     )
 
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredClients.size,
+                                        title = "Total de clientes"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
 
                                     AnimatedContent(
                                         targetState = state.filteredClients.isEmpty(),
@@ -266,6 +273,12 @@ fun BodyDirectory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredPatientsWithCatalogs.size,
+                                        title = "Total de pacientes"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
 
                                     if (state.filteredPatientsWithCatalogs.isEmpty()) {
                                         NoSearchResultsState(

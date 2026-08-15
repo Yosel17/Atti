@@ -77,6 +77,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
+import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.AppCatalogModel
@@ -193,6 +194,12 @@ fun BodyInventory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredProducts.size,
+                                        title = "Total de productos"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AnimatedContent(
                                         targetState = state.filteredProducts.isEmpty(),
                                         label = "ProductSearchAnimation"
@@ -323,6 +330,12 @@ fun BodyInventory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredSuppliers.size,
+                                        title = "Total de proveedores"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AnimatedContent(
                                         targetState = state.filteredSuppliers.isEmpty(),
                                         label = "SupplierSearchAnimation"
