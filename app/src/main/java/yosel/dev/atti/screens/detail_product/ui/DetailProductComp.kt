@@ -102,7 +102,6 @@ private fun ProductHeaderSection(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = productWithDetails.product.commercialName.ifBlank { "Sin nombre comercial" },
@@ -689,8 +688,8 @@ private fun BodyDetailProductPreview() {
             state = DetailProductState(
                 productWithDetails = ProductWithDetailsModel(
                     product = ProductModel(
-                        commercialName = "Geringas",
-                        brand = "VetGirl",
+                        commercialName = "Comida para perro",
+                        brand = "Dog Chow",
                         status = 3
                     )
                 )
