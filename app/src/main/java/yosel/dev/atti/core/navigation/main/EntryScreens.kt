@@ -35,6 +35,9 @@ import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientScreen
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientViewModel
+import yosel.dev.atti.screens.detail_product.ui.DetailProductEvent
+import yosel.dev.atti.screens.detail_product.ui.DetailProductScreen
+import yosel.dev.atti.screens.detail_product.ui.DetailProductViewModel
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
@@ -436,6 +439,56 @@ fun EntryProviderScope<NavKey>.productFormEntry(
         }
 
         ProductFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailProductEntry(
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<Screens.DetailProduct> { detailProductKey ->
+        val viewModel: DetailProductViewModel = hiltViewModel(
+            creationCallback = { factory: DetailProductViewModel.Factory ->
+                factory.create(productId = detailProductKey.productId)
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is DetailProductEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is DetailProductEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is DetailProductEvent.OnNavigationMain -> {
+                    onNavigationMain(event.screen)
+                }
+            }
+        }
+
+        DetailProductScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
