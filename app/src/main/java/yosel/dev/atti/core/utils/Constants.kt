@@ -46,6 +46,12 @@ object Constants {
     const val PRODUCT_MIN_STOCK_FIELD = 7
     const val PRODUCT_SUPPLIER_FIELD = 8
 
+    //inputs Service
+    const val SERVICE_NAME_FIELD = 0
+    const val SERVICE_CATEGORY_FIELD = 1
+    const val SERVICE_SALE_PRICE_FIELD = 2
+
+
     //tipos de catalogos
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2
