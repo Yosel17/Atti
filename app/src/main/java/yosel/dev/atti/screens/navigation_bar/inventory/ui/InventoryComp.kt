@@ -560,6 +560,17 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            if (product.status == Constants.DELETED_STATUS){
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                StatusChipShort(
+                    modifier = Modifier.align(Alignment.End),
+                    status = product.status
+                )
+            }
+
+
             // Divisor
             Spacer(modifier = Modifier.height(14.dp))
             HorizontalDivider(

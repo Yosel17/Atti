@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +44,7 @@ fun ProductFormScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "Registrar Producto",
+                title = if (state.isEditMode) "Editar Producto" else "Registrar Producto",
                 onBack = onBack
             )
         }
@@ -54,20 +55,20 @@ fun ProductFormScreen(
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues)
                 .imePadding()
-        ){
+        ) {
             AnimatedContent(
                 targetState = state,
                 contentKey = { targetState ->
-                    when{
+                    when {
                         targetState.isLoadingDataInitial -> "LOADING"
                         targetState.categories.isEmpty() && targetState.unitsOfMeasurement.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
                 label = "ProductFormScreenAnimation"
-            ){ targetState ->
+            ) { targetState ->
                 when {
-                    targetState.isLoadingDataInitial ->{
+                    targetState.isLoadingDataInitial -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             LoadingIndicator(
                                 modifier = Modifier.size(75.dp)
@@ -77,26 +78,35 @@ fun ProductFormScreen(
                     !targetState.isSuccessGetCategory && !targetState.isSuccessGetSuppliers -> {
                         EmptyGlobal(
                             title = "No se pudo cargar la información inicial",
-                            subTitle = "No es posible registrar products sin esa información. Inténtalo de nuevo.",
+                            subTitle = "No es posible registrar productos sin esa información. Inténtalo de nuevo.",
                             icon = Icons.AutoMirrored.Outlined.ListAlt,
                             showAction = true,
                             onClickAction = { onAction(ProductFormAction.TryCatalogsAgain) }
                         )
                     }
                     else -> {
-                        BodyProductForm(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            state = state,
-                            onAction = onAction
-                        )
+                        if (state.currentProduct != null && state.currentProduct.status == Constants.DELETED_STATUS) {
+                            EmptyGlobal(
+                                title = "El producto ${state.currentProduct.commercialName} se encuentra eliminado",
+                                subTitle = "Este producto se encuentra eliminado y su información no se puede modificar. Restablécelo para poder editarlo.",
+                                icon = Icons.Outlined.DeleteForever,
+                                iconTint = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            BodyProductForm(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 24.dp),
+                                state = state,
+                                onAction = onAction
+                            )
+                        }
                     }
                 }
             }
         }
 
-        if (state.isCategorySheetOpen){
+        if (state.isCategorySheetOpen) {
             SelectAppCatalogBottomSheet(
                 onDismiss = {
                     onAction(ProductFormAction.OnDismissCategorySheet)
@@ -115,7 +125,7 @@ fun ProductFormScreen(
                     onAction(
                         ProductFormAction.OnShowAddCatalogDialog(
                             catalogTypeId = Constants.PRODUCT_CATEGORY_TYPE_CATALOG,
-                            catalogTypeName = "Categoria"
+                            catalogTypeName = "Categoría"
                         )
                     )
                 },
@@ -123,7 +133,7 @@ fun ProductFormScreen(
             )
         }
 
-        if (state.showAddAppCatalogDialog){
+        if (state.showAddAppCatalogDialog) {
             AddAppCatalogDialog(
                 modifier = Modifier.fillMaxWidth(0.9f),
                 isLoading = state.isLoadingAddCatalog,
@@ -137,7 +147,7 @@ fun ProductFormScreen(
             )
         }
 
-        if (state.isUnitsOfMeasurementSheetOpen){
+        if (state.isUnitsOfMeasurementSheetOpen) {
             SelectAppCatalogBottomSheet(
                 onDismiss = {
                     onAction(ProductFormAction.OnDismissUnitsMeasurementSheet)
@@ -168,7 +178,7 @@ fun ProductFormScreen(
             )
         }
 
-        if (state.isSupplierSheetOpen){
+        if (state.isSupplierSheetOpen) {
             SelectSupplierBottomSheet(
                 onDismiss = {
                     onAction(ProductFormAction.OnDismissSupplierSheet)
@@ -187,10 +197,18 @@ fun ProductFormScreen(
             )
         }
 
-        if (state.isLoadingRegisterProduct){
+        if (state.isLoadingRegisterProduct) {
             LoadingDialog(
                 title = "Registrando producto...",
                 subtitle = "Estamos guardando la información del nuevo producto.",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.isLoadingUpdateProduct) {
+            LoadingDialog(
+                title = "Actualizando producto...",
+                subtitle = "Por favor espera un momento...",
                 colorTitle = MaterialTheme.colorScheme.primary
             )
         }

@@ -13,4 +13,8 @@ interface ProductFormRepository {
     suspend fun insertProduct(product: ProductModel): Result<Unit>
 
     suspend fun getSuppliers(): Result<List<SupplierModel>>
+
+    suspend fun updateProduct(product: ProductModel): Result<Unit>
+
+    suspend fun getProductByIdRoom(productId: String): Result<ProductModel>
 }

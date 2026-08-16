@@ -1,9 +1,14 @@
 package yosel.dev.atti.screens.product_form.ui
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.SupplierModel
 
 data class ProductFormState(
+    val isEditMode: Boolean = false,
+    val productId: String? = null,
+    val currentProduct: ProductModel? = null,
+    val initialFormInputState: ProductFormInputsState = ProductFormInputsState(),
     val isLoadingDataInitial: Boolean = true,
     val categories: List<AppCatalogModel> = emptyList(),
     val filteredCategories: List<AppCatalogModel> = emptyList(),
@@ -24,5 +29,6 @@ data class ProductFormState(
     val unitsOfMeasurementSearchQuery: String = "",
     val isSupplierSheetOpen: Boolean = false,
     val supplierSearchQuery: String = "",
-    val isLoadingRegisterProduct: Boolean = false
+    val isLoadingRegisterProduct: Boolean = false,
+    val isLoadingUpdateProduct: Boolean = false
 )
