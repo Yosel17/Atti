@@ -1,16 +1,31 @@
 package yosel.dev.atti.screens.service_form.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -52,9 +67,15 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -64,6 +85,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +96,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AppCatalogSelector
@@ -83,6 +107,7 @@ import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.utils.Constants
+import kotlin.math.roundToInt
 
 @Composable
 fun BodyServiceForm(
@@ -303,64 +328,90 @@ private fun PricesAndCostsSection(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            when (formInputState.expenseMode) {
-                ExpenseMode.MANUAL -> {
-                    InputFieldGlobal(
-                        label = "Costo total estimado",
-                        placeholder = "0.00",
-                        value = formInputState.estimatedCost,
-                        onValueChange = { input ->
-                            val sanitizedInput = input.replace(',', '.')
-                            if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
-                                onAction(
-                                    ServiceFormAction.OnChangeValueFormInputState(
-                                        value = sanitizedInput,
-                                        field = Constants.SERVICE_ESTIMATED_COST_FIELD
-                                    )
-                                )
-                            }
-                        },
-                        leadingIcon = Icons.Filled.AttachMoney,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal,
-                            imeAction = ImeAction.Done
-                        ),
-                        isError = formInputState.isError(Constants.SERVICE_ESTIMATED_COST_FIELD),
-                        errorMessage = "El costo estimado es obligatorio"
-                    )
-                }
 
-                ExpenseMode.LINK_PRODUCTS -> {
-                    if (formInputState.selectedProducts.isEmpty()) {
-                        EmptySuppliesPlaceholder(
-                            onLinkProductClick = { onAction(ServiceFormAction.OnOpenProductSheet) }
-                        )
+            AnimatedContent(
+                targetState = formInputState.expenseMode,
+                transitionSpec = {
+                    val duration = 220
+                    // Determina la dirección del slide según la transición
+                    if (targetState == ExpenseMode.LINK_PRODUCTS) {
+                        // De MANUAL a LINK_PRODUCTS: entra por la derecha, sale hacia la izquierda
+                        (slideInHorizontally(animationSpec = tween(duration)) { width -> width / 4 } + fadeIn(animationSpec = tween(duration)))
+                            .togetherWith(
+                                slideOutHorizontally(animationSpec = tween(duration)) { width -> -width / 4 } + fadeOut(animationSpec = tween(duration))
+                            )
                     } else {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            formInputState.selectedProducts.forEach { item ->
-                                SelectedProductSupplyCard(
-                                    item = item,
-                                    onIncrement = { onAction(ServiceFormAction.OnIncrementProductQuantity(item.product.id)) },
-                                    onDecrement = { onAction(ServiceFormAction.OnDecrementProductQuantity(item.product.id)) },
-                                    onRemove = { onAction(ServiceFormAction.OnRemoveProductSupply(item.product.id)) }
-                                )
-                            }
+                        // De LINK_PRODUCTS a MANUAL: entra por la izquierda, sale hacia la derecha
+                        (slideInHorizontally(animationSpec = tween(duration)) { width -> -width / 4 } + fadeIn(animationSpec = tween(duration)))
+                            .togetherWith(
+                                slideOutHorizontally(animationSpec = tween(duration)) { width -> width / 4 } + fadeOut(animationSpec = tween(duration))
+                            )
+                    }.using(
+                        // Adapta suavemente la altura del contenedor si un contenido es más alto que el otro
+                        SizeTransform(clip = false)
+                    )
+                },
+                label = "ExpenseModeContentAnimation"
+            ) { targetMode ->
+                when (targetMode) {
+                    ExpenseMode.MANUAL -> {
+                        InputFieldGlobal(
+                            label = "Costo total estimado",
+                            placeholder = "0.00",
+                            value = formInputState.estimatedCost,
+                            onValueChange = { input ->
+                                val sanitizedInput = input.replace(',', '.')
+                                if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
+                                    onAction(
+                                        ServiceFormAction.OnChangeValueFormInputState(
+                                            value = sanitizedInput,
+                                            field = Constants.SERVICE_ESTIMATED_COST_FIELD
+                                        )
+                                    )
+                                }
+                            },
+                            leadingIcon = Icons.Filled.AttachMoney,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Decimal,
+                                imeAction = ImeAction.Done
+                            ),
+                            isError = formInputState.isError(Constants.SERVICE_ESTIMATED_COST_FIELD),
+                            errorMessage = "El costo estimado es obligatorio"
+                        )
+                    }
 
-                            Spacer(modifier = Modifier.height(6.dp))
-                            OutlinedButton(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { onAction(ServiceFormAction.OnOpenProductSheet) },
-                                shape = RoundedCornerShape(100.dp)
+                    ExpenseMode.LINK_PRODUCTS -> {
+                        if (formInputState.selectedProducts.isEmpty()) {
+                            EmptySuppliesPlaceholder(
+                                onLinkProductClick = { onAction(ServiceFormAction.OnOpenProductSheet) }
+                            )
+                        } else {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Add,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = "Modificar insumos vinculados")
+                                formInputState.selectedProducts.forEach { item ->
+                                    SelectedProductSupplyCard(
+                                        item = item,
+                                        onIncrement = { onAction(ServiceFormAction.OnIncrementProductQuantity(item.product.id)) },
+                                        onDecrement = { onAction(ServiceFormAction.OnDecrementProductQuantity(item.product.id)) },
+                                        onRemove = { onAction(ServiceFormAction.OnRemoveProductSupply(item.product.id)) }
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+                                OutlinedButton(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { onAction(ServiceFormAction.OnOpenProductSheet) },
+                                    shape = RoundedCornerShape(100.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(text = "Modificar insumos vinculados")
+                                }
                             }
                         }
                     }
@@ -376,6 +427,32 @@ private fun ExpenseModeSelector(
     onModeSelected: (ExpenseMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isManual = selectedMode == ExpenseMode.MANUAL
+
+    // Animación de color de fondo para cada píldora
+    val manualBgColor by animateColorAsState(
+        targetValue = if (isManual) MaterialTheme.colorScheme.primary else Color.Transparent,
+        animationSpec = tween(durationMillis = 250),
+        label = "ManualBgColor"
+    )
+    val linkBgColor by animateColorAsState(
+        targetValue = if (!isManual) MaterialTheme.colorScheme.primary else Color.Transparent,
+        animationSpec = tween(durationMillis = 250),
+        label = "LinkBgColor"
+    )
+
+    // Animación de color para los textos
+    val manualTextColor by animateColorAsState(
+        targetValue = if (isManual) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = 250),
+        label = "ManualTextColor"
+    )
+    val linkTextColor by animateColorAsState(
+        targetValue = if (!isManual) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = 250),
+        label = "LinkTextColor"
+    )
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(100.dp),
@@ -387,13 +464,15 @@ private fun ExpenseModeSelector(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val isManual = selectedMode == ExpenseMode.MANUAL
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(100.dp))
-                    .background(if (isManual) MaterialTheme.colorScheme.primary else Color.Transparent)
-                    .clickable { onModeSelected(ExpenseMode.MANUAL) }
+                    .background(manualBgColor)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true)
+                    ) { onModeSelected(ExpenseMode.MANUAL) }
                     .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -401,7 +480,7 @@ private fun ExpenseModeSelector(
                     text = "Ingreso Manual",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isManual) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isManual) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = manualTextColor
                 )
             }
 
@@ -409,8 +488,11 @@ private fun ExpenseModeSelector(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(100.dp))
-                    .background(if (!isManual) MaterialTheme.colorScheme.primary else Color.Transparent)
-                    .clickable { onModeSelected(ExpenseMode.LINK_PRODUCTS) }
+                    .background(linkBgColor)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true)
+                    ) { onModeSelected(ExpenseMode.LINK_PRODUCTS) }
                     .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -418,7 +500,7 @@ private fun ExpenseModeSelector(
                     text = "Vincular Productos",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (!isManual) FontWeight.Bold else FontWeight.Medium,
-                    color = if (!isManual) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = linkTextColor
                 )
             }
         }
