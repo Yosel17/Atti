@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AddAppCatalogDialog
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
@@ -118,6 +120,35 @@ fun ServiceFormScreen(
                     )
                 },
                 catalogosEmpty = state.categories.isEmpty()
+            )
+        }
+
+        if (state.isProductSheetOpen) {
+            SelectProductBottomSheet(
+                onDismiss = {
+                    onAction(ServiceFormAction.OnDismissProductSheet)
+                },
+                search = state.productSearchQuery,
+                onSearchChange = {
+                    onAction(ServiceFormAction.OnSearchProductQueryChange(it))
+                },
+                filteredProducts = state.filteredProducts,
+                tempSelectedProductIds = state.tempSelectedProductIds,
+                onToggleSelectProduct = { product ->
+                    onAction(ServiceFormAction.OnToggleSelectProduct(product))
+                },
+                onConfirmSelection = {
+                    onAction(ServiceFormAction.OnConfirmProductSelection)
+                },
+                productsEmpty = state.products.isEmpty()
+            )
+        }
+
+        if (state.isLoadingProducts) {
+            LoadingDialog(
+                title = "Cargando productos...",
+                subtitle = "Estamos obteniendo los insumos disponibles.",
+                colorTitle = MaterialTheme.colorScheme.primary
             )
         }
 

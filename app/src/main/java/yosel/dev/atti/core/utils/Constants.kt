@@ -1,7 +1,6 @@
 package yosel.dev.atti.core.utils
 
 object Constants {
-
     //Room
     const val TABLE_NAME = "atti_database"
 
@@ -50,12 +49,11 @@ object Constants {
     const val SERVICE_NAME_FIELD = 0
     const val SERVICE_CATEGORY_FIELD = 1
     const val SERVICE_SALE_PRICE_FIELD = 2
-
+    const val SERVICE_ESTIMATED_COST_FIELD = 3
 
     //tipos de catalogos
     const val SPECIES_TYPE_CATALOG = 1
     const val GENDER_TYPE_CATALOG = 2
-
     const val PRODUCT_CATEGORY_TYPE_CATALOG = 3
     const val PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG = 4
     const val SERVICE_CATEGORY_TYPE_CATALOG = 5
@@ -64,7 +62,6 @@ object Constants {
     const val CANINE_SPECIES_CATALOG = 1
     const val FELINE_SPECIES_CATALOG = 3
     const val WILD_SPECIES_CATALOG = 4
-
     const val FEMALE_GENDER_CATALOG = 2
     const val MALE_GENDER_CATALOG = 5
 
