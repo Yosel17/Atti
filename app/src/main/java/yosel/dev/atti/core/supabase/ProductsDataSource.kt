@@ -58,4 +58,15 @@ class ProductsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun getActiveProducts(): List<ProductDto> {
+        return postgrest.from(Constants.PRODUCTS_SUPABASE)
+            .select {
+                filter {
+                    eq("status", 1)
+                }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<ProductDto>()
+    }
 }
