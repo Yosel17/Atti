@@ -103,7 +103,7 @@ fun InventoryScreen(
         ){
             ExtendedFloatingActionButton(
                 onClick = {
-
+                    onNavigationMain(Screens.ServiceForm())
                 },
                 icon = {
                     Icon(

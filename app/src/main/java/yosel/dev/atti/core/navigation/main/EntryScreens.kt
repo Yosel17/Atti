@@ -45,6 +45,9 @@ import yosel.dev.atti.screens.main.ui.MainScreen
 import yosel.dev.atti.screens.product_form.ui.ProductFormEvent
 import yosel.dev.atti.screens.product_form.ui.ProductFormScreen
 import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
+import yosel.dev.atti.screens.service_form.ui.ServiceFormEvent
+import yosel.dev.atti.screens.service_form.ui.ServiceFormScreen
+import yosel.dev.atti.screens.service_form.ui.ServiceFormViewModel
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
@@ -489,6 +492,57 @@ fun EntryProviderScope<NavKey>.detailProductEntry(
         }
 
         DetailProductScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.serviceFormEntry(
+    onBack: () -> Unit,
+){
+    entry<Screens.ServiceForm> { serviceFormKey ->
+        val viewModel: ServiceFormViewModel = hiltViewModel(
+            creationCallback = { factory: ServiceFormViewModel.Factory ->
+                factory.create(
+                    serviceId = serviceFormKey.serviceId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is ServiceFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ServiceFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                    }
+                is ServiceFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        ServiceFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

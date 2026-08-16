@@ -76,6 +76,11 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.add(screens)
                 }
             )
+            serviceFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
         }
     )
 }
