@@ -12,6 +12,8 @@ import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
+import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
+import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 
@@ -22,7 +24,8 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         AppCatalogEntity::class,
         SupplierEntity::class,
         ProductEntity::class,
-        ServiceEntity::class
+        ServiceEntity::class,
+        ServiceSupplyEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -35,4 +38,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun supplierDao(): SupplierDao
     abstract fun productDao(): ProductDao
     abstract fun serviceDao(): ServiceDao
+    abstract fun serviceSupplyDao(): ServiceSupplyDao
 }
