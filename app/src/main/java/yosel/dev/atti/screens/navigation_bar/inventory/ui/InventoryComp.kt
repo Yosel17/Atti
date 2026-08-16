@@ -305,7 +305,9 @@ fun BodyInventory(
                             }
                             InventoryUIStatus.EMPTY -> {
                                 EmptyServicesState(
-                                    onAddServiceClick = {}
+                                    onAddServiceClick = {
+                                        onNavigationMain(Screens.ServiceForm())
+                                    }
                                 )
                             }
                         }
