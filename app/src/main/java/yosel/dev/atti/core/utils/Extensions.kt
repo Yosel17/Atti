@@ -5,6 +5,7 @@ import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
+import yosel.dev.atti.core.models.dto.ServiceSupplyDto
 import yosel.dev.atti.core.models.dto.SupplierDto
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
@@ -15,6 +16,8 @@ import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
+import yosel.dev.atti.core.models.model.ServiceSupplyModel
+import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
@@ -27,6 +30,8 @@ import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.product.ProductWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
 import yosel.dev.atti.core.room.tables.service.ServiceWithDetailsEntity
+import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
+import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyWithDetailsEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
@@ -326,6 +331,21 @@ fun ProductDto.toEntity() = ProductEntity(
     status = status
 )
 
+fun ProductDto.toModel() = ProductModel(
+    id = id.orEmpty(),
+    supplierId = supplierId.orEmpty(),
+    categoryId = categoryId ?: 0,
+    unitTypeId = unitTypeId ?: 0,
+    commercialName = commercialName,
+    brand = brand.orEmpty(),
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock ?: 0,
+    createdAt = createdAt.orEmpty(),
+    status = status,
+)
+
 fun ServiceDto.toEntity() = ServiceEntity(
     id = id.orEmpty(),
     categoryId = categoryId ?: 0,
@@ -430,6 +450,15 @@ fun ProductModel.toProductFormInputsState(
     selectedSupplier = supplier
 )
 
+fun ServiceModel.toDtoForInsert() = ServiceDto(
+    categoryId = categoryId,
+    name = name,
+    description = description,
+    salePrice = salePrice,
+    estimatedCost = estimatedCost,
+    status = status
+)
+
 fun ServiceEntity.toModel() = ServiceModel(
     id = id,
     categoryId = categoryId,
@@ -497,6 +526,64 @@ fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
 fun ServiceWithDetailsEntity.toModel() = ServiceWithDetailsModel(
     service = service.toModel(),
     category = category?.toModel() ?: AppCatalogModel()
+)
+
+// --- SERVICE SUPPLIES ---
+
+fun ServiceSupplyDto.toEntity() = ServiceSupplyEntity(
+    id = id ?: 0,
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ServiceSupplyEntity.toModel() = ServiceSupplyModel(
+    id = id,
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ServiceSupplyModel.toEntity() = ServiceSupplyEntity(
+    id = id,
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ServiceSupplyDto.toModel() = ServiceSupplyModel(
+    id = id ?: 0,
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ServiceSupplyModel.toDtoForInsert() = ServiceSupplyDto(
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    status = status
+)
+
+fun ServiceSupplyModel.toDtoForUpdate() = ServiceSupplyDto(
+    id = id,
+    serviceId = serviceId,
+    productId = productId,
+    quantityRequired = quantityRequired,
+    status = status
+)
+
+fun ServiceSupplyWithDetailsEntity.toModel() = ServiceSupplyWithDetailsModel(
+    supply = supply.toModel(),
+    product = product?.toModel() ?: ProductWithDetailsModel()
 )
 
 fun EditSupplierFormState.toModel(status: Int) = SupplierModel(

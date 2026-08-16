@@ -26,4 +26,12 @@ class ServicesDataSource @Inject constructor(
             }
             .decodeList<ServiceDto>()
     }
+
+    suspend fun insertServiceAndReturn(service: ServiceDto): ServiceDto {
+        return postgrest.from(Constants.SERVICES_SUPABASE)
+            .insert(service) {
+                select()
+            }
+            .decodeSingle<ServiceDto>()
+    }
 }
