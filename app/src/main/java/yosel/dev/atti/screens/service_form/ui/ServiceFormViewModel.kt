@@ -93,11 +93,11 @@ class ServiceFormViewModel @AssistedInject constructor(
         _state.update { it.copy(isLoadingDataInitial = true) }
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
-                types = listOf(Constants.PRODUCT_CATEGORY_TYPE_CATALOG)
+                types = listOf(Constants.SERVICE_CATEGORY_TYPE_CATALOG)
             ).fold(
                 onSuccess = { appCatalogs ->
                     val categories = appCatalogs
-                        .filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                        .filter { it.catalogTypeId == Constants.SERVICE_CATEGORY_TYPE_CATALOG }
                         .sortedBy { it.name.lowercase() }
 
                     _state.update { currentState ->

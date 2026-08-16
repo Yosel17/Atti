@@ -112,7 +112,7 @@ fun ServiceFormScreen(
                 showAddAppCatalogDialog = {
                     onAction(
                         ServiceFormAction.OnShowAddCatalogDialog(
-                            catalogTypeId = Constants.PRODUCT_CATEGORY_TYPE_CATALOG,
+                            catalogTypeId = Constants.SERVICE_CATEGORY_TYPE_CATALOG,
                             catalogTypeName = "Categoría"
                         )
                     )
