@@ -414,6 +414,22 @@ fun ProductModel.toEntity() = ProductEntity(
     status = status
 )
 
+fun ProductModel.toProductFormInputsState(
+    category: AppCatalogModel?,
+    unitType: AppCatalogModel?,
+    supplier: SupplierModel?
+) = ProductFormInputsState(
+    commercialName = commercialName,
+    brand = brand,
+    selectedCategory = category,
+    selectedUnitType = unitType,
+    purchasePrice = if (purchasePrice > 0.0) purchasePrice.toString() else "",
+    salePrice = if (salePrice > 0.0) salePrice.toString() else "",
+    stock = stock.toString(),
+    minStock = minStock.toString(),
+    selectedSupplier = supplier
+)
+
 fun ServiceEntity.toModel() = ServiceModel(
     id = id,
     categoryId = categoryId,
@@ -504,6 +520,25 @@ fun ProductFormInputsState.toInsertModel() = ProductModel(
     stock = stock.parseToInt(),
     minStock = minStock.parseToInt(),
     status = Constants.ACTIVE_STATUS
+)
+
+fun ProductFormInputsState.toUpdateModel(
+    productId: String,
+    createdAt: String = "",
+    status: Int = Constants.ACTIVE_STATUS
+) = ProductModel(
+    id = productId,
+    supplierId = selectedSupplier?.id,
+    categoryId = selectedCategory?.id ?: 0,
+    unitTypeId = selectedUnitType?.id ?: 0,
+    commercialName = commercialName.trim(),
+    brand = brand.trim(),
+    purchasePrice = purchasePrice.parseToDouble(),
+    salePrice = salePrice.parseToDouble(),
+    stock = stock.parseToInt(),
+    minStock = minStock.parseToInt(),
+    createdAt = createdAt,
+    status = status
 )
 
 fun String.normalize(): String {

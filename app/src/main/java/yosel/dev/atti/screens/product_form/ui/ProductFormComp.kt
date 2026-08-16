@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.NotificationImportant
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Warehouse
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
@@ -84,6 +85,11 @@ fun BodyProductForm(
     onAction: (ProductFormAction) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val isButtonEnabled = if (state.isEditMode) {
+        state.formInputState.isValid && state.formInputState.hasChangesFrom(state.initialFormInputState)
+    } else {
+        state.formInputState.isValid
+    }
 
     Column(
         modifier = modifier
@@ -107,16 +113,14 @@ fun BodyProductForm(
             )
             Spacer(modifier = Modifier.height(28.dp))
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 focusManager.clearFocus()
                 onAction(ProductFormAction.RegisterProduct)
             },
-            enabled = state.formInputState.isValid,
+            enabled = isButtonEnabled,
             shape = RoundedCornerShape(100.dp)
         ) {
             Row(
@@ -125,19 +129,17 @@ fun BodyProductForm(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Filled.AddBox,
+                    imageVector = if (state.isEditMode) Icons.Outlined.Save else Icons.Filled.AddBox,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Registrar producto",
+                    text = if (state.isEditMode) "Guardar edición" else "Registrar producto",
                     style = MaterialTheme.typography.titleMedium
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
     }
 }
 
@@ -154,7 +156,7 @@ private fun BasicInformationSection(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ){
+    ) {
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
@@ -169,23 +171,23 @@ private fun BasicInformationSection(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Información Básica",
+                    text = "Información básica",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
-
             InputFieldGlobal(
                 label = "Nombre comercial",
                 placeholder = "Ej: Antibiótico Amoxipet",
                 value = formInputState.commercialName,
                 onValueChange = {
-                    onAction(ProductFormAction.OnChangeValueFormInputState(
-                        value = it,
-                        field = Constants.PRODUCT_COMMERCIAL_NAME_FIELD)
+                    onAction(
+                        ProductFormAction.OnChangeValueFormInputState(
+                            value = it,
+                            field = Constants.PRODUCT_COMMERCIAL_NAME_FIELD
+                        )
                     )
                 },
                 leadingIcon = Icons.Filled.Badge,
@@ -196,17 +198,17 @@ private fun BasicInformationSection(
                 isError = formInputState.isError(Constants.PRODUCT_COMMERCIAL_NAME_FIELD),
                 errorMessage = "El nombre comercial es obligatorio"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             InputFieldGlobal(
                 label = "Marca",
                 placeholder = "Ej: BioVet Labs",
                 value = formInputState.brand,
                 onValueChange = {
-                    onAction(ProductFormAction.OnChangeValueFormInputState(
-                        value = it,
-                        field = Constants.PRODUCT_BRAND_FIELD)
+                    onAction(
+                        ProductFormAction.OnChangeValueFormInputState(
+                            value = it,
+                            field = Constants.PRODUCT_BRAND_FIELD
+                        )
                     )
                 },
                 leadingIcon = Icons.Filled.Storefront,
@@ -217,36 +219,28 @@ private fun BasicInformationSection(
                 isError = formInputState.isError(Constants.PRODUCT_BRAND_FIELD),
                 errorMessage = "El nombre de la marca es obligatorio"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             SectionTitle(
-                title = "Categoria",
+                title = "Categoría",
                 icon = Icons.Filled.Category,
                 showIcon = false
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             AppCatalogSelector(
                 selectedCatalog = formInputState.selectedCategory,
                 onOpenSheet = {
                     onAction(ProductFormAction.OnOpenCategorySheet)
                 },
                 icon = Icons.Filled.Category,
-                emptyText = "Selecciona una categoria"
+                emptyText = "Selecciona una categoría"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             SectionTitle(
                 title = "Unidad de medida",
                 icon = Icons.Filled.Straighten,
                 showIcon = false
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             AppCatalogSelector(
                 selectedCatalog = formInputState.selectedUnitType,
                 onOpenSheet = {
@@ -272,10 +266,10 @@ fun PriceAndSupplier(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ){
+    ) {
         Column(
             modifier = Modifier.padding(20.dp)
-        ){
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -293,16 +287,13 @@ fun PriceAndSupplier(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
-
             InputFieldGlobal(
                 label = "Precio de compra",
                 placeholder = "0.00",
                 value = formInputState.purchasePrice,
                 onValueChange = { input ->
                     val sanitizedInput = input.replace(',', '.')
-
                     if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
                         onAction(
                             ProductFormAction.OnChangeValueFormInputState(
@@ -320,23 +311,21 @@ fun PriceAndSupplier(
                 isError = formInputState.isError(Constants.PRODUCT_PURCHASE_PRICE_FIELD),
                 errorMessage = "El precio de compra es obligatorio"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             InputFieldGlobal(
                 label = "Precio de venta",
                 placeholder = "0.00",
                 value = formInputState.salePrice,
                 onValueChange = { input ->
                     val sanitizedInput = input.replace(',', '.')
-
                     if (sanitizedInput.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
-                        onAction(ProductFormAction.OnChangeValueFormInputState(
-                            value = input,
-                            field = Constants.PRODUCT_SALE_PRICE_FIELD)
+                        onAction(
+                            ProductFormAction.OnChangeValueFormInputState(
+                                value = sanitizedInput,
+                                field = Constants.PRODUCT_SALE_PRICE_FIELD
+                            )
                         )
                     }
-
                 },
                 leadingIcon = Icons.Filled.PointOfSale,
                 keyboardOptions = KeyboardOptions(
@@ -346,17 +335,13 @@ fun PriceAndSupplier(
                 isError = formInputState.isError(Constants.PRODUCT_SALE_PRICE_FIELD),
                 errorMessage = "El precio de venta es obligatorio"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             SectionTitle(
                 title = "Proveedor",
                 icon = Icons.Filled.LocalShipping,
                 showIcon = false
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             SupplierSelector(
                 selectedSupplier = formInputState.selectedSupplier,
                 onOpenSheet = {
@@ -436,10 +421,10 @@ fun SelectSupplierBottomSheet(
     onDismiss: () -> Unit,
     title: String,
     search: String,
-    onSearchChange:(String) -> Unit,
+    onSearchChange: (String) -> Unit,
     filteredSuppliers: List<SupplierModel>,
     selectedSupplier: SupplierModel?,
-    onSelectSupplier:(SupplierModel) -> Unit,
+    onSelectSupplier: (SupplierModel) -> Unit,
     suppliersEmpty: Boolean
 ) {
     val sheetState = rememberBottomSheetState(
@@ -497,22 +482,18 @@ fun SelectSupplierBottomSheet(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
             AttiSearchBar(
                 value = search,
                 onValueChange = { onSearchChange(it) },
                 placeholder = "Buscar por nombre"
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            when{
-                suppliersEmpty ->{
+            when {
+                suppliersEmpty -> {
                     EmptyGlobal(
                         title = "Aún no hay proveedores",
-                        subTitle = "Agrega tu primer proveedor para comenzar con la configuración."
+                        subTitle = "Agrega tu primer proveedor para comenzar con la configuración"
                     )
                 }
                 filteredSuppliers.isEmpty() -> {
@@ -522,7 +503,7 @@ fun SelectSupplierBottomSheet(
                         nameResult = "proveedores"
                     )
                 }
-                else ->{
+                else -> {
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
@@ -533,7 +514,6 @@ fun SelectSupplierBottomSheet(
                     ) {
                         items(filteredSuppliers, key = { it.id }) { supplier ->
                             val isSelected = supplier.id == selectedSupplier?.id
-
                             SupplierSelectionCard(
                                 supplier = supplier,
                                 isSelected = isSelected,
@@ -590,9 +570,7 @@ private fun SupplierSelectionCard(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = supplier.name.ifBlank { "Sin nombre" },
@@ -610,7 +588,6 @@ private fun SupplierSelectionCard(
                     )
                 }
             }
-
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Outlined.Check,
@@ -636,7 +613,7 @@ private fun Stock(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ){
+    ) {
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
@@ -657,9 +634,7 @@ private fun Stock(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -687,7 +662,6 @@ private fun Stock(
                     isError = formInputState.isError(Constants.PRODUCT_STOCK_FIELD),
                     errorMessage = "Requerido"
                 )
-
                 InputFieldGlobal(
                     modifier = Modifier.weight(1f),
                     label = "Stock min.",

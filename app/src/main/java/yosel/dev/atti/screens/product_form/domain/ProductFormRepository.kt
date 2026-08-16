@@ -15,4 +15,6 @@ interface ProductFormRepository {
     suspend fun getSuppliers(): Result<List<SupplierModel>>
 
     suspend fun updateProduct(product: ProductModel): Result<Unit>
+
+    suspend fun getProductByIdRoom(productId: String): Result<ProductModel>
 }

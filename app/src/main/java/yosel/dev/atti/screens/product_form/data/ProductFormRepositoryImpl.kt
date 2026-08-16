@@ -54,4 +54,9 @@ class ProductFormRepositoryImpl @Inject constructor(
         productsDataSource.updateProduct(product = product.toDtoForUpdate())
         productDao.upsertProduct(product = product.toEntity())
     }
+
+    override suspend fun getProductByIdRoom(productId: String): Result<ProductModel> = runCatching {
+        productDao.getProductById(productId = productId)?.toModel()
+            ?: throw NoSuchElementException("No se encontró el producto con ID: $productId")
+    }
 }

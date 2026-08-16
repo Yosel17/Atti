@@ -13,9 +13,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.core.utils.toInsertModel
+import yosel.dev.atti.core.utils.toProductFormInputsState
+import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
 
 @HiltViewModel(assistedFactory = ProductFormViewModel.Factory::class)
@@ -29,7 +32,12 @@ class ProductFormViewModel @AssistedInject constructor(
         fun create(@Assisted("productId") productId: String?): ProductFormViewModel
     }
 
-    private val _state = MutableStateFlow(ProductFormState())
+    private val _state = MutableStateFlow(
+        ProductFormState(
+            isEditMode = !productId.isNullOrBlank(),
+            productId = productId
+        )
+    )
     val state: StateFlow<ProductFormState> = _state
 
     private val _eventChannel = Channel<ProductFormEvent>()
@@ -41,7 +49,7 @@ class ProductFormViewModel @AssistedInject constructor(
 
     fun onAction(action: ProductFormAction) {
         when (action) {
-            ProductFormAction.RegisterProduct -> registerProduct()
+            ProductFormAction.RegisterProduct -> saveProduct()
             ProductFormAction.TryCatalogsAgain -> getCatalogsAndSuppliers()
             is ProductFormAction.OnChangeValueFormInputState -> {
                 changeValueFormInputState(value = action.value, field = action.field)
@@ -96,7 +104,7 @@ class ProductFormViewModel @AssistedInject constructor(
                 _state.update { it.copy(unitsOfMeasurementSearchQuery = action.query) }
                 filterUnitsOfMeasurement(query = action.query)
             }
-            is ProductFormAction.OnSelectUnitsMeasurement ->{
+            is ProductFormAction.OnSelectUnitsMeasurement -> {
                 _state.update {
                     it.copy(
                         formInputState = it.formInputState.copy(
@@ -130,7 +138,6 @@ class ProductFormViewModel @AssistedInject constructor(
 
     private fun getCatalogsAndSuppliers() {
         _state.update { it.copy(isLoadingDataInitial = true) }
-
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
                 types = listOf(
@@ -139,25 +146,36 @@ class ProductFormViewModel @AssistedInject constructor(
                 )
             ).fold(
                 onSuccess = { appCatalogs ->
-                    val categories =
-                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
-                            .sortedBy { it.name.lowercase() }
-                    val unitsOfMeasurement =
-                        appCatalogs.filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
-                            .sortedBy { it.name.lowercase() }
+                    val categories = appCatalogs
+                        .filter { it.catalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG }
+                        .sortedBy { it.name.lowercase() }
+                    val unitsOfMeasurement = appCatalogs
+                        .filter { it.catalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG }
+                        .sortedBy { it.name.lowercase() }
 
                     repository.getSuppliers().fold(
                         onSuccess = { suppliers ->
                             _state.update { currentState ->
                                 currentState.copy(
                                     categories = categories,
+                                    filteredCategories = categories,
                                     unitsOfMeasurement = unitsOfMeasurement,
+                                    filteredUnitsOfMeasurement = unitsOfMeasurement,
                                     suppliers = suppliers,
                                     filteredSuppliers = suppliers,
                                     isSuccessGetCategory = true,
                                     isSuccessGetSuppliers = true,
-                                    isLoadingDataInitial = false,
                                 )
+                            }
+                            if (!productId.isNullOrBlank()) {
+                                loadProductForEdit(
+                                    id = productId,
+                                    categories = categories,
+                                    unitsOfMeasurement = unitsOfMeasurement,
+                                    suppliers = suppliers
+                                )
+                            } else {
+                                _state.update { it.copy(isLoadingDataInitial = false) }
                             }
                         },
                         onFailure = {
@@ -178,15 +196,57 @@ class ProductFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun registerProduct() {
+    private fun loadProductForEdit(
+        id: String,
+        categories: List<AppCatalogModel>,
+        unitsOfMeasurement: List<AppCatalogModel>,
+        suppliers: List<SupplierModel>
+    ) {
+        viewModelScope.launch {
+            repository.getProductByIdRoom(id).fold(
+                onSuccess = { product ->
+                    val category = categories.find { it.id == product.categoryId }
+                    val unitType = unitsOfMeasurement.find { it.id == product.unitTypeId }
+                    val supplier = suppliers.find { it.id == product.supplierId }
+                    val initialForm = product.toProductFormInputsState(
+                        category = category,
+                        unitType = unitType,
+                        supplier = supplier
+                    )
+                    _state.update { currentState ->
+                        currentState.copy(
+                            currentProduct = product,
+                            formInputState = initialForm,
+                            initialFormInputState = initialForm,
+                            isLoadingDataInitial = false
+                        )
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(
+                        ProductFormEvent.ShowErrorSnackbar("Error al cargar la información del producto.")
+                    )
+                }
+            )
+        }
+    }
+
+    private fun saveProduct() {
         val cs = _state.value
         if (!cs.formInputState.isValid) return
+        if (cs.isEditMode) {
+            updateProduct()
+        } else {
+            registerProduct()
+        }
+    }
 
+    private fun registerProduct() {
+        val cs = _state.value
         _state.update { it.copy(isLoadingRegisterProduct = true) }
-
         viewModelScope.launch {
             val product = cs.formInputState.toInsertModel()
-
             repository.insertProduct(product = product)
                 .fold(
                     onSuccess = {
@@ -200,7 +260,39 @@ class ProductFormViewModel @AssistedInject constructor(
                     },
                     onFailure = {
                         _state.update { it.copy(isLoadingRegisterProduct = false) }
-                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No pudimos registrar al paciente. Inténtalo de nuevo."))
+                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No pudimos registrar el producto. Inténtalo de nuevo."))
+                    }
+                )
+        }
+    }
+
+    private fun updateProduct() {
+        val cs = _state.value
+        val currentProduct = cs.currentProduct ?: return
+        _state.update { it.copy(isLoadingUpdateProduct = true) }
+        viewModelScope.launch {
+            val updatedProduct = cs.formInputState.toUpdateModel(
+                productId = currentProduct.id,
+                createdAt = currentProduct.createdAt,
+                status = currentProduct.status
+            )
+            repository.updateProduct(product = updatedProduct)
+                .fold(
+                    onSuccess = {
+                        val newForm = cs.formInputState
+                        _state.update { currentState ->
+                            currentState.copy(
+                                isLoadingUpdateProduct = false,
+                                currentProduct = updatedProduct,
+                                formInputState = newForm,
+                                initialFormInputState = newForm
+                            )
+                        }
+                        _eventChannel.send(ProductFormEvent.ShowSuccessSnackbar("Producto actualizado correctamente."))
+                    },
+                    onFailure = {
+                        _state.update { it.copy(isLoadingUpdateProduct = false) }
+                        _eventChannel.send(ProductFormEvent.ShowErrorSnackbar("No pudimos actualizar el producto. Inténtalo de nuevo."))
                     }
                 )
         }
@@ -226,7 +318,7 @@ class ProductFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun filterCategory(query: String){
+    private fun filterCategory(query: String) {
         val normalizedQuery = query.normalize()
         _state.update { state ->
             val filtered = if (normalizedQuery.isBlank()) {
@@ -258,17 +350,17 @@ class ProductFormViewModel @AssistedInject constructor(
                         _state.update { state ->
                             val updatedCategories = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
                                 (state.categories + insertedCatalog).sortedBy { it.name.lowercase() }
-                            }else{
+                            } else {
                                 state.categories
                             }
                             val updatedUnitsOfMeasurement = if (currentState.activeCatalogTypeId == Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG) {
                                 (state.unitsOfMeasurement + insertedCatalog).sortedBy { it.name.lowercase() }
-                            }else{
+                            } else {
                                 state.unitsOfMeasurement
                             }
                             val updateFormInputsState = if (currentState.activeCatalogTypeId == Constants.PRODUCT_CATEGORY_TYPE_CATALOG) {
                                 state.formInputState.copy(selectedCategory = insertedCatalog)
-                            }else{
+                            } else {
                                 state.formInputState.copy(selectedUnitType = insertedCatalog)
                             }
                             state.copy(
@@ -296,7 +388,7 @@ class ProductFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun filterUnitsOfMeasurement(query: String){
+    private fun filterUnitsOfMeasurement(query: String) {
         val normalizedQuery = query.normalize()
         _state.update { state ->
             val filtered = if (normalizedQuery.isBlank()) {
@@ -310,7 +402,7 @@ class ProductFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun filterSupplier(query: String){
+    private fun filterSupplier(query: String) {
         val normalizedQuery = query.normalize()
         _state.update { state ->
             val filtered = if (normalizedQuery.isBlank()) {
