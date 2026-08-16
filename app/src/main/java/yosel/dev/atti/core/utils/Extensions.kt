@@ -331,6 +331,21 @@ fun ProductDto.toEntity() = ProductEntity(
     status = status
 )
 
+fun ProductDto.toModel() = ProductModel(
+    id = id.orEmpty(),
+    supplierId = supplierId.orEmpty(),
+    categoryId = categoryId ?: 0,
+    unitTypeId = unitTypeId ?: 0,
+    commercialName = commercialName,
+    brand = brand.orEmpty(),
+    purchasePrice = purchasePrice,
+    salePrice = salePrice,
+    stock = stock,
+    minStock = minStock ?: 0,
+    createdAt = createdAt.orEmpty(),
+    status = status,
+)
+
 fun ServiceDto.toEntity() = ServiceEntity(
     id = id.orEmpty(),
     categoryId = categoryId ?: 0,
@@ -433,6 +448,15 @@ fun ProductModel.toProductFormInputsState(
     stock = stock.toString(),
     minStock = minStock.toString(),
     selectedSupplier = supplier
+)
+
+fun ServiceModel.toDtoForInsert() = ServiceDto(
+    categoryId = categoryId,
+    name = name,
+    description = description,
+    salePrice = salePrice,
+    estimatedCost = estimatedCost,
+    status = status
 )
 
 fun ServiceEntity.toModel() = ServiceModel(

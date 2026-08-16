@@ -65,7 +65,7 @@ class ProductsDataSource @Inject constructor(
                 filter {
                     eq("status", 1)
                 }
-                order("created_at", Order.DESCENDING)
+                order("commercial_name", Order.DESCENDING)
             }
             .decodeList<ProductDto>()
     }

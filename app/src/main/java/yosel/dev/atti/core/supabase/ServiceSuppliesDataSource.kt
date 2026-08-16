@@ -42,7 +42,7 @@ class ServiceSuppliesDataSource @Inject constructor(
             .decodeSingle<ServiceSupplyDto>()
     }
 
-    suspend fun insertSupplies(supplies: List<ServiceSupplyDto>): List<ServiceSupplyDto> {
+    suspend fun insertAndGetSupplies(supplies: List<ServiceSupplyDto>): List<ServiceSupplyDto> {
         if (supplies.isEmpty()) return emptyList()
         return postgrest.from(Constants.SERVICE_SUPPLIES_SUPABASE)
             .insert(supplies) {
