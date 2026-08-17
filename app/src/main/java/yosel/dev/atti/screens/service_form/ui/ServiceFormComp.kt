@@ -1,14 +1,17 @@
 package yosel.dev.atti.screens.service_form.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -69,8 +72,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -98,6 +104,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.AttiSearchBar
@@ -109,6 +116,7 @@ import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun BodyServiceForm(
@@ -391,12 +399,14 @@ private fun PricesAndCostsSection(
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 formInputState.selectedProducts.forEach { item ->
-                                    SelectedProductSupplyCard(
-                                        item = item,
-                                        onIncrement = { onAction(ServiceFormAction.OnIncrementProductQuantity(item.product.id)) },
-                                        onDecrement = { onAction(ServiceFormAction.OnDecrementProductQuantity(item.product.id)) },
-                                        onRemove = { onAction(ServiceFormAction.OnRemoveProductSupply(item.product.id)) }
-                                    )
+                                    key(item.product.id) {
+                                        RemovableProductSupplyItem(
+                                            item = item,
+                                            onIncrement = { onAction(ServiceFormAction.OnIncrementProductQuantity(item.product.id)) },
+                                            onDecrement = { onAction(ServiceFormAction.OnDecrementProductQuantity(item.product.id)) },
+                                            onRemove = { onAction(ServiceFormAction.OnRemoveProductSupply(item.product.id)) }
+                                        )
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(6.dp))
@@ -697,6 +707,39 @@ private fun SelectedProductSupplyCard(
     }
 }
 
+@Composable
+private fun RemovableProductSupplyItem(
+    item: SelectedProductSupply,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember(item.product.id) { mutableStateOf(true) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = expandVertically(animationSpec = tween(250)) + fadeIn(animationSpec = tween(200)),
+        exit = shrinkVertically(animationSpec = tween(250)) + fadeOut(animationSpec = tween(200)),
+        modifier = modifier
+    ) {
+        SelectedProductSupplyCard(
+            item = item,
+            onIncrement = onIncrement,
+            onDecrement = onDecrement,
+            onRemove = { isVisible = false }
+        )
+    }
+
+    LaunchedEffect(isVisible) {
+        if (!isVisible) {
+            // Espera a que termine la animación de shrink antes de remover del estado global
+            delay(250.milliseconds)
+            onRemove()
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectProductBottomSheet(
@@ -763,6 +806,7 @@ fun SelectProductBottomSheet(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
             AttiSearchBar(
                 value = search,
                 onValueChange = { onSearchChange(it) },
@@ -770,6 +814,7 @@ fun SelectProductBottomSheet(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
             when {
                 productsWithDetailsEmpty -> {
                     EmptyGlobal(
@@ -793,9 +838,13 @@ fun SelectProductBottomSheet(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
-                        items(filteredProductsWithDetails, key = { it.product.id }) { productWithDetails ->
+                        items(
+                            items = filteredProductsWithDetails,
+                            key = { it.product.id }
+                        ) { productWithDetails ->
                             val isSelected = tempSelectedProductIds.contains(productWithDetails.product.id)
                             ProductMultiSelectionCard(
+                                modifier = Modifier.animateItem(),
                                 productWithDetails = productWithDetails,
                                 isSelected = isSelected,
                                 onToggle = { onToggleSelectProduct(productWithDetails.product) }
@@ -804,6 +853,7 @@ fun SelectProductBottomSheet(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
+
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {

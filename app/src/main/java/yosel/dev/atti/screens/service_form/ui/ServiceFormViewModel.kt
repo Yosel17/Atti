@@ -14,9 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
+import kotlin.collections.filter
 
 @HiltViewModel(assistedFactory = ServiceFormViewModel.Factory::class)
 class ServiceFormViewModel @AssistedInject constructor(
@@ -123,6 +125,7 @@ class ServiceFormViewModel @AssistedInject constructor(
                     val categories = appCatalogs
                         .filter { it.catalogTypeId == Constants.SERVICE_CATEGORY_TYPE_CATALOG }
                         .sortedBy { it.name.lowercase() }
+
                     _state.update { currentState ->
                         currentState.copy(
                             categories = categories,
@@ -151,11 +154,15 @@ class ServiceFormViewModel @AssistedInject constructor(
             viewModelScope.launch {
                 repository.getActiveProductsWithDetails().fold(
                     onSuccess = { productsList ->
-                        val sortedProducts = productsList.sortedBy { it.product.commercialName.lowercase() }
+                        val sortedProducts = getFilteredAndSortedProducts(
+                            products = productsList,
+                            query = "",
+                            selectedIds = currentSelectedIds
+                        )
                         _state.update { state ->
                             state.copy(
                                 isLoadingProducts = false,
-                                productsWithDetails = sortedProducts,
+                                productsWithDetails = productsList,
                                 filteredProductsWithDetails = sortedProducts,
                                 productSearchQuery = "",
                                 tempSelectedProductIds = currentSelectedIds,
@@ -172,10 +179,15 @@ class ServiceFormViewModel @AssistedInject constructor(
                 )
             }
         } else {
+            val sortedProducts = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = "",
+                selectedIds = currentSelectedIds
+            )
             _state.update {
                 it.copy(
                     productSearchQuery = "",
-                    filteredProductsWithDetails = it.productsWithDetails,
+                    filteredProductsWithDetails = sortedProducts,
                     tempSelectedProductIds = currentSelectedIds,
                     isProductSheetOpen = true
                 )
@@ -184,16 +196,12 @@ class ServiceFormViewModel @AssistedInject constructor(
     }
 
     private fun filterProducts(query: String) {
-        val normalizedQuery = query.normalize()
         _state.update { currentState ->
-            val filtered = if (normalizedQuery.isBlank()) {
-                currentState.productsWithDetails
-            } else {
-                currentState.productsWithDetails.filter { productWithDetails ->
-                    productWithDetails.product.commercialName.normalize().contains(normalizedQuery) ||
-                            productWithDetails.product.brand.normalize().contains(normalizedQuery)
-                }
-            }
+            val filtered = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = query,
+                selectedIds = currentState.tempSelectedProductIds
+            )
             currentState.copy(filteredProductsWithDetails = filtered)
         }
     }
@@ -205,8 +213,36 @@ class ServiceFormViewModel @AssistedInject constructor(
             } else {
                 currentState.tempSelectedProductIds + product.id
             }
-            currentState.copy(tempSelectedProductIds = newSelection)
+            val filtered = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = currentState.productSearchQuery,
+                selectedIds = newSelection
+            )
+            currentState.copy(
+                tempSelectedProductIds = newSelection,
+                filteredProductsWithDetails = filtered
+            )
         }
+    }
+
+    private fun getFilteredAndSortedProducts(
+        products: List<ProductWithDetailsModel>,
+        query: String,
+        selectedIds: Set<String>
+    ): List<ProductWithDetailsModel> {
+        val normalizedQuery = query.normalize()
+        val filtered = if (normalizedQuery.isBlank()) {
+            products
+        } else {
+            products.filter { productWithDetails ->
+                productWithDetails.product.commercialName.normalize().contains(normalizedQuery) ||
+                        productWithDetails.product.brand.normalize().contains(normalizedQuery)
+            }
+        }
+        return filtered.sortedWith(
+            compareByDescending<ProductWithDetailsModel> { selectedIds.contains(it.product.id) }
+                .thenBy { it.product.commercialName.lowercase() }
+        )
     }
 
     private fun confirmProductSelection() {
@@ -296,6 +332,7 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun onSaveAppCatalog(name: String) {
         val currentState = _state.value
         _state.update { it.copy(isLoadingAddCatalog = true) }
+
         viewModelScope.launch {
             val newCatalog = AppCatalogModel(
                 id = 0,
@@ -305,6 +342,7 @@ class ServiceFormViewModel @AssistedInject constructor(
                 isActive = true,
                 createdAt = ""
             )
+
             repository.insertCatalog(catalog = newCatalog)
                 .fold(
                     onSuccess = { insertedCatalog ->
