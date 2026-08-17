@@ -48,5 +48,5 @@ interface ProductDao {
 
     @Transaction
     @Query("SELECT * FROM products WHERE status = 1")
-    fun getActiveProductsWithDetails(): List<ProductWithDetailsEntity>
+    suspend fun getActiveProductsWithDetails(): List<ProductWithDetailsEntity>
 }
