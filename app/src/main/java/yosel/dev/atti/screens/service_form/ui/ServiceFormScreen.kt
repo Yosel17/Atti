@@ -165,5 +165,13 @@ fun ServiceFormScreen(
                 }
             )
         }
+
+        if (state.isLoadingRegisterService) {
+            LoadingDialog(
+                title = "Registrando servicio...",
+                subtitle = "Estamos guardando la información del nuevo servicio.",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }

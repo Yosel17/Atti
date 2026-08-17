@@ -38,6 +38,8 @@ import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
 import yosel.dev.atti.screens.detail_supplier.ui.EditSupplierFormState
 import yosel.dev.atti.screens.product_form.ui.ProductFormInputsState
+import yosel.dev.atti.screens.service_form.ui.ExpenseMode
+import yosel.dev.atti.screens.service_form.ui.ServiceFormInputsState
 import java.text.Normalizer
 
 fun ClientDto.toEntity() = ClientEntity(
@@ -357,6 +359,17 @@ fun ServiceDto.toEntity() = ServiceEntity(
     status = status
 )
 
+fun ServiceDto.toModel() = ServiceModel(
+    id = id.orEmpty(),
+    categoryId = categoryId ?: 0,
+    name = name,
+    description = description.orEmpty(),
+    salePrice = salePrice,
+    estimatedCost = estimatedCost ?: 0.00,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
 fun SupplierDto.toEntity() = SupplierEntity(
     id = id.orEmpty(),
     name = name,
@@ -627,6 +640,32 @@ fun ProductFormInputsState.toUpdateModel(
     createdAt = createdAt,
     status = status
 )
+
+fun ServiceFormInputsState.toInsertModel(): ServiceModel {
+    val calculatedEstimatedCost = when (expenseMode) {
+        ExpenseMode.MANUAL -> estimatedCost.parseToDouble()
+        ExpenseMode.LINK_PRODUCTS -> selectedProducts.sumOf { it.product.purchasePrice * it.quantity }
+    }
+    return ServiceModel(
+        categoryId = selectedCategory?.id ?: 0,
+        name = name.trim(),
+        salePrice = salePrice.parseToDouble(),
+        estimatedCost = calculatedEstimatedCost,
+        status = Constants.ACTIVE_STATUS
+    )
+}
+
+fun ServiceFormInputsState.toServiceSupplyModels(serviceId: String): List<ServiceSupplyModel> {
+    if (expenseMode != ExpenseMode.LINK_PRODUCTS) return emptyList()
+    return selectedProducts.map { supply ->
+        ServiceSupplyModel(
+            serviceId = serviceId,
+            productId = supply.product.id,
+            quantityRequired = supply.quantity,
+            status = Constants.ACTIVE_STATUS
+        )
+    }
+}
 
 fun String.normalize(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)

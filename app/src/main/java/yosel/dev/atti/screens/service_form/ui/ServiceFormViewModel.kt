@@ -17,6 +17,8 @@ import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
+import yosel.dev.atti.core.utils.toInsertModel
+import yosel.dev.atti.core.utils.toServiceSupplyModels
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
 import kotlin.collections.filter
 
@@ -109,9 +111,59 @@ class ServiceFormViewModel @AssistedInject constructor(
             is ServiceFormAction.OnIncrementProductQuantity -> incrementProductQuantity(action.productId)
             is ServiceFormAction.OnDecrementProductQuantity -> decrementProductQuantity(action.productId)
             is ServiceFormAction.OnRemoveProductSupply -> removeProductSupply(action.productId)
-            ServiceFormAction.OnSaveService -> {
-                // Validación lista para futura inserción
-            }
+            ServiceFormAction.OnSaveService -> saveService()
+        }
+    }
+
+    private fun saveService() {
+        val currentState = _state.value
+        if (!currentState.formInputState.isValid) return
+        if (currentState.isEditMode) {
+            // Lógica de edición
+        } else {
+            registerService()
+        }
+    }
+
+    private fun registerService() {
+        val currentState = _state.value
+        _state.update { it.copy(isLoadingRegisterService = true) }
+        viewModelScope.launch {
+            val serviceModel = currentState.formInputState.toInsertModel()
+            repository.insertService(service = serviceModel).fold(
+                onSuccess = { insertedService ->
+                    if (currentState.formInputState.expenseMode == ExpenseMode.LINK_PRODUCTS && currentState.formInputState.selectedProducts.isNotEmpty()) {
+                        val supplies = currentState.formInputState.toServiceSupplyModels(serviceId = insertedService.id)
+                        repository.insertServiceSupplies(supplies = supplies).fold(
+                            onSuccess = {
+                                _state.update {
+                                    it.copy(
+                                        formInputState = ServiceFormInputsState(),
+                                        isLoadingRegisterService = false
+                                    )
+                                }
+                                _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio registrado correctamente."))
+                            },
+                            onFailure = {
+                                _state.update { it.copy(isLoadingRegisterService = false) }
+                                _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("Servicio guardado, pero ocurrió un error al vincular los productos."))
+                            }
+                        )
+                    } else {
+                        _state.update {
+                            it.copy(
+                                formInputState = ServiceFormInputsState(),
+                                isLoadingRegisterService = false
+                            )
+                        }
+                        _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio registrado correctamente."))
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingRegisterService = false) }
+                    _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("No pudimos registrar el servicio. Inténtalo de nuevo."))
+                }
+            )
         }
     }
 
@@ -125,7 +177,6 @@ class ServiceFormViewModel @AssistedInject constructor(
                     val categories = appCatalogs
                         .filter { it.catalogTypeId == Constants.SERVICE_CATEGORY_TYPE_CATALOG }
                         .sortedBy { it.name.lowercase() }
-
                     _state.update { currentState ->
                         currentState.copy(
                             categories = categories,
@@ -148,7 +199,6 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun handleOpenProductSheet() {
         val currentState = _state.value
         val currentSelectedIds = currentState.formInputState.selectedProducts.map { it.product.id }.toSet()
-
         if (currentState.productsWithDetails.isEmpty()) {
             _state.update { it.copy(isLoadingProducts = true) }
             viewModelScope.launch {
@@ -248,13 +298,11 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun confirmProductSelection() {
         val currentState = _state.value
         val existingSuppliesMap = currentState.formInputState.selectedProducts.associateBy { it.product.id }
-
         val newSelectedProducts = currentState.productsWithDetails
             .filter { currentState.tempSelectedProductIds.contains(it.product.id) }
             .map { productWithDetails ->
                 existingSuppliesMap[productWithDetails.product.id] ?: SelectedProductSupply(product = productWithDetails.product, quantity = 1.0)
             }
-
         _state.update {
             it.copy(
                 isProductSheetOpen = false,
@@ -332,7 +380,6 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun onSaveAppCatalog(name: String) {
         val currentState = _state.value
         _state.update { it.copy(isLoadingAddCatalog = true) }
-
         viewModelScope.launch {
             val newCatalog = AppCatalogModel(
                 id = 0,
@@ -342,7 +389,6 @@ class ServiceFormViewModel @AssistedInject constructor(
                 isActive = true,
                 createdAt = ""
             )
-
             repository.insertCatalog(catalog = newCatalog)
                 .fold(
                     onSuccess = { insertedCatalog ->

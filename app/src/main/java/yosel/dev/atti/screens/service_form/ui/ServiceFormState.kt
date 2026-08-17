@@ -28,5 +28,6 @@ data class ServiceFormState(
     val filteredProductsWithDetails: List<ProductWithDetailsModel> = emptyList(),
     val isProductSheetOpen: Boolean = false,
     val productSearchQuery: String = "",
-    val tempSelectedProductIds: Set<String> = emptySet()
+    val tempSelectedProductIds: Set<String> = emptySet(),
+    val isLoadingRegisterService: Boolean = false
 )
