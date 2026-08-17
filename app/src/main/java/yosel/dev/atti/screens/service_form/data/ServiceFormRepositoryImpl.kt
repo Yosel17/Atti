@@ -28,7 +28,6 @@ class ServiceFormRepositoryImpl @Inject constructor(
     private val productsDataSource: ProductsDataSource,
     private val productDao: ProductDao
 ): ServiceFormRepository {
-
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
         val remoteAppCatalogs = appCatalogsDataSource.getCatalogsByTypes(types = types)
         val entities = remoteAppCatalogs.map { it.toEntity() }
@@ -36,15 +35,16 @@ class ServiceFormRepositoryImpl @Inject constructor(
         remoteAppCatalogs.map { it.toModel() }
     }
 
-    override suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel> =runCatching {
+    override suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel> = runCatching {
         val appCatalogDto = appCatalogsDataSource.insertAndGetCatalog(catalog = catalog.toDtoForInsert())
         appCatalogDao.insertCatalog(catalog = appCatalogDto.toEntity())
         appCatalogDto.toModel()
     }
 
-    override suspend fun insertService(service: ServiceModel): Result<Unit> = runCatching {
+    override suspend fun insertService(service: ServiceModel): Result<ServiceModel> = runCatching {
         val serviceDto = servicesDataSource.insertServiceAndReturn(service = service.toDtoForInsert())
         serviceDao.upsertService(service = serviceDto.toEntity())
+        serviceDto.toModel()
     }
 
     override suspend fun insertServiceSupplies(supplies: List<ServiceSupplyModel>): Result<Unit> = runCatching {
@@ -63,10 +63,8 @@ class ServiceFormRepositoryImpl @Inject constructor(
             )
         }.distinctBy { it.id }
         val productEntities = productsWithDetailsDto.map { it.toEntity() }
-
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
         productDao.upsertProducts(products = productEntities)
-
         productDao.getActiveProductsWithDetails().map { it.toModel() }
     }
 }

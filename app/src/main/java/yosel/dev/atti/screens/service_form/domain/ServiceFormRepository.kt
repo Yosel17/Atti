@@ -8,12 +8,8 @@ import yosel.dev.atti.core.models.model.ServiceSupplyModel
 interface ServiceFormRepository {
 
     suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>>
-
     suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel>
-
-    suspend fun insertService(service: ServiceModel): Result<Unit>
-
+    suspend fun insertService(service: ServiceModel): Result<ServiceModel>
     suspend fun insertServiceSupplies(supplies: List<ServiceSupplyModel>): Result<Unit>
-
     suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>>
 }
