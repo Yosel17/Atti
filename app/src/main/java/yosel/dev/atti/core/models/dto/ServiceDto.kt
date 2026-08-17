@@ -15,5 +15,6 @@ data class ServiceDto(
     @SerialName("status") val status: Int,
 
     // Relaciones mapeadas desde Supabase (Opcionales)
-    @SerialName("category") val category: AppCatalogDto? = null
+    @SerialName("category") val category: AppCatalogDto? = null,
+    @SerialName("supplies") val supplies: List<ServiceSupplyDto> = emptyList()
 )

@@ -4,13 +4,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import yosel.dev.atti.core.models.dto.SupplierDto
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
+import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.supabase.ProductsDataSource
 import yosel.dev.atti.core.supabase.ServicesDataSource
@@ -27,7 +27,8 @@ class InventoryRepositoryImpl @Inject constructor(
     private val productsDataSource: ProductsDataSource,
     private val servicesDataSource: ServicesDataSource,
     private val suppliersDataSource: SuppliersDataSource,
-    private val appCatalogDao: AppCatalogDao
+    private val appCatalogDao: AppCatalogDao,
+    private val serviceSupplyDao: ServiceSupplyDao
 ) : InventoryRepository {
 
     override fun getAllProducts(): Flow<List<ProductWithDetailsModel>> =
@@ -65,11 +66,55 @@ class InventoryRepositoryImpl @Inject constructor(
 
     override suspend fun syncServices(): Result<Unit> = runCatching {
         val remoteServices = servicesDataSource.getAllServicesWithDetails()
-        val appCatalogsEntities = remoteServices.mapNotNull { it.category?.toEntity() }
+
+        // 1. Extraer Catálogos (de servicios y de productos anidados)
+        val serviceCatalogEntities = remoteServices.mapNotNull { it.category?.toEntity() }
+
+        val productCatalogEntities = remoteServices.flatMap { service ->
+            service.supplies.flatMap { supply ->
+                listOfNotNull(
+                    supply.product?.category?.toEntity(),
+                    supply.product?.unitType?.toEntity()
+                )
+            }
+        }
+        val allCatalogs = (serviceCatalogEntities + productCatalogEntities).distinctBy { it.id }
+
+        // 2. Extraer Proveedores de los productos (si manejas tabla/DAO de suppliers)
+        val supplierEntities = remoteServices.flatMap { service ->
+            service.supplies.mapNotNull { it.product?.supplier?.toEntity() }
+        }.distinctBy { it.id }
+
+        // 3. Extraer Productos
+        val productEntities = remoteServices.flatMap { service ->
+            service.supplies.mapNotNull { it.product?.toEntity() }
+        }.distinctBy { it.id }
+
+        // 4. Extraer Servicios
         val serviceEntities = remoteServices.map { it.toEntity() }
 
-        appCatalogDao.insertAllCatalogs(appCatalogsEntities)
+        // 5. Extraer Insumos (ServiceSupplies)
+        val serviceSupplyEntities = remoteServices.flatMap { service ->
+            service.supplies.map { it.toEntity() }
+        }.distinctBy { it.id }
+
+        if (allCatalogs.isNotEmpty()) {
+            appCatalogDao.insertAllCatalogs(allCatalogs)
+        }
+
+        if (supplierEntities.isNotEmpty()) {
+            supplierDao.upsertSuppliers(supplierEntities)
+        }
+
+        if (productEntities.isNotEmpty()) {
+            productDao.upsertProducts(productEntities)
+        }
+
         serviceDao.upsertServices(serviceEntities)
+
+        if (serviceSupplyEntities.isNotEmpty()) {
+            serviceSupplyDao.upsertSupplies(serviceSupplyEntities)
+        }
     }
 
     override fun getAllSuppliers(): Flow<List<SupplierModel>> =

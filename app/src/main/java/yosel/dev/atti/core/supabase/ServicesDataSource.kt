@@ -11,13 +11,22 @@ class ServicesDataSource @Inject constructor(
     private val postgrest: Postgrest
 ) {
 
-    suspend fun getAllServicesWithDetails(): List<ServiceDto>{
+    suspend fun getAllServicesWithDetails(): List<ServiceDto> {
         return postgrest.from(Constants.SERVICES_SUPABASE)
             .select(
                 columns = Columns.raw(
                     value = """
-                *,
-                category:app_catalogs!category_id(*)
+                    *,
+                    category:app_catalogs!category_id(*),
+                    supplies:service_supplies(
+                        *,
+                        product:products(
+                            *,
+                            supplier:suppliers(*),
+                            category:app_catalogs!category_id(*),
+                            unit_type:app_catalogs!unit_type_id(*)
+                        )
+                    )
                 """.trimIndent()
                 )
             ) {

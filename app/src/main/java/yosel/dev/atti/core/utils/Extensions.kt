@@ -538,7 +538,8 @@ fun ProductWithDetailsEntity.toModel() = ProductWithDetailsModel(
 
 fun ServiceWithDetailsEntity.toModel() = ServiceWithDetailsModel(
     service = service.toModel(),
-    category = category?.toModel() ?: AppCatalogModel()
+    category = category?.toModel() ?: AppCatalogModel(),
+    supplies = supplies.map { it.toModel() }
 )
 
 // --- SERVICE SUPPLIES ---
