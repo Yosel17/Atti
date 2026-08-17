@@ -81,8 +81,8 @@ import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.navigation.main.Screens
@@ -90,6 +90,7 @@ import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.CustomColors
 import yosel.dev.atti.ui.theme.customColors
+import java.text.NumberFormat
 import java.util.Locale
 
 private data class InventoryTabData(
@@ -645,7 +646,11 @@ fun ServiceList(
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(services, key = { it.service.id }) { serviceWithDetails ->
-            ServiceItem(serviceWithDetails = serviceWithDetails)
+            ServiceItemCard(
+                modifier = Modifier.animateItem(),
+                item = serviceWithDetails,
+                onClick = {}
+            )
         }
         item {
             Spacer(modifier = Modifier.height(80.dp))
@@ -654,30 +659,134 @@ fun ServiceList(
 }
 
 @Composable
-fun ServiceItem(
-    serviceWithDetails: ServiceWithDetailsModel,
-    modifier: Modifier = Modifier
+fun ServiceItemCard(
+    item: ServiceWithDetailsModel,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
+    // Formateador de moneda para Quetzales (Q) optimizado con remember
+    val currencyFormatter = remember {
+        val guatemalaLocale = Locale.forLanguageTag("es-GT")
+        NumberFormat.getCurrencyInstance(guatemalaLocale).apply {
+            minimumFractionDigits = 2
+            maximumFractionDigits = 2
+        }
+    }
+
+    val formattedSalePrice = remember(item.service.salePrice) {
+        currencyFormatter.format(item.service.salePrice)
+    }
+
+    val formattedEstimatedCost = remember(item.service.estimatedCost) {
+        currencyFormatter.format(item.service.estimatedCost)
+    }
+
     Card(
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        modifier = modifier.fillMaxWidth()
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        onClick = { onClick?.invoke() },
+        enabled = onClick != null
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            // Título: Nombre del servicio
             Text(
-                text = serviceWithDetails.service.name.ifBlank { "Sin nombre de servicio" },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                text = item.service.name,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Subtítulo: Categoría
+            Text(
+                text = "Categoría: ${item.category.name}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            if (item.service.status == Constants.DELETED_STATUS){
+                Spacer(modifier = Modifier.height(4.dp))
+                StatusChipShort(
+                    modifier = Modifier.align(Alignment.End),
+                    status = item.service.status
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Línea divisoria
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Sección inferior: Precios y Costos
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Precio de venta
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Precio de venta",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = formattedSalePrice,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // Gastos de insumos
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "Gastos de insumos",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = formattedEstimatedCost,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        // Usa el color de error de Material 3 para resaltar el costo en tono rojizo
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
         }
     }
 }
@@ -1084,18 +1193,17 @@ fun EmptySuppliersState(
 private fun ItemSupplierPreview() {
     AttiTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)) {
-            ProductCard(
-                productDetails = ProductWithDetailsModel(
-                    product = ProductModel(
-                        id = "asdfasdfadsfa",
-                        commercialName = "Comida para perros",
-                        brand = "Dog Chow",
-                        stock = 0,
-                        minStock = 10,
-                        salePrice = 38.00
+            ServiceItemCard(
+                modifier = Modifier.padding(16.dp),
+                item = ServiceWithDetailsModel(
+                    service = ServiceModel(
+                        name = "Consulta General",
+                        salePrice = 35.00,
+                        estimatedCost = 8.50,
+                        status = 3
                     ),
-                    unitType = AppCatalogModel(
-                        name = "Gramos"
+                    category = AppCatalogModel(
+                        name = "Medicina"
                     )
                 ),
                 onClick = {}
