@@ -106,6 +106,7 @@ import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.ProductModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import kotlin.math.roundToInt
 
@@ -702,11 +703,11 @@ fun SelectProductBottomSheet(
     onDismiss: () -> Unit,
     search: String,
     onSearchChange: (String) -> Unit,
-    filteredProducts: List<ProductModel>,
+    filteredProductsWithDetails: List<ProductWithDetailsModel>,
     tempSelectedProductIds: Set<String>,
     onToggleSelectProduct: (ProductModel) -> Unit,
     onConfirmSelection: () -> Unit,
-    productsEmpty: Boolean
+    productsWithDetailsEmpty: Boolean
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -770,13 +771,13 @@ fun SelectProductBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
             when {
-                productsEmpty -> {
+                productsWithDetailsEmpty -> {
                     EmptyGlobal(
                         title = "Aún no hay productos",
                         subTitle = "Registra tus primeros productos en el inventario para vincularlos a este servicio."
                     )
                 }
-                filteredProducts.isEmpty() -> {
+                filteredProductsWithDetails.isEmpty() -> {
                     NoSearchResultsState(
                         query = search,
                         onClearSearch = { onSearchChange("") },
@@ -792,12 +793,12 @@ fun SelectProductBottomSheet(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
-                        items(filteredProducts, key = { it.id }) { product ->
-                            val isSelected = tempSelectedProductIds.contains(product.id)
+                        items(filteredProductsWithDetails, key = { it.product.id }) { productWithDetails ->
+                            val isSelected = tempSelectedProductIds.contains(productWithDetails.product.id)
                             ProductMultiSelectionCard(
-                                product = product,
+                                productWithDetails = productWithDetails,
                                 isSelected = isSelected,
-                                onToggle = { onToggleSelectProduct(product) }
+                                onToggle = { onToggleSelectProduct(productWithDetails.product) }
                             )
                         }
                     }
@@ -838,7 +839,7 @@ fun SelectProductBottomSheet(
 
 @Composable
 private fun ProductMultiSelectionCard(
-    product: ProductModel,
+    productWithDetails: ProductWithDetailsModel,
     isSelected: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
@@ -874,29 +875,34 @@ private fun ProductMultiSelectionCard(
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = product.commercialName.ifBlank { "Sin nombre" },
+                    text = productWithDetails.product.commercialName.ifBlank { "Sin nombre" },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (product.brand.isNotBlank()) {
+                Text(
+                    text = productWithDetails.unitType.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (productWithDetails.product.brand.isNotBlank()) {
                     Text(
-                        text = "Marca: ${product.brand}",
+                        text = "Marca: ${productWithDetails.product.brand}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            if (product.stock > 0) {
+            if (productWithDetails.product.stock > 0) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     Text(
-                        text = "Stock: ${product.stock}",
+                        text = "Stock: ${productWithDetails.product.stock}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

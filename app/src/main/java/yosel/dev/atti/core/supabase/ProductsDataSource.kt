@@ -59,9 +59,17 @@ class ProductsDataSource @Inject constructor(
             }
     }
 
-    suspend fun getActiveProducts(): List<ProductDto> {
+    suspend fun getActiveProductsWithDetails(): List<ProductDto> {
         return postgrest.from(Constants.PRODUCTS_SUPABASE)
-            .select {
+            .select(
+                columns = Columns.raw(
+                    value = """
+                *,
+                category:app_catalogs!category_id(*),
+                unit_type:app_catalogs!unit_type_id(*)
+                """.trimIndent()
+                )
+            ) {
                 filter {
                     eq("status", 1)
                 }

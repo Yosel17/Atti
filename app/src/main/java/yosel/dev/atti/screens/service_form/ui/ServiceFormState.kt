@@ -2,6 +2,7 @@ package yosel.dev.atti.screens.service_form.ui
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
 
 data class ServiceFormState(
@@ -23,8 +24,8 @@ data class ServiceFormState(
 
     // Estado para selector de insumos/productos
     val isLoadingProducts: Boolean = false,
-    val products: List<ProductModel> = emptyList(),
-    val filteredProducts: List<ProductModel> = emptyList(),
+    val productsWithDetails: List<ProductWithDetailsModel> = emptyList(),
+    val filteredProductsWithDetails: List<ProductWithDetailsModel> = emptyList(),
     val isProductSheetOpen: Boolean = false,
     val productSearchQuery: String = "",
     val tempSelectedProductIds: Set<String> = emptySet()

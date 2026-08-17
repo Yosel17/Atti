@@ -132,7 +132,7 @@ fun ServiceFormScreen(
                 onSearchChange = {
                     onAction(ServiceFormAction.OnSearchProductQueryChange(it))
                 },
-                filteredProducts = state.filteredProducts,
+                filteredProductsWithDetails = state.filteredProductsWithDetails,
                 tempSelectedProductIds = state.tempSelectedProductIds,
                 onToggleSelectProduct = { product ->
                     onAction(ServiceFormAction.OnToggleSelectProduct(product))
@@ -140,7 +140,7 @@ fun ServiceFormScreen(
                 onConfirmSelection = {
                     onAction(ServiceFormAction.OnConfirmProductSelection)
                 },
-                productsEmpty = state.products.isEmpty()
+                productsWithDetailsEmpty = state.productsWithDetails.isEmpty()
             )
         }
 

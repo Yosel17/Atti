@@ -146,17 +146,17 @@ class ServiceFormViewModel @AssistedInject constructor(
         val currentState = _state.value
         val currentSelectedIds = currentState.formInputState.selectedProducts.map { it.product.id }.toSet()
 
-        if (currentState.products.isEmpty()) {
+        if (currentState.productsWithDetails.isEmpty()) {
             _state.update { it.copy(isLoadingProducts = true) }
             viewModelScope.launch {
                 repository.getActiveProductsWithDetails().fold(
                     onSuccess = { productsList ->
-                        val sortedProducts = productsList.sortedBy { it.commercialName.lowercase() }
+                        val sortedProducts = productsList.sortedBy { it.product.commercialName.lowercase() }
                         _state.update { state ->
                             state.copy(
                                 isLoadingProducts = false,
-                                products = sortedProducts,
-                                filteredProducts = sortedProducts,
+                                productsWithDetails = sortedProducts,
+                                filteredProductsWithDetails = sortedProducts,
                                 productSearchQuery = "",
                                 tempSelectedProductIds = currentSelectedIds,
                                 isProductSheetOpen = true
@@ -175,7 +175,7 @@ class ServiceFormViewModel @AssistedInject constructor(
             _state.update {
                 it.copy(
                     productSearchQuery = "",
-                    filteredProducts = it.products,
+                    filteredProductsWithDetails = it.productsWithDetails,
                     tempSelectedProductIds = currentSelectedIds,
                     isProductSheetOpen = true
                 )
@@ -187,14 +187,14 @@ class ServiceFormViewModel @AssistedInject constructor(
         val normalizedQuery = query.normalize()
         _state.update { currentState ->
             val filtered = if (normalizedQuery.isBlank()) {
-                currentState.products
+                currentState.productsWithDetails
             } else {
-                currentState.products.filter { product ->
-                    product.commercialName.normalize().contains(normalizedQuery) ||
-                            product.brand.normalize().contains(normalizedQuery)
+                currentState.productsWithDetails.filter { productWithDetails ->
+                    productWithDetails.product.commercialName.normalize().contains(normalizedQuery) ||
+                            productWithDetails.product.brand.normalize().contains(normalizedQuery)
                 }
             }
-            currentState.copy(filteredProducts = filtered)
+            currentState.copy(filteredProductsWithDetails = filtered)
         }
     }
 
@@ -213,10 +213,10 @@ class ServiceFormViewModel @AssistedInject constructor(
         val currentState = _state.value
         val existingSuppliesMap = currentState.formInputState.selectedProducts.associateBy { it.product.id }
 
-        val newSelectedProducts = currentState.products
-            .filter { currentState.tempSelectedProductIds.contains(it.id) }
-            .map { product ->
-                existingSuppliesMap[product.id] ?: SelectedProductSupply(product = product, quantity = 1.0)
+        val newSelectedProducts = currentState.productsWithDetails
+            .filter { currentState.tempSelectedProductIds.contains(it.product.id) }
+            .map { productWithDetails ->
+                existingSuppliesMap[productWithDetails.product.id] ?: SelectedProductSupply(product = productWithDetails.product, quantity = 1.0)
             }
 
         _state.update {

@@ -45,4 +45,8 @@ interface ProductDao {
     @Transaction
     @Query("SELECT * FROM products WHERE id = :productId")
     fun getProductWithDetailsByIdFlow(productId: String): Flow<ProductWithDetailsEntity?>
+
+    @Transaction
+    @Query("SELECT * FROM products WHERE status = 1")
+    fun getActiveProductsWithDetails(): List<ProductWithDetailsEntity>
 }
