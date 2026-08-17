@@ -274,6 +274,12 @@ fun BodyInventory(
                                         onFilterClick = {}
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    CountBadge(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        count = state.filteredServices.size,
+                                        title = "Total de productos"
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     AnimatedContent(
                                         targetState = state.filteredServices.isEmpty(),
                                         label = "ServiceSearchAnimation"
