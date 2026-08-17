@@ -34,4 +34,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class ServiceForm(val serviceId: String? = null): Screens
+
+    @Serializable
+    data class DetailService(val serviceId: String): Screens
 }

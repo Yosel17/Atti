@@ -38,6 +38,9 @@ import yosel.dev.atti.screens.detail_patient.ui.DetailPatientViewModel
 import yosel.dev.atti.screens.detail_product.ui.DetailProductEvent
 import yosel.dev.atti.screens.detail_product.ui.DetailProductScreen
 import yosel.dev.atti.screens.detail_product.ui.DetailProductViewModel
+import yosel.dev.atti.screens.detail_service.ui.DetailServiceEvent
+import yosel.dev.atti.screens.detail_service.ui.DetailServiceScreen
+import yosel.dev.atti.screens.detail_service.ui.DetailServiceViewModel
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
@@ -543,6 +546,56 @@ fun EntryProviderScope<NavKey>.serviceFormEntry(
             }
         }
         ServiceFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailServiceEntry(
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<Screens.DetailService> { detailServiceKey ->
+        val viewModel: DetailServiceViewModel = hiltViewModel(
+            creationCallback = { factory: DetailServiceViewModel.Factory ->
+                factory.create(serviceId = detailServiceKey.serviceId)
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is DetailServiceEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is DetailServiceEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is DetailServiceEvent.OnNavigationMain -> {
+                    onNavigationMain(event.screen)
+                }
+            }
+        }
+
+        DetailServiceScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

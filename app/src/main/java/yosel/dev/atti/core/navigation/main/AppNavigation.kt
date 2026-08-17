@@ -81,6 +81,15 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+
+            detailServiceEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screens ->
+                    backStack.add(screens)
+                }
+            )
         }
     )
 }
