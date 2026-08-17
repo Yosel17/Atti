@@ -43,4 +43,17 @@ class ServicesDataSource @Inject constructor(
             }
             .decodeSingle<ServiceDto>()
     }
+
+    suspend fun updateServiceStatus(serviceId: String, newStatus: Int){
+        postgrest.from(Constants.SERVICES_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                }
+            ) {
+                filter {
+                    eq("id", serviceId)
+                }
+            }
+    }
 }
