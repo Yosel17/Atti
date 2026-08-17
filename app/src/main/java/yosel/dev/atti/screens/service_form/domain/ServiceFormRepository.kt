@@ -1,7 +1,6 @@
 package yosel.dev.atti.screens.service_form.domain
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
@@ -16,5 +15,5 @@ interface ServiceFormRepository {
 
     suspend fun insertServiceSupplies(supplies: List<ServiceSupplyModel>): Result<Unit>
 
-    suspend fun getActiveProductsWithDetails(): Result<List<ProductModel>>
+    suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>>
 }

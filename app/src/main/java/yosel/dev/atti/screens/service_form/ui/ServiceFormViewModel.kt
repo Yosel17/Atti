@@ -13,9 +13,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ProductModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
+import kotlin.collections.filter
 
 @HiltViewModel(assistedFactory = ServiceFormViewModel.Factory::class)
 class ServiceFormViewModel @AssistedInject constructor(
@@ -86,6 +89,29 @@ class ServiceFormViewModel @AssistedInject constructor(
                 }
             }
             is ServiceFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
+            is ServiceFormAction.OnChangeExpenseMode -> {
+                _state.update {
+                    it.copy(
+                        formInputState = it.formInputState.copy(expenseMode = action.mode)
+                    )
+                }
+            }
+            ServiceFormAction.OnOpenProductSheet -> handleOpenProductSheet()
+            ServiceFormAction.OnDismissProductSheet -> {
+                _state.update { it.copy(isProductSheetOpen = false) }
+            }
+            is ServiceFormAction.OnSearchProductQueryChange -> {
+                _state.update { it.copy(productSearchQuery = action.query) }
+                filterProducts(query = action.query)
+            }
+            is ServiceFormAction.OnToggleSelectProduct -> toggleSelectProduct(action.product)
+            ServiceFormAction.OnConfirmProductSelection -> confirmProductSelection()
+            is ServiceFormAction.OnIncrementProductQuantity -> incrementProductQuantity(action.productId)
+            is ServiceFormAction.OnDecrementProductQuantity -> decrementProductQuantity(action.productId)
+            is ServiceFormAction.OnRemoveProductSupply -> removeProductSupply(action.productId)
+            ServiceFormAction.OnSaveService -> {
+                // Validación lista para futura inserción
+            }
         }
     }
 
@@ -119,6 +145,159 @@ class ServiceFormViewModel @AssistedInject constructor(
         }
     }
 
+    private fun handleOpenProductSheet() {
+        val currentState = _state.value
+        val currentSelectedIds = currentState.formInputState.selectedProducts.map { it.product.id }.toSet()
+
+        if (currentState.productsWithDetails.isEmpty()) {
+            _state.update { it.copy(isLoadingProducts = true) }
+            viewModelScope.launch {
+                repository.getActiveProductsWithDetails().fold(
+                    onSuccess = { productsList ->
+                        val sortedProducts = getFilteredAndSortedProducts(
+                            products = productsList,
+                            query = "",
+                            selectedIds = currentSelectedIds
+                        )
+                        _state.update { state ->
+                            state.copy(
+                                isLoadingProducts = false,
+                                productsWithDetails = productsList,
+                                filteredProductsWithDetails = sortedProducts,
+                                productSearchQuery = "",
+                                tempSelectedProductIds = currentSelectedIds,
+                                isProductSheetOpen = true
+                            )
+                        }
+                    },
+                    onFailure = {
+                        _state.update { it.copy(isLoadingProducts = false) }
+                        _eventChannel.send(
+                            ServiceFormEvent.ShowErrorSnackbar("Hubo un error al cargar los productos. Inténtalo de nuevo.")
+                        )
+                    }
+                )
+            }
+        } else {
+            val sortedProducts = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = "",
+                selectedIds = currentSelectedIds
+            )
+            _state.update {
+                it.copy(
+                    productSearchQuery = "",
+                    filteredProductsWithDetails = sortedProducts,
+                    tempSelectedProductIds = currentSelectedIds,
+                    isProductSheetOpen = true
+                )
+            }
+        }
+    }
+
+    private fun filterProducts(query: String) {
+        _state.update { currentState ->
+            val filtered = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = query,
+                selectedIds = currentState.tempSelectedProductIds
+            )
+            currentState.copy(filteredProductsWithDetails = filtered)
+        }
+    }
+
+    private fun toggleSelectProduct(product: ProductModel) {
+        _state.update { currentState ->
+            val newSelection = if (currentState.tempSelectedProductIds.contains(product.id)) {
+                currentState.tempSelectedProductIds - product.id
+            } else {
+                currentState.tempSelectedProductIds + product.id
+            }
+            val filtered = getFilteredAndSortedProducts(
+                products = currentState.productsWithDetails,
+                query = currentState.productSearchQuery,
+                selectedIds = newSelection
+            )
+            currentState.copy(
+                tempSelectedProductIds = newSelection,
+                filteredProductsWithDetails = filtered
+            )
+        }
+    }
+
+    private fun getFilteredAndSortedProducts(
+        products: List<ProductWithDetailsModel>,
+        query: String,
+        selectedIds: Set<String>
+    ): List<ProductWithDetailsModel> {
+        val normalizedQuery = query.normalize()
+        val filtered = if (normalizedQuery.isBlank()) {
+            products
+        } else {
+            products.filter { productWithDetails ->
+                productWithDetails.product.commercialName.normalize().contains(normalizedQuery) ||
+                        productWithDetails.product.brand.normalize().contains(normalizedQuery)
+            }
+        }
+        return filtered.sortedWith(
+            compareByDescending<ProductWithDetailsModel> { selectedIds.contains(it.product.id) }
+                .thenBy { it.product.commercialName.lowercase() }
+        )
+    }
+
+    private fun confirmProductSelection() {
+        val currentState = _state.value
+        val existingSuppliesMap = currentState.formInputState.selectedProducts.associateBy { it.product.id }
+
+        val newSelectedProducts = currentState.productsWithDetails
+            .filter { currentState.tempSelectedProductIds.contains(it.product.id) }
+            .map { productWithDetails ->
+                existingSuppliesMap[productWithDetails.product.id] ?: SelectedProductSupply(product = productWithDetails.product, quantity = 1.0)
+            }
+
+        _state.update {
+            it.copy(
+                isProductSheetOpen = false,
+                formInputState = it.formInputState.copy(selectedProducts = newSelectedProducts)
+            )
+        }
+    }
+
+    private fun incrementProductQuantity(productId: String) {
+        _state.update { currentState ->
+            val updated = currentState.formInputState.selectedProducts.map { item ->
+                if (item.product.id == productId) {
+                    item.copy(quantity = item.quantity + 1.0)
+                } else item
+            }
+            currentState.copy(
+                formInputState = currentState.formInputState.copy(selectedProducts = updated)
+            )
+        }
+    }
+
+    private fun decrementProductQuantity(productId: String) {
+        _state.update { currentState ->
+            val updated = currentState.formInputState.selectedProducts.map { item ->
+                if (item.product.id == productId && item.quantity > 1.0) {
+                    item.copy(quantity = item.quantity - 1.0)
+                } else item
+            }
+            currentState.copy(
+                formInputState = currentState.formInputState.copy(selectedProducts = updated)
+            )
+        }
+    }
+
+    private fun removeProductSupply(productId: String) {
+        _state.update { currentState ->
+            val updated = currentState.formInputState.selectedProducts.filterNot { it.product.id == productId }
+            currentState.copy(
+                formInputState = currentState.formInputState.copy(selectedProducts = updated)
+            )
+        }
+    }
+
     private fun changeValueFormInputState(value: String, field: Int) {
         _state.update {
             it.copy(
@@ -128,6 +307,7 @@ class ServiceFormViewModel @AssistedInject constructor(
                     when (field) {
                         Constants.SERVICE_NAME_FIELD -> form.copy(name = value)
                         Constants.SERVICE_SALE_PRICE_FIELD -> form.copy(salePrice = value)
+                        Constants.SERVICE_ESTIMATED_COST_FIELD -> form.copy(estimatedCost = value)
                         else -> form
                     }
                 }
@@ -152,6 +332,7 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun onSaveAppCatalog(name: String) {
         val currentState = _state.value
         _state.update { it.copy(isLoadingAddCatalog = true) }
+
         viewModelScope.launch {
             val newCatalog = AppCatalogModel(
                 id = 0,
@@ -161,6 +342,7 @@ class ServiceFormViewModel @AssistedInject constructor(
                 isActive = true,
                 createdAt = ""
             )
+
             repository.insertCatalog(catalog = newCatalog)
                 .fold(
                     onSuccess = { insertedCatalog ->

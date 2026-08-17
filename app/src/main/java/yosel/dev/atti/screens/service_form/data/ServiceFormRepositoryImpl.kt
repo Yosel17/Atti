@@ -1,7 +1,6 @@
 package yosel.dev.atti.screens.service_form.data
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
@@ -55,10 +54,19 @@ class ServiceFormRepositoryImpl @Inject constructor(
         serviceSuppliesDao.upsertSupplies(supplies = serviceSuppliesEntities)
     }
 
-    override suspend fun getActiveProductsWithDetails(): Result<List<ProductModel>> = runCatching {
-        val productsDto = productsDataSource.getActiveProducts()
-        val entities = productsDto.map { it.toEntity() }
-        productDao.upsertProducts(products = entities)
-        productsDto.map { it.toModel() }
+    override suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>> = runCatching {
+        val productsWithDetailsDto = productsDataSource.getActiveProductsWithDetails()
+        val appCatalogsEntities = productsWithDetailsDto.flatMap { product ->
+            listOfNotNull(
+                product.category?.toEntity(),
+                product.unitType?.toEntity()
+            )
+        }.distinctBy { it.id }
+        val productEntities = productsWithDetailsDto.map { it.toEntity() }
+
+        appCatalogDao.insertAllCatalogs(appCatalogsEntities)
+        productDao.upsertProducts(products = productEntities)
+
+        productDao.getActiveProductsWithDetails().map { it.toModel() }
     }
 }
