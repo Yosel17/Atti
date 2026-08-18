@@ -296,7 +296,14 @@ fun BodyInventory(
                                             ServiceList(
                                                 modifier = Modifier.fillMaxSize(),
                                                 services = state.filteredServices,
-                                                listState = serviceListState
+                                                listState = serviceListState,
+                                                onClick = { serviceId ->
+                                                    onNavigationMain(
+                                                        Screens.DetailService(
+                                                            serviceId = serviceId
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
                                     }
@@ -634,7 +641,8 @@ fun ProductCard(
 fun ServiceList(
     services: List<ServiceWithDetailsModel>,
     listState: LazyListState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick:(String) -> Unit
 ) {
     var previousCount by remember { mutableIntStateOf(services.size) }
     val firstServiceId = services.firstOrNull()?.service?.id
@@ -655,7 +663,9 @@ fun ServiceList(
             ServiceItemCard(
                 modifier = Modifier.animateItem(),
                 item = serviceWithDetails,
-                onClick = {}
+                onClickItem = { serviceId ->
+                    onClick(serviceId)
+                }
             )
         }
         item {
@@ -668,7 +678,7 @@ fun ServiceList(
 fun ServiceItemCard(
     item: ServiceWithDetailsModel,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    onClickItem: (String) -> Unit
 ) {
     // Formateador de moneda para Quetzales (Q) optimizado con remember
     val currencyFormatter = remember {
@@ -696,8 +706,7 @@ fun ServiceItemCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp
         ),
-        onClick = { onClick?.invoke() },
-        enabled = onClick != null
+        onClick = { onClickItem(item.service.id) },
     ) {
         Column(
             modifier = Modifier
@@ -1212,7 +1221,7 @@ private fun ItemSupplierPreview() {
                         name = "Medicina"
                     )
                 ),
-                onClick = {}
+                onClickItem = {}
             )
         }
     }
