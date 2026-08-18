@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -129,13 +130,8 @@ private fun ServicePricesAndCostsCard(
     modifier: Modifier = Modifier
 ) {
     val salePrice = serviceWithDetails.service.salePrice
-    val estimatedCost = serviceWithDetails.service.estimatedCost
-
-    val marginPercentage = if (salePrice > 0.0) {
-        (((salePrice - estimatedCost) / salePrice) * 100).toInt().coerceAtLeast(0)
-    } else {
-        0
-    }
+    val totalCost = remember(serviceWithDetails) { serviceWithDetails.totalCost }
+    val marginPercentage = remember(serviceWithDetails) { serviceWithDetails.profitMarginPercentage }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -265,7 +261,7 @@ private fun ServicePricesAndCostsCard(
                 }
 
                 Text(
-                    text = "Q ${estimatedCost.formatPrice()}",
+                    text = "Q ${totalCost.formatPrice()}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
