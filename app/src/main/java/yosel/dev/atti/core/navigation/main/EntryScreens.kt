@@ -501,7 +501,8 @@ fun EntryProviderScope<NavKey>.detailProductEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            showEditAction = detailProductKey.showEditAction
         )
     }
 }

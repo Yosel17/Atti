@@ -37,6 +37,7 @@ fun DetailProductScreen(
     modifier: Modifier = Modifier,
     state: DetailProductState,
     snackBarHostState: SnackbarHostState,
+    showEditAction: Boolean,
     onAction: (DetailProductAction) -> Unit,
     onBack: () -> Unit
 ) {
@@ -52,46 +53,48 @@ fun DetailProductScreen(
                 title = "Detalle Producto",
                 onBack = onBack,
                 actions = {
-                    if (!state.isLoading && product.id.isNotEmpty()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(
-                                onClick = {
-                                    if (product.status == Constants.DELETED_STATUS) {
-                                        onAction(DetailProductAction.ToggleShowDialogInformation(show = true))
-                                    } else {
-                                        onAction(DetailProductAction.OnEditClick)
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Edit,
-                                    contentDescription = "Editar producto"
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            if (product.status == Constants.DELETED_STATUS) {
+                    if (showEditAction){
+                        if (!state.isLoading && product.id.isNotEmpty()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
                                     onClick = {
-                                        onAction(DetailProductAction.ToggleShowDialogConfirmRestore(show = true))
+                                        if (product.status == Constants.DELETED_STATUS) {
+                                            onAction(DetailProductAction.ToggleShowDialogInformation(show = true))
+                                        } else {
+                                            onAction(DetailProductAction.OnEditClick)
+                                        }
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Restore,
-                                        contentDescription = "Restaurar",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        imageVector = Icons.Rounded.Edit,
+                                        contentDescription = "Editar producto"
                                     )
                                 }
-                            } else {
-                                IconButton(
-                                    onClick = {
-                                        onAction(DetailProductAction.ToggleShowDialogConfirmDelete(show = true))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                if (product.status == Constants.DELETED_STATUS) {
+                                    IconButton(
+                                        onClick = {
+                                            onAction(DetailProductAction.ToggleShowDialogConfirmRestore(show = true))
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Restore,
+                                            contentDescription = "Restaurar",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
+                                } else {
+                                    IconButton(
+                                        onClick = {
+                                            onAction(DetailProductAction.ToggleShowDialogConfirmDelete(show = true))
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = "Eliminar",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
                                 }
                             }
                         }
