@@ -49,13 +49,15 @@ import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 import java.util.Locale
 
 @Composable
 fun BodyDetailService(
     modifier: Modifier = Modifier,
-    state: DetailServiceState
+    state: DetailServiceState,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val serviceWithDetails = state.serviceWithDetails
 
@@ -72,7 +74,12 @@ fun BodyDetailService(
         ServicePricesAndCostsCard(serviceWithDetails = serviceWithDetails)
 
         // 3. Sección de Insumos Vinculados
-        ServiceSuppliesSection(serviceWithDetails = serviceWithDetails)
+        ServiceSuppliesSection(
+            serviceWithDetails = serviceWithDetails,
+            onClickItem = { productId ->
+                onNavigationMain(Screens.DetailProduct(productId = productId))
+            }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -273,7 +280,8 @@ private fun ServicePricesAndCostsCard(
 @Composable
 private fun ServiceSuppliesSection(
     serviceWithDetails: ServiceWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem: (String) -> Unit
 ) {
     val supplies = serviceWithDetails.supplies
 
@@ -322,7 +330,10 @@ private fun ServiceSuppliesSection(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 supplies.forEach { supplyWithDetails ->
-                    SupplyItemCard(supplyWithDetails = supplyWithDetails)
+                    SupplyItemCard(
+                        supplyWithDetails = supplyWithDetails,
+                        onClickItem = onClickItem
+                    )
                 }
             }
         }
@@ -332,12 +343,13 @@ private fun ServiceSuppliesSection(
 @Composable
 private fun SupplyItemCard(
     supplyWithDetails: ServiceSupplyWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem:(String) -> Unit
 ) {
     val product = supplyWithDetails.product.product
     val unitTypeName = supplyWithDetails.product.unitType.name.ifBlank { "Sin unidad" }
     val quantity = supplyWithDetails.supply.quantityRequired
-    val precie = product.salePrice.formatPrice()
+    val precie = product.purchasePrice.formatPrice()
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -345,7 +357,8 @@ private fun SupplyItemCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = { onClickItem(product.id) }
     ) {
         Row(
             modifier = Modifier
@@ -521,7 +534,8 @@ private fun BodyDetailServicePreview() {
                         )
                     )
                 )
-            )
+            ),
+            onNavigationMain = {}
         )
     }
 }
