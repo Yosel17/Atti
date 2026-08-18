@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.detail_service.ui
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductModel
@@ -89,7 +91,6 @@ private fun ServiceHeaderSection(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             text = service.name.ifBlank { "Sin nombre de servicio" },
@@ -97,26 +98,17 @@ private fun ServiceHeaderSection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
+        Text(
+            text = categoryName,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatusChipShort(status = service.status)
+        Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "•",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-            )
+        StatusChip(status = service.status)
 
-            Text(
-                text = categoryName,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
     }
 }
 
@@ -495,7 +487,7 @@ private fun BodyDetailServicePreview() {
                         name = "Vacunación Anual Canina",
                         salePrice = 50.00,
                         estimatedCost = 15.00,
-                        status = 1
+                        status = 3
                     ),
                     category = AppCatalogModel(name = "Medicina Preventiva"),
                     supplies = listOf(
