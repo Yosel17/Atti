@@ -336,8 +336,8 @@ private fun SupplyItemCard(
 ) {
     val product = supplyWithDetails.product.product
     val unitTypeName = supplyWithDetails.product.unitType.name.ifBlank { "Sin unidad" }
-    val brandName = product.brand.ifBlank { "Sin marca" }
     val quantity = supplyWithDetails.supply.quantityRequired
+    val precie = product.salePrice.formatPrice()
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -365,9 +365,16 @@ private fun SupplyItemCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "$unitTypeName • $brandName",
+                    text = unitTypeName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = "Q $precie",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
 
@@ -494,21 +501,21 @@ private fun BodyDetailServicePreview() {
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 11.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Jeringa 5ml", brand = "Desechable estéril"),
-                                unitType = AppCatalogModel(name = "Unidad")
+                                product = ProductModel(commercialName = "Jeringa 5ml", brand = "Desechable estéril", salePrice = 5.00),
+                                unitType = AppCatalogModel(name = "Unidad"),
                             )
                         ),
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 1.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Vacuna Antirrábica", brand = "Nobivac"),
+                                product = ProductModel(commercialName = "Vacuna Antirrábica", brand = "Nobivac", salePrice = 5.00),
                                 unitType = AppCatalogModel(name = "Dosis 1.0 ml")
                             )
                         ),
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 2.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Algodón", brand = "Torunda esterilizada"),
+                                product = ProductModel(commercialName = "Algodón", brand = "Torunda esterilizada", salePrice = 5.00),
                                 unitType = AppCatalogModel(name = "Unidad")
                             )
                         )
