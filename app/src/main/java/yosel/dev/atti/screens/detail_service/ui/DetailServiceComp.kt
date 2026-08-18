@@ -50,6 +50,7 @@ import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.formatPrice
 import yosel.dev.atti.ui.theme.AttiTheme
 import java.util.Locale
 
@@ -487,9 +488,7 @@ private fun Double.formatQuantity(): String {
     }
 }
 
-private fun Double.formatPrice(): String {
-    return String.format(Locale.US, "%.2f", this)
-}
+
 
 @PreviewLightDark
 @Composable

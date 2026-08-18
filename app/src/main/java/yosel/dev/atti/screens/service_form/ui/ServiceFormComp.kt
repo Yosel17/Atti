@@ -105,6 +105,7 @@ import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.formatPrice
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -926,13 +927,14 @@ private fun ProductMultiSelectionCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (productWithDetails.product.brand.isNotBlank()) {
-                    Text(
-                        text = "Marca: ${productWithDetails.product.brand}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Q ${productWithDetails.product.purchasePrice.formatPrice()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.ExtraBold
+                )
+
             }
 
             if (productWithDetails.product.stock > 0) {
