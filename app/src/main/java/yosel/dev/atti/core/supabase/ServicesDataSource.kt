@@ -3,7 +3,9 @@ package yosel.dev.atti.core.supabase
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.rpc
 import yosel.dev.atti.core.models.dto.ServiceDto
+import yosel.dev.atti.core.models.request.CreateServiceRequest
 import yosel.dev.atti.core.utils.Constants
 import javax.inject.Inject
 
@@ -55,5 +57,13 @@ class ServicesDataSource @Inject constructor(
                     eq("id", serviceId)
                 }
             }
+    }
+
+    suspend fun insertServiceWithSupplies(request: CreateServiceRequest): ServiceDto {
+        // Esto ejecuta la función en PostgreSQL que acabamos de crear
+        return postgrest.rpc(
+            function = "create_service_with_supplies",
+            parameters = request
+        ).decodeAs<ServiceDto>()
     }
 }
