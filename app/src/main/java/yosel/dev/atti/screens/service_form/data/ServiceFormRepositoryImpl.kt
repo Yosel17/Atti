@@ -44,22 +44,23 @@ class ServiceFormRepositoryImpl @Inject constructor(
         appCatalogDto.toModel()
     }
 
-    override suspend fun insertServiceWithSupplies(service: ServiceModel, supplies: List<ServiceSupplyModel>): Result<ServiceModel> = runCatching {
-
-        // 1. Remoto: Petición a Supabase (Transaccional vía RPC)
+    override suspend fun insertServiceWithSupplies(
+        service: ServiceModel,
+        supplies: List<ServiceSupplyModel>
+    ): Result<ServiceModel> = runCatching {
         val request = CreateServiceRequest(
             service_data = service.toDtoForInsert(),
             supplies_data = supplies.map { it.toDtoForInsert() }
         )
+
+        // 1. Supabase realiza la transacción atómica
         val responseServiceDto = servicesDataSource.insertServiceWithSupplies(request)
+
         val savedServiceEntity = responseServiceDto.toEntity()
+        // Obtenemos los insumos con los IDs reales creados por Postgres
+        val suppliesEntities = responseServiceDto.supplies.map { it.toEntity() }
 
-        // Asignamos el ID del servicio recién creado a los insumos
-        val suppliesEntities = supplies.map {
-            it.toEntity().copy(serviceId = savedServiceEntity.id)
-        }
-
-        // 2. Local: Transacción en Room para asegurar consistencia offline
+        // 2. Room guarda de forma transaccional
         appDatabase.withTransaction {
             serviceDao.upsertService(savedServiceEntity)
             if (suppliesEntities.isNotEmpty()) {
