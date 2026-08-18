@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,13 +50,16 @@ import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.formatPrice
 import yosel.dev.atti.ui.theme.AttiTheme
 import java.util.Locale
 
 @Composable
 fun BodyDetailService(
     modifier: Modifier = Modifier,
-    state: DetailServiceState
+    state: DetailServiceState,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val serviceWithDetails = state.serviceWithDetails
 
@@ -72,7 +76,12 @@ fun BodyDetailService(
         ServicePricesAndCostsCard(serviceWithDetails = serviceWithDetails)
 
         // 3. Sección de Insumos Vinculados
-        ServiceSuppliesSection(serviceWithDetails = serviceWithDetails)
+        ServiceSuppliesSection(
+            serviceWithDetails = serviceWithDetails,
+            onClickItem = { productId ->
+                onNavigationMain(Screens.DetailProduct(productId = productId, showEditAction = false))
+            }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -121,13 +130,8 @@ private fun ServicePricesAndCostsCard(
     modifier: Modifier = Modifier
 ) {
     val salePrice = serviceWithDetails.service.salePrice
-    val estimatedCost = serviceWithDetails.service.estimatedCost
-
-    val marginPercentage = if (salePrice > 0.0) {
-        (((salePrice - estimatedCost) / salePrice) * 100).toInt().coerceAtLeast(0)
-    } else {
-        0
-    }
+    val totalCost = remember(serviceWithDetails) { serviceWithDetails.totalCost }
+    val marginPercentage = remember(serviceWithDetails) { serviceWithDetails.profitMarginPercentage }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -257,7 +261,7 @@ private fun ServicePricesAndCostsCard(
                 }
 
                 Text(
-                    text = "Q ${estimatedCost.formatPrice()}",
+                    text = "Q ${totalCost.formatPrice()}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -273,7 +277,8 @@ private fun ServicePricesAndCostsCard(
 @Composable
 private fun ServiceSuppliesSection(
     serviceWithDetails: ServiceWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem: (String) -> Unit
 ) {
     val supplies = serviceWithDetails.supplies
 
@@ -322,7 +327,10 @@ private fun ServiceSuppliesSection(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 supplies.forEach { supplyWithDetails ->
-                    SupplyItemCard(supplyWithDetails = supplyWithDetails)
+                    SupplyItemCard(
+                        supplyWithDetails = supplyWithDetails,
+                        onClickItem = onClickItem
+                    )
                 }
             }
         }
@@ -332,12 +340,13 @@ private fun ServiceSuppliesSection(
 @Composable
 private fun SupplyItemCard(
     supplyWithDetails: ServiceSupplyWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem:(String) -> Unit
 ) {
     val product = supplyWithDetails.product.product
     val unitTypeName = supplyWithDetails.product.unitType.name.ifBlank { "Sin unidad" }
-    val brandName = product.brand.ifBlank { "Sin marca" }
     val quantity = supplyWithDetails.supply.quantityRequired
+    val precie = product.purchasePrice.formatPrice()
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -345,7 +354,8 @@ private fun SupplyItemCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = { onClickItem(product.id) }
     ) {
         Row(
             modifier = Modifier
@@ -365,9 +375,16 @@ private fun SupplyItemCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "$unitTypeName • $brandName",
+                    text = unitTypeName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = "Q $precie",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
 
@@ -467,9 +484,7 @@ private fun Double.formatQuantity(): String {
     }
 }
 
-private fun Double.formatPrice(): String {
-    return String.format(Locale.US, "%.2f", this)
-}
+
 
 @PreviewLightDark
 @Composable
@@ -494,27 +509,28 @@ private fun BodyDetailServicePreview() {
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 11.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Jeringa 5ml", brand = "Desechable estéril"),
-                                unitType = AppCatalogModel(name = "Unidad")
+                                product = ProductModel(commercialName = "Jeringa 5ml", brand = "Desechable estéril", salePrice = 5.00),
+                                unitType = AppCatalogModel(name = "Unidad"),
                             )
                         ),
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 1.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Vacuna Antirrábica", brand = "Nobivac"),
+                                product = ProductModel(commercialName = "Vacuna Antirrábica", brand = "Nobivac", salePrice = 5.00),
                                 unitType = AppCatalogModel(name = "Dosis 1.0 ml")
                             )
                         ),
                         ServiceSupplyWithDetailsModel(
                             supply = ServiceSupplyModel(quantityRequired = 2.0),
                             product = ProductWithDetailsModel(
-                                product = ProductModel(commercialName = "Algodón", brand = "Torunda esterilizada"),
+                                product = ProductModel(commercialName = "Algodón", brand = "Torunda esterilizada", salePrice = 5.00),
                                 unitType = AppCatalogModel(name = "Unidad")
                             )
                         )
                     )
                 )
-            )
+            ),
+            onNavigationMain = {}
         )
     }
 }

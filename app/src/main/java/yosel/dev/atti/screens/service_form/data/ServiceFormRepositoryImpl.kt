@@ -1,9 +1,12 @@
 package yosel.dev.atti.screens.service_form.data
 
+import androidx.room.withTransaction
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
+import yosel.dev.atti.core.models.request.CreateServiceRequest
+import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
@@ -23,10 +26,10 @@ class ServiceFormRepositoryImpl @Inject constructor(
     private val appCatalogDao: AppCatalogDao,
     private val servicesDataSource: ServicesDataSource,
     private val serviceDao: ServiceDao,
-    private val serviceSuppliesDataSource: ServiceSuppliesDataSource,
     private val serviceSuppliesDao: ServiceSupplyDao,
     private val productsDataSource: ProductsDataSource,
-    private val productDao: ProductDao
+    private val productDao: ProductDao,
+    private val appDatabase: AppDatabase,
 ): ServiceFormRepository {
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
         val remoteAppCatalogs = appCatalogsDataSource.getCatalogsByTypes(types = types)
@@ -41,17 +44,31 @@ class ServiceFormRepositoryImpl @Inject constructor(
         appCatalogDto.toModel()
     }
 
-    override suspend fun insertService(service: ServiceModel): Result<ServiceModel> = runCatching {
-        val serviceDto = servicesDataSource.insertServiceAndReturn(service = service.toDtoForInsert())
-        serviceDao.upsertService(service = serviceDto.toEntity())
-        serviceDto.toModel()
-    }
+    override suspend fun insertServiceWithSupplies(
+        service: ServiceModel,
+        supplies: List<ServiceSupplyModel>
+    ): Result<ServiceModel> = runCatching {
+        val request = CreateServiceRequest(
+            service_data = service.toDtoForInsert(),
+            supplies_data = supplies.map { it.toDtoForInsert() }
+        )
 
-    override suspend fun insertServiceSupplies(supplies: List<ServiceSupplyModel>): Result<Unit> = runCatching {
-        val serviceSuppliesDto = supplies.map { it.toDtoForInsert() }
-        val responseServiceSuppliesDto = serviceSuppliesDataSource.insertAndGetSupplies(supplies = serviceSuppliesDto)
-        val serviceSuppliesEntities = responseServiceSuppliesDto.map { it.toEntity() }
-        serviceSuppliesDao.upsertSupplies(supplies = serviceSuppliesEntities)
+        // 1. Supabase realiza la transacción atómica
+        val responseServiceDto = servicesDataSource.insertServiceWithSupplies(request)
+
+        val savedServiceEntity = responseServiceDto.toEntity()
+        // Obtenemos los insumos con los IDs reales creados por Postgres
+        val suppliesEntities = responseServiceDto.supplies.map { it.toEntity() }
+
+        // 2. Room guarda de forma transaccional
+        appDatabase.withTransaction {
+            serviceDao.upsertService(savedServiceEntity)
+            if (suppliesEntities.isNotEmpty()) {
+                serviceSuppliesDao.upsertSupplies(suppliesEntities)
+            }
+        }
+
+        responseServiceDto.toModel()
     }
 
     override suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>> = runCatching {

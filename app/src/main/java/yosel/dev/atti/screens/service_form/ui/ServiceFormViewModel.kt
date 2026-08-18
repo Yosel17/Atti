@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.service_form.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -128,40 +129,32 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun registerService() {
         val currentState = _state.value
         _state.update { it.copy(isLoadingRegisterService = true) }
+
         viewModelScope.launch {
             val serviceModel = currentState.formInputState.toInsertModel()
-            repository.insertService(service = serviceModel).fold(
-                onSuccess = { insertedService ->
-                    if (currentState.formInputState.expenseMode == ExpenseMode.LINK_PRODUCTS && currentState.formInputState.selectedProducts.isNotEmpty()) {
-                        val supplies = currentState.formInputState.toServiceSupplyModels(serviceId = insertedService.id)
-                        repository.insertServiceSupplies(supplies = supplies).fold(
-                            onSuccess = {
-                                _state.update {
-                                    it.copy(
-                                        formInputState = ServiceFormInputsState(),
-                                        isLoadingRegisterService = false
-                                    )
-                                }
-                                _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio registrado correctamente."))
-                            },
-                            onFailure = {
-                                _state.update { it.copy(isLoadingRegisterService = false) }
-                                _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("Servicio guardado, pero ocurrió un error al vincular los productos."))
-                            }
+
+            // Obtenemos los insumos con un ID de servicio temporal (se asignará en la BD)
+            val supplies = if (currentState.formInputState.expenseMode == ExpenseMode.LINK_PRODUCTS) {
+                currentState.formInputState.toServiceSupplyModels(serviceId = "")
+            } else {
+                emptyList()
+            }
+
+            // Una sola llamada transaccional
+            repository.insertServiceWithSupplies(serviceModel, supplies).fold(
+                onSuccess = {
+                    _state.update {
+                        it.copy(
+                            formInputState = ServiceFormInputsState(),
+                            isLoadingRegisterService = false
                         )
-                    } else {
-                        _state.update {
-                            it.copy(
-                                formInputState = ServiceFormInputsState(),
-                                isLoadingRegisterService = false
-                            )
-                        }
-                        _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio registrado correctamente."))
                     }
+                    _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio registrado correctamente."))
                 },
                 onFailure = {
+                    Log.e("ServiceFormViewModel", "Error al registrar el servicio y sus insumos", it)
                     _state.update { it.copy(isLoadingRegisterService = false) }
-                    _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("No pudimos registrar el servicio. Inténtalo de nuevo."))
+                    _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("Error al registrar el servicio y sus insumos. Inténtalo de nuevo."))
                 }
             )
         }

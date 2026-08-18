@@ -134,7 +134,10 @@ fun DetailServiceScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
-                            state = state
+                            state = state,
+                            onNavigationMain = { screens ->
+                                onAction(DetailServiceAction.OnNavigationMain(screens))
+                            }
                         )
                     }
                 }

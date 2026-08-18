@@ -9,7 +9,6 @@ interface ServiceFormRepository {
 
     suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>>
     suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel>
-    suspend fun insertService(service: ServiceModel): Result<ServiceModel>
-    suspend fun insertServiceSupplies(supplies: List<ServiceSupplyModel>): Result<Unit>
+    suspend fun insertServiceWithSupplies(service: ServiceModel, supplies: List<ServiceSupplyModel>): Result<ServiceModel>
     suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>>
 }

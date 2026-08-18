@@ -41,6 +41,7 @@ import yosel.dev.atti.screens.product_form.ui.ProductFormInputsState
 import yosel.dev.atti.screens.service_form.ui.ExpenseMode
 import yosel.dev.atti.screens.service_form.ui.ServiceFormInputsState
 import java.text.Normalizer
+import java.util.Locale
 
 fun ClientDto.toEntity() = ClientEntity(
     id = id.orEmpty(),
@@ -689,4 +690,8 @@ fun String.parseToInt(defaultValue: Int = 0): Int {
             .toDoubleOrNull()
             ?.toInt()
         ?: defaultValue
+}
+
+fun Double.formatPrice(): String {
+    return String.format(Locale.US, "%.2f", this)
 }
