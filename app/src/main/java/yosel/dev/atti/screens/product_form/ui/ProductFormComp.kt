@@ -515,6 +515,7 @@ fun SelectSupplierBottomSheet(
                         items(filteredSuppliers, key = { it.id }) { supplier ->
                             val isSelected = supplier.id == selectedSupplier?.id
                             SupplierSelectionCard(
+                                modifier = Modifier.animateItem(),
                                 supplier = supplier,
                                 isSelected = isSelected,
                                 onClick = {
@@ -533,12 +534,13 @@ fun SelectSupplierBottomSheet(
 
 @Composable
 private fun SupplierSelectionCard(
+    modifier: Modifier = Modifier,
     supplier: SupplierModel,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),

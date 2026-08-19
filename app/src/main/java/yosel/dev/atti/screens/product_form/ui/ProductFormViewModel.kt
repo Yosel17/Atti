@@ -48,6 +48,7 @@ class ProductFormViewModel @AssistedInject constructor(
 
     private var categoryJob: Job? = null
     private var unitsMeasurementJob: Job? = null
+    private var supplierJob: Job? = null
 
     init {
         getCatalogsAndSuppliers()
@@ -138,7 +139,12 @@ class ProductFormViewModel @AssistedInject constructor(
             }
             is ProductFormAction.OnSearchSupplierQueryChange -> {
                 _state.update { it.copy(supplierSearchQuery = action.query) }
-                filterSupplier(query = action.query)
+                supplierJob?.cancel()
+                supplierJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterSupplier(query = action.query)
+                }
+
             }
             is ProductFormAction.OnSelectSupplier -> {
                 _state.update {
