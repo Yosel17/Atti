@@ -150,6 +150,7 @@ fun BodyDetailClient(
         } else {
             items(patients, key = { it.patient.id }) { patient ->
                 DetailPatientCard(
+                    modifier = Modifier.animateItem(),
                     patientWithCatalogs = patient,
                     onCardClick = { patientId ->
                         onAction(DetailClientAction.OnNavigationMain(Screens.DetailPatient(patientId)))
@@ -715,6 +716,7 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
 
 @Composable
 private fun DetailPatientCard(
+    modifier: Modifier = Modifier,
     patientWithCatalogs: PatientWithCatalogsModel,
     onCardClick: (String) -> Unit
 ) {
@@ -722,7 +724,7 @@ private fun DetailPatientCard(
     val iconGender = getIconGender(patientWithCatalogs.patient.genderId)
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(

@@ -624,6 +624,7 @@ fun SelectClientBottomSheet(
                         val isSelected = client.id == state.formState.selectedClient?.id
 
                         ClientSelectionCard(
+                            modifier = Modifier.animateItem(),
                             client = client,
                             isSelected = isSelected,
                             onClick = {
@@ -642,12 +643,13 @@ fun SelectClientBottomSheet(
 
 @Composable
 private fun ClientSelectionCard(
+    modifier: Modifier = Modifier,
     client: ClientModel,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),

@@ -6,7 +6,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -20,6 +22,7 @@ import yosel.dev.atti.core.utils.toInsertModel
 import yosel.dev.atti.core.utils.toProductFormInputsState
 import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = ProductFormViewModel.Factory::class)
 class ProductFormViewModel @AssistedInject constructor(
@@ -43,6 +46,10 @@ class ProductFormViewModel @AssistedInject constructor(
     private val _eventChannel = Channel<ProductFormEvent>()
     val events = _eventChannel.receiveAsFlow()
 
+    private var categoryJob: Job? = null
+    private var unitsMeasurementJob: Job? = null
+    private var supplierJob: Job? = null
+
     init {
         getCatalogsAndSuppliers()
     }
@@ -60,7 +67,12 @@ class ProductFormViewModel @AssistedInject constructor(
             }
             is ProductFormAction.OnSearchCategoryQueryChange -> {
                 _state.update { it.copy(categorySearchQuery = action.query) }
-                filterCategory(query = action.query)
+                categoryJob?.cancel()
+                categoryJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterCategory(query = action.query)
+                }
+
             }
             is ProductFormAction.OnSelectCategory -> {
                 _state.update {
@@ -102,7 +114,12 @@ class ProductFormViewModel @AssistedInject constructor(
             }
             is ProductFormAction.OnSearchUnitsMeasurementQueryChange -> {
                 _state.update { it.copy(unitsOfMeasurementSearchQuery = action.query) }
-                filterUnitsOfMeasurement(query = action.query)
+                unitsMeasurementJob?.cancel()
+                unitsMeasurementJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterUnitsOfMeasurement(query = action.query)
+                }
+
             }
             is ProductFormAction.OnSelectUnitsMeasurement -> {
                 _state.update {
@@ -122,7 +139,12 @@ class ProductFormViewModel @AssistedInject constructor(
             }
             is ProductFormAction.OnSearchSupplierQueryChange -> {
                 _state.update { it.copy(supplierSearchQuery = action.query) }
-                filterSupplier(query = action.query)
+                supplierJob?.cancel()
+                supplierJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterSupplier(query = action.query)
+                }
+
             }
             is ProductFormAction.OnSelectSupplier -> {
                 _state.update {
