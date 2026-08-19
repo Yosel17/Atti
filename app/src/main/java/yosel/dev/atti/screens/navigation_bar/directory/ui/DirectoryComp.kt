@@ -354,6 +354,7 @@ fun ClientList(
     ) {
         items(clients, key = { it.id }) { client ->
             ClientItem(
+                modifier = Modifier.animateItem(),
                 client = client,
                 onCallClick = { onAction(DirectoryAction.OnCallClick(it)) },
                 onMessageClick = { onAction(DirectoryAction.OnWhatsappClick(it)) },
@@ -562,6 +563,7 @@ fun PatientList(
     ) {
         items(patientsWithCatalogs, key = { it.patient.id }) { patientWithCatalogs ->
             PatientCard(
+                modifier = Modifier.animateItem(),
                 patientWithCatalogs = patientWithCatalogs,
                 onCardClick = { onPatientClick(patientWithCatalogs.patient.id) }
             )

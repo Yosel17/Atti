@@ -6,7 +6,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,6 +24,7 @@ import yosel.dev.atti.core.utils.toInsertModel
 import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = AddPatientViewModel.Factory::class)
 class AddPatientViewModel @AssistedInject constructor(
@@ -48,6 +51,8 @@ class AddPatientViewModel @AssistedInject constructor(
 
     private val _eventChannel = Channel<AddPatientEvent>()
     val events = _eventChannel.receiveAsFlow()
+
+    private var searchJob: Job? = null
 
     init {
         getCatalogsAndClients()
@@ -93,7 +98,13 @@ class AddPatientViewModel @AssistedInject constructor(
             }
             is AddPatientAction.OnSearchClientQueryChange -> {
                 _state.update { it.copy(clientSearchQuery = action.query) }
-                filterClients(action.query)
+
+                // Cancela la búsqueda anterior si el usuario sigue escribiendo
+                searchJob?.cancel()
+                searchJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterClients(action.query)
+                }
             }
             is AddPatientAction.OnSelectClient -> {
                 _state.update {
