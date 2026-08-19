@@ -50,11 +50,12 @@ fun formatDate(isoString: String): String {
 
 /**
  * Abre el marcador telefónico con el número proporcionado.
- * @return true si se pudo iniciar la actividad, false de lo contrario.
+ * Sanitiza la cadena manteniendo el prefijo '+' y los dígitos.
  */
 fun Context.dialPhoneNumber(phoneNumber: String): Boolean {
     return try {
-        val intent = Intent(Intent.ACTION_DIAL, "tel:$phoneNumber".toUri())
+        val sanitizedNumber = phoneNumber.filter { it.isDigit() || it == '+' }
+        val intent = Intent(Intent.ACTION_DIAL, "tel:$sanitizedNumber".toUri())
         startActivity(intent)
         true
     } catch (e: Exception) {
@@ -65,7 +66,7 @@ fun Context.dialPhoneNumber(phoneNumber: String): Boolean {
 
 /**
  * Abre la aplicación de WhatsApp con un mensaje directo al número proporcionado.
- * @return true si se pudo iniciar la actividad, false de lo contrario (ej. WhatsApp no instalado).
+ * wa.me requiere únicamente números con su código de país (sin '+' ni espacios).
  */
 fun Context.openWhatsApp(phoneNumber: String): Boolean {
     return try {
