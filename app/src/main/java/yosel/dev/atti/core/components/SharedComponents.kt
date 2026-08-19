@@ -1099,6 +1099,7 @@ fun SelectAppCatalogBottomSheet(
                             val isSelected = appCatalog.id == selectedAppCatalog?.id
 
                             AppCatalogSelectionCard(
+                                modifier = Modifier.animateItem(),
                                 appCatalog = appCatalog,
                                 isSelected = isSelected,
                                 onClick = {
@@ -1117,12 +1118,13 @@ fun SelectAppCatalogBottomSheet(
 
 @Composable
 private fun AppCatalogSelectionCard(
+    modifier: Modifier = Modifier,
     appCatalog: AppCatalogModel,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
