@@ -435,6 +435,7 @@ fun ProductList(
     ) {
         items(products, key = { it.product.id }) { productWithDetails ->
             ProductCard(
+                modifier = Modifier.animateItem(),
                 productDetails = productWithDetails,
                 onClick = onItemClick
             )
@@ -831,6 +832,7 @@ fun SupplierList(
     ) {
         items(suppliers, key = { it.id }) { supplier ->
             SupplierItem(
+                modifier = Modifier.animateItem(),
                 supplier = supplier,
                 onCallClick = {
                     onAction(InventoryAction.OnCallClick(phoneNumber = it))
@@ -951,7 +953,7 @@ fun SupplierItem(
             ) {
                 // Call Action Button
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .weight(1f)
                         .clickable(onClick = { onCallClick(supplier.phoneNumber) })
                         .padding(vertical = 12.dp, horizontal = 8.dp),
@@ -981,7 +983,7 @@ fun SupplierItem(
 
                 // WhatsApp Action Button
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .weight(1f)
                         .clickable(onClick = { onWhatsAppClick(supplier.phoneNumber) })
                         .padding(vertical = 12.dp, horizontal = 8.dp),
