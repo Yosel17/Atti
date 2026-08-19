@@ -38,6 +38,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.Label
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.SearchOff
@@ -1215,4 +1216,37 @@ fun CountBadge(
             )
         }
     }
+}
+
+@Composable
+fun PhoneInputFieldWithTextGlobal(
+    modifier: Modifier = Modifier,
+    label: String = "Teléfono",
+    placeHolder: String = "ej. +502 87654321",
+    value: String,
+    onValueChange: (String) -> Unit,
+    leadingIcon: ImageVector = Icons.Outlined.Phone,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    imeAction: ImeAction = ImeAction.Next
+) {
+    InputFieldWithTextGlobal(
+        modifier = modifier,
+        label = label,
+        placeHolder = placeHolder,
+        value = value,
+        onValueChange = { input ->
+            val isPhoneCharPattern = input.isEmpty() || input.matches(Regex("""^\+?[0-9\s]*$"""))
+            if (isPhoneCharPattern) {
+                onValueChange(input)
+            }
+        },
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = imeAction
+        ),
+        isError = isError,
+        errorMessage = errorMessage
+    )
 }

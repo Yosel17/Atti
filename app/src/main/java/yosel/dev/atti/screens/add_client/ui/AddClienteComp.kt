@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
+import yosel.dev.atti.core.components.PhoneInputFieldWithTextGlobal
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 
@@ -152,23 +153,17 @@ private fun ClientForm(
             errorMessage = "Este campo no puede estar vacío"
         )
 
-        InputFieldWithTextGlobal(
+        PhoneInputFieldWithTextGlobal(
             modifier = Modifier.fillMaxWidth(),
             label = "Teléfono",
-            placeHolder = "ej. 87654321",
+            placeHolder = "ej. +502 87654321",
             value = formState.phoneNumber,
             onValueChange = {
-                if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
-                    onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
-                }
+                onInputChanged(it, Constants.PHONE_NUMBER_FIELD)
             },
-            leadingIcon = Icons.Outlined.Phone,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Next
-            ),
             isError = formState.isError(Constants.PHONE_NUMBER_FIELD),
-            errorMessage = "Este campo no puede estar vacío"
+            errorMessage = "Ingrese un número de teléfono válido",
+            imeAction = ImeAction.Next
         )
 
         InputFieldWithTextGlobal(
