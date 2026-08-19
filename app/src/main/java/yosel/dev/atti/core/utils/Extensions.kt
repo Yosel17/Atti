@@ -473,6 +473,27 @@ fun ServiceModel.toDtoForInsert() = ServiceDto(
     status = status
 )
 
+fun ServiceModel.toDtoForUpdate() = ServiceDto(
+    id = id,
+    categoryId = categoryId,
+    name = name,
+    description = description,
+    salePrice = salePrice,
+    estimatedCost = estimatedCost,
+    status = status
+)
+
+fun ServiceModel.toEntity() = ServiceEntity(
+    id = id,
+    categoryId = categoryId,
+    name = name,
+    description = description,
+    salePrice = salePrice,
+    estimatedCost = estimatedCost,
+    createdAt = createdAt,
+    status = status
+)
+
 fun ServiceEntity.toModel() = ServiceModel(
     id = id,
     categoryId = categoryId,
@@ -542,6 +563,27 @@ fun ServiceWithDetailsEntity.toModel() = ServiceWithDetailsModel(
     category = category?.toModel() ?: AppCatalogModel(),
     supplies = supplies.map { it.toModel() }
 )
+
+fun ServiceWithDetailsModel.toServiceFormInputsState(category: AppCatalogModel?): ServiceFormInputsState {
+    val hasSupplies = supplies.isNotEmpty()
+    return ServiceFormInputsState(
+        name = service.name,
+        selectedCategory = category ?: this.category.takeIf { it.id != 0 },
+        salePrice = if (service.salePrice > 0.0) service.salePrice.toString() else "",
+        expenseMode = if (hasSupplies) ExpenseMode.LINK_PRODUCTS else ExpenseMode.MANUAL,
+        estimatedCost = if (!hasSupplies && service.estimatedCost > 0.0) service.estimatedCost.toString() else "",
+        selectedProducts = if (hasSupplies) {
+            supplies.map { item ->
+                yosel.dev.atti.screens.service_form.ui.SelectedProductSupply(
+                    product = item.product.product,
+                    quantity = item.supply.quantityRequired
+                )
+            }
+        } else {
+            emptyList()
+        }
+    )
+}
 
 // --- SERVICE SUPPLIES ---
 
@@ -667,6 +709,26 @@ fun ServiceFormInputsState.toServiceSupplyModels(serviceId: String): List<Servic
             status = Constants.ACTIVE_STATUS
         )
     }
+}
+
+fun ServiceFormInputsState.toUpdateModel(
+    serviceId: String,
+    createdAt: String = "",
+    status: Int = Constants.ACTIVE_STATUS
+): ServiceModel {
+    val calculatedEstimatedCost = when (expenseMode) {
+        ExpenseMode.MANUAL -> estimatedCost.parseToDouble()
+        ExpenseMode.LINK_PRODUCTS -> selectedProducts.sumOf { it.product.purchasePrice * it.quantity }
+    }
+    return ServiceModel(
+        id = serviceId,
+        categoryId = selectedCategory?.id ?: 0,
+        name = name.trim(),
+        salePrice = salePrice.parseToDouble(),
+        estimatedCost = calculatedEstimatedCost,
+        createdAt = createdAt,
+        status = status
+    )
 }
 
 fun String.normalize(): String {

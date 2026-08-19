@@ -27,6 +27,9 @@ interface ServiceSupplyDao {
     @Query("UPDATE service_supplies SET status = :newStatus WHERE id = :supplyId")
     suspend fun updateSupplyStatus(supplyId: Int, newStatus: Int)
 
+    @Query("DELETE FROM service_supplies WHERE service_id = :serviceId")
+    suspend fun deleteSuppliesByServiceId(serviceId: String)
+
     // --- Consultas con Relaciones ---
     @Transaction
     @Query("SELECT * FROM service_supplies WHERE service_id = :serviceId ORDER BY id ASC")
