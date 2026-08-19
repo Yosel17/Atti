@@ -7,7 +7,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -24,6 +26,7 @@ import yosel.dev.atti.core.utils.toServiceSupplyModels
 import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
 import kotlin.collections.filter
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = ServiceFormViewModel.Factory::class)
 class ServiceFormViewModel @AssistedInject constructor(
@@ -47,6 +50,9 @@ class ServiceFormViewModel @AssistedInject constructor(
     private val _eventChannel = Channel<ServiceFormEvent>()
     val events = _eventChannel.receiveAsFlow()
 
+    private var categoryJob: Job? = null
+    private var productJob: Job? = null
+
     init {
         getCatalogs()
     }
@@ -63,7 +69,12 @@ class ServiceFormViewModel @AssistedInject constructor(
             }
             is ServiceFormAction.OnSearchCategoryQueryChange -> {
                 _state.update { it.copy(categorySearchQuery = action.query) }
-                filterCategory(query = action.query)
+                categoryJob?.cancel()
+                categoryJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterCategory(query = action.query)
+                }
+
             }
             is ServiceFormAction.OnSelectCategory -> {
                 _state.update {
@@ -107,7 +118,12 @@ class ServiceFormViewModel @AssistedInject constructor(
             }
             is ServiceFormAction.OnSearchProductQueryChange -> {
                 _state.update { it.copy(productSearchQuery = action.query) }
-                filterProducts(query = action.query)
+                productJob?.cancel()
+                productJob = viewModelScope.launch {
+                    delay(300L.milliseconds)
+                    filterProducts(query = action.query)
+                }
+
             }
             is ServiceFormAction.OnToggleSelectProduct -> toggleSelectProduct(action.product)
             ServiceFormAction.OnConfirmProductSelection -> confirmProductSelection()
