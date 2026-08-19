@@ -19,7 +19,9 @@ import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.core.utils.toInsertModel
+import yosel.dev.atti.core.utils.toServiceFormInputsState
 import yosel.dev.atti.core.utils.toServiceSupplyModels
+import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
 import kotlin.collections.filter
 
@@ -116,11 +118,72 @@ class ServiceFormViewModel @AssistedInject constructor(
         }
     }
 
+    private fun getCatalogs() {
+        _state.update { it.copy(isLoadingDataInitial = true) }
+        viewModelScope.launch {
+            repository.getAppCatalogsByTypes(
+                types = listOf(Constants.SERVICE_CATEGORY_TYPE_CATALOG)
+            ).fold(
+                onSuccess = { appCatalogs ->
+                    val categories = appCatalogs
+                        .filter { it.catalogTypeId == Constants.SERVICE_CATEGORY_TYPE_CATALOG }
+                        .sortedBy { it.name.lowercase() }
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            categories = categories,
+                            filteredCategories = categories,
+                            isSuccessGetCategory = true
+                        )
+                    }
+
+                    if (!serviceId.isNullOrBlank()) {
+                        loadServiceForEdit(id = serviceId, categories = categories)
+                    } else {
+                        _state.update { it.copy(isLoadingDataInitial = false) }
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(
+                        ServiceFormEvent.ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo.")
+                    )
+                }
+            )
+        }
+    }
+
+    private fun loadServiceForEdit(id: String, categories: List<AppCatalogModel>) {
+        viewModelScope.launch {
+            repository.getServiceByIdRoom(id).fold(
+                onSuccess = { serviceWithDetails ->
+                    val category = categories.find { it.id == serviceWithDetails.service.categoryId }
+                    val initialForm = serviceWithDetails.toServiceFormInputsState(category = category)
+
+                    _state.update { currentState ->
+                        currentState.copy(
+                            currentService = serviceWithDetails.service,
+                            formInputState = initialForm,
+                            initialFormInputState = initialForm,
+                            isLoadingDataInitial = false
+                        )
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(
+                        ServiceFormEvent.ShowErrorSnackbar("Error al cargar la información del servicio.")
+                    )
+                }
+            )
+        }
+    }
+
     private fun saveService() {
         val currentState = _state.value
         if (!currentState.formInputState.isValid) return
         if (currentState.isEditMode) {
-            // Lógica de edición
+            updateService()
         } else {
             registerService()
         }
@@ -129,18 +192,13 @@ class ServiceFormViewModel @AssistedInject constructor(
     private fun registerService() {
         val currentState = _state.value
         _state.update { it.copy(isLoadingRegisterService = true) }
-
         viewModelScope.launch {
             val serviceModel = currentState.formInputState.toInsertModel()
-
-            // Obtenemos los insumos con un ID de servicio temporal (se asignará en la BD)
             val supplies = if (currentState.formInputState.expenseMode == ExpenseMode.LINK_PRODUCTS) {
                 currentState.formInputState.toServiceSupplyModels(serviceId = "")
             } else {
                 emptyList()
             }
-
-            // Una sola llamada transaccional
             repository.insertServiceWithSupplies(serviceModel, supplies).fold(
                 onSuccess = {
                     _state.update {
@@ -160,30 +218,41 @@ class ServiceFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun getCatalogs() {
-        _state.update { it.copy(isLoadingDataInitial = true) }
+    private fun updateService() {
+        val currentState = _state.value
+        val currentService = currentState.currentService ?: return
+        _state.update { it.copy(isLoadingUpdateService = true) }
         viewModelScope.launch {
-            repository.getAppCatalogsByTypes(
-                types = listOf(Constants.SERVICE_CATEGORY_TYPE_CATALOG)
+            val updatedServiceModel = currentState.formInputState.toUpdateModel(
+                serviceId = currentService.id,
+                createdAt = currentService.createdAt,
+                status = currentService.status
+            )
+            val supplies = if (currentState.formInputState.expenseMode == ExpenseMode.LINK_PRODUCTS) {
+                currentState.formInputState.toServiceSupplyModels(serviceId = currentService.id)
+            } else {
+                emptyList()
+            }
+            repository.updateServiceWithSupplies(
+                service = updatedServiceModel,
+                supplies = supplies
             ).fold(
-                onSuccess = { appCatalogs ->
-                    val categories = appCatalogs
-                        .filter { it.catalogTypeId == Constants.SERVICE_CATEGORY_TYPE_CATALOG }
-                        .sortedBy { it.name.lowercase() }
-                    _state.update { currentState ->
-                        currentState.copy(
-                            categories = categories,
-                            filteredCategories = categories,
-                            isSuccessGetCategory = true,
-                            isLoadingDataInitial = false
+                onSuccess = {
+                    val newForm = currentState.formInputState
+                    _state.update { state ->
+                        state.copy(
+                            isLoadingUpdateService = false,
+                            currentService = updatedServiceModel,
+                            formInputState = newForm,
+                            initialFormInputState = newForm
                         )
                     }
+                    _eventChannel.send(ServiceFormEvent.ShowSuccessSnackbar("Servicio actualizado correctamente."))
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoadingDataInitial = false) }
-                    _eventChannel.send(
-                        ServiceFormEvent.ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo.")
-                    )
+                    Log.e("ServiceFormViewModel", "Error al actualizar el servicio", it)
+                    _state.update { it.copy(isLoadingUpdateService = false) }
+                    _eventChannel.send(ServiceFormEvent.ShowErrorSnackbar("No pudimos actualizar el servicio. Inténtalo de nuevo."))
                 }
             )
         }
@@ -294,7 +363,8 @@ class ServiceFormViewModel @AssistedInject constructor(
         val newSelectedProducts = currentState.productsWithDetails
             .filter { currentState.tempSelectedProductIds.contains(it.product.id) }
             .map { productWithDetails ->
-                existingSuppliesMap[productWithDetails.product.id] ?: SelectedProductSupply(product = productWithDetails.product, quantity = 1.0)
+                existingSuppliesMap[productWithDetails.product.id]
+                    ?: SelectedProductSupply(product = productWithDetails.product, quantity = 1.0)
             }
         _state.update {
             it.copy(

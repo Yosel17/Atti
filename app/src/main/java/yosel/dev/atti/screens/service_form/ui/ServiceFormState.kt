@@ -21,7 +21,6 @@ data class ServiceFormState(
     val activeCatalogTypeId: Int = 0,
     val activeCatalogTypeName: String = "",
     val isLoadingAddCatalog: Boolean = false,
-
     // Estado para selector de insumos/productos
     val isLoadingProducts: Boolean = false,
     val productsWithDetails: List<ProductWithDetailsModel> = emptyList(),
@@ -29,5 +28,6 @@ data class ServiceFormState(
     val isProductSheetOpen: Boolean = false,
     val productSearchQuery: String = "",
     val tempSelectedProductIds: Set<String> = emptySet(),
-    val isLoadingRegisterService: Boolean = false
+    val isLoadingRegisterService: Boolean = false,
+    val isLoadingUpdateService: Boolean = false
 )

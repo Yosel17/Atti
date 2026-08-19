@@ -72,4 +72,13 @@ class ServiceSuppliesDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun deleteSuppliesByServiceId(serviceId: String) {
+        postgrest.from(Constants.SERVICE_SUPPLIES_SUPABASE)
+            .delete {
+                filter {
+                    eq("service_id", serviceId)
+                }
+            }
+    }
 }

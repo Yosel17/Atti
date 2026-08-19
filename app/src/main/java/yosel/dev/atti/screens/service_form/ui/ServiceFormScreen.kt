@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -84,13 +85,22 @@ fun ServiceFormScreen(
                         )
                     }
                     else -> {
-                        BodyServiceForm(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            state = state,
-                            onAction = onAction
-                        )
+                        if (state.currentService != null && state.currentService.status == Constants.DELETED_STATUS) {
+                            EmptyGlobal(
+                                title = "El servicio ${state.currentService.name} se encuentra eliminado",
+                                subTitle = "Este servicio se encuentra eliminado y su información no se puede modificar. Restablécelo para poder editarlo.",
+                                icon = Icons.Outlined.DeleteForever,
+                                iconTint = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            BodyServiceForm(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 24.dp),
+                                state = state,
+                                onAction = onAction
+                            )
+                        }
                     }
                 }
             }
@@ -170,6 +180,14 @@ fun ServiceFormScreen(
             LoadingDialog(
                 title = "Registrando servicio...",
                 subtitle = "Estamos guardando la información del nuevo servicio.",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.isLoadingUpdateService) {
+            LoadingDialog(
+                title = "Actualizando servicio...",
+                subtitle = "Por favor espera un momento...",
                 colorTitle = MaterialTheme.colorScheme.primary
             )
         }
