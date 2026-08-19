@@ -14,6 +14,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.periodUntil
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.todayIn
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientModel
@@ -23,8 +28,12 @@ import yosel.dev.atti.core.utils.toAddPatientFormState
 import yosel.dev.atti.core.utils.toInsertModel
 import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.add_patient.domain.AddPatientRepository
+import java.time.Period
+import java.time.ZoneId
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 
 @HiltViewModel(assistedFactory = AddPatientViewModel.Factory::class)
 class AddPatientViewModel @AssistedInject constructor(
@@ -126,6 +135,9 @@ class AddPatientViewModel @AssistedInject constructor(
                 _state.update { it.copy(isAddCatalogSheetOpen = false) }
             }
             is AddPatientAction.OnSaveCatalog -> saveCatalog(action.name)
+            is AddPatientAction.OnCalculateAgeFromBirthDate -> {
+                calculateAgeFromBirthDate(action.birthDateMillis)
+            }
         }
     }
 
@@ -379,6 +391,36 @@ class AddPatientViewModel @AssistedInject constructor(
                     }
                     _eventChannel.send(AddPatientEvent.ShowErrorSnackbar("No se pudo agregar el catálogo. Inténtalo de nuevo."))
                 }
+        }
+    }
+
+    private fun calculateAgeFromBirthDate(birthDateMillis: Long) {
+        // Convertimos los milisegundos UTC del DatePicker a LocalDate de Kotlin
+        val birthDate = Instant.fromEpochMilliseconds(birthDateMillis)
+            .toLocalDateTime(TimeZone.UTC)
+            .date
+
+        // Obtenemos la fecha actual en la zona horaria del dispositivo
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+        // Validamos que no sea una fecha futura
+        if (birthDate > today) return
+
+        // Calculamos el periodo transcurrido (años, meses y días)
+        val period = birthDate.periodUntil(today)
+        val years = period.years
+        val months = period.months
+
+        _state.update { currentState ->
+            currentState.copy(
+                formState = currentState.formState.copy(
+                    ageYears = years.toString(),
+                    ageMonths = months.toString(),
+                    touchedFields = currentState.formState.touchedFields +
+                            Constants.PATIENT_AGE_YEARS_FIELD +
+                            Constants.PATIENT_AGE_MONTHS_FIELD
+                )
+            )
         }
     }
 }
