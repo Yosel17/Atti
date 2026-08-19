@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
+import yosel.dev.atti.core.components.PhoneInputFieldWithTextGlobal
 import yosel.dev.atti.core.utils.Constants
 
 @Composable
@@ -132,23 +133,17 @@ private fun SupplierForm(
             errorMessage = "Este campo no puede estar vacío"
         )
 
-        InputFieldWithTextGlobal(
+        PhoneInputFieldWithTextGlobal(
             modifier = Modifier.fillMaxWidth(),
             label = "Teléfono de contacto",
-            placeHolder = "ej. 55554444",
+            placeHolder = "ej. +502 87654321",
             value = formState.phoneNumber,
-            onValueChange = { newValue ->
-                if (newValue.isEmpty() || newValue.matches(Regex("""^\d*$"""))) {
-                    onInputChanged(newValue, Constants.SUPPLIER_PHONE_FIELD)
-                }
+            onValueChange = {
+                onInputChanged(it, Constants.SUPPLIER_PHONE_FIELD)
             },
-            leadingIcon = Icons.Outlined.Phone,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            ),
             isError = formState.isError(Constants.SUPPLIER_PHONE_FIELD),
-            errorMessage = "Este campo no puede estar vacío"
+            errorMessage = "Este campo no puede estar vacío",
+            imeAction = ImeAction.Next
         )
 
         InputFieldWithTextGlobal(
