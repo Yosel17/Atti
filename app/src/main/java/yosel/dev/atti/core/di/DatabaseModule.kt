@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
+import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
@@ -62,4 +63,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideServiceSupplyDao(appDatabase: AppDatabase): ServiceSupplyDao = appDatabase.serviceSupplyDao()
+
+    @Singleton
+    @Provides
+    fun provideConsultationDao(appDatabase: AppDatabase): ConsultationDao = appDatabase.consultationDao()
 }
