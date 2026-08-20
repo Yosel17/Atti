@@ -2,6 +2,7 @@ package yosel.dev.atti.core.utils
 
 import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
+import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
@@ -11,6 +12,8 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
+import yosel.dev.atti.core.models.model.ConsultationModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.models.model.ProductModel
@@ -24,6 +27,8 @@ import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
+import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.product.ProductEntity
@@ -730,6 +735,70 @@ fun ServiceFormInputsState.toUpdateModel(
         status = status
     )
 }
+
+// --- CONSULTATIONS ---
+fun ConsultationDto.toEntity() = ConsultationEntity(
+    id = id.orEmpty(),
+    patientId = patientId,
+    consultationTypeId = consultationTypeId ?: 0,
+    startedAt = startedAt.orEmpty(),
+    completedAt = completedAt.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ConsultationEntity.toModel() = ConsultationModel(
+    id = id,
+    patientId = patientId,
+    consultationTypeId = consultationTypeId,
+    startedAt = startedAt,
+    completedAt = completedAt,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ConsultationModel.toEntity() = ConsultationEntity(
+    id = id,
+    patientId = patientId,
+    consultationTypeId = consultationTypeId,
+    startedAt = startedAt,
+    completedAt = completedAt,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ConsultationDto.toModel() = ConsultationModel(
+    id = id.orEmpty(),
+    patientId = patientId,
+    consultationTypeId = consultationTypeId ?: 0,
+    startedAt = startedAt.orEmpty(),
+    completedAt = completedAt.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ConsultationModel.toDtoForInsert() = ConsultationDto(
+    patientId = patientId,
+    consultationTypeId = consultationTypeId,
+    startedAt = startedAt.ifBlank { null },
+    completedAt = completedAt.ifBlank { null },
+    status = status
+)
+
+fun ConsultationModel.toDtoForUpdate() = ConsultationDto(
+    id = id,
+    patientId = patientId,
+    consultationTypeId = consultationTypeId,
+    startedAt = startedAt.ifBlank { null },
+    completedAt = completedAt.ifBlank { null },
+    status = status
+)
+
+fun ConsultationWithDetailsEntity.toModel() = ConsultationWithDetailsModel(
+    consultation = consultation.toModel(),
+    patient = patient?.toModel() ?: PatientModel(),
+    consultationType = consultationType?.toModel() ?: AppCatalogModel()
+)
 
 fun String.normalize(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
