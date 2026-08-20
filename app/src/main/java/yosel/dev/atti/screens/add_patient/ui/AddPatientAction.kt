@@ -10,13 +10,17 @@ sealed interface AddPatientAction {
     data class OnSelectGender(val id: Int) : AddPatientAction
     data class OnToggleNeutered(val value: Boolean) : AddPatientAction
 
+    // Nueva acción para calcular la edad desde el calendario
+    data class OnCalculateAgeFromBirthDate(val birthDateMillis: Long) : AddPatientAction
+    data class ToggleShowCalendar(val show: Boolean) : AddPatientAction
+
     // Acciones del BottomSheet de Selección de Cliente
     data object OnOpenClientSheet : AddPatientAction
     data object OnDismissClientSheet : AddPatientAction
     data class OnSearchClientQueryChange(val query: String) : AddPatientAction
     data class OnSelectClient(val client: ClientModel) : AddPatientAction
 
-    // Agregar estas acciones a AddPatientAction:
+    // Acciones del Catálogo
     data class OnOpenAddCatalogSheet(val catalogTypeId: Int, val catalogTypeName: String) : AddPatientAction
     data object OnDismissAddCatalogSheet : AddPatientAction
     data class OnSaveCatalog(val name: String) : AddPatientAction

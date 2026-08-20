@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Cake
@@ -184,10 +185,29 @@ fun BodyAddPatient(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            SectionTitle(
-                title = "Detalles",
-                icon = Icons.AutoMirrored.Filled.Assignment
-            )
+            // Sección Detalles con Botón de Calendario alineado
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SectionTitle(
+                    title = "Detalles",
+                    icon = Icons.AutoMirrored.Filled.Assignment
+                )
+                IconButton(
+                    onClick = {
+                        focusManager.clearFocus()
+                        onAction(AddPatientAction.ToggleShowCalendar(show = true))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = "Calcular edad desde fecha de nacimiento",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

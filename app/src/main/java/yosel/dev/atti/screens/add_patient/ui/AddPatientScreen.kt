@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -147,6 +153,40 @@ fun AddPatientScreen(
                 onDismiss = { onAction(AddPatientAction.OnDismissAddCatalogSheet) },
                 onSave = { name -> onAction(AddPatientAction.OnSaveCatalog(name)) }
             )
+        }
+
+        if (state.showCalendar) {
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = System.currentTimeMillis(),
+                selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis <= System.currentTimeMillis()
+                    }
+                }
+            )
+
+            DatePickerDialog(
+                onDismissRequest = { onAction(AddPatientAction.ToggleShowCalendar(show = false)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                onAction(AddPatientAction.OnCalculateAgeFromBirthDate(millis))
+                            }
+                            onAction(AddPatientAction.ToggleShowCalendar(show = false))
+                        }
+                    ) {
+                        Text("Aceptar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { onAction(AddPatientAction.ToggleShowCalendar(show = false)) }) {
+                        Text("Cancelar")
+                    }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
         }
     }
 }
