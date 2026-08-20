@@ -23,4 +23,5 @@ data class AddPatientState(
     val activeCatalogTypeName: String = "",
     val isLoadingAddCatalog: Boolean = false,
     val isLoadingUpdatePatient: Boolean = false,
+    val showCalendar: Boolean = false
 )

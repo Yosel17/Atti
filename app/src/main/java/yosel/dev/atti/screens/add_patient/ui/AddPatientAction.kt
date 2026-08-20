@@ -12,6 +12,7 @@ sealed interface AddPatientAction {
 
     // Nueva acción para calcular la edad desde el calendario
     data class OnCalculateAgeFromBirthDate(val birthDateMillis: Long) : AddPatientAction
+    data class ToggleShowCalendar(val show: Boolean) : AddPatientAction
 
     // Acciones del BottomSheet de Selección de Cliente
     data object OnOpenClientSheet : AddPatientAction

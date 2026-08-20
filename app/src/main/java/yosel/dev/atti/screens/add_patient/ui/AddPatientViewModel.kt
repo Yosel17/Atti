@@ -138,6 +138,10 @@ class AddPatientViewModel @AssistedInject constructor(
             is AddPatientAction.OnCalculateAgeFromBirthDate -> {
                 calculateAgeFromBirthDate(action.birthDateMillis)
             }
+
+            is AddPatientAction.ToggleShowCalendar -> {
+                _state.update { it.copy(showCalendar = action.show) }
+            }
         }
     }
 
