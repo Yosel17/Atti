@@ -481,6 +481,7 @@ fun ProductCard(
 ) {
     val product = productDetails.product
     val unitType = productDetails.unitType
+    val supplier = productDetails.supplier
     val customColors = MaterialTheme.customColors
 
     val stockStatus = remember(product.stock, product.minStock) {
@@ -569,7 +570,7 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Marca: ${product.brand.ifBlank { "Sin marca" }}",
+                text = "Proveedor: ${supplier.name.ifBlank { "Sin nombre" }}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
