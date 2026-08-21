@@ -1,6 +1,13 @@
 package yosel.dev.atti.screens.navigation_bar.consultation.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,19 +32,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AssignmentTurnedIn
-import androidx.compose.material.icons.outlined.CleaningServices
-import androidx.compose.material.icons.outlined.Emergency
-import androidx.compose.material.icons.outlined.HomeWork
-import androidx.compose.material.icons.outlined.LocalHospital
-import androidx.compose.material.icons.outlined.MedicalServices
-import androidx.compose.material.icons.outlined.MonitorHeart
-import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -55,7 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,22 +60,9 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.core.utils.normalize
-
-fun getIconForConsultationReason(reasonName: String): ImageVector {
-    val normalized = reasonName.normalize()
-    return when {
-        normalized.contains("general") -> Icons.Outlined.MedicalServices
-        normalized.contains("control") -> Icons.Outlined.AssignmentTurnedIn
-        normalized.contains("profilaxis") || normalized.contains("dental") -> Icons.Outlined.CleaningServices
-        normalized.contains("cirugia") || normalized.contains("quirurgic") -> Icons.Outlined.MonitorHeart
-        normalized.contains("domicilio") || normalized.contains("casa") -> Icons.Outlined.HomeWork
-        normalized.contains("emergencia") || normalized.contains("urgencia") -> Icons.Outlined.Emergency
-        normalized.contains("hospital") || normalized.contains("internado") -> Icons.Outlined.LocalHospital
-        else -> Icons.Outlined.MedicalServices
-    }
-}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -119,7 +102,11 @@ fun BodyConsultation(
 
         // --- 2. Carrusel Horizontal de Pacientes ---
         item(span = { GridItemSpan(2) }) {
-            val displayPatients = remember(state.hasActiveConsultation, state.activeConsultation, state.filteredPatients) {
+            val displayPatients = remember(
+                state.hasActiveConsultation,
+                state.selectedPatient,
+                state.filteredPatients
+            ) {
                 if (state.hasActiveConsultation && state.selectedPatient != null) {
                     listOf(state.selectedPatient)
                 } else {
@@ -127,35 +114,60 @@ fun BodyConsultation(
                 }
             }
 
-            if (displayPatients.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No se encontraron pacientes",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(vertical = 4.dp)
-                ) {
-                    items(displayPatients, key = { it.patient.id }) { patientItem ->
-                        val isSelected = state.selectedPatient?.patient?.id == patientItem.patient.id
-                        PatientAvatarItem(
-                            patientItem = patientItem,
-                            isSelected = isSelected,
-                            isLocked = state.hasActiveConsultation,
-                            onClick = {
-                                onAction(ConsultationAction.OnSelectPatient(patientItem))
-                            }
-                        )
+            AnimatedContent(
+                targetState = displayPatients.isEmpty(),
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+                            fadeOut(animationSpec = tween(durationMillis = 180))
+                },
+                label = "PatientsEmptyStateTransition"
+            ) { isEmpty ->
+                if (isEmpty) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Pets,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No se encontraron pacientes",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        items(
+                            items = displayPatients,
+                            key = { it.patient.id }
+                        ) { patientItem ->
+                            val isSelected = state.selectedPatient?.patient?.id == patientItem.patient.id
+
+                            PatientAvatarItem(
+                                modifier = Modifier.animateItem(),
+                                patientItem = patientItem,
+                                isSelected = isSelected,
+                                isLocked = state.hasActiveConsultation,
+                                onClick = {
+                                    onAction(ConsultationAction.OnSelectPatient(patientItem))
+                                }
+                            )
+                        }
                     }
                 }
             }
