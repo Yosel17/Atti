@@ -36,12 +36,12 @@ interface ConsultationDao {
 
     @Transaction
     @Query("""
-        SELECT * FROM consultations 
-        ORDER BY 
-            CASE WHEN status = 3 THEN 1 ELSE 0 END ASC,
-            created_at DESC
+    SELECT * FROM consultations 
+    WHERE status = 1 
+    ORDER BY created_at DESC 
+    LIMIT 1
     """)
-    fun getAllConsultationsWithDetailsFlow(): Flow<List<ConsultationWithDetailsEntity>>
+    fun getActiveConsultationWithDetailsFlow(): Flow<ConsultationWithDetailsEntity?>
 
     @Transaction
     @Query("SELECT * FROM consultations WHERE id = :consultationId")

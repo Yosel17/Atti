@@ -31,10 +31,8 @@ class ConsultationRepositoryImpl @Inject constructor(
 ) : ConsultationRepository {
 
     override fun getActiveConsultationFlow(): Flow<ConsultationWithDetailsModel?> =
-        consultationDao.getAllConsultationsWithDetailsFlow()
-            .map { list ->
-                list.firstOrNull { it.consultation.status == Constants.ACTIVE_STATUS }?.toModel()
-            }
+        consultationDao.getActiveConsultationWithDetailsFlow()
+            .map { entity -> entity?.toModel() }
             .flowOn(Dispatchers.IO)
 
     override suspend fun syncActiveConsultation(): Result<Unit> = runCatching {
