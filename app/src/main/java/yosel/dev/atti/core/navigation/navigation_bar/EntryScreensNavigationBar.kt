@@ -20,6 +20,9 @@ import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.ObserveAsEvents
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.openWhatsApp
+import yosel.dev.atti.screens.navigation_bar.consultation.ui.ConsultationEvent
+import yosel.dev.atti.screens.navigation_bar.consultation.ui.ConsultationScreen
+import yosel.dev.atti.screens.navigation_bar.consultation.ui.ConsultationViewModel
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryEvent
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryScreen
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryViewModel
@@ -89,13 +92,36 @@ fun EntryProviderScope<NavKey>.directoryEntry(
     }
 }
 
-fun EntryProviderScope<NavKey>.consultationEntry(){
+fun EntryProviderScope<NavKey>.consultationEntry() {
     entry<ScreensNavigationBar.Consultation> {
-        Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.tertiary)
-        ){
-            Text(text = "ConsultationScreen", color = MaterialTheme.colorScheme.onTertiary)
+        val viewModel = hiltViewModel<ConsultationViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ConsultationEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(message = event.message)
+                    }
+                }
+                is ConsultationEvent.ShowSnackBarSuccess -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(message = event.message)
+                    }
+                }
+            }
         }
+
+        ConsultationScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction
+        )
     }
 }
 
