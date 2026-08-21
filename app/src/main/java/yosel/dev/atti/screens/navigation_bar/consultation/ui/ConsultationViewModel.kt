@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.navigation_bar.consultation.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -94,9 +95,6 @@ class ConsultationViewModel @Inject constructor(
             }
             else -> localState.selectedReason
         }
-
-        println("YoselBug: patient: $patients")
-        println("YoselBug: filteredPatients: $filteredPatients")
 
         localState.copy(
             patients = patients,
@@ -196,7 +194,10 @@ class ConsultationViewModel @Inject constructor(
                     _state.update { it.copy(consultationReasons = reasons) }
 
                     // 2. Sincronizar consulta activa
-                    repository.syncActiveConsultation()
+                    repository.syncActiveConsultation().
+                            onFailure {
+                                _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar la consulta activa"))
+                            }
 
                     // 3. Evaluar el estado actual de la consulta activa (primera emisión del Flow)
                     val currentActiveConsultation = repository.getActiveConsultationFlow().firstOrNull()
@@ -204,6 +205,9 @@ class ConsultationViewModel @Inject constructor(
                     if (currentActiveConsultation == null) {
                         // 4. Solo si NO hay consulta activa se descargan todos los pacientes
                         repository.syncPatients()
+                            .onFailure {
+                                _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar los pacientes"))
+                            }
                     }
 
                     _state.update { it.copy(isLoadingData = false) }
