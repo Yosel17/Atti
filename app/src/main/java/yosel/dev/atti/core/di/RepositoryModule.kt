@@ -20,6 +20,8 @@ import yosel.dev.atti.screens.detail_service.data.DetailServiceRepositoryImpl
 import yosel.dev.atti.screens.detail_service.domain.DetailServiceRepository
 import yosel.dev.atti.screens.detail_supplier.data.DetailSupplierRepositoryImpl
 import yosel.dev.atti.screens.detail_supplier.domain.DetailSupplierRepository
+import yosel.dev.atti.screens.navigation_bar.consultation.data.ConsultationRepositoryImpl
+import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import yosel.dev.atti.screens.navigation_bar.inventory.data.InventoryRepositoryImpl
@@ -105,4 +107,10 @@ abstract class RepositoryModule {
     abstract fun bindDetailServiceRepository(
         impl: DetailServiceRepositoryImpl
     ): DetailServiceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConsultationRepository(
+        impl: ConsultationRepositoryImpl
+    ): ConsultationRepository
 }
