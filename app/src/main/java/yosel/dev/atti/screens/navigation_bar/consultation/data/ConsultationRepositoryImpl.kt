@@ -10,9 +10,11 @@ import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
+import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
+import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.supabase.ConsultationsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
 import yosel.dev.atti.core.utils.Constants
@@ -20,6 +22,7 @@ import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import javax.inject.Inject
+import kotlin.collections.map
 
 class ConsultationRepositoryImpl @Inject constructor(
     private val consultationDao: ConsultationDao,
@@ -27,7 +30,9 @@ class ConsultationRepositoryImpl @Inject constructor(
     private val appCatalogDao: AppCatalogDao,
     private val consultationsDataSource: ConsultationsDataSource,
     private val patientsDataSource: PatientsDataSource,
-    private val appCatalogsDataSource: AppCatalogsDataSource
+    private val appCatalogsDataSource: AppCatalogsDataSource,
+    private val clientsDataSource: ClientsDataSource,
+    private val clientDao: ClientDao
 ) : ConsultationRepository {
 
     override fun getActiveConsultationFlow(): Flow<ConsultationWithDetailsModel?> =
@@ -59,9 +64,16 @@ class ConsultationRepositoryImpl @Inject constructor(
             }
             .flowOn(Dispatchers.IO)
 
-    override suspend fun syncPatients(): Result<Unit> = runCatching {
+    override suspend fun syncClientsAndPatients(): Result<Unit> = runCatching {
+        //clients
+        val remoteClients = clientsDataSource.getAllClients()
+        val clientsEntities = remoteClients.map { it.toEntity() }
+
+        clientDao.upsertClients(clientsEntities)
+
+        //patients
         val remotePatients = patientsDataSource.getAllPatientsWithCatalogs()
-        val entities = remotePatients.map { it.toEntity() }
+        val patientsEntities = remotePatients.map { it.toEntity() }
         val appCatalogsEntities = remotePatients.flatMap { patient ->
             listOfNotNull(
                 patient.species?.toEntity(),
@@ -69,7 +81,7 @@ class ConsultationRepositoryImpl @Inject constructor(
             )
         }.distinctBy { it.id }
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
-        patientDao.upsertPatients(entities)
+        patientDao.upsertPatients(patientsEntities)
     }
 
     override suspend fun getConsultationReasons(): Result<List<AppCatalogModel>> = runCatching {

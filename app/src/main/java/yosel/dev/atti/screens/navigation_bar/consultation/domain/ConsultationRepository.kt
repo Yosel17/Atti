@@ -10,7 +10,7 @@ interface ConsultationRepository {
     fun getActiveConsultationFlow(): Flow<ConsultationWithDetailsModel?>
     suspend fun syncActiveConsultation(): Result<Unit>
     fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithCatalogsModel>>
-    suspend fun syncPatients(): Result<Unit>
+    suspend fun syncClientsAndPatients(): Result<Unit>
     suspend fun getConsultationReasons(): Result<List<AppCatalogModel>>
     suspend fun createConsultation(patientId: String, consultationTypeId: Int): Result<ConsultationModel>
 }

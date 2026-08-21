@@ -204,7 +204,7 @@ class ConsultationViewModel @Inject constructor(
 
                     if (currentActiveConsultation == null) {
                         // 4. Solo si NO hay consulta activa se descargan todos los pacientes
-                        repository.syncPatients()
+                        repository.syncClientsAndPatients()
                             .onFailure {
                                 _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar los pacientes"))
                             }
