@@ -1,6 +1,5 @@
 package yosel.dev.atti.screens.navigation_bar.consultation.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,13 +36,11 @@ class ConsultationViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ConsultationState())
 
-    // Flujo debounced para el query de búsqueda
     private val debouncedPatientQuery = _state
         .map { it.patientSearchQuery }
         .distinctUntilChanged()
         .debounce(300.milliseconds)
 
-    // Flow reactivo de la consulta activa desde Room
     private val activeConsultationFlow = repository.getActiveConsultationFlow()
         .catch {
             _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar la consulta activa"))
@@ -53,7 +50,6 @@ class ConsultationViewModel @Inject constructor(
     // Solo se suscribe al Flow de Room si NO hay consulta activa
     private val patientsFlow = activeConsultationFlow.flatMapLatest { activeConsultation ->
         if (activeConsultation != null) {
-            // Si hay consulta activa, emitimos listas vacías y evitamos consultar Room por todos los pacientes
             flowOf(emptyList<PatientWithCatalogsModel>() to emptyList<PatientWithCatalogsModel>())
         } else {
             combine(
@@ -188,22 +184,18 @@ class ConsultationViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoadingData = true) }
 
-            // 1. Obtener motivos de consulta
             repository.getConsultationReasons()
                 .onSuccess { reasons ->
                     _state.update { it.copy(consultationReasons = reasons) }
 
-                    // 2. Sincronizar consulta activa
                     repository.syncActiveConsultation().
                             onFailure {
                                 _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar la consulta activa"))
                             }
 
-                    // 3. Evaluar el estado actual de la consulta activa (primera emisión del Flow)
                     val currentActiveConsultation = repository.getActiveConsultationFlow().firstOrNull()
 
                     if (currentActiveConsultation == null) {
-                        // 4. Solo si NO hay consulta activa se descargan todos los pacientes
                         repository.syncClientsAndPatients()
                             .onFailure {
                                 _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar los pacientes"))
