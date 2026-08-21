@@ -3,6 +3,7 @@ package yosel.dev.atti.screens.navigation_bar.consultation.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -24,7 +28,7 @@ import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRep
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ConsultationViewModel @Inject constructor(
     private val repository: ConsultationRepository
@@ -35,46 +39,57 @@ class ConsultationViewModel @Inject constructor(
     private val debouncedPatientQuery = _state
         .map { it.patientSearchQuery }
         .distinctUntilChanged()
-        .debounce(300L.milliseconds)
+        .debounce(300.milliseconds)
 
-    private val patientsFlow = combine(
-        repository.getAllPatientsWithCatalogsFlow().catch {
-            _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar los pacientes"))
-        },
-        debouncedPatientQuery
-    ) { patients, query ->
-        val queryNormalized = query.normalize()
-        val filtered = if (queryNormalized.isBlank()) {
-            patients
+    private val activeConsultationFlow = repository.getActiveConsultationFlow()
+        .catch {
+            _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar la consulta activa"))
+            emit(null)
+        }
+
+    // Solo se suscribe al Flow de Room si NO hay consulta activa
+    private val patientsFlow = activeConsultationFlow.flatMapLatest { activeConsultation ->
+        if (activeConsultation != null) {
+            flowOf(emptyList<PatientWithCatalogsModel>() to emptyList<PatientWithCatalogsModel>())
         } else {
-            patients.filter { item ->
-                item.patient.name.normalize().contains(queryNormalized) ||
-                        item.patient.breed.normalize().contains(queryNormalized) ||
-                        item.species.name.normalize().contains(queryNormalized)
+            combine(
+                repository.getAllPatientsWithCatalogsFlow().catch {
+                    _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar los pacientes"))
+                    emit(emptyList())
+                },
+                debouncedPatientQuery
+            ) { patients, query ->
+                val queryNormalized = query.normalize()
+                val filtered = if (queryNormalized.isBlank()) {
+                    patients
+                } else {
+                    patients.filter { item ->
+                        item.patient.name.normalize().contains(queryNormalized) ||
+                                item.patient.breed.normalize().contains(queryNormalized) ||
+                                item.species.name.normalize().contains(queryNormalized)
+                    }
+                }
+                patients to filtered
             }
         }
-        patients to filtered
     }
 
     val state: StateFlow<ConsultationState> = combine(
         patientsFlow,
-        repository.getActiveConsultationFlow().catch {
-            _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar la consulta activa"))
-        },
+        activeConsultationFlow,
         _state
     ) { (patients, filteredPatients), activeConsultation, localState ->
-        val resolvedSelectedPatient = if (activeConsultation != null) {
-            patients.find { it.patient.id == activeConsultation.patient.id }
-                ?: PatientWithCatalogsModel(patient = activeConsultation.patient)
-        } else {
-            localState.selectedPatient
+        val resolvedSelectedPatient = when {
+            activeConsultation != null -> PatientWithCatalogsModel(patient = activeConsultation.patient)
+            else -> localState.selectedPatient
         }
 
-        val resolvedSelectedReason = if (activeConsultation != null) {
-            localState.consultationReasons.find { it.id == activeConsultation.consultationType.id }
-                ?: activeConsultation.consultationType
-        } else {
-            localState.selectedReason
+        val resolvedSelectedReason = when {
+            activeConsultation != null -> {
+                localState.consultationReasons.find { it.id == activeConsultation.consultationType.id }
+                    ?: activeConsultation.consultationType
+            }
+            else -> localState.selectedReason
         }
 
         localState.copy(
@@ -90,7 +105,7 @@ class ConsultationViewModel @Inject constructor(
         initialValue = ConsultationState()
     )
 
-    private val _events = Channel<ConsultationEvent>()
+    private val _events = Channel<ConsultationEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
     init {
@@ -103,7 +118,7 @@ class ConsultationViewModel @Inject constructor(
                 _state.update { it.copy(patientSearchQuery = action.query) }
             }
             is ConsultationAction.OnSelectPatient -> {
-                if (_state.value.hasActiveConsultation) return
+                if (_state.value.activeConsultation != null) return
                 _state.update {
                     it.copy(
                         selectedPatient = if (it.selectedPatient?.patient?.id == action.patient.patient.id) null else action.patient
@@ -111,7 +126,7 @@ class ConsultationViewModel @Inject constructor(
                 }
             }
             is ConsultationAction.OnSelectConsultationReason -> {
-                if (_state.value.hasActiveConsultation) return
+                if (_state.value.activeConsultation != null) return
                 handleReasonSelection(action.reason)
             }
             ConsultationAction.OnConfirmStartConsultation -> startConsultation()
@@ -169,17 +184,25 @@ class ConsultationViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoadingData = true) }
 
-            repository.syncPatients()
-            repository.syncActiveConsultation()
-
             repository.getConsultationReasons()
                 .onSuccess { reasons ->
-                    _state.update {
-                        it.copy(
-                            consultationReasons = reasons,
-                            isLoadingData = false
-                        )
+                    _state.update { it.copy(consultationReasons = reasons) }
+
+                    repository.syncActiveConsultation().
+                            onFailure {
+                                _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar la consulta activa"))
+                            }
+
+                    val currentActiveConsultation = repository.getActiveConsultationFlow().firstOrNull()
+
+                    if (currentActiveConsultation == null) {
+                        repository.syncClientsAndPatients()
+                            .onFailure {
+                                _events.send(ConsultationEvent.ShowSnackBarError("Error al sincronizar los pacientes"))
+                            }
                     }
+
+                    _state.update { it.copy(isLoadingData = false) }
                 }
                 .onFailure {
                     _state.update { it.copy(isLoadingData = false) }
