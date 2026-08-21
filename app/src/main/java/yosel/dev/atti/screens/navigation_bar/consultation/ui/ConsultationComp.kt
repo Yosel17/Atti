@@ -56,13 +56,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.core.utils.normalize
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -249,34 +252,32 @@ fun PatientAvatarItem(
                     modifier = Modifier.size(38.dp)
                 )
             }
-
-            if (patientItem.species.name.isNotBlank()) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                ) {
-                    Text(
-                        text = patientItem.species.name.uppercase(),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-            }
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        Text(
-            text = patientItem.patient.name.ifBlank { "Sin nombre" },
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-            ),
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
+        ) {
+            Box(
+                modifier = Modifier.padding(6.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text = patientItem.patient.name.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    ),
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+            }
+        }
+
     }
 }
 
@@ -409,4 +410,26 @@ fun ConfirmStartConsultationDialog(
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         shape = RoundedCornerShape(28.dp)
     )
+}
+
+@PreviewLightDark
+@Composable
+private fun PatientAvatarItemPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)
+        ){
+            PatientAvatarItem(
+                patientItem = PatientWithCatalogsModel(
+                    patient = PatientModel(
+                        name = "Neron",
+                        speciesId = 1
+                    )
+                ),
+                isSelected = true,
+                isLocked = false,
+                onClick = {}
+            )
+        }
+    }
 }
