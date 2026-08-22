@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.SnackBarError
 import yosel.dev.atti.core.models.model.AppCatalogModel
@@ -74,14 +75,12 @@ fun ConsultationScreen(
             )
         }
 
-        SnackbarHost(
-            hostState = snackBarHostState,
+        CustomSnackbarHost(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
-        ) { data ->
-            SnackBarError(data = data)
-        }
+                .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
+            hostState = snackBarHostState
+        )
     }
 }
 
@@ -94,6 +93,7 @@ private fun ConsultationPreview() {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
             state = ConsultationState(
+                showConfirmDialog = true,
                 isLoadingData = false,
                 consultationReasons = listOf(
                     AppCatalogModel(
@@ -133,8 +133,21 @@ private fun ConsultationPreview() {
                         breed = "Labrador",
                         speciesId = 1
                     ),
-                )
                 ),
+                pendingSelectedReason = AppCatalogModel(
+                    id = 1,
+                    name = "Consulta general"
+                ),
+                selectedPatient = PatientWithCatalogsModel(
+                    patient = PatientModel(
+                        id = "1",
+                        name = "Max",
+                        breed = "Labrador",
+                        speciesId = 1
+                    )
+                ),
+                isStartingConsultation = true
+            ),
             snackBarHostState = SnackbarHostState(),
             onAction = {}
         )

@@ -16,6 +16,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.components.SnackbarType
+import yosel.dev.atti.core.components.showCustomSnackbar
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.ObserveAsEvents
 import yosel.dev.atti.core.utils.dialPhoneNumber
@@ -103,12 +105,18 @@ fun EntryProviderScope<NavKey>.consultationEntry() {
             when (event) {
                 is ConsultationEvent.ShowSnackBarError -> {
                     scope.launch {
-                        snackBarHostState.showSnackbar(message = event.message)
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
                     }
                 }
                 is ConsultationEvent.ShowSnackBarSuccess -> {
                     scope.launch {
-                        snackBarHostState.showSnackbar(message = event.message)
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
                     }
                 }
             }

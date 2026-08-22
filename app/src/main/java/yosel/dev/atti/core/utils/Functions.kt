@@ -6,9 +6,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.AssignmentTurnedIn
+import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.CrueltyFree
+import androidx.compose.material.icons.outlined.Emergency
 import androidx.compose.material.icons.outlined.Female
+import androidx.compose.material.icons.outlined.HomeWork
+import androidx.compose.material.icons.outlined.LocalHospital
 import androidx.compose.material.icons.outlined.Male
+import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -98,5 +105,19 @@ fun getIconGender(genderId: Int): ImageVector {
         Constants.MALE_GENDER_CATALOG -> Icons.Outlined.Male
         Constants.FEMALE_GENDER_CATALOG -> Icons.Outlined.Female
         else -> Icons.Outlined.QuestionMark
+    }
+}
+
+fun getIconForConsultationReason(reasonName: String): ImageVector {
+    val normalized = reasonName.normalize()
+    return when {
+        normalized.contains("general") -> Icons.Outlined.MedicalServices
+        normalized.contains("control") -> Icons.Outlined.AssignmentTurnedIn
+        normalized.contains("profilaxis") || normalized.contains("dental") -> Icons.Outlined.CleaningServices
+        normalized.contains("cirugia") || normalized.contains("quirurgic") -> Icons.Outlined.MonitorHeart
+        normalized.contains("domicilio") || normalized.contains("casa") -> Icons.Outlined.HomeWork
+        normalized.contains("emergencia") || normalized.contains("urgencia") -> Icons.Outlined.Emergency
+        normalized.contains("hospital") || normalized.contains("internado") -> Icons.Outlined.LocalHospital
+        else -> Icons.Outlined.MedicalServices
     }
 }

@@ -1,6 +1,14 @@
 package yosel.dev.atti.screens.navigation_bar.consultation.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,27 +31,23 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AssignmentTurnedIn
-import androidx.compose.material.icons.outlined.CleaningServices
-import androidx.compose.material.icons.outlined.Emergency
-import androidx.compose.material.icons.outlined.HomeWork
-import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.MedicalServices
-import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,31 +59,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.core.utils.normalize
-
-fun getIconForConsultationReason(reasonName: String): ImageVector {
-    val normalized = reasonName.normalize()
-    return when {
-        normalized.contains("general") -> Icons.Outlined.MedicalServices
-        normalized.contains("control") -> Icons.Outlined.AssignmentTurnedIn
-        normalized.contains("profilaxis") || normalized.contains("dental") -> Icons.Outlined.CleaningServices
-        normalized.contains("cirugia") || normalized.contains("quirurgic") -> Icons.Outlined.MonitorHeart
-        normalized.contains("domicilio") || normalized.contains("casa") -> Icons.Outlined.HomeWork
-        normalized.contains("emergencia") || normalized.contains("urgencia") -> Icons.Outlined.Emergency
-        normalized.contains("hospital") || normalized.contains("internado") -> Icons.Outlined.LocalHospital
-        else -> Icons.Outlined.MedicalServices
-    }
-}
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -119,7 +113,11 @@ fun BodyConsultation(
 
         // --- 2. Carrusel Horizontal de Pacientes ---
         item(span = { GridItemSpan(2) }) {
-            val displayPatients = remember(state.hasActiveConsultation, state.activeConsultation, state.filteredPatients) {
+            val displayPatients = remember(
+                state.hasActiveConsultation,
+                state.selectedPatient,
+                state.filteredPatients
+            ) {
                 if (state.hasActiveConsultation && state.selectedPatient != null) {
                     listOf(state.selectedPatient)
                 } else {
@@ -127,35 +125,60 @@ fun BodyConsultation(
                 }
             }
 
-            if (displayPatients.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No se encontraron pacientes",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(vertical = 4.dp)
-                ) {
-                    items(displayPatients, key = { it.patient.id }) { patientItem ->
-                        val isSelected = state.selectedPatient?.patient?.id == patientItem.patient.id
-                        PatientAvatarItem(
-                            patientItem = patientItem,
-                            isSelected = isSelected,
-                            isLocked = state.hasActiveConsultation,
-                            onClick = {
-                                onAction(ConsultationAction.OnSelectPatient(patientItem))
-                            }
-                        )
+            AnimatedContent(
+                targetState = displayPatients.isEmpty(),
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+                            fadeOut(animationSpec = tween(durationMillis = 180))
+                },
+                label = "PatientsEmptyStateTransition"
+            ) { isEmpty ->
+                if (isEmpty) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Pets,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No se encontraron pacientes",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        items(
+                            items = displayPatients,
+                            key = { it.patient.id }
+                        ) { patientItem ->
+                            val isSelected = state.selectedPatient?.patient?.id == patientItem.patient.id
+
+                            PatientAvatarItem(
+                                modifier = Modifier.animateItem(),
+                                patientItem = patientItem,
+                                isSelected = isSelected,
+                                isLocked = state.hasActiveConsultation,
+                                onClick = {
+                                    onAction(ConsultationAction.OnSelectPatient(patientItem))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -237,34 +260,32 @@ fun PatientAvatarItem(
                     modifier = Modifier.size(38.dp)
                 )
             }
-
-            if (patientItem.species.name.isNotBlank()) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                ) {
-                    Text(
-                        text = patientItem.species.name.uppercase(),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-            }
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        Text(
-            text = patientItem.patient.name.ifBlank { "Sin nombre" },
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-            ),
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = borderColor,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
+        ) {
+            Box(
+                modifier = Modifier.padding(6.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text = patientItem.patient.name.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    ),
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+            }
+        }
+
     }
 }
 
@@ -340,61 +361,168 @@ fun ConfirmStartConsultationDialog(
     reasonName: String,
     isLoading: Boolean,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
+        properties = DialogProperties(
+            dismissOnBackPress = !isLoading,
+            dismissOnClickOutside = !isLoading
+        ),
+        modifier = modifier,
         icon = {
-            Icon(
-                imageVector = Icons.Outlined.PlayArrow,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayArrow,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         },
         title = {
             Text(
-                text = "¿Iniciar Consulta?",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
+                text = "Iniciar Consulta",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
-            Text(
-                text = "Se registrará e iniciará la consulta de tipo \"$reasonName\" para el paciente \"$patientName\".",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Confirma que deseas iniciar la sesión para este paciente:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Tarjeta de información destacada
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Paciente
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Pets,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "Paciente",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = patientName,
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+
+                        // Motivo / Tipo de consulta
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MedicalServices,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "Motivo de Consulta",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = reasonName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         },
         confirmButton = {
             Button(
                 onClick = onConfirm,
                 enabled = !isLoading,
-                shape = RoundedCornerShape(100.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                if (isLoading) {
+                AnimatedVisibility(visible = isLoading, enter = fadeIn(), exit = fadeOut()) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.primary,
                         strokeWidth = 2.dp
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Iniciando...")
-                } else {
-                    Text(text = "Iniciar consulta")
                 }
+                if (isLoading) Spacer(modifier = Modifier.width(8.dp))
+                Text(text = if (isLoading) "Iniciando..." else "Comenzar")
             }
         },
         dismissButton = {
-            TextButton(
+            OutlinedButton(
                 onClick = onDismiss,
-                enabled = !isLoading
+                enabled = !isLoading,
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(text = "Cancelar")
             }
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(28.dp)
+        shape = RoundedCornerShape(24.dp)
     )
+}
+
+@PreviewLightDark
+@Composable
+private fun PatientAvatarItemPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)
+        ){
+            PatientAvatarItem(
+                patientItem = PatientWithCatalogsModel(
+                    patient = PatientModel(
+                        name = "Neron",
+                        speciesId = 1
+                    )
+                ),
+                isSelected = true,
+                isLocked = false,
+                onClick = {}
+            )
+        }
+    }
 }
