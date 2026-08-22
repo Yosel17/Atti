@@ -59,6 +59,7 @@ object Constants {
     const val PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG = 4
     const val SERVICE_CATEGORY_TYPE_CATALOG = 5
     const val CONSULTATION_REASON_TYPE_CATALOG = 6
+    const val CONSULTATION_STEPS_TYPE_CATALOG = 7
 
     //Catalogos
     const val CANINE_SPECIES_CATALOG = 1
