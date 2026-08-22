@@ -1,6 +1,8 @@
 package yosel.dev.atti.core.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -90,17 +92,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.getIconSpecies
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -1249,4 +1257,136 @@ fun PhoneInputFieldWithTextGlobal(
         isError = isError,
         errorMessage = errorMessage
     )
+}
+
+@Composable
+fun PatientConsultationHeaderCard(
+    consultation: ConsultationWithDetailsModel,
+    modifier: Modifier = Modifier,
+    statusContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    statusContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceBright
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PatientAvatar(
+                speciesId = consultation.patient.speciesId,
+                modifier = Modifier.size(56.dp)
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = consultation.patient.name.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = consultation.patient.breed.ifBlank { "Raza no especificada" },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            ConsultationStatusBadge(
+                modifier = Modifier.align(Alignment.Top),
+                status = "Canino",
+                containerColor = statusContainerColor,
+                contentColor = statusContentColor
+            )
+        }
+    }
+}
+
+@Composable
+private fun PatientAvatar(
+    speciesId: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
+                shape = CircleShape
+            )
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(id = getIconSpecies(speciesId)),
+            contentDescription = null,
+            modifier = Modifier.size(32.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ConsultationStatusBadge(
+    status: String,
+    containerColor: Color,
+    contentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(100),
+        color = containerColor
+    ) {
+        Text(
+            text = status.uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun PatientConsultationHeaderCardPreview() {
+    AttiTheme {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)){
+            PatientConsultationHeaderCard(
+                consultation = ConsultationWithDetailsModel(
+                    patient = PatientModel(
+                        name = "Max",
+                        breed = "Labrador",
+                        speciesId = 1
+                    )
+                )
+            )
+        }
+    }
 }
