@@ -94,6 +94,7 @@ private fun ConsultationPreview() {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
             state = ConsultationState(
+                showConfirmDialog = true,
                 isLoadingData = false,
                 consultationReasons = listOf(
                     AppCatalogModel(
@@ -133,8 +134,21 @@ private fun ConsultationPreview() {
                         breed = "Labrador",
                         speciesId = 1
                     ),
-                )
                 ),
+                pendingSelectedReason = AppCatalogModel(
+                    id = 1,
+                    name = "Consulta general"
+                ),
+                selectedPatient = PatientWithCatalogsModel(
+                    patient = PatientModel(
+                        id = "1",
+                        name = "Max",
+                        breed = "Labrador",
+                        speciesId = 1
+                    )
+                ),
+                isStartingConsultation = true
+            ),
             snackBarHostState = SnackbarHostState(),
             onAction = {}
         )

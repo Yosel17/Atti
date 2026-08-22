@@ -159,7 +159,7 @@ class ConsultationViewModel @Inject constructor(
         val pendingReason = _state.value.pendingSelectedReason ?: return
 
         viewModelScope.launch {
-            _state.update { it.copy(isStartingConsultation = true, showConfirmDialog = false) }
+            _state.update { it.copy(isStartingConsultation = true) }
 
             repository.createConsultation(
                 patientId = currentPatient.patient.id,
@@ -168,13 +168,14 @@ class ConsultationViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isStartingConsultation = false,
+                        showConfirmDialog = false,
                         selectedReason = pendingReason,
                         pendingSelectedReason = null
                     )
                 }
                 _events.send(ConsultationEvent.ShowSnackBarSuccess("Consulta iniciada exitosamente"))
             }.onFailure {
-                _state.update { it.copy(isStartingConsultation = false, pendingSelectedReason = null) }
+                _state.update { it.copy(isStartingConsultation = false, showConfirmDialog = false, pendingSelectedReason = null) }
                 _events.send(ConsultationEvent.ShowSnackBarError("No se pudo iniciar la consulta"))
             }
         }
