@@ -32,6 +32,9 @@ import yosel.dev.atti.screens.add_supplier.ui.AddSupplierViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
+import yosel.dev.atti.screens.detail_consultation.ui.DetailConsultationEvent
+import yosel.dev.atti.screens.detail_consultation.ui.DetailConsultationScreen
+import yosel.dev.atti.screens.detail_consultation.ui.DetailConsultationViewModel
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientScreen
 import yosel.dev.atti.screens.detail_patient.ui.DetailPatientViewModel
@@ -603,6 +606,44 @@ fun EntryProviderScope<NavKey>.detailServiceEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.detailConsultationEntry(
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
+){
+    entry<Screens.DetailConsultation> { detailConsultationKey ->
+        val viewModel: DetailConsultationViewModel = hiltViewModel(
+            creationCallback = { factory: DetailConsultationViewModel.Factory ->
+                factory.create(consultationId = detailConsultationKey.consultationId)
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is DetailConsultationEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+            }
+        }
+
+        DetailConsultationScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
             onBack = onBack
         )
     }

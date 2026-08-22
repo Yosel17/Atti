@@ -129,7 +129,9 @@ fun MainScreen(
                 directoryEntry(
                     onNavigationMain = onNavigationMain
                 )
-                consultationEntry()
+                consultationEntry(
+                    onNavigationMain = onNavigationMain
+                )
                 inventoryEntry(
                     onNavigationMain = onNavigationMain
                 )

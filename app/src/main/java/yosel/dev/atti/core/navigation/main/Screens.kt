@@ -37,4 +37,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class DetailService(val serviceId: String): Screens
+
+    @Serializable
+    data class DetailConsultation(val consultationId: String): Screens
 }
