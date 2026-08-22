@@ -29,6 +29,24 @@ class ConsultationsDataSource @Inject constructor(
             .decodeList<ConsultationDto>()
     }
 
+    suspend fun getConsultationsWithDetailsById(id: String): ConsultationDto? {
+        return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    """
+                *,
+                patient:patients!patient_id(*),
+                consultation_type:app_catalogs!consultation_type_id(*)
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    eq("id", id)
+                }
+            }
+            .decodeSingleOrNull<ConsultationDto>()
+    }
+
     suspend fun getConsultationsByPatientId(patientId: String): List<ConsultationDto> {
         return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
             .select(
