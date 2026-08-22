@@ -26,6 +26,7 @@ import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -34,7 +35,8 @@ fun ConsultationScreen(
     modifier: Modifier = Modifier,
     state: ConsultationState,
     snackBarHostState: SnackbarHostState,
-    onAction: (ConsultationAction) -> Unit
+    onAction: (ConsultationAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedContent(
@@ -60,7 +62,8 @@ fun ConsultationScreen(
                 BodyConsultation(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    onAction = onAction
+                    onAction = onAction,
+                    onNavigationMain = onNavigationMain
                 )
             }
         }
@@ -149,7 +152,8 @@ private fun ConsultationPreview() {
                 isStartingConsultation = true
             ),
             snackBarHostState = SnackbarHostState(),
-            onAction = {}
+            onAction = {},
+            onNavigationMain = {}
         )
     }
 }

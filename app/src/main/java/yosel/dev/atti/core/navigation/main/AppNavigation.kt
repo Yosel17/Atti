@@ -90,6 +90,15 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.add(screens)
                 }
             )
+
+            detailConsultationEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screens ->
+                    backStack.add(screens)
+                }
+            )
         }
     )
 }

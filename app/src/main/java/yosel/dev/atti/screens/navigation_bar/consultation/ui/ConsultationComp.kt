@@ -70,6 +70,7 @@ import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.core.utils.normalize
@@ -80,7 +81,8 @@ import yosel.dev.atti.ui.theme.AttiTheme
 fun BodyConsultation(
     modifier: Modifier = Modifier,
     state: ConsultationState,
-    onAction: (ConsultationAction) -> Unit
+    onAction: (ConsultationAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -204,9 +206,14 @@ fun BodyConsultation(
                 reason = reason,
                 isSelected = isSelected,
                 isEmergency = isEmergency,
-                isLocked = state.hasActiveConsultation,
                 onClick = {
-                    onAction(ConsultationAction.OnSelectConsultationReason(reason))
+                    if (state.hasActiveConsultation ){
+                        if (reason.id == state.selectedReason?.id){
+                            onNavigationMain(Screens.DetailConsultation(consultationId = state.activeConsultation!!.consultation.id))
+                        }
+                    }else{
+                        onAction(ConsultationAction.OnSelectConsultationReason(reason))
+                    }
                 }
             )
         }
@@ -295,7 +302,6 @@ fun ConsultationReasonCard(
     reason: AppCatalogModel,
     isSelected: Boolean,
     isEmergency: Boolean,
-    isLocked: Boolean,
     onClick: () -> Unit
 ) {
     val icon = remember(reason.name) { getIconForConsultationReason(reason.name) }
@@ -324,7 +330,7 @@ fun ConsultationReasonCard(
             .fillMaxWidth()
             .height(115.dp)
             .clip(RoundedCornerShape(20.dp))
-            .clickable(enabled = !isLocked, onClick = onClick),
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.outlinedCardColors(containerColor = containerColor),
         border = borderStroke

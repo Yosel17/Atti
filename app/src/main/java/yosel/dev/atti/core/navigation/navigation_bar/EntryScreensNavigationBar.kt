@@ -94,7 +94,9 @@ fun EntryProviderScope<NavKey>.directoryEntry(
     }
 }
 
-fun EntryProviderScope<NavKey>.consultationEntry() {
+fun EntryProviderScope<NavKey>.consultationEntry(
+    onNavigationMain: (Screens) -> Unit
+) {
     entry<ScreensNavigationBar.Consultation> {
         val viewModel = hiltViewModel<ConsultationViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -128,7 +130,8 @@ fun EntryProviderScope<NavKey>.consultationEntry() {
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
         )
     }
 }
