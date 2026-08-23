@@ -16,7 +16,11 @@ class ConsultationsDataSource @Inject constructor(
                 columns = Columns.raw(
                     """
                 *,
-                patient:patients!patient_id(*),
+                patient:patients(
+                    *,
+                    species:app_catalogs!species_id(*),
+                    gender:app_catalogs!gender_id(*)
+                ),
                 consultation_type:app_catalogs!consultation_type_id(*)
                 """.trimIndent()
                 )

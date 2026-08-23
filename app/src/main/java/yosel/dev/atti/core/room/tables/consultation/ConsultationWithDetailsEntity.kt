@@ -4,15 +4,18 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
+import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 
 data class ConsultationWithDetailsEntity(
     @Embedded val consultation: ConsultationEntity,
     @Relation(
+        entity = PatientEntity::class,
         parentColumn = "patient_id",
         entityColumn = "id"
     )
-    val patient: PatientEntity?,
+    val patientWithDetails: PatientWithCatalogsEntity?,
     @Relation(
+        entity = AppCatalogEntity::class,
         parentColumn = "consultation_type_id",
         entityColumn = "id"
     )

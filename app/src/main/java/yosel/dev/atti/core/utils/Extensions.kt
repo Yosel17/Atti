@@ -796,7 +796,7 @@ fun ConsultationModel.toDtoForUpdate() = ConsultationDto(
 
 fun ConsultationWithDetailsEntity.toModel() = ConsultationWithDetailsModel(
     consultation = consultation.toModel(),
-    patient = patient?.toModel() ?: PatientModel(),
+    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithCatalogsModel(),
     consultationType = consultationType?.toModel() ?: AppCatalogModel()
 )
 

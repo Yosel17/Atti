@@ -22,7 +22,6 @@ import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import javax.inject.Inject
-import kotlin.collections.map
 
 class ConsultationRepositoryImpl @Inject constructor(
     private val consultationDao: ConsultationDao,
@@ -42,12 +41,18 @@ class ConsultationRepositoryImpl @Inject constructor(
 
     override suspend fun syncActiveConsultation(): Result<Unit> = runCatching {
         val remoteConsultations = consultationsDataSource.getConsultationsWithDetailsByStatus(Constants.ACTIVE_STATUS)
-        val consultationEntities = remoteConsultations.map { it.toEntity() }
-        val catalogEntities = remoteConsultations.mapNotNull { it.consultationType?.toEntity() }
+        val allCatalogEntities = remoteConsultations.flatMap { consultation ->
+            listOfNotNull(
+                consultation.consultationType?.toEntity(),
+                consultation.patient?.species?.toEntity(),
+                consultation.patient?.gender?.toEntity()
+            )
+        }.distinctBy { it.id }
         val patientEntities = remoteConsultations.mapNotNull { it.patient?.toEntity() }
+        val consultationEntities = remoteConsultations.map { it.toEntity() }
 
-        if (catalogEntities.isNotEmpty()) {
-            appCatalogDao.insertAllCatalogs(catalogEntities)
+        if (allCatalogEntities.isNotEmpty()) {
+            appCatalogDao.insertAllCatalogs(allCatalogEntities)
         }
         if (patientEntities.isNotEmpty()) {
             patientDao.upsertPatients(patientEntities)
