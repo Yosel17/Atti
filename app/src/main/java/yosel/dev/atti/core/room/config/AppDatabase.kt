@@ -8,6 +8,8 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
+import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
+import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.product.ProductDao
@@ -28,7 +30,8 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         ProductEntity::class,
         ServiceEntity::class,
         ServiceSupplyEntity::class,
-        ConsultationEntity::class
+        ConsultationEntity::class,
+        ConsultationTypeStepEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -43,4 +46,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun serviceDao(): ServiceDao
     abstract fun serviceSupplyDao(): ServiceSupplyDao
     abstract fun consultationDao(): ConsultationDao
+    abstract fun consultationTypeStepDao(): ConsultationTypeStepDao
 }

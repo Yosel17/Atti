@@ -13,6 +13,7 @@ object Constants {
     const val SUPPLIERS_SUPABASE = "suppliers"
     const val SERVICE_SUPPLIES_SUPABASE = "service_supplies"
     const val CONSULTATIONS_SUPABASE = "consultations"
+    const val CONSULTATION_TYPE_STEPS_SUPABASE = "consultation_type_steps"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

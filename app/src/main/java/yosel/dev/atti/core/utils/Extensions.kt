@@ -3,6 +3,7 @@ package yosel.dev.atti.core.utils
 import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
+import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
@@ -13,6 +14,8 @@ import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
 import yosel.dev.atti.core.models.model.ConsultationModel
+import yosel.dev.atti.core.models.model.ConsultationTypeStepModel
+import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
@@ -29,6 +32,8 @@ import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
+import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
+import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.product.ProductEntity
@@ -798,6 +803,45 @@ fun ConsultationWithDetailsEntity.toModel() = ConsultationWithDetailsModel(
     consultation = consultation.toModel(),
     patientWithDetails = patientWithDetails?.toModel() ?: PatientWithCatalogsModel(),
     consultationType = consultationType?.toModel() ?: AppCatalogModel()
+)
+
+// --- CONSULTATION TYPE STEPS ---
+fun ConsultationTypeStepDto.toEntity() = ConsultationTypeStepEntity(
+    id = id ?: 0,
+    consultationTypeId = consultationTypeId,
+    stepCatalogId = stepCatalogId,
+    stepOrder = stepOrder,
+    isRequired = isRequired
+)
+
+fun ConsultationTypeStepEntity.toModel() = ConsultationTypeStepModel(
+    id = id,
+    consultationTypeId = consultationTypeId,
+    stepCatalogId = stepCatalogId,
+    stepOrder = stepOrder,
+    isRequired = isRequired
+)
+
+fun ConsultationTypeStepModel.toEntity() = ConsultationTypeStepEntity(
+    id = id,
+    consultationTypeId = consultationTypeId,
+    stepCatalogId = stepCatalogId,
+    stepOrder = stepOrder,
+    isRequired = isRequired
+)
+
+fun ConsultationTypeStepDto.toModel() = ConsultationTypeStepModel(
+    id = id ?: 0,
+    consultationTypeId = consultationTypeId,
+    stepCatalogId = stepCatalogId,
+    stepOrder = stepOrder,
+    isRequired = isRequired
+)
+
+fun ConsultationTypeStepWithDetailsEntity.toModel() = ConsultationTypeStepWithDetailsModel(
+    typeStep = typeStep.toModel(),
+    consultationType = consultationType?.toModel() ?: AppCatalogModel(),
+    stepCatalog = stepCatalog?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
