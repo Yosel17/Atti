@@ -1337,7 +1337,7 @@ private fun PatientAvatar(
             .clip(CircleShape)
             .border(
                 width = 2.dp,
-                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                 shape = CircleShape
             )
             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -1378,7 +1378,7 @@ private fun ConsultationStatusBadge(
 @Composable
 private fun PatientConsultationHeaderCardPreview() {
     AttiTheme {
-        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)){
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(24.dp)){
             PatientConsultationHeaderCard(
                 consultation = ConsultationWithDetailsModel(
                     patientWithDetails = PatientWithCatalogsModel(
@@ -1386,6 +1386,9 @@ private fun PatientConsultationHeaderCardPreview() {
                             name = "Max",
                             breed = "Labrador",
                             speciesId = 1
+                        ),
+                        species = AppCatalogModel(
+                            name = "Canino"
                         )
                     )
                 )
