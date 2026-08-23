@@ -80,7 +80,7 @@ class ConsultationViewModel @Inject constructor(
         _state
     ) { (patients, filteredPatients), activeConsultation, localState ->
         val resolvedSelectedPatient = when {
-            activeConsultation != null -> PatientWithCatalogsModel(patient = activeConsultation.patient)
+            activeConsultation != null -> activeConsultation.patientWithDetails
             else -> localState.selectedPatient
         }
 

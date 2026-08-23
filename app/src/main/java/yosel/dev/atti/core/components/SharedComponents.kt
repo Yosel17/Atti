@@ -106,6 +106,7 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -1287,7 +1288,7 @@ fun PatientConsultationHeaderCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             PatientAvatar(
-                speciesId = consultation.patient.speciesId,
+                speciesId = consultation.patientWithDetails.patient.speciesId,
                 modifier = Modifier.size(56.dp)
             )
 
@@ -1298,7 +1299,7 @@ fun PatientConsultationHeaderCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = consultation.patient.name.ifBlank { "Sin nombre" },
+                    text = consultation.patientWithDetails.patient.name.ifBlank { "Sin nombre" },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -1306,7 +1307,7 @@ fun PatientConsultationHeaderCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = consultation.patient.breed.ifBlank { "Raza no especificada" },
+                    text = consultation.patientWithDetails.patient.breed.ifBlank { "Raza no especificada" },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -1318,7 +1319,7 @@ fun PatientConsultationHeaderCard(
 
             ConsultationStatusBadge(
                 modifier = Modifier.align(Alignment.Top),
-                status = "Canino",
+                specieName = consultation.patientWithDetails.species.name,
                 containerColor = statusContainerColor,
                 contentColor = statusContentColor
             )
@@ -1353,7 +1354,7 @@ private fun PatientAvatar(
 
 @Composable
 private fun ConsultationStatusBadge(
-    status: String,
+    specieName: String,
     containerColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier
@@ -1364,7 +1365,7 @@ private fun ConsultationStatusBadge(
         color = containerColor
     ) {
         Text(
-            text = status.uppercase(),
+            text = specieName.uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = contentColor,
@@ -1380,10 +1381,12 @@ private fun PatientConsultationHeaderCardPreview() {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)){
             PatientConsultationHeaderCard(
                 consultation = ConsultationWithDetailsModel(
-                    patient = PatientModel(
-                        name = "Max",
-                        breed = "Labrador",
-                        speciesId = 1
+                    patientWithDetails = PatientWithCatalogsModel(
+                        patient = PatientModel(
+                            name = "Max",
+                            breed = "Labrador",
+                            speciesId = 1
+                        )
                     )
                 )
             )

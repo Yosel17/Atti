@@ -130,12 +130,14 @@ private fun ConsultationPreview() {
                         patientId = "1",
                         consultationTypeId = 1
                     ),
-                    patient = PatientModel(
-                        id = "1",
-                        name = "Max",
-                        breed = "Labrador",
-                        speciesId = 1
-                    ),
+                    patientWithDetails = PatientWithCatalogsModel(
+                        patient = PatientModel(
+                            id = "1",
+                            name = "Max",
+                            breed = "Labrador",
+                            speciesId = 1
+                        )
+                    ) ,
                 ),
                 pendingSelectedReason = AppCatalogModel(
                     id = 1,
