@@ -30,7 +30,7 @@ interface ConsultationTypeStepDao {
 
     @Transaction
     @Query("SELECT * FROM consultation_type_steps WHERE consultation_type_id = :consultationTypeId ORDER BY step_order ASC")
-    fun getStepsWithDetailsByConsultationTypeId(consultationTypeId: Int): List<ConsultationTypeStepWithDetailsEntity>
+    suspend fun getStepsWithDetailsByConsultationTypeId(consultationTypeId: Int): List<ConsultationTypeStepWithDetailsEntity>
 
     @Transaction
     @Query("SELECT * FROM consultation_type_steps WHERE id = :id")
