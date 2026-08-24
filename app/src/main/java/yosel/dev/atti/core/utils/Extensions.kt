@@ -1,5 +1,9 @@
 package yosel.dev.atti.core.utils
 
+import yosel.dev.atti.core.models.dto.AnamnesisDewormingDto
+import yosel.dev.atti.core.models.dto.AnamnesisDto
+import yosel.dev.atti.core.models.dto.AnamnesisEnvironmentOptionDto
+import yosel.dev.atti.core.models.dto.AnamnesisVaccineDto
 import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
@@ -9,6 +13,14 @@ import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
 import yosel.dev.atti.core.models.dto.SupplierDto
+import yosel.dev.atti.core.models.model.AnamnesisDewormingModel
+import yosel.dev.atti.core.models.model.AnamnesisDewormingWithDetailsModel
+import yosel.dev.atti.core.models.model.AnamnesisEnviOptWithDetailsModel
+import yosel.dev.atti.core.models.model.AnamnesisEnvironmentOptionModel
+import yosel.dev.atti.core.models.model.AnamnesisModel
+import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
+import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
+import yosel.dev.atti.core.models.model.AnamnesisWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
@@ -26,6 +38,14 @@ import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDewormingEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDewormingWithDetailsEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEnviOptWithDetailsEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEnvironmentOptionEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineWithDetailsEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisWithDetailsEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
@@ -842,6 +862,220 @@ fun ConsultationTypeStepWithDetailsEntity.toModel() = ConsultationTypeStepWithDe
     typeStep = typeStep.toModel(),
     consultationType = consultationType?.toModel() ?: AppCatalogModel(),
     stepCatalog = stepCatalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- ANAMNESIS ---
+
+fun AnamnesisDto.toEntity() = AnamnesisEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates.orEmpty(),
+    foodBrandId = foodBrandId ?: 0,
+    foodQuantity = foodQuantity ?: 0.0,
+    foodUnitTypeId = foodUnitTypeId ?: 0,
+    homemadeFood = homemadeFood.orEmpty(),
+    feedingFrequency = feedingFrequency.orEmpty(),
+    waterConsumption = waterConsumption.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AnamnesisEntity.toModel() = AnamnesisModel(
+    id = id,
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates,
+    foodBrandId = foodBrandId,
+    foodQuantity = foodQuantity,
+    foodUnitTypeId = foodUnitTypeId,
+    homemadeFood = homemadeFood,
+    feedingFrequency = feedingFrequency,
+    waterConsumption = waterConsumption,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AnamnesisModel.toEntity() = AnamnesisEntity(
+    id = id,
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates,
+    foodBrandId = foodBrandId,
+    foodQuantity = foodQuantity,
+    foodUnitTypeId = foodUnitTypeId,
+    homemadeFood = homemadeFood,
+    feedingFrequency = feedingFrequency,
+    waterConsumption = waterConsumption,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates.ifBlank { null },
+    foodBrandId = foodBrandId.takeIf { it != 0 },
+    foodQuantity = foodQuantity,
+    foodUnitTypeId = foodUnitTypeId.takeIf { it != 0 },
+    homemadeFood = homemadeFood.ifBlank { null },
+    feedingFrequency = feedingFrequency.ifBlank { null },
+    waterConsumption = waterConsumption.ifBlank { null },
+    status = status
+)
+
+fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
+    id = id,
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates.ifBlank { null },
+    foodBrandId = foodBrandId.takeIf { it != 0 },
+    foodQuantity = foodQuantity,
+    foodUnitTypeId = foodUnitTypeId.takeIf { it != 0 },
+    homemadeFood = homemadeFood.ifBlank { null },
+    feedingFrequency = feedingFrequency.ifBlank { null },
+    waterConsumption = waterConsumption.ifBlank { null },
+    status = status
+)
+
+fun AnamnesisDto.toModel() = AnamnesisModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates.orEmpty(),
+    foodBrandId = foodBrandId ?: 0,
+    foodQuantity = foodQuantity ?: 0.0,
+    foodUnitTypeId = foodUnitTypeId ?: 0,
+    homemadeFood = homemadeFood.orEmpty(),
+    feedingFrequency = feedingFrequency.orEmpty(),
+    waterConsumption = waterConsumption.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AnamnesisWithDetailsEntity.toModel() = AnamnesisWithDetailsModel(
+    anamnesis = anamnesis.toModel(),
+    foodBrand = foodBrand?.toModel() ?: AppCatalogModel(),
+    foodUnit = foodUnit?.toModel() ?: AppCatalogModel(),
+    environmentOptions = environmentOptions.map { it.toModel() },
+    vaccines = vaccines.map { it.toModel() },
+    dewormings = dewormings.map { it.toModel() }
+)
+
+// --- ENVIRONMENT OPTIONS ---
+
+fun AnamnesisEnvironmentOptionDto.toEntity() = AnamnesisEnvironmentOptionEntity(
+    id = id ?: 0,
+    anamnesisId = anamnesisId,
+    catalogId = catalogId,
+    createdAt = createdAt.orEmpty()
+)
+
+fun AnamnesisEnvironmentOptionEntity.toModel() = AnamnesisEnvironmentOptionModel(
+    id = id,
+    anamnesisId = anamnesisId,
+    catalogId = catalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisEnvironmentOptionModel.toEntity() = AnamnesisEnvironmentOptionEntity(
+    id = id,
+    anamnesisId = anamnesisId,
+    catalogId = catalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisEnvironmentOptionModel.toDtoForInsert() = AnamnesisEnvironmentOptionDto(
+    anamnesisId = anamnesisId,
+    catalogId = catalogId
+)
+
+fun AnamnesisEnviOptWithDetailsEntity.toModel() = AnamnesisEnviOptWithDetailsModel(
+    option = option.toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- VACCINES ---
+
+fun AnamnesisVaccineDto.toEntity() = AnamnesisVaccineEntity(
+    id = id ?: 0,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate.orEmpty(),
+    vaccineCatalogId = vaccineCatalogId,
+    schemeCatalogId = schemeCatalogId ?: 0,
+    createdAt = createdAt.orEmpty()
+)
+
+fun AnamnesisVaccineEntity.toModel() = AnamnesisVaccineModel(
+    id = id,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate,
+    vaccineCatalogId = vaccineCatalogId,
+    schemeCatalogId = schemeCatalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisVaccineModel.toEntity() = AnamnesisVaccineEntity(
+    id = id,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate,
+    vaccineCatalogId = vaccineCatalogId,
+    schemeCatalogId = schemeCatalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisVaccineModel.toDtoForInsert() = AnamnesisVaccineDto(
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate.ifBlank { null },
+    vaccineCatalogId = vaccineCatalogId,
+    schemeCatalogId = schemeCatalogId.takeIf { it != 0 }
+)
+
+fun AnamnesisVaccineWithDetailsEntity.toModel() = AnamnesisVaccineWithDetailsModel(
+    vaccineEntry = vaccineEntry.toModel(),
+    vaccine = vaccine?.toModel() ?: AppCatalogModel(),
+    scheme = scheme?.toModel() ?: AppCatalogModel()
+)
+
+// --- DEWORMINGS ---
+
+fun AnamnesisDewormingDto.toEntity() = AnamnesisDewormingEntity(
+    id = id ?: 0,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate.orEmpty(),
+    dewormingType = dewormingType,
+    productCatalogId = productCatalogId,
+    createdAt = createdAt.orEmpty()
+)
+
+fun AnamnesisDewormingEntity.toModel() = AnamnesisDewormingModel(
+    id = id,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate,
+    dewormingType = dewormingType,
+    productCatalogId = productCatalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisDewormingModel.toEntity() = AnamnesisDewormingEntity(
+    id = id,
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate,
+    dewormingType = dewormingType,
+    productCatalogId = productCatalogId,
+    createdAt = createdAt
+)
+
+fun AnamnesisDewormingModel.toDtoForInsert() = AnamnesisDewormingDto(
+    anamnesisId = anamnesisId,
+    applicationDate = applicationDate.ifBlank { null },
+    dewormingType = dewormingType,
+    productCatalogId = productCatalogId
+)
+
+fun AnamnesisDewormingWithDetailsEntity.toModel() = AnamnesisDewormingWithDetailsModel(
+    deworming = deworming.toModel(),
+    product = product?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
