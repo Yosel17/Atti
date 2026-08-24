@@ -2,6 +2,11 @@ package yosel.dev.atti.core.room.config
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDewormingEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEnvironmentOptionEntity
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientDao
@@ -31,7 +36,11 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         ServiceEntity::class,
         ServiceSupplyEntity::class,
         ConsultationEntity::class,
-        ConsultationTypeStepEntity::class
+        ConsultationTypeStepEntity::class,
+        AnamnesisEntity::class,
+        AnamnesisEnvironmentOptionEntity::class,
+        AnamnesisVaccineEntity::class,
+        AnamnesisDewormingEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -47,4 +56,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun serviceSupplyDao(): ServiceSupplyDao
     abstract fun consultationDao(): ConsultationDao
     abstract fun consultationTypeStepDao(): ConsultationTypeStepDao
+    abstract fun anamnesisDao(): AnamnesisDao
 }

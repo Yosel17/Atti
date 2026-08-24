@@ -14,6 +14,10 @@ object Constants {
     const val SERVICE_SUPPLIES_SUPABASE = "service_supplies"
     const val CONSULTATIONS_SUPABASE = "consultations"
     const val CONSULTATION_TYPE_STEPS_SUPABASE = "consultation_type_steps"
+    const val ANAMNESIS_SUPABASE = "anamnesis"
+    const val ANAMNESIS_ENV_OPTIONS_SUPABASE = "anamnesis_environment_options"
+    const val ANAMNESIS_VACCINES_SUPABASE = "anamnesis_vaccines"
+    const val ANAMNESIS_DEWORMINGS_SUPABASE = "anamnesis_dewormings"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

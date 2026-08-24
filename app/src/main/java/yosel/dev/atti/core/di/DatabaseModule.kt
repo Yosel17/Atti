@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import yosel.dev.atti.core.room.config.AppDatabase
+import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
@@ -72,4 +73,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideConsultationTypeStepDao(appDatabase: AppDatabase): ConsultationTypeStepDao = appDatabase.consultationTypeStepDao()
+
+    @Singleton
+    @Provides
+    fun provideAnamnesisDao(appDatabase: AppDatabase): AnamnesisDao = appDatabase.anamnesisDao()
 }
