@@ -21,7 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.FormatListNumbered
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,7 +39,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderCard
-import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepModel
@@ -51,52 +52,78 @@ import yosel.dev.atti.ui.theme.AttiTheme
 fun BodyDetailConsultation(
     modifier: Modifier = Modifier,
     state: DetailConsultationState,
-    onStepClick: (ConsultationTypeStepWithDetailsModel) -> Unit = {}
+    onStepClick: (ConsultationTypeStepWithDetailsModel) -> Unit = {},
+    onFinishConsultation: () -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 16.dp)
+    Column(
+        modifier = modifier
     ) {
-        // Cabecera del Paciente
-        item(key = "header_patient") {
-            PatientConsultationHeaderCard(
-                consultation = state.consultationWithDetails
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        // 1. Cabecera fija
+        PatientConsultationHeaderCard(
+            consultation = state.consultationWithDetails
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Título de la sección
-        item(key = "title_steps") {
-            SectionTitle(
-                title = "Pasos de la consulta",
-                icon = Icons.Outlined.FormatListNumbered
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Lista de pasos con la línea vertical entre cards
+        // 2. Pasos con Scroll independiente
         if (state.consultationSteps.isEmpty()) {
-            item(key = "empty_steps") {
-                EmptyGlobal(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    title = "Sin pasos registrados",
-                    subTitle = "No se encontraron pasos configurados para este tipo de consulta."
-                )
-            }
+            EmptyGlobal(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                title = "Sin pasos registrados",
+                subTitle = "No se encontraron pasos configurados para esta consulta."
+            )
         } else {
-            itemsIndexed(
-                items = state.consultationSteps,
-                key = { _, item -> item.typeStep.id.takeIf { it != 0 } ?: item.stepCatalog.id }
-            ) { index, step ->
-                ConsultationTimelineStepItem(
-                    step = step,
-                    isLast = index == state.consultationSteps.lastIndex,
-                    onClick = { onStepClick(step) }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(top = 4.dp, bottom = 12.dp)
+            ) {
+                itemsIndexed(
+                    items = state.consultationSteps,
+                    key = { _, item -> item.typeStep.id.takeIf { it != 0 } ?: item.stepCatalog.id }
+                ) { index, step ->
+                    ConsultationTimelineStepItem(
+                        step = step,
+                        isLast = index == state.consultationSteps.lastIndex,
+                        onClick = { onStepClick(step) }
+                    )
+                }
+            }
+        }
+
+        // 3. Botón fijo inferior
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = onFinishConsultation,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(100.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Finalizar Consulta",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -110,14 +137,11 @@ fun ConsultationTimelineStepItem(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Card del paso
         StepCardItem(
             stepName = step.stepCatalog.name.ifBlank { "Paso sin nombre" },
             onClick = onClick
         )
 
-        // Línea vertical que conecta hacia el siguiente paso
-        // paddingStart de 37dp = 16dp de padding de la card + 22dp (mitad del icono de 44dp) - 1dp (mitad del grosor de 2dp)
         if (!isLast) {
             Box(
                 modifier = Modifier
@@ -156,7 +180,6 @@ private fun StepCardItem(
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono circular neutral
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = CircleShape,
@@ -174,7 +197,6 @@ private fun StepCardItem(
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            // Nombre del paso
             Text(
                 text = stepName,
                 style = MaterialTheme.typography.titleMedium,
@@ -187,7 +209,6 @@ private fun StepCardItem(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Icono flecha de acción
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = "Continuar paso",
@@ -217,7 +238,6 @@ private fun BodyDetailConsultationPreview() {
                             id = "mock-consultation-1",
                             patientId = "patient-1",
                             consultationTypeId = 23,
-                            startedAt = "2026-08-24 10:30:00.000000+00",
                             status = 1
                         ),
                         patientWithDetails = PatientWithCatalogsModel(
@@ -225,17 +245,11 @@ private fun BodyDetailConsultationPreview() {
                                 id = "patient-1",
                                 name = "Max",
                                 breed = "Golden Retriever",
-                                speciesId = 1,
-                                ageYears = 3,
-                                ageMonths = 2
+                                speciesId = 1
                             ),
                             species = AppCatalogModel(
                                 id = 1,
-                                name = "Canino"
-                            ),
-                            gender = AppCatalogModel(
-                                id = 5,
-                                name = "Macho"
+                                name = "En Consulta"
                             )
                         ),
                         consultationType = AppCatalogModel(
@@ -245,28 +259,43 @@ private fun BodyDetailConsultationPreview() {
                     ),
                     consultationSteps = listOf(
                         ConsultationTypeStepWithDetailsModel(
-                            typeStep = ConsultationTypeStepModel(id = 1, consultationTypeId = 23, stepCatalogId = 101, stepOrder = 1),
-                            stepCatalog = AppCatalogModel(id = 101, name = "Anamnesis")
+                            typeStep = ConsultationTypeStepModel(id = 1),
+                            stepCatalog = AppCatalogModel(id = 1, name = "Anamnesis")
                         ),
                         ConsultationTypeStepWithDetailsModel(
-                            typeStep = ConsultationTypeStepModel(id = 2, consultationTypeId = 23, stepCatalogId = 102, stepOrder = 2),
-                            stepCatalog = AppCatalogModel(id = 102, name = "Examen Clínico")
+                            typeStep = ConsultationTypeStepModel(id = 2),
+                            stepCatalog = AppCatalogModel(id = 2, name = "Examen Clínico")
                         ),
                         ConsultationTypeStepWithDetailsModel(
-                            typeStep = ConsultationTypeStepModel(id = 3, consultationTypeId = 23, stepCatalogId = 103, stepOrder = 3),
-                            stepCatalog = AppCatalogModel(id = 103, name = "Constantes fisiológicas")
+                            typeStep = ConsultationTypeStepModel(id = 3),
+                            stepCatalog = AppCatalogModel(id = 3, name = "Constantes fisiológicas")
                         ),
                         ConsultationTypeStepWithDetailsModel(
-                            typeStep = ConsultationTypeStepModel(id = 4, consultationTypeId = 23, stepCatalogId = 104, stepOrder = 4),
-                            stepCatalog = AppCatalogModel(id = 104, name = "Diagnóstico")
+                            typeStep = ConsultationTypeStepModel(id = 4),
+                            stepCatalog = AppCatalogModel(id = 4, name = "Diagnóstico")
                         ),
                         ConsultationTypeStepWithDetailsModel(
-                            typeStep = ConsultationTypeStepModel(id = 5, consultationTypeId = 23, stepCatalogId = 105, stepOrder = 5),
-                            stepCatalog = AppCatalogModel(id = 105, name = "Tratamiento y Receta")
+                            typeStep = ConsultationTypeStepModel(id = 5),
+                            stepCatalog = AppCatalogModel(id = 5, name = "Pruebas auxiliares")
+                        ),
+                        ConsultationTypeStepWithDetailsModel(
+                            typeStep = ConsultationTypeStepModel(id = 6),
+                            stepCatalog = AppCatalogModel(id = 6, name = "Tratamiento")
+                        ),
+                        ConsultationTypeStepWithDetailsModel(
+                            typeStep = ConsultationTypeStepModel(id = 7),
+                            stepCatalog = AppCatalogModel(id = 7, name = "Receta")
+                        ),
+                        ConsultationTypeStepWithDetailsModel(
+                            typeStep = ConsultationTypeStepModel(id = 8),
+                            stepCatalog = AppCatalogModel(id = 8, name = "Observaciones")
+                        ),
+                        ConsultationTypeStepWithDetailsModel(
+                            typeStep = ConsultationTypeStepModel(id = 9),
+                            stepCatalog = AppCatalogModel(id = 9, name = "Reconsulta")
                         )
                     )
-                ),
-                onStepClick = {}
+                )
             )
         }
     }
