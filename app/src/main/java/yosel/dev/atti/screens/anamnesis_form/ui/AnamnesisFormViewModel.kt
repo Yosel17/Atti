@@ -30,6 +30,12 @@ class AnamnesisFormViewModel @Inject constructor(
         getCatalogs()
     }
 
+    fun onAction(action: AnamnesisFormAction) {
+        when (action) {
+            AnamnesisFormAction.TryCatalogsAgain -> getCatalogs()
+        }
+    }
+
     private fun getCatalogs() {
         _state.update { it.copy(isLoadingDataInitial = true) }
 
@@ -96,6 +102,7 @@ class AnamnesisFormViewModel @Inject constructor(
                 externalDewormers = externalDewormers,
                 concentrateBrands = concentrateBrands,
                 concentrateUnitsOfMeasurement = concentrateUnitsOfMeasurement,
+                isSuccessGetCatalogs = true,
                 isLoadingDataInitial = false
             )
         }
