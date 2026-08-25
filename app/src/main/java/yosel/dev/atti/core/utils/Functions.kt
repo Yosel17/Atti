@@ -25,6 +25,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import yosel.dev.atti.R
+import yosel.dev.atti.core.navigation.main.Screens
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -119,5 +120,20 @@ fun getIconForConsultationReason(reasonName: String): ImageVector {
         normalized.contains("emergencia") || normalized.contains("urgencia") -> Icons.Outlined.Emergency
         normalized.contains("hospital") || normalized.contains("internado") -> Icons.Outlined.LocalHospital
         else -> Icons.Outlined.MedicalServices
+    }
+}
+
+fun getConsultationStepScreen(stepName: String): Screens {
+    return when (stepName.trim().lowercase()) {
+        "anamnesis" -> Screens.AnamnesisForm
+        "examen clínico", "examen clinico" -> Screens.Empty
+        "constantes fisiológicas", "constantes fisiologicas" -> Screens.Empty
+        "diagnóstico", "diagnostico" -> Screens.Empty
+        "pruebas auxiliares" -> Screens.Empty
+        "tratamiento" -> Screens.Empty
+        "receta" -> Screens.Empty
+        "observaciones" -> Screens.Empty
+        "reconsulta" -> Screens.Empty
+        else -> Screens.Empty
     }
 }

@@ -99,6 +99,14 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.add(screens)
                 }
             )
+
+            anamnesisFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
+            emptyEntry()
         }
     )
 }

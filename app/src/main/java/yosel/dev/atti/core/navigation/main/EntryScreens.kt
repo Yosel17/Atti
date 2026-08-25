@@ -1,14 +1,24 @@
 package yosel.dev.atti.core.navigation.main
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,6 +39,9 @@ import yosel.dev.atti.screens.add_patient.ui.AddPatientViewModel
 import yosel.dev.atti.screens.add_supplier.ui.AddSupplierEvent
 import yosel.dev.atti.screens.add_supplier.ui.AddSupplierScreen
 import yosel.dev.atti.screens.add_supplier.ui.AddSupplierViewModel
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormScreen
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
@@ -644,7 +657,82 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackbarHostState,
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.anamnesisFormEntry(
+    onBack: () -> Unit,
+){
+    entry<Screens.AnamnesisForm> {
+        val viewModel: AnamnesisFormViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is AnamnesisFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AnamnesisFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is AnamnesisFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        AnamnesisFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
             onBack = onBack
         )
+    }
+}
+
+fun EntryProviderScope<NavKey>.emptyEntry(){
+    entry<Screens.Empty> {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = "Esta pantalla está vacía",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
     }
 }
