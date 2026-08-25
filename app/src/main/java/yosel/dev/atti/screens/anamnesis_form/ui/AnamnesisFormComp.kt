@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -484,7 +485,7 @@ private fun HousematesSection(
                 onValueChange = { onAction(AnamnesisFormAction.OnHousematesChange(it)) },
                 leadingIcon = Icons.Default.Pets,
                 singleLine = false,
-                minLines = 3,
+                minLines = 1,
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -630,7 +631,7 @@ private fun FeedingSection(
                 }
             }
 
-            if (state.formInputState.hasHomemadeFood) {
+            AnimatedVisibility(state.formInputState.hasHomemadeFood) {
                 Spacer(modifier = Modifier.height(12.dp))
                 InputFieldGlobal(
                     label = "Detalles de comida casera",
@@ -639,7 +640,7 @@ private fun FeedingSection(
                     onValueChange = { onAction(AnamnesisFormAction.OnHomemadeFoodDetailsChange(it)) },
                     leadingIcon = Icons.Default.Fastfood,
                     singleLine = false,
-                    minLines = 2,
+                    minLines = 1,
                     maxLines = 4,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
