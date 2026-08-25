@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -25,7 +26,8 @@ fun DetailConsultationScreen(
     modifier: Modifier = Modifier,
     state: DetailConsultationState,
     snackBarHostState: SnackbarHostState,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -77,6 +79,7 @@ fun DetailConsultationScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
+                            onNavigationMain = onNavigationMain
                         )
                     }
                 }

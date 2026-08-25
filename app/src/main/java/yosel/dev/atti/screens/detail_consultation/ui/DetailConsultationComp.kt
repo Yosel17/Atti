@@ -46,13 +46,15 @@ import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.getConsultationStepScreen
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
 fun BodyDetailConsultation(
     modifier: Modifier = Modifier,
     state: DetailConsultationState,
-    onStepClick: (ConsultationTypeStepWithDetailsModel) -> Unit = {},
+    onNavigationMain: (Screens) -> Unit,
     onFinishConsultation: () -> Unit = {}
 ) {
     Column(
@@ -88,7 +90,9 @@ fun BodyDetailConsultation(
                     ConsultationTimelineStepItem(
                         step = step,
                         isLast = index == state.consultationSteps.lastIndex,
-                        onClick = { onStepClick(step) }
+                        onClick = {
+                            onNavigationMain(getConsultationStepScreen(step.stepCatalog.name))
+                        }
                     )
                 }
             }
@@ -295,7 +299,8 @@ private fun BodyDetailConsultationPreview() {
                             stepCatalog = AppCatalogModel(id = 9, name = "Reconsulta")
                         )
                     )
-                )
+                ),
+                onNavigationMain = {}
             )
         }
     }

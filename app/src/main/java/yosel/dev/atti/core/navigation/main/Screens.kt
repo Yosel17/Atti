@@ -43,4 +43,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data object AnamnesisForm: Screens
+
+    @Serializable
+    data object Empty: Screens
 }

@@ -105,6 +105,8 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+
+            emptyEntry()
         }
     )
 }
