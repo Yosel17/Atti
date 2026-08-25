@@ -1,6 +1,8 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +66,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -741,6 +744,15 @@ fun AddVaccineBottomSheet(
     )
     val coroutineScope = rememberCoroutineScope()
     var showDatePicker by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Release) {
+                showDatePicker = true
+            }
+        }
+    }
 
     fun dismissWithAnimation() {
         coroutineScope.launch {
@@ -838,7 +850,8 @@ fun AddVaccineBottomSheet(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
+                    ),
+                    interactionSource = interactionSource,
                 )
                 if (state.tempVaccineElapsedText.isNotBlank()) {
                     Spacer(modifier = Modifier.height(6.dp))
@@ -980,6 +993,15 @@ fun AddDewormingBottomSheet(
     )
     val coroutineScope = rememberCoroutineScope()
     var showDatePicker by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Release) {
+                showDatePicker = true
+            }
+        }
+    }
 
     fun dismissWithAnimation() {
         coroutineScope.launch {
@@ -1077,7 +1099,8 @@ fun AddDewormingBottomSheet(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.primary,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                    )
+                    ),
+                    interactionSource = interactionSource,
                 )
                 if (state.tempDewormingElapsedText.isNotBlank()) {
                     Spacer(modifier = Modifier.height(6.dp))
