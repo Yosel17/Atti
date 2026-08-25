@@ -1,6 +1,7 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -85,13 +86,20 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AppCatalogMultiSelector
 import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.SectionTitle
+import yosel.dev.atti.core.models.model.AnamnesisDewormingModel
+import yosel.dev.atti.core.models.model.AnamnesisDewormingWithDetailsModel
+import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
+import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.ui.theme.AttiTheme
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -311,14 +319,14 @@ private fun ProphylaxisSection(
                                     )
                                     if (item.scheme.name.isNotBlank()) {
                                         Text(
-                                            text = "Esquema: ${item.scheme.name}",
+                                            text = item.scheme.name,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                     if (item.vaccineEntry.applicationDate.isNotBlank()) {
                                         Text(
-                                            text = "Fecha: ${item.vaccineEntry.applicationDate}",
+                                            text = item.vaccineEntry.applicationDate,
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )
@@ -421,13 +429,13 @@ private fun ProphylaxisSection(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "Tipo: ${item.deworming.dewormingType}",
+                                        text = item.deworming.dewormingType,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     if (item.deworming.applicationDate.isNotBlank()) {
                                         Text(
-                                            text = "Fecha: ${item.deworming.applicationDate}",
+                                            text = item.deworming.applicationDate,
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )
@@ -530,7 +538,7 @@ private fun FeedingSection(
 
             // 1. Marca de concentrado
             SectionTitle(title = "Marca de concentrado", icon = Icons.Default.Restaurant, showIcon = false)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             AppCatalogSelector(
                 selectedCatalog = state.formInputState.selectedFoodBrand,
                 onOpenSheet = { onAction(AnamnesisFormAction.OnOpenConcentrateBrandSheet) },
@@ -538,18 +546,18 @@ private fun FeedingSection(
                 emptyText = "Buscar marca..."
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Cantidad de comida (Unidad primero, luego input cantidad)
             SectionTitle(title = "Unidad de medida", icon = Icons.Default.Straighten, showIcon = false)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             AppCatalogSelector(
                 selectedCatalog = state.formInputState.selectedFoodUnit,
                 onOpenSheet = { onAction(AnamnesisFormAction.OnOpenConcentrateUnitSheet) },
                 icon = Icons.Default.Straighten,
                 emptyText = "Selecciona la unidad de medida"
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             InputFieldGlobal(
                 label = "Cantidad de comida",
                 placeholder = "0.0",
@@ -632,28 +640,30 @@ private fun FeedingSection(
             }
 
             AnimatedVisibility(state.formInputState.hasHomemadeFood) {
-                Spacer(modifier = Modifier.height(12.dp))
-                InputFieldGlobal(
-                    label = "Detalles de comida casera",
-                    placeholder = "Ej: Caldo de pollo con verduras, arroz...",
-                    value = state.formInputState.homemadeFoodDetails,
-                    onValueChange = { onAction(AnamnesisFormAction.OnHomemadeFoodDetailsChange(it)) },
-                    leadingIcon = Icons.Default.Fastfood,
-                    singleLine = false,
-                    minLines = 1,
-                    maxLines = 4,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Done
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    InputFieldGlobal(
+                        label = "Detalles de comida casera",
+                        placeholder = "Ej: Caldo de pollo con verduras, arroz...",
+                        value = state.formInputState.homemadeFoodDetails,
+                        onValueChange = { onAction(AnamnesisFormAction.OnHomemadeFoodDetailsChange(it)) },
+                        leadingIcon = Icons.Default.Fastfood,
+                        singleLine = false,
+                        minLines = 1,
+                        maxLines = 4,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Done
+                        )
                     )
-                )
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // 4. Tiempos de comida (Dropdown con 7 opciones fijas)
             SectionTitle(title = "Tiempos de comida", icon = Icons.Default.Restaurant, showIcon = false)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             ExposedDropdownMenuBox(
                 expanded = isFrequencyDropdownExpanded,
                 onExpandedChange = { isFrequencyDropdownExpanded = it }
@@ -692,7 +702,7 @@ private fun FeedingSection(
 
             // 5. Consumo de agua (4 opciones seleccionables)
             SectionTitle(title = "Consumo de agua", icon = Icons.Default.LocalDrink, showIcon = false)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -1221,6 +1231,143 @@ private fun SectionHeader(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun EnvironmentAndRoutineSectionPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+        ) {
+            EnvironmentAndRoutineSection(
+                state = AnamnesisFormState(
+                    formInputState = AnamnesisFormInputsState(
+                        hasOutdoorAccess = true,
+                        selectedEnvironmentOptions = listOf(
+                            AppCatalogModel(id = 1, name = "Tiempos de paseo"),
+                            AppCatalogModel(id = 2, name = "Exposición a otros perros"),
+                            AppCatalogModel(id = 3, name = "Terraza")
+                        )
+                    )
+                ),
+                onAction = {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ProphylaxisSectionPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+        ) {
+            ProphylaxisSection(
+                state = AnamnesisFormState(
+                    formInputState = AnamnesisFormInputsState(
+                        vaccines = listOf(
+                            AnamnesisVaccineWithDetailsModel(
+                                vaccineEntry = AnamnesisVaccineModel(
+                                    applicationDate = "2026-05-15",
+                                    vaccineCatalogId = 1,
+                                    schemeCatalogId = 1
+                                ),
+                                vaccine = AppCatalogModel(id = 1, name = "Rabia"),
+                                scheme = AppCatalogModel(id = 1, name = "Esquema completo")
+                            ),
+                            AnamnesisVaccineWithDetailsModel(
+                                vaccineEntry = AnamnesisVaccineModel(
+                                    applicationDate = "2026-06-20",
+                                    vaccineCatalogId = 2,
+                                    schemeCatalogId = 2
+                                ),
+                                vaccine = AppCatalogModel(id = 2, name = "Séxtuple canina"),
+                                scheme = AppCatalogModel(id = 2, name = "Refuerzo anual")
+                            )
+                        ),
+                        dewormings = listOf(
+                            AnamnesisDewormingWithDetailsModel(
+                                deworming = AnamnesisDewormingModel(
+                                    applicationDate = "2026-07-01",
+                                    dewormingType = "Interno",
+                                    productCatalogId = 1
+                                ),
+                                product = AppCatalogModel(id = 1, name = "Drontal Plus")
+                            ),
+                            AnamnesisDewormingWithDetailsModel(
+                                deworming = AnamnesisDewormingModel(
+                                    applicationDate = "2026-08-10",
+                                    dewormingType = "Externo",
+                                    productCatalogId = 2
+                                ),
+                                product = AppCatalogModel(id = 2, name = "NexGard Spectra")
+                            )
+                        )
+                    )
+                ),
+                onAction = {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun HousematesSectionPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+        ) {
+            HousematesSection(
+                formInputState = AnamnesisFormInputsState(
+                    housemates = "2 perros y 1 gato, todos con esquema de vacunación al día."
+                ),
+                onAction = {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun FeedingSectionPreview() {
+    AttiTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(24.dp)
+        ) {
+            FeedingSection(
+                state = AnamnesisFormState(
+                    formInputState = AnamnesisFormInputsState(
+                        selectedFoodBrand = AppCatalogModel(
+                            id = 1,
+                            name = "Royal Canin Maxi Adult"
+                        ),
+                        selectedFoodUnit = AppCatalogModel(id = 1, name = "Tazas"),
+                        foodQuantity = "2.5",
+                        hasHomemadeFood = true,
+                        homemadeFoodDetails = "Pollo cocido desmenuzado sin sal y zanahorias.",
+                        feedingFrequency = "2 veces al día",
+                        waterConsumption = "Normal"
+                    )
+                ),
+                onAction = {}
+            )
+        }
     }
 }
 
