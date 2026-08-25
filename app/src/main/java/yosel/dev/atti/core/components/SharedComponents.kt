@@ -1,5 +1,11 @@
 package yosel.dev.atti.core.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -81,6 +87,7 @@ import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -1448,37 +1455,71 @@ fun AppCatalogMultiSelector(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     selectedCatalogs.forEach { catalog ->
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            border = null
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(start = 10.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = catalog.name,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                IconButton(
-                                    onClick = { onRemoveCatalog(catalog) },
-                                    modifier = Modifier.size(20.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = "Eliminar opción",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                }
-                            }
+                        key(catalog.id) {
+                            RemovableSelectedCatalogItem(
+                                catalog = catalog,
+                                onRemove = { onRemoveCatalog(catalog) }
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RemovableSelectedCatalogItem(
+    catalog: AppCatalogModel,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember(catalog.id) { mutableStateOf(true) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = expandVertically(animationSpec = tween(250)) + fadeIn(animationSpec = tween(200)),
+        exit = shrinkVertically(animationSpec = tween(250)) + fadeOut(animationSpec = tween(200)),
+        modifier = modifier
+    ) {
+        // Aquí llamas a tu Composable/Card visual tal cual lo tienes diseñado
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            border = null
+        ) {
+            Row(
+                modifier = Modifier.padding(start = 10.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = catalog.name,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                IconButton(
+                    onClick = {
+                        isVisible = false
+                    },
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Eliminar opción",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(isVisible) {
+        if (!isVisible) {
+            // Espera a que termine la animación de shrink antes de eliminarlo del estado
+            delay(250.milliseconds)
+            onRemove()
         }
     }
 }

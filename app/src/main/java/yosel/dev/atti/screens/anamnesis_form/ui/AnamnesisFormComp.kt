@@ -1,6 +1,11 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -70,6 +75,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -88,6 +94,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AppCatalogMultiSelector
 import yosel.dev.atti.core.components.AppCatalogSelector
@@ -107,6 +114,7 @@ import java.time.Period
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun BodyAnamnesisForm(
@@ -255,6 +263,7 @@ private fun ProphylaxisSection(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
+
             if (state.formInputState.vaccines.isEmpty()) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -284,63 +293,11 @@ private fun ProphylaxisSection(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     state.formInputState.vaccines.forEach { item ->
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    modifier = Modifier.size(40.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.Vaccines,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = item.vaccine.name.ifBlank { "Vacuna no especificada" },
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    if (item.scheme.name.isNotBlank()) {
-                                        Text(
-                                            text = item.scheme.name,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    if (item.vaccineEntry.applicationDate.isNotBlank()) {
-                                        Text(
-                                            text = item.vaccineEntry.applicationDate,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                                IconButton(onClick = { onAction(AnamnesisFormAction.OnDeleteVaccine(item)) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
+                        key(item.vaccine.id, item.scheme.id, item.vaccineEntry.applicationDate) {
+                            RemovableVaccineItem(
+                                item = item,
+                                onRemove = { onAction(AnamnesisFormAction.OnDeleteVaccine(item)) }
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
@@ -366,6 +323,7 @@ private fun ProphylaxisSection(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
+
             if (state.formInputState.dewormings.isEmpty()) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -395,61 +353,11 @@ private fun ProphylaxisSection(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     state.formInputState.dewormings.forEach { item ->
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    modifier = Modifier.size(40.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.MedicalServices,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = item.product.name.ifBlank { "Producto no especificado" },
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = item.deworming.dewormingType,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    if (item.deworming.applicationDate.isNotBlank()) {
-                                        Text(
-                                            text = item.deworming.applicationDate,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                                IconButton(onClick = { onAction(AnamnesisFormAction.OnDeleteDeworming(item)) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
+                        key(item.product.id, item.deworming.dewormingType, item.deworming.applicationDate) {
+                            RemovableDewormingItem(
+                                item = item,
+                                onRemove = { onAction(AnamnesisFormAction.OnDeleteDeworming(item)) }
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
@@ -463,6 +371,192 @@ private fun ProphylaxisSection(
                         Text(text = "Agregar otro desparasitante")
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RemovableVaccineItem(
+    item: AnamnesisVaccineWithDetailsModel,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember(item) { mutableStateOf(true) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = expandVertically(animationSpec = tween(250)) + fadeIn(animationSpec = tween(200)),
+        exit = shrinkVertically(animationSpec = tween(250)) + fadeOut(animationSpec = tween(200)),
+        modifier = modifier
+    ) {
+        VaccineCard(
+            item = item,
+            onRemove = { isVisible = false }
+        )
+    }
+
+    LaunchedEffect(isVisible) {
+        if (!isVisible) {
+            delay(250.milliseconds)
+            onRemove()
+        }
+    }
+}
+
+@Composable
+private fun VaccineCard(
+    item: AnamnesisVaccineWithDetailsModel,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.Vaccines,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.vaccine.name.ifBlank { "Vacuna no especificada" },
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (item.scheme.name.isNotBlank()) {
+                    Text(
+                        text = item.scheme.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (item.vaccineEntry.applicationDate.isNotBlank()) {
+                    Text(
+                        text = item.vaccineEntry.applicationDate,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            IconButton(onClick = onRemove) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RemovableDewormingItem(
+    item: AnamnesisDewormingWithDetailsModel,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember(item) { mutableStateOf(true) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = expandVertically(animationSpec = tween(250)) + fadeIn(animationSpec = tween(200)),
+        exit = shrinkVertically(animationSpec = tween(250)) + fadeOut(animationSpec = tween(200)),
+        modifier = modifier
+    ) {
+        DewormingCard(
+            item = item,
+            onRemove = { isVisible = false }
+        )
+    }
+
+    LaunchedEffect(isVisible) {
+        if (!isVisible) {
+            delay(250.milliseconds)
+            onRemove()
+        }
+    }
+}
+
+@Composable
+private fun DewormingCard(
+    item: AnamnesisDewormingWithDetailsModel,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.MedicalServices,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.product.name.ifBlank { "Producto no especificado" },
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = item.deworming.dewormingType,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (item.deworming.applicationDate.isNotBlank()) {
+                    Text(
+                        text = item.deworming.applicationDate,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            IconButton(onClick = onRemove) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -536,7 +630,6 @@ private fun FeedingSection(
             )
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 1. Marca de concentrado
             SectionTitle(title = "Marca de concentrado", icon = Icons.Default.Restaurant, showIcon = false)
             Spacer(modifier = Modifier.height(12.dp))
             AppCatalogSelector(
@@ -545,10 +638,8 @@ private fun FeedingSection(
                 icon = Icons.Default.Restaurant,
                 emptyText = "Buscar marca..."
             )
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 2. Cantidad de comida (Unidad primero, luego input cantidad)
             SectionTitle(title = "Unidad de medida", icon = Icons.Default.Straighten, showIcon = false)
             Spacer(modifier = Modifier.height(12.dp))
             AppCatalogSelector(
@@ -574,10 +665,8 @@ private fun FeedingSection(
                     imeAction = ImeAction.Done
                 )
             )
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. Comida casera
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -658,10 +747,8 @@ private fun FeedingSection(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 4. Tiempos de comida (Dropdown con 7 opciones fijas)
             SectionTitle(title = "Tiempos de comida", icon = Icons.Default.Restaurant, showIcon = false)
             Spacer(modifier = Modifier.height(12.dp))
             ExposedDropdownMenuBox(
@@ -697,10 +784,8 @@ private fun FeedingSection(
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 5. Consumo de agua (4 opciones seleccionables)
             SectionTitle(title = "Consumo de agua", icon = Icons.Default.LocalDrink, showIcon = false)
             Spacer(modifier = Modifier.height(12.dp))
             Surface(
@@ -831,15 +916,12 @@ fun AddVaccineBottomSheet(
                     Icon(imageVector = Icons.Rounded.Close, contentDescription = "Cerrar", modifier = Modifier.clip(CircleShape))
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Fecha de aplicación
                 SectionTitle(title = "Fecha de última aplicación", icon = Icons.Default.CalendarMonth, showIcon = false)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -881,10 +963,8 @@ fun AddVaccineBottomSheet(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Producto / Vacuna
                 SectionTitle(title = "Producto / Vacuna", icon = Icons.Default.Vaccines, showIcon = false)
                 Spacer(modifier = Modifier.height(8.dp))
                 AppCatalogSelector(
@@ -893,10 +973,8 @@ fun AddVaccineBottomSheet(
                     icon = Icons.Default.Vaccines,
                     emptyText = "Ej: Nexgard Spectra"
                 )
-
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Esquema Canino
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -974,11 +1052,12 @@ fun AddVaccineBottomSheet(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
-
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onAction(AnamnesisFormAction.OnSaveVaccineEntry) },
-                enabled = state.tempSelectedVaccineCatalog != null && state.tempVaccineIsoDate.isNotBlank(),
+                enabled = state.tempSelectedVaccineCatalog != null &&
+                        state.tempVaccineIsoDate.isNotBlank() &&
+                        state.tempSelectedScheduleCatalog != null,
                 shape = RoundedCornerShape(100.dp)
             ) {
                 Text(
@@ -1080,15 +1159,12 @@ fun AddDewormingBottomSheet(
                     Icon(imageVector = Icons.Rounded.Close, contentDescription = "Cerrar", modifier = Modifier.clip(CircleShape))
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Fecha de aplicación
                 SectionTitle(title = "Fecha de aplicación", icon = Icons.Default.CalendarMonth, showIcon = false)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -1130,10 +1206,8 @@ fun AddDewormingBottomSheet(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Selector Tipo (Interno / Externo)
                 SectionTitle(title = "Tipo", icon = Icons.Default.Rule, showIcon = false)
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
@@ -1169,10 +1243,8 @@ fun AddDewormingBottomSheet(
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Selector de Producto según tipo
                 SectionTitle(title = "Producto:", icon = Icons.Default.MedicalServices, showIcon = false)
                 Spacer(modifier = Modifier.height(8.dp))
                 AppCatalogSelector(
@@ -1181,10 +1253,8 @@ fun AddDewormingBottomSheet(
                     icon = Icons.Default.MedicalServices,
                     emptyText = "Selecciona un desparasitante"
                 )
-
                 Spacer(modifier = Modifier.height(20.dp))
             }
-
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onAction(AnamnesisFormAction.OnSaveDewormingEntry) },
@@ -1320,61 +1390,9 @@ private fun ProphylaxisSectionPreview() {
     }
 }
 
-@PreviewLightDark
-@Composable
-private fun HousematesSectionPreview() {
-    AttiTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(24.dp)
-        ) {
-            HousematesSection(
-                formInputState = AnamnesisFormInputsState(
-                    housemates = "2 perros y 1 gato, todos con esquema de vacunación al día."
-                ),
-                onAction = {}
-            )
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun FeedingSectionPreview() {
-    AttiTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(24.dp)
-        ) {
-            FeedingSection(
-                state = AnamnesisFormState(
-                    formInputState = AnamnesisFormInputsState(
-                        selectedFoodBrand = AppCatalogModel(
-                            id = 1,
-                            name = "Royal Canin Maxi Adult"
-                        ),
-                        selectedFoodUnit = AppCatalogModel(id = 1, name = "Tazas"),
-                        foodQuantity = "2.5",
-                        hasHomemadeFood = true,
-                        homemadeFoodDetails = "Pollo cocido desmenuzado sin sal y zanahorias.",
-                        feedingFrequency = "2 veces al día",
-                        waterConsumption = "Normal"
-                    )
-                ),
-                onAction = {}
-            )
-        }
-    }
-}
-
 private fun calculateDateDetails(millis: Long): Triple<String, String, String> {
     val selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
     val today = LocalDate.now()
-
     val isoFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val isoDate = isoFormatter.format(Date(millis))
 
@@ -1385,10 +1403,10 @@ private fun calculateDateDetails(millis: Long): Triple<String, String, String> {
     val elapsedText = when {
         period.isNegative -> "Fecha futura"
         period.years > 0 && period.months > 0 -> "Hace ${period.years} años, ${period.months} meses"
-        period.years > 0 -> "Hace ${period.years} años"
+        period.years > 0 -> "Hace ${period.years} año${if (period.years > 1) "s" else ""}"
         period.months > 0 && period.days > 0 -> "Hace ${period.months} meses, ${period.days} días"
-        period.months > 0 -> "Hace ${period.months} meses"
-        period.days > 0 -> "Hace ${period.days} días"
+        period.months > 0 -> "Hace ${period.months} mes${if (period.months > 1) "es" else ""}"
+        period.days > 0 -> "Hace ${period.days} día${if (period.days > 1) "s" else ""}"
         else -> "Hoy"
     }
 

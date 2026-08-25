@@ -49,7 +49,19 @@ class AnamnesisFormViewModel @Inject constructor(
                 _state.update { it.copy(formInputState = it.formInputState.copy(hasOutdoorAccess = action.enabled)) }
             }
             AnamnesisFormAction.OnOpenEnvironmentOptionsSheet -> {
-                _state.update { it.copy(isLifestyleSheetOpen = true, lifestyleSearchQuery = "", filteredAnimalLifestyles = it.animalLifestyles) }
+                val currentSelectedIds = _state.value.formInputState.selectedEnvironmentOptions.map { it.id }.toSet()
+                val sorted = getFilteredAndSortedAnimalLifestyles(
+                    lifestyles = _state.value.animalLifestyles,
+                    query = "",
+                    selectedIds = currentSelectedIds
+                )
+                _state.update {
+                    it.copy(
+                        isLifestyleSheetOpen = true,
+                        lifestyleSearchQuery = "",
+                        filteredAnimalLifestyles = sorted
+                    )
+                }
             }
             AnamnesisFormAction.OnDismissEnvironmentOptionsSheet -> {
                 _state.update { it.copy(isLifestyleSheetOpen = false) }
@@ -57,10 +69,13 @@ class AnamnesisFormViewModel @Inject constructor(
             is AnamnesisFormAction.OnSearchEnvironmentQueryChange -> {
                 _state.update { it.copy(lifestyleSearchQuery = action.query) }
                 debounceSearch {
-                    val q = action.query.normalize()
-                    _state.update { s ->
-                        s.copy(filteredAnimalLifestyles = if (q.isBlank()) s.animalLifestyles else s.animalLifestyles.filter { it.name.normalize().contains(q) })
-                    }
+                    val currentSelectedIds = _state.value.formInputState.selectedEnvironmentOptions.map { it.id }.toSet()
+                    val filtered = getFilteredAndSortedAnimalLifestyles(
+                        lifestyles = _state.value.animalLifestyles,
+                        query = action.query,
+                        selectedIds = currentSelectedIds
+                    )
+                    _state.update { s -> s.copy(filteredAnimalLifestyles = filtered) }
                 }
             }
             is AnamnesisFormAction.OnToggleEnvironmentOption -> {
@@ -71,13 +86,31 @@ class AnamnesisFormViewModel @Inject constructor(
                     } else {
                         current + action.catalog
                     }
-                    s.copy(formInputState = s.formInputState.copy(selectedEnvironmentOptions = updated))
+                    val newSelectedIds = updated.map { it.id }.toSet()
+                    val sorted = getFilteredAndSortedAnimalLifestyles(
+                        lifestyles = s.animalLifestyles,
+                        query = s.lifestyleSearchQuery,
+                        selectedIds = newSelectedIds
+                    )
+                    s.copy(
+                        formInputState = s.formInputState.copy(selectedEnvironmentOptions = updated),
+                        filteredAnimalLifestyles = sorted
+                    )
                 }
             }
             is AnamnesisFormAction.OnRemoveEnvironmentOption -> {
                 _state.update { s ->
                     val updated = s.formInputState.selectedEnvironmentOptions.filterNot { it.id == action.catalog.id }
-                    s.copy(formInputState = s.formInputState.copy(selectedEnvironmentOptions = updated))
+                    val newSelectedIds = updated.map { it.id }.toSet()
+                    val sorted = getFilteredAndSortedAnimalLifestyles(
+                        lifestyles = s.animalLifestyles,
+                        query = s.lifestyleSearchQuery,
+                        selectedIds = newSelectedIds
+                    )
+                    s.copy(
+                        formInputState = s.formInputState.copy(selectedEnvironmentOptions = updated),
+                        filteredAnimalLifestyles = sorted
+                    )
                 }
             }
 
@@ -129,14 +162,17 @@ class AnamnesisFormViewModel @Inject constructor(
             }
             AnamnesisFormAction.OnSaveVaccineEntry -> {
                 val s = _state.value
+                if (s.tempSelectedVaccineCatalog == null || s.tempVaccineIsoDate.isBlank() || s.tempSelectedScheduleCatalog == null) {
+                    return
+                }
                 val vaccineEntry = AnamnesisVaccineWithDetailsModel(
                     vaccineEntry = AnamnesisVaccineModel(
                         applicationDate = s.tempVaccineIsoDate,
-                        vaccineCatalogId = s.tempSelectedVaccineCatalog?.id ?: 0,
-                        schemeCatalogId = s.tempSelectedScheduleCatalog?.id ?: 0
+                        vaccineCatalogId = s.tempSelectedVaccineCatalog.id,
+                        schemeCatalogId = s.tempSelectedScheduleCatalog.id
                     ),
-                    vaccine = s.tempSelectedVaccineCatalog ?: AppCatalogModel(),
-                    scheme = s.tempSelectedScheduleCatalog ?: AppCatalogModel()
+                    vaccine = s.tempSelectedVaccineCatalog,
+                    scheme = s.tempSelectedScheduleCatalog
                 )
                 _state.update {
                     it.copy(
@@ -271,7 +307,6 @@ class AnamnesisFormViewModel @Inject constructor(
             is AnamnesisFormAction.OnSelectConcentrateBrand -> {
                 _state.update { it.copy(formInputState = it.formInputState.copy(selectedFoodBrand = action.brand)) }
             }
-
             AnamnesisFormAction.OnOpenConcentrateUnitSheet -> {
                 _state.update { it.copy(isConcentrateUnitSheetOpen = true, concentrateUnitSearchQuery = "", filteredConcentrateUnits = it.concentrateUnitsOfMeasurement) }
             }
@@ -290,7 +325,6 @@ class AnamnesisFormViewModel @Inject constructor(
             is AnamnesisFormAction.OnSelectConcentrateUnit -> {
                 _state.update { it.copy(formInputState = it.formInputState.copy(selectedFoodUnit = action.unit)) }
             }
-
             is AnamnesisFormAction.OnFoodQuantityChange -> {
                 _state.update { it.copy(formInputState = it.formInputState.copy(foodQuantity = action.quantity)) }
             }
@@ -328,6 +362,23 @@ class AnamnesisFormViewModel @Inject constructor(
             }
             is AnamnesisFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
         }
+    }
+
+    private fun getFilteredAndSortedAnimalLifestyles(
+        lifestyles: List<AppCatalogModel>,
+        query: String,
+        selectedIds: Set<Int>
+    ): List<AppCatalogModel> {
+        val normalizedQuery = query.normalize()
+        val filtered = if (normalizedQuery.isBlank()) {
+            lifestyles
+        } else {
+            lifestyles.filter { it.name.normalize().contains(normalizedQuery) }
+        }
+        return filtered.sortedWith(
+            compareByDescending<AppCatalogModel> { selectedIds.contains(it.id) }
+                .thenBy { it.name.lowercase() }
+        )
     }
 
     private fun debounceSearch(block: () -> Unit) {
@@ -372,10 +423,13 @@ class AnamnesisFormViewModel @Inject constructor(
         val concentrateBrands = appCatalogs.filter { it.catalogTypeId == Constants.CONCENTRATE_BRAND_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
         val concentrateUnitsOfMeasurement = appCatalogs.filter { it.catalogTypeId == Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
 
+        val currentSelectedIds = _state.value.formInputState.selectedEnvironmentOptions.map { it.id }.toSet()
+        val sortedAnimalLifestyles = getFilteredAndSortedAnimalLifestyles(animalLifestyles, "", currentSelectedIds)
+
         _state.update { currentState ->
             currentState.copy(
                 animalLifestyles = animalLifestyles,
-                filteredAnimalLifestyles = animalLifestyles,
+                filteredAnimalLifestyles = sortedAnimalLifestyles,
                 vaccineNames = vaccineNames,
                 filteredVaccineNames = vaccineNames,
                 vaccinationSchedules = vaccinationSchedules,
@@ -412,27 +466,42 @@ class AnamnesisFormViewModel @Inject constructor(
                         var tempVaccineSchedule = state.tempSelectedScheduleCatalog
                         var tempDewormer = state.tempSelectedDewormerProduct
 
-                        val updatedLifestyles = if (currentState.activeCatalogTypeId == Constants.ANIMAL_LIFESTYLE_TYPE_CATALOG) (state.animalLifestyles + inserted).sortedBy { it.name.lowercase() } else state.animalLifestyles
+                        val updatedLifestyles = if (currentState.activeCatalogTypeId == Constants.ANIMAL_LIFESTYLE_TYPE_CATALOG) {
+                            (state.animalLifestyles + inserted).sortedBy { it.name.lowercase() }
+                        } else state.animalLifestyles
+
+                        val currentSelectedLifestyleIds = formInputs.selectedEnvironmentOptions.map { it.id }.toSet()
+                        val sortedFilteredLifestyles = getFilteredAndSortedAnimalLifestyles(
+                            lifestyles = updatedLifestyles,
+                            query = state.lifestyleSearchQuery,
+                            selectedIds = currentSelectedLifestyleIds
+                        )
+
                         val updatedVaccineNames = if (currentState.activeCatalogTypeId == Constants.VACCINE_NAME_TYPE_CATALOG) {
                             tempVaccineName = inserted
                             (state.vaccineNames + inserted).sortedBy { it.name.lowercase() }
                         } else state.vaccineNames
+
                         val updatedSchedules = if (currentState.activeCatalogTypeId == Constants.VACCINATION_SCHEDULE_TYPE_CATALOG) {
                             tempVaccineSchedule = inserted
                             (state.vaccinationSchedules + inserted).sortedBy { it.name.lowercase() }
                         } else state.vaccinationSchedules
+
                         val updatedInternal = if (currentState.activeCatalogTypeId == Constants.INTERNAL_DEWORMER_TYPE_CATALOG) {
                             tempDewormer = inserted
                             (state.internalDewormers + inserted).sortedBy { it.name.lowercase() }
                         } else state.internalDewormers
+
                         val updatedExternal = if (currentState.activeCatalogTypeId == Constants.EXTERNAL_DEWORMER_TYPE_CATALOG) {
                             tempDewormer = inserted
                             (state.externalDewormers + inserted).sortedBy { it.name.lowercase() }
                         } else state.externalDewormers
+
                         val updatedBrands = if (currentState.activeCatalogTypeId == Constants.CONCENTRATE_BRAND_TYPE_CATALOG) {
                             formInputs = formInputs.copy(selectedFoodBrand = inserted)
                             (state.concentrateBrands + inserted).sortedBy { it.name.lowercase() }
                         } else state.concentrateBrands
+
                         val updatedUnits = if (currentState.activeCatalogTypeId == Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG) {
                             formInputs = formInputs.copy(selectedFoodUnit = inserted)
                             (state.concentrateUnitsOfMeasurement + inserted).sortedBy { it.name.lowercase() }
@@ -440,7 +509,7 @@ class AnamnesisFormViewModel @Inject constructor(
 
                         state.copy(
                             animalLifestyles = updatedLifestyles,
-                            filteredAnimalLifestyles = updatedLifestyles,
+                            filteredAnimalLifestyles = sortedFilteredLifestyles,
                             vaccineNames = updatedVaccineNames,
                             filteredVaccineNames = updatedVaccineNames,
                             vaccinationSchedules = updatedSchedules,
