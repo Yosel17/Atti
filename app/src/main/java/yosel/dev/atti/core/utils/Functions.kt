@@ -26,8 +26,11 @@ import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import yosel.dev.atti.R
 import yosel.dev.atti.core.navigation.main.Screens
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.time.Clock
+import kotlin.time.toJavaInstant
 
 fun formatDate(isoString: String): String {
     if (isoString.isBlank()) return ""
@@ -136,4 +139,10 @@ fun getConsultationStepScreen(stepName: String): Screens {
         "reconsulta" -> Screens.Empty
         else -> Screens.Empty
     }
+}
+
+fun getFormattedCurrentDate(): String {
+    val localeSpanish = Locale.forLanguageTag("es-ES")
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", localeSpanish)
+    return LocalDate.now().format(formatter)
 }

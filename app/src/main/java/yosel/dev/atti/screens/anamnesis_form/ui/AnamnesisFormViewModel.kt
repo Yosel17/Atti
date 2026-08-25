@@ -19,6 +19,7 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.*
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -183,7 +184,7 @@ class AnamnesisFormViewModel @Inject constructor(
                     )
                 }
                 viewModelScope.launch {
-                    _eventChannel.send(AnamnesisFormEvent.ShowSuccessSnackbar("Vacuna agregada a la lista correctamente."))
+                    _eventChannel.send(ShowSuccessSnackbar("Vacuna agregada a la lista correctamente."))
                 }
             }
             is AnamnesisFormAction.OnDeleteVaccine -> {
@@ -274,7 +275,7 @@ class AnamnesisFormViewModel @Inject constructor(
                     )
                 }
                 viewModelScope.launch {
-                    _eventChannel.send(AnamnesisFormEvent.ShowSuccessSnackbar("Desparasitante agregado a la lista correctamente."))
+                    _eventChannel.send(ShowSuccessSnackbar("Desparasitante agregado a la lista correctamente."))
                 }
             }
             is AnamnesisFormAction.OnDeleteDeworming -> {
@@ -361,6 +362,9 @@ class AnamnesisFormViewModel @Inject constructor(
                 }
             }
             is AnamnesisFormAction.OnSaveAppCatalog -> onSaveAppCatalog(action.name)
+            is AnamnesisFormAction.ToggleSaveAnamnesisDialog -> {
+                _state.update { it.copy(showDialogConfirm = action.show) }
+            }
         }
     }
 

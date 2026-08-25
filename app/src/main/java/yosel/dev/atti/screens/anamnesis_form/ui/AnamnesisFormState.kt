@@ -7,6 +7,7 @@ data class AnamnesisFormState(
     val isSuccessGetCatalogs: Boolean = false,
     val isLoadingSaveAnamnesis: Boolean = false,
     val formInputState: AnamnesisFormInputsState = AnamnesisFormInputsState(),
+    val showDialogConfirm: Boolean = false,
 
     // Catálogos base
     val animalLifestyles: List<AppCatalogModel> = emptyList(),
