@@ -5,11 +5,14 @@ import yosel.dev.atti.core.models.model.AnamnesisEnvironmentOptionModel
 import yosel.dev.atti.core.models.model.AnamnesisModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.request.CreateAnamnesisRequest
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
+import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.supabase.AnamnesisDataSource
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
+import yosel.dev.atti.core.supabase.ConsultationsDataSource
 import yosel.dev.atti.core.utils.toDtoForInsert
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
@@ -20,7 +23,8 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
     private val appCatalogsDataSource: AppCatalogsDataSource,
     private val appCatalogDao: AppCatalogDao,
     private val anamnesisDataSource: AnamnesisDataSource,
-    private val anamnesisDao: AnamnesisDao
+    private val anamnesisDao: AnamnesisDao,
+    private val consultationDao: ConsultationDao
 ): AnamnesisFormRepository {
 
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
@@ -60,5 +64,12 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
             vaccines = insertedAnamnesisDto.vaccines.map { it.toEntity() },
             dewormings = insertedAnamnesisDto.dewormings.map { it.toEntity() }
         )
+    }
+
+    override suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel> = runCatching {
+        val consultationEntity = consultationDao.getConsultationWithDetailsById(
+            consultationId = consultationId
+        ) ?: throw IllegalStateException("No se pudo recuperar la información de la consulta")
+        consultationEntity.toModel()
     }
 }
