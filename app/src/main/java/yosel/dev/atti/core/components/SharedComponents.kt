@@ -1044,6 +1044,7 @@ fun SelectAppCatalogBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
+                    modifier = Modifier.weight(1f),
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
