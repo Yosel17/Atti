@@ -1,6 +1,7 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 
 data class AnamnesisFormState(
     val isLoadingDataInitial: Boolean = true,
@@ -8,6 +9,7 @@ data class AnamnesisFormState(
     val isLoadingSaveAnamnesis: Boolean = false,
     val formInputState: AnamnesisFormInputsState = AnamnesisFormInputsState(),
     val showDialogConfirm: Boolean = false,
+    val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
 
     // Catálogos base
     val animalLifestyles: List<AppCatalogModel> = emptyList(),

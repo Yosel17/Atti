@@ -2,6 +2,9 @@ package yosel.dev.atti.screens.anamnesis_form.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -20,13 +23,18 @@ import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.*
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
-@HiltViewModel
-class AnamnesisFormViewModel @Inject constructor(
-    private val repository: AnamnesisFormRepository
+@HiltViewModel(assistedFactory = AnamnesisFormViewModel.Factory::class)
+class AnamnesisFormViewModel @AssistedInject constructor(
+    private val repository: AnamnesisFormRepository,
+    @Assisted("consultationId") private val consultationId: String?
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory{
+        fun create(@Assisted("consultationId") consultationId: String?): AnamnesisFormViewModel
+    }
 
     private val _state = MutableStateFlow(AnamnesisFormState())
     val state: StateFlow<AnamnesisFormState> = _state
@@ -37,12 +45,12 @@ class AnamnesisFormViewModel @Inject constructor(
     private var filterJob: Job? = null
 
     init {
-        getCatalogs()
+        getConsultation()
     }
 
     fun onAction(action: AnamnesisFormAction) {
         when (action) {
-            AnamnesisFormAction.TryCatalogsAgain -> getCatalogs()
+            AnamnesisFormAction.TryCatalogsAgain -> getConsultation()
             AnamnesisFormAction.SaveAnamnesis -> saveAnamnesis()
 
             // Entorno y rutina
@@ -393,8 +401,24 @@ class AnamnesisFormViewModel @Inject constructor(
         }
     }
 
-    private fun getCatalogs() {
+    private fun getConsultation(){
         _state.update { it.copy(isLoadingDataInitial = true) }
+
+        viewModelScope.launch {
+            repository.getConsultation(consultationId = consultationId?:"").fold(
+                onSuccess = { consultationWithDetails ->
+                    _state.update { it.copy(consultationWithDetails = consultationWithDetails) }
+                    getCatalogs()
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo."))
+                }
+            )
+        }
+    }
+
+    private fun getCatalogs() {
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
                 types = listOf(
@@ -412,7 +436,7 @@ class AnamnesisFormViewModel @Inject constructor(
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
-                    _eventChannel.send(AnamnesisFormEvent.ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo."))
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo."))
                 }
             )
         }
@@ -532,11 +556,11 @@ class AnamnesisFormViewModel @Inject constructor(
                             showAddAppCatalogDialog = false
                         )
                     }
-                    _eventChannel.send(AnamnesisFormEvent.ShowToast("${currentState.activeCatalogTypeName} agregado correctamente."))
+                    _eventChannel.send(ShowToast("${currentState.activeCatalogTypeName} agregado correctamente."))
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingAddCatalog = false, showAddAppCatalogDialog = false) }
-                    _eventChannel.send(AnamnesisFormEvent.ShowToast("No se pudo agregar el catálogo."))
+                    _eventChannel.send(ShowToast("No se pudo agregar el catálogo."))
                 }
             )
         }
@@ -546,7 +570,9 @@ class AnamnesisFormViewModel @Inject constructor(
         val cs = _state.value
         _state.update { it.copy(isLoadingSaveAnamnesis = true) }
         viewModelScope.launch {
-            val anamnesisModel = cs.formInputState.toAnamnesisModel()
+            val anamnesisModel = cs.formInputState.toAnamnesisModel(
+                consultationId = consultationId ?: ""
+            )
             val envOptions = cs.formInputState.toEnvironmentOptionModels()
             val vaccines = cs.formInputState.toVaccineModels()
             val dewormings = cs.formInputState.toDewormingModels()
@@ -564,11 +590,11 @@ class AnamnesisFormViewModel @Inject constructor(
                             isLoadingSaveAnamnesis = false
                         )
                     }
-                    _eventChannel.send(AnamnesisFormEvent.ShowSuccessSnackbar("Anamnesis guardada exitosamente."))
+                    _eventChannel.send(ShowSuccessSnackbar("Anamnesis guardada exitosamente."))
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingSaveAnamnesis = false) }
-                    _eventChannel.send(AnamnesisFormEvent.ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
                 }
             )
         }

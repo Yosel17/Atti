@@ -250,7 +250,7 @@ fun AnamnesisFormScreen(
 
         if (state.showDialogConfirm){
             SaveAnamnesisDialog(
-                patientName = "Max",
+                patientName = state.consultationWithDetails.patientWithDetails.patient.name,
                 recordDate = getFormattedCurrentDate(),
                 onDismiss = { onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show= false)) },
                 onConfirm = {

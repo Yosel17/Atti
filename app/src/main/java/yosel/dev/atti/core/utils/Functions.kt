@@ -126,9 +126,9 @@ fun getIconForConsultationReason(reasonName: String): ImageVector {
     }
 }
 
-fun getConsultationStepScreen(stepName: String): Screens {
+fun getConsultationStepScreen(stepName: String, consultationId: String): Screens {
     return when (stepName.trim().lowercase()) {
-        "anamnesis" -> Screens.AnamnesisForm
+        "anamnesis" -> Screens.AnamnesisForm(consultationId = consultationId)
         "examen clínico", "examen clinico" -> Screens.Empty
         "constantes fisiológicas", "constantes fisiologicas" -> Screens.Empty
         "diagnóstico", "diagnostico" -> Screens.Empty

@@ -666,8 +666,14 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
 fun EntryProviderScope<NavKey>.anamnesisFormEntry(
     onBack: () -> Unit,
 ){
-    entry<Screens.AnamnesisForm> {
-        val viewModel: AnamnesisFormViewModel = hiltViewModel()
+    entry<Screens.AnamnesisForm> { anamnesisFormKey ->
+        val viewModel: AnamnesisFormViewModel = hiltViewModel(
+            creationCallback = { factory: AnamnesisFormViewModel.Factory ->
+                factory.create(
+                    consultationId = anamnesisFormKey.consultationId
+                )
+            }
+        )
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
