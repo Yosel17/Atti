@@ -3,6 +3,16 @@ package yosel.dev.atti.core.utils
 import android.content.Context
 import android.content.Intent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Biotech
+import androidx.compose.material.icons.filled.EventRepeat
+import androidx.compose.material.icons.filled.HistoryEdu
+import androidx.compose.material.icons.filled.MedicalInformation
+import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.CleaningServices
@@ -139,6 +149,21 @@ fun getConsultationStepScreen(
         "observaciones" -> Screens.Empty
         "reconsulta" -> Screens.Empty
         else -> Screens.Empty
+    }
+}
+
+fun getConsultationStepIcon(stepName: String): ImageVector {
+    return when (stepName.normalize()) {
+        "anamnesis" -> Icons.Default.HistoryEdu
+        "examen clinico" -> Icons.Default.MedicalInformation
+        "constantes fisiologicas" -> Icons.Default.MonitorHeart
+        "diagnostico" -> Icons.AutoMirrored.Filled.Assignment
+        "pruebas auxiliares" -> Icons.Default.Biotech
+        "tratamiento" -> Icons.Default.Medication
+        "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
+        "observaciones" -> Icons.Default.Visibility
+        "reconsulta" -> Icons.Default.EventRepeat
+        else -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }
 

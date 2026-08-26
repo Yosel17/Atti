@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Button
@@ -40,7 +39,9 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderCard
 import yosel.dev.atti.core.models.model.ConsultationStepProgressModel
 import yosel.dev.atti.core.navigation.main.Screens
+import yosel.dev.atti.core.utils.getConsultationStepIcon
 import yosel.dev.atti.core.utils.getConsultationStepScreen
+import yosel.dev.atti.ui.theme.customColors
 
 @Composable
 fun BodyDetailConsultation(
@@ -140,7 +141,7 @@ fun ConsultationTimelineStepItem(
                     .width(2.dp)
                     .height(20.dp)
                     .background(
-                        if (step.isCompleted) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                        if (step.isCompleted) MaterialTheme.customColors.active.copy(alpha = 0.6f)
                         else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
                     )
             )
@@ -155,6 +156,7 @@ private fun StepCardItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -166,7 +168,7 @@ private fun StepCardItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isCompleted) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+            color = if (isCompleted) MaterialTheme.customColors.active.copy(alpha = 0.4f)
             else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
         )
     ) {
@@ -179,14 +181,14 @@ private fun StepCardItem(
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = CircleShape,
-                color = if (isCompleted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
+                color = if (isCompleted) MaterialTheme.customColors.activeContainer else MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = if (isCompleted) Icons.Rounded.Check else Icons.Outlined.Check,
+                        imageVector = if (isCompleted) Icons.Rounded.Check else getConsultationStepIcon(stepName = stepName),
                         contentDescription = if (isCompleted) "Completado" else "Pendiente",
                         modifier = Modifier.size(22.dp),
-                        tint = if (isCompleted) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = if (isCompleted) MaterialTheme.customColors.onActiveContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -204,7 +206,7 @@ private fun StepCardItem(
                     Text(
                         text = "Completado",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.customColors.active,
                         fontWeight = FontWeight.Medium
                     )
                 }
