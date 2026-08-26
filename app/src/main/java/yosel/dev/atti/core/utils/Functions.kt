@@ -3,12 +3,19 @@ package yosel.dev.atti.core.utils
 import android.content.Context
 import android.content.Intent
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Biotech
+import androidx.compose.material.icons.filled.EventRepeat
+import androidx.compose.material.icons.filled.HistoryEdu
+import androidx.compose.material.icons.filled.MedicalInformation
+import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.CleaningServices
-import androidx.compose.material.icons.outlined.CrueltyFree
 import androidx.compose.material.icons.outlined.Emergency
 import androidx.compose.material.icons.outlined.Female
 import androidx.compose.material.icons.outlined.HomeWork
@@ -16,7 +23,6 @@ import androidx.compose.material.icons.outlined.LocalHospital
 import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.MonitorHeart
-import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.net.toUri
@@ -29,8 +35,6 @@ import yosel.dev.atti.core.navigation.main.Screens
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.time.Clock
-import kotlin.time.toJavaInstant
 
 fun formatDate(isoString: String): String {
     if (isoString.isBlank()) return ""
@@ -126,18 +130,40 @@ fun getIconForConsultationReason(reasonName: String): ImageVector {
     }
 }
 
-fun getConsultationStepScreen(stepName: String, consultationId: String): Screens {
-    return when (stepName.trim().lowercase()) {
-        "anamnesis" -> Screens.AnamnesisForm(consultationId = consultationId)
-        "examen clínico", "examen clinico" -> Screens.Empty
-        "constantes fisiológicas", "constantes fisiologicas" -> Screens.Empty
-        "diagnóstico", "diagnostico" -> Screens.Empty
+fun getConsultationStepScreen(
+    stepName: String,
+    consultationId: String,
+    recordId: String? = null
+): Screens {
+    return when (stepName.normalize()) {
+        "anamnesis" -> Screens.AnamnesisForm(
+            consultationId = consultationId,
+            anamnesisId = recordId
+        )
+        "examen clinico" -> Screens.Empty
+        "constantes fisiologicas" -> Screens.Empty
+        "diagnostico" -> Screens.Empty
         "pruebas auxiliares" -> Screens.Empty
         "tratamiento" -> Screens.Empty
         "receta" -> Screens.Empty
         "observaciones" -> Screens.Empty
         "reconsulta" -> Screens.Empty
         else -> Screens.Empty
+    }
+}
+
+fun getConsultationStepIcon(stepName: String): ImageVector {
+    return when (stepName.normalize()) {
+        "anamnesis" -> Icons.Default.HistoryEdu
+        "examen clinico" -> Icons.Default.MedicalInformation
+        "constantes fisiologicas" -> Icons.Default.MonitorHeart
+        "diagnostico" -> Icons.AutoMirrored.Filled.Assignment
+        "pruebas auxiliares" -> Icons.Default.Biotech
+        "tratamiento" -> Icons.Default.Medication
+        "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
+        "observaciones" -> Icons.Default.Visibility
+        "reconsulta" -> Icons.Default.EventRepeat
+        else -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }
 

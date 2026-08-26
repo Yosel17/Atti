@@ -4,6 +4,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import yosel.dev.atti.core.models.dto.ConsultationDto
+import yosel.dev.atti.core.models.dto.ConsultationProgressDto
 import yosel.dev.atti.core.utils.Constants
 import javax.inject.Inject
 
@@ -68,6 +69,25 @@ class ConsultationsDataSource @Inject constructor(
                 order("created_at", Order.DESCENDING)
             }
             .decodeList<ConsultationDto>()
+    }
+
+    suspend fun getConsultationProgressById(consultationId: String): ConsultationProgressDto? {
+        return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    """
+                id,
+                status,
+                consultation_type_id,
+                anamnesis:anamnesis(id, status)
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    eq("id", consultationId)
+                }
+            }
+            .decodeSingleOrNull<ConsultationProgressDto>()
     }
 
     suspend fun insertAndGetConsultation(consultation: ConsultationDto): ConsultationDto {

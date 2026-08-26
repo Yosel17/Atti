@@ -14,16 +14,17 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.detail_consultation.domain.DetailConsultationRepository
 
 @HiltViewModel(assistedFactory = DetailConsultationViewModel.Factory::class)
 class DetailConsultationViewModel @AssistedInject constructor(
     private val repository: DetailConsultationRepository,
     @Assisted private val consultationId: String
-): ViewModel() {
+) : ViewModel() {
 
     @AssistedFactory
-    interface Factory{
+    interface Factory {
         fun create(consultationId: String): DetailConsultationViewModel
     }
 
@@ -34,46 +35,55 @@ class DetailConsultationViewModel @AssistedInject constructor(
     val events = _eventChannel.receiveAsFlow()
 
     init {
-        getConsultationSteps()
+        observeConsultation()
+        observeStepsProgress()
+        syncData()
     }
 
-    private fun getConsultationSteps() {
+    private fun observeConsultation() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-
-            repository.getConsultationSteps().fold(
-                onSuccess = { consultationSteps ->
-                    _state.update { it.copy(consultationSteps = consultationSteps) }
-                    observeConsultationWithDetails()
-                },
-                onFailure = {
-                    _state.update { it.copy(isLoading = false) }
+            repository.getConsultationWithDetailsFlow(consultationId = consultationId)
+                .catch {
                     _eventChannel.send(
-                        DetailConsultationEvent.ShowErrorSnackbar(
-                            message = "No pudimos cargar los pasos de la consulta."
-                        )
+                        DetailConsultationEvent.ShowErrorSnackbar("No pudimos cargar la información de la consulta.")
                     )
                 }
-            )
+                .collectLatest { consultationModel ->
+                    _state.update {
+                        it.copy(
+                            consultationWithDetails = consultationModel ?: it.consultationWithDetails,
+                            isLoading = false
+                        )
+                    }
+                }
         }
     }
 
-    private suspend fun observeConsultationWithDetails() {
-        repository.getConsultationWithDetailsFlow(consultationId = consultationId)
-            .catch {
-                _state.update { it.copy(isLoading = false) }
+    private fun observeStepsProgress() {
+        viewModelScope.launch {
+            repository.getConsultationStepsProgressFlow(
+                consultationId = consultationId,
+                consultationTypeId = Constants.GENERAL_CONSULTATION_TYPE
+            ).catch {
                 _eventChannel.send(
-                    DetailConsultationEvent.ShowErrorSnackbar(
-                        message = "No pudimos cargar la información de la consulta."
-                    )
+                    DetailConsultationEvent.ShowErrorSnackbar("No pudimos cargar los pasos de la consulta.")
+                )
+            }.collectLatest { steps ->
+                _state.update { it.copy(consultationSteps = steps) }
+            }
+        }
+    }
+
+    private fun syncData() {
+        viewModelScope.launch {
+            repository.syncConsultationSteps(
+                consultationId = consultationId,
+                consultationTypeId = Constants.GENERAL_CONSULTATION_TYPE
+            ).onFailure {
+                _eventChannel.send(
+                    DetailConsultationEvent.ShowErrorSnackbar("Error al sincronizar el progreso de la consulta.")
                 )
             }
-            .collectLatest { consultationWithDetailsModel ->
-                _state.update {
-                    it.copy(consultationWithDetails = consultationWithDetailsModel ?: it.consultationWithDetails,
-                        isLoading = false
-                    )
-                }
-            }
+        }
     }
 }

@@ -30,12 +30,16 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel(assistedFactory = AnamnesisFormViewModel.Factory::class)
 class AnamnesisFormViewModel @AssistedInject constructor(
     private val repository: AnamnesisFormRepository,
-    @Assisted("consultationId") private val consultationId: String?
+    @Assisted("consultationId") private val consultationId: String?,
+    @Assisted("anamnesisId") private val anamnesisId: String?
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory{
-        fun create(@Assisted("consultationId") consultationId: String?): AnamnesisFormViewModel
+        fun create(
+            @Assisted("consultationId") consultationId: String?,
+            @Assisted("anamnesisId") anamnesisId: String?
+        ): AnamnesisFormViewModel
     }
 
     private val _state = MutableStateFlow(AnamnesisFormState())
