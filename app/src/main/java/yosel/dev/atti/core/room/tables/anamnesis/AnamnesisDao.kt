@@ -35,6 +35,26 @@ interface AnamnesisDao {
     @Query("DELETE FROM anamnesis_dewormings WHERE anamnesis_id = :anamnesisId")
     suspend fun deleteDewormingsByAnamnesisId(anamnesisId: String)
 
+    // --- Transacción atómica en Room ---
+    @Transaction
+    suspend fun saveAnamnesisWithDetails(
+        anamnesis: AnamnesisEntity,
+        options: List<AnamnesisEnvironmentOptionEntity>,
+        vaccines: List<AnamnesisVaccineEntity>,
+        dewormings: List<AnamnesisDewormingEntity>
+    ) {
+        upsertAnamnesis(anamnesis)
+        if (options.isNotEmpty()) {
+            upsertEnvironmentOptions(options)
+        }
+        if (vaccines.isNotEmpty()) {
+            upsertVaccines(vaccines)
+        }
+        if (dewormings.isNotEmpty()) {
+            upsertDewormings(dewormings)
+        }
+    }
+
     // --- Consultas con Relaciones ---
     @Transaction
     @Query("SELECT * FROM anamnesis WHERE consultation_id = :consultationId LIMIT 1")

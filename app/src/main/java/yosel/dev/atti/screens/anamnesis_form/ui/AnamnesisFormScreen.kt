@@ -27,6 +27,7 @@ import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.SelectAppCatalogMultiBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.getFormattedCurrentDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -159,9 +160,9 @@ fun AnamnesisFormScreen(
 
         // Sheet: Seleccionar producto desparasitante
         if (state.isDewormerProductSheetOpen) {
-            val catalogType = if (state.tempDewormingType == "Interno") Constants.INTERNAL_DEWORMER_TYPE_CATALOG else Constants.EXTERNAL_DEWORMER_TYPE_CATALOG
-            val catalogName = if (state.tempDewormingType == "Interno") "Desparasitante interno" else "Desparasitante externo"
-            val baseList = if (state.tempDewormingType == "Interno") state.internalDewormers else state.externalDewormers
+            val catalogType = if (state.tempDewormingType == "INTERNO") Constants.INTERNAL_DEWORMER_TYPE_CATALOG else Constants.EXTERNAL_DEWORMER_TYPE_CATALOG
+            val catalogName = if (state.tempDewormingType == "INTERNO") "Desparasitante interno" else "Desparasitante externo"
+            val baseList = if (state.tempDewormingType == "INTERNO") state.internalDewormers else state.externalDewormers
 
             SelectAppCatalogBottomSheet(
                 onDismiss = { onAction(AnamnesisFormAction.OnDismissDewormingProductSheet) },
@@ -244,6 +245,18 @@ fun AnamnesisFormScreen(
                 title = "Guardando Anamnesis...",
                 subtitle = "Estamos sincronizando y guardando la información en la base de datos.",
                 colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.showDialogConfirm){
+            SaveAnamnesisDialog(
+                patientName = state.consultationWithDetails.patientWithDetails.patient.name,
+                recordDate = getFormattedCurrentDate(),
+                onDismiss = { onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show= false)) },
+                onConfirm = {
+                    onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show= false))
+                    onAction(AnamnesisFormAction.SaveAnamnesis)
+                }
             )
         }
     }

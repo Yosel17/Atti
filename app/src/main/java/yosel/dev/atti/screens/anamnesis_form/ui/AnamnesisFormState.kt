@@ -1,12 +1,15 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 
 data class AnamnesisFormState(
     val isLoadingDataInitial: Boolean = true,
     val isSuccessGetCatalogs: Boolean = false,
     val isLoadingSaveAnamnesis: Boolean = false,
     val formInputState: AnamnesisFormInputsState = AnamnesisFormInputsState(),
+    val showDialogConfirm: Boolean = false,
+    val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
 
     // Catálogos base
     val animalLifestyles: List<AppCatalogModel> = emptyList(),
@@ -49,7 +52,7 @@ data class AnamnesisFormState(
     val tempDewormingIsoDate: String = "",
     val tempDewormingDisplayDate: String = "",
     val tempDewormingElapsedText: String = "",
-    val tempDewormingType: String = "Interno",
+    val tempDewormingType: String = "INTERNO",
     val tempSelectedDewormerProduct: AppCatalogModel? = null,
 
     // Diálogo general para agregar catálogo

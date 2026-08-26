@@ -91,7 +91,12 @@ fun BodyDetailConsultation(
                         step = step,
                         isLast = index == state.consultationSteps.lastIndex,
                         onClick = {
-                            onNavigationMain(getConsultationStepScreen(step.stepCatalog.name))
+                            onNavigationMain(
+                                getConsultationStepScreen(
+                                    stepName = step.stepCatalog.name,
+                                    consultationId = state.consultationWithDetails.consultation.id
+                                )
+                            )
                         }
                     )
                 }

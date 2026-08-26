@@ -8,6 +8,7 @@ sealed interface AnamnesisFormAction {
 
     data object TryCatalogsAgain: AnamnesisFormAction
     data object SaveAnamnesis : AnamnesisFormAction
+    data class ToggleSaveAnamnesisDialog(val show: Boolean): AnamnesisFormAction
 
     // Entorno y rutina
     data class OnOutdoorAccessChange(val enabled: Boolean) : AnamnesisFormAction

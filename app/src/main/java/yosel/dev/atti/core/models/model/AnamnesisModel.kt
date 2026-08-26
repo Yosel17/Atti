@@ -7,9 +7,9 @@ data class AnamnesisModel(
     val consultationId: String = "",
     val hasOutdoorAccess: Boolean = false,
     val housemates: String = "",
-    val foodBrandId: Int = 0,
+    val foodBrandId: Int? = null, // <-- Cambiado a Int?
     val foodQuantity: Double = 0.0,
-    val foodUnitTypeId: Int = 0,
+    val foodUnitTypeId: Int? = null, // <-- Cambiado a Int?
     val homemadeFood: String = "",
     val feedingFrequency: String = "",
     val waterConsumption: String = "",

@@ -42,7 +42,7 @@ sealed interface Screens: NavKey {
     data class DetailConsultation(val consultationId: String): Screens
 
     @Serializable
-    data object AnamnesisForm: Screens
+    data class AnamnesisForm(val consultationId: String): Screens
 
     @Serializable
     data object Empty: Screens

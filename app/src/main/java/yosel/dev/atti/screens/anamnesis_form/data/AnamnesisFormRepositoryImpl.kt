@@ -5,8 +5,11 @@ import yosel.dev.atti.core.models.model.AnamnesisEnvironmentOptionModel
 import yosel.dev.atti.core.models.model.AnamnesisModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.request.CreateAnamnesisRequest
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
+import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.supabase.AnamnesisDataSource
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
 import yosel.dev.atti.core.utils.toDtoForInsert
@@ -19,7 +22,8 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
     private val appCatalogsDataSource: AppCatalogsDataSource,
     private val appCatalogDao: AppCatalogDao,
     private val anamnesisDataSource: AnamnesisDataSource,
-    private val anamnesisDao: AnamnesisDao
+    private val anamnesisDao: AnamnesisDao,
+    private val consultationDao: ConsultationDao
 ): AnamnesisFormRepository {
 
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
@@ -41,39 +45,30 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         vaccines: List<AnamnesisVaccineModel>,
         dewormings: List<AnamnesisDewormingModel>
     ): Result<Unit> = runCatching {
-        // 1. Insertar registro principal en Supabase
-        val insertedAnamnesisDto = anamnesisDataSource.insertAndGetAnamnesis(
-            anamnesis = anamnesis.toDtoForInsert()
+        // 1. Armar el request para la función RPC
+        val request = CreateAnamnesisRequest(
+            anamnesisData = anamnesis.toDtoForInsert(),
+            environmentOptionsData = environmentOptions.map { it.toDtoForInsert() },
+            vaccinesData = vaccines.map { it.toDtoForInsert() },
+            dewormingsData = dewormings.map { it.toDtoForInsert() }
         )
-        val generatedAnamnesisId = insertedAnamnesisDto.id
-            ?: throw IllegalStateException("No se pudo obtener el ID de la anamnesis generada")
 
-        // 2. Asociar el ID generado a las tablas dependientes y mapear a DTOs
-        val envDtos = environmentOptions.map {
-            it.copy(anamnesisId = generatedAnamnesisId).toDtoForInsert()
-        }
-        val vaccineDtos = vaccines.map {
-            it.copy(anamnesisId = generatedAnamnesisId).toDtoForInsert()
-        }
-        val dewormingDtos = dewormings.map {
-            it.copy(anamnesisId = generatedAnamnesisId).toDtoForInsert()
-        }
+        // 2. Ejecución atómica en Supabase (si falla, lanza excepción y revierte en la BD remota)
+        val insertedAnamnesisDto = anamnesisDataSource.insertAnamnesisWithDetails(request = request)
 
-        // 3. Insertar registros dependientes en Supabase
-        val insertedEnvDtos = anamnesisDataSource.insertEnvironmentOptions(envDtos)
-        val insertedVaccineDtos = anamnesisDataSource.insertVaccines(vaccineDtos)
-        val insertedDewormingDtos = anamnesisDataSource.insertDewormings(dewormingDtos)
+        // 3. Ejecución atómica en Room con los ID generados por Supabase
+        anamnesisDao.saveAnamnesisWithDetails(
+            anamnesis = insertedAnamnesisDto.toEntity(),
+            options = insertedAnamnesisDto.environmentOptions.map { it.toEntity() },
+            vaccines = insertedAnamnesisDto.vaccines.map { it.toEntity() },
+            dewormings = insertedAnamnesisDto.dewormings.map { it.toEntity() }
+        )
+    }
 
-        // 4. Sincronizar en Room
-        anamnesisDao.upsertAnamnesis(insertedAnamnesisDto.toEntity())
-        if (insertedEnvDtos.isNotEmpty()) {
-            anamnesisDao.upsertEnvironmentOptions(insertedEnvDtos.map { it.toEntity() })
-        }
-        if (insertedVaccineDtos.isNotEmpty()) {
-            anamnesisDao.upsertVaccines(insertedVaccineDtos.map { it.toEntity() })
-        }
-        if (insertedDewormingDtos.isNotEmpty()) {
-            anamnesisDao.upsertDewormings(insertedDewormingDtos.map { it.toEntity() })
-        }
+    override suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel> = runCatching {
+        val consultationEntity = consultationDao.getConsultationWithDetailsById(
+            consultationId = consultationId
+        ) ?: throw IllegalStateException("No se pudo recuperar la información de la consulta")
+        consultationEntity.toModel()
     }
 }

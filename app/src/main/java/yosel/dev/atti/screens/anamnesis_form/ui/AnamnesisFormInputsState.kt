@@ -28,9 +28,9 @@ data class AnamnesisFormInputsState(
         consultationId = consultationId,
         hasOutdoorAccess = hasOutdoorAccess,
         housemates = housemates.trim(),
-        foodBrandId = selectedFoodBrand?.id ?: 0,
+        foodBrandId = selectedFoodBrand?.id, // <-- Null si no se selecciona
         foodQuantity = foodQuantity.parseToDouble(),
-        foodUnitTypeId = selectedFoodUnit?.id ?: 0,
+        foodUnitTypeId = selectedFoodUnit?.id, // <-- Null si no se selecciona
         homemadeFood = if (hasHomemadeFood) homemadeFoodDetails.trim() else "No",
         feedingFrequency = feedingFrequency,
         waterConsumption = waterConsumption,
