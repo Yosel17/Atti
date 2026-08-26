@@ -670,7 +670,8 @@ fun EntryProviderScope<NavKey>.anamnesisFormEntry(
         val viewModel: AnamnesisFormViewModel = hiltViewModel(
             creationCallback = { factory: AnamnesisFormViewModel.Factory ->
                 factory.create(
-                    consultationId = anamnesisFormKey.consultationId
+                    consultationId = anamnesisFormKey.consultationId,
+                    anamnesisId = anamnesisFormKey.anamnesisId
                 )
             }
         )
