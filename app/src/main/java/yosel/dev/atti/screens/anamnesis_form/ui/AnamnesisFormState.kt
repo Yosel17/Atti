@@ -52,7 +52,7 @@ data class AnamnesisFormState(
     val tempDewormingIsoDate: String = "",
     val tempDewormingDisplayDate: String = "",
     val tempDewormingElapsedText: String = "",
-    val tempDewormingType: String = "Interno",
+    val tempDewormingType: String = "INTERNO",
     val tempSelectedDewormerProduct: AppCatalogModel? = null,
 
     // Diálogo general para agregar catálogo

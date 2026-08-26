@@ -160,9 +160,9 @@ fun AnamnesisFormScreen(
 
         // Sheet: Seleccionar producto desparasitante
         if (state.isDewormerProductSheetOpen) {
-            val catalogType = if (state.tempDewormingType == "Interno") Constants.INTERNAL_DEWORMER_TYPE_CATALOG else Constants.EXTERNAL_DEWORMER_TYPE_CATALOG
-            val catalogName = if (state.tempDewormingType == "Interno") "Desparasitante interno" else "Desparasitante externo"
-            val baseList = if (state.tempDewormingType == "Interno") state.internalDewormers else state.externalDewormers
+            val catalogType = if (state.tempDewormingType == "INTERNO") Constants.INTERNAL_DEWORMER_TYPE_CATALOG else Constants.EXTERNAL_DEWORMER_TYPE_CATALOG
+            val catalogName = if (state.tempDewormingType == "INTERNO") "Desparasitante interno" else "Desparasitante externo"
+            val baseList = if (state.tempDewormingType == "INTERNO") state.internalDewormers else state.externalDewormers
 
             SelectAppCatalogBottomSheet(
                 onDismiss = { onAction(AnamnesisFormAction.OnDismissDewormingProductSheet) },

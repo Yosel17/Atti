@@ -46,6 +46,7 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         vaccines: List<AnamnesisVaccineModel>,
         dewormings: List<AnamnesisDewormingModel>
     ): Result<Unit> = runCatching {
+        println("YoselBug: vaccines: $vaccines")
         // 1. Armar el request para la función RPC
         val request = CreateAnamnesisRequest(
             anamnesisData = anamnesis.toDtoForInsert(),

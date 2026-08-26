@@ -1231,7 +1231,7 @@ fun AddDewormingBottomSheet(
                             .padding(6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val types = listOf("Interno", "Externo")
+                        val types = listOf("INTERNO", "EXTERNO")
                         types.forEach { type ->
                             val isSelected = state.tempDewormingType == type
                             Surface(
@@ -1535,7 +1535,7 @@ private fun ProphylaxisSectionPreview() {
                             AnamnesisDewormingWithDetailsModel(
                                 deworming = AnamnesisDewormingModel(
                                     applicationDate = "2026-07-01",
-                                    dewormingType = "Interno",
+                                    dewormingType = "INTERNO",
                                     productCatalogId = 1
                                 ),
                                 product = AppCatalogModel(id = 1, name = "Drontal Plus")

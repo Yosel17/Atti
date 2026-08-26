@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -203,14 +204,14 @@ class AnamnesisFormViewModel @AssistedInject constructor(
 
             // Profilaxis - Desparasitantes
             AnamnesisFormAction.OnOpenAddDewormingSheet -> {
-                val dewormerList = if (_state.value.tempDewormingType == "Interno") _state.value.internalDewormers else _state.value.externalDewormers
+                val dewormerList = if (_state.value.tempDewormingType == "INTERNO") _state.value.internalDewormers else _state.value.externalDewormers
                 _state.update {
                     it.copy(
                         isAddDewormingSheetOpen = true,
                         tempDewormingIsoDate = "",
                         tempDewormingDisplayDate = "",
                         tempDewormingElapsedText = "",
-                        tempDewormingType = "Interno",
+                        tempDewormingType = "INTERNO",
                         tempSelectedDewormerProduct = null,
                         filteredDewormerProducts = dewormerList
                     )
@@ -229,7 +230,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 }
             }
             is AnamnesisFormAction.OnDewormingTypeChange -> {
-                val dewormerList = if (action.type == "Interno") _state.value.internalDewormers else _state.value.externalDewormers
+                val dewormerList = if (action.type == "INTERNO") _state.value.internalDewormers else _state.value.externalDewormers
                 _state.update {
                     it.copy(
                         tempDewormingType = action.type,
@@ -239,7 +240,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 }
             }
             AnamnesisFormAction.OnOpenDewormingProductSheet -> {
-                val dewormerList = if (_state.value.tempDewormingType == "Interno") _state.value.internalDewormers else _state.value.externalDewormers
+                val dewormerList = if (_state.value.tempDewormingType == "INTERNO") _state.value.internalDewormers else _state.value.externalDewormers
                 _state.update {
                     it.copy(
                         isDewormerProductSheetOpen = true,
@@ -255,7 +256,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 _state.update { it.copy(dewormerProductSearchQuery = action.query) }
                 debounceSearch {
                     val q = action.query.normalize()
-                    val base = if (_state.value.tempDewormingType == "Interno") _state.value.internalDewormers else _state.value.externalDewormers
+                    val base = if (_state.value.tempDewormingType == "INTERNO") _state.value.internalDewormers else _state.value.externalDewormers
                     _state.update { s ->
                         s.copy(filteredDewormerProducts = if (q.isBlank()) base else base.filter { it.name.normalize().contains(q) })
                     }
@@ -543,7 +544,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                             vaccinationSchedules = updatedSchedules,
                             internalDewormers = updatedInternal,
                             externalDewormers = updatedExternal,
-                            filteredDewormerProducts = if (state.tempDewormingType == "Interno") updatedInternal else updatedExternal,
+                            filteredDewormerProducts = if (state.tempDewormingType == "INTERNO") updatedInternal else updatedExternal,
                             concentrateBrands = updatedBrands,
                             filteredConcentrateBrands = updatedBrands,
                             concentrateUnitsOfMeasurement = updatedUnits,
@@ -593,6 +594,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                     _eventChannel.send(ShowSuccessSnackbar("Anamnesis guardada exitosamente."))
                 },
                 onFailure = {
+                    Log.e("AnamnesisFormViewModel", "saveAnamnesis: $it")
                     _state.update { it.copy(isLoadingSaveAnamnesis = false) }
                     _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
                 }
