@@ -1,6 +1,5 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -23,7 +22,9 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
-import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.*
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.ShowErrorSnackbar
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.ShowSuccessSnackbar
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.ShowToast
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = AnamnesisFormViewModel.Factory::class)
@@ -594,7 +595,6 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                     _eventChannel.send(ShowSuccessSnackbar("Anamnesis guardada exitosamente."))
                 },
                 onFailure = {
-                    Log.e("AnamnesisFormViewModel", "saveAnamnesis: $it")
                     _state.update { it.copy(isLoadingSaveAnamnesis = false) }
                     _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
                 }

@@ -12,7 +12,6 @@ import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.supabase.AnamnesisDataSource
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
-import yosel.dev.atti.core.supabase.ConsultationsDataSource
 import yosel.dev.atti.core.utils.toDtoForInsert
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
@@ -46,7 +45,6 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         vaccines: List<AnamnesisVaccineModel>,
         dewormings: List<AnamnesisDewormingModel>
     ): Result<Unit> = runCatching {
-        println("YoselBug: vaccines: $vaccines")
         // 1. Armar el request para la función RPC
         val request = CreateAnamnesisRequest(
             anamnesisData = anamnesis.toDtoForInsert(),
@@ -58,7 +56,7 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         // 2. Ejecución atómica en Supabase (si falla, lanza excepción y revierte en la BD remota)
         val insertedAnamnesisDto = anamnesisDataSource.insertAnamnesisWithDetails(request = request)
 
-        // 3. Ejecución atómica en Room con los IDs generados por Supabase
+        // 3. Ejecución atómica en Room con los ID generados por Supabase
         anamnesisDao.saveAnamnesisWithDetails(
             anamnesis = insertedAnamnesisDto.toEntity(),
             options = insertedAnamnesisDto.environmentOptions.map { it.toEntity() },

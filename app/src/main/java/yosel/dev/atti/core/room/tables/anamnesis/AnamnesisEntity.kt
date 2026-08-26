@@ -48,11 +48,11 @@ data class AnamnesisEntity(
     @ColumnInfo(name = "housemates")
     val housemates: String = "",
     @ColumnInfo(name = "food_brand_id")
-    val foodBrandId: Int = 0,
+    val foodBrandId: Int? = null, // <-- Cambiado a Int?
     @ColumnInfo(name = "food_quantity")
     val foodQuantity: Double = 0.0,
     @ColumnInfo(name = "food_unit_type_id")
-    val foodUnitTypeId: Int = 0,
+    val foodUnitTypeId: Int? = null, // <-- Cambiado a Int?
     @ColumnInfo(name = "homemade_food")
     val homemadeFood: String = "",
     @ColumnInfo(name = "feeding_frequency")
