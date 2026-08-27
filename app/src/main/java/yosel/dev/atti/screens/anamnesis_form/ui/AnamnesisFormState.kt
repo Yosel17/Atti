@@ -1,12 +1,18 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
+import yosel.dev.atti.core.models.model.AnamnesisModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 
 data class AnamnesisFormState(
+    val isEditMode: Boolean = false,
+    val anamnesisId: String? = null,
+    val currentAnamnesis: AnamnesisModel? = null,
+    val initialFormInputState: AnamnesisFormInputsState = AnamnesisFormInputsState(),
     val isLoadingDataInitial: Boolean = true,
     val isSuccessGetCatalogs: Boolean = false,
     val isLoadingSaveAnamnesis: Boolean = false,
+    val isLoadingUpdateAnamnesis: Boolean = false,
     val formInputState: AnamnesisFormInputsState = AnamnesisFormInputsState(),
     val showDialogConfirm: Boolean = false,
     val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),

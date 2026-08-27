@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +46,7 @@ fun AnamnesisFormScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "Anamnesis",
+                title = if (state.isEditMode) "Editar Anamnesis" else "Nueva Anamnesis",
                 onBack = onBack
             )
         }
@@ -84,19 +85,28 @@ fun AnamnesisFormScreen(
                         )
                     }
                     else -> {
-                        BodyAnamnesisForm(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            state = state,
-                            onAction = onAction
-                        )
+                        if (state.currentAnamnesis != null && state.currentAnamnesis.status == Constants.DELETED_STATUS) {
+                            EmptyGlobal(
+                                title = "La anamnesis se encuentra eliminada",
+                                subTitle = "Esta ficha se encuentra eliminada y su información no se puede modificar.",
+                                icon = Icons.Outlined.DeleteForever,
+                                iconTint = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            BodyAnamnesisForm(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 24.dp),
+                                state = state,
+                                onAction = onAction
+                            )
+                        }
                     }
                 }
             }
         }
 
-        // Sheet: Entorno y rutina (Multiselección)
+        // Sheet: Entorno y rutina
         if (state.isLifestyleSheetOpen) {
             SelectAppCatalogMultiBottomSheet(
                 onDismiss = { onAction(AnamnesisFormAction.OnDismissEnvironmentOptionsSheet) },
@@ -118,7 +128,7 @@ fun AnamnesisFormScreen(
             )
         }
 
-        // Sheet: Agregar Vacuna (Modal completo)
+        // Sheet: Agregar Vacuna
         if (state.isAddVaccineSheetOpen) {
             AddVaccineBottomSheet(
                 state = state,
@@ -149,7 +159,7 @@ fun AnamnesisFormScreen(
             )
         }
 
-        // Sheet: Agregar Desparasitante (Modal completo)
+        // Sheet: Agregar Desparasitante
         if (state.isAddDewormingSheetOpen) {
             AddDewormingBottomSheet(
                 state = state,
@@ -163,7 +173,6 @@ fun AnamnesisFormScreen(
             val catalogType = if (state.tempDewormingType == "INTERNO") Constants.INTERNAL_DEWORMER_TYPE_CATALOG else Constants.EXTERNAL_DEWORMER_TYPE_CATALOG
             val catalogName = if (state.tempDewormingType == "INTERNO") "Desparasitante interno" else "Desparasitante externo"
             val baseList = if (state.tempDewormingType == "INTERNO") state.internalDewormers else state.externalDewormers
-
             SelectAppCatalogBottomSheet(
                 onDismiss = { onAction(AnamnesisFormAction.OnDismissDewormingProductSheet) },
                 title = "Selecciona desparasitante (${state.tempDewormingType.lowercase()})",
@@ -228,7 +237,7 @@ fun AnamnesisFormScreen(
             )
         }
 
-        // Diálogo para agregar cualquier catálogo al vuelo
+        // Diálogo para agregar catálogo
         if (state.showAddAppCatalogDialog) {
             AddAppCatalogDialog(
                 modifier = Modifier.fillMaxWidth(0.9f),
@@ -239,7 +248,7 @@ fun AnamnesisFormScreen(
             )
         }
 
-        // Diálogo de carga al registrar
+        // Diálogos de carga
         if (state.isLoadingSaveAnamnesis) {
             LoadingDialog(
                 title = "Guardando Anamnesis...",
@@ -248,13 +257,23 @@ fun AnamnesisFormScreen(
             )
         }
 
-        if (state.showDialogConfirm){
+        if (state.isLoadingUpdateAnamnesis) {
+            LoadingDialog(
+                title = "Actualizando Anamnesis...",
+                subtitle = "Por favor espera un momento...",
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        // Diálogo de confirmación
+        if (state.showDialogConfirm) {
             SaveAnamnesisDialog(
                 patientName = state.consultationWithDetails.patientWithDetails.patient.name,
                 recordDate = getFormattedCurrentDate(),
-                onDismiss = { onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show= false)) },
+                isEditMode = state.isEditMode,
+                onDismiss = { onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show = false)) },
                 onConfirm = {
-                    onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show= false))
+                    onAction(AnamnesisFormAction.ToggleSaveAnamnesisDialog(show = false))
                     onAction(AnamnesisFormAction.SaveAnamnesis)
                 }
             )
