@@ -14,8 +14,11 @@ import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
 import yosel.dev.atti.core.supabase.AnamnesisDataSource
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.toDtoForInsert
 import yosel.dev.atti.core.utils.toDtoForUpdate
 import yosel.dev.atti.core.utils.toEntity
@@ -29,7 +32,8 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
     private val anamnesisDataSource: AnamnesisDataSource,
     private val anamnesisDao: AnamnesisDao,
     private val consultationDao: ConsultationDao,
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val consultationStepProgressDao: ConsultationStepProgressDao
 ) : AnamnesisFormRepository {
 
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
@@ -63,6 +67,16 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
             options = insertedAnamnesisDto.environmentOptions.map { it.toEntity() },
             vaccines = insertedAnamnesisDto.vaccines.map { it.toEntity() },
             dewormings = insertedAnamnesisDto.dewormings.map { it.toEntity() }
+        )
+
+        consultationStepProgressDao.upsertSingleProgress(
+            ConsultationStepProgressEntity(
+                consultationId = insertedAnamnesisDto.consultationId,
+                stepCatalogId = Constants.CONSULTATION_STEPS_TYPE_CATALOG,
+                recordId = insertedAnamnesisDto.id,
+                isCompleted = true,
+                status = insertedAnamnesisDto.status
+            )
         )
         insertedAnamnesisDto.toModel()
     }
