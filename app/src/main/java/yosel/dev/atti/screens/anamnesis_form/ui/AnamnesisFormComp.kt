@@ -116,6 +116,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
@@ -1448,12 +1450,19 @@ private fun DataRow(
 }
 
 private fun calculateDateDetails(millis: Long): Triple<String, String, String> {
-    val selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+    // 1. Interpretar los milisegundos en UTC para evitar que reste un día por la zona horaria
+    val selectedDate = Instant.ofEpochMilli(millis)
+        .atZone(ZoneOffset.UTC)
+        .toLocalDate()
+
     val today = LocalDate.now()
-    val isoFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val isoDate = isoFormatter.format(Date(millis))
-    val displayFormatter = SimpleDateFormat("dd MMMM yyyy", Locale.forLanguageTag("es-ES"))
-    val displayDate = displayFormatter.format(Date(millis))
+
+    // 2. Formato estricto yyyy-MM-dd
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val isoDate = selectedDate.format(formatter)
+    val displayDate = isoDate // o el formato que requieras mostrar
+
+    // 3. Cálculo del tiempo transcurrido
     val period = Period.between(selectedDate, today)
 
     val elapsedText = when {
