@@ -19,11 +19,11 @@ class AnamnesisDataSource @Inject constructor(
         ).decodeAs<AnamnesisDto>()
     }
 
-    suspend fun updateAnamnesisWithDetails(request: UpdateAnamnesisRequest) {
-        postgrest.rpc(
+    suspend fun updateAnamnesisWithDetails(request: UpdateAnamnesisRequest): AnamnesisDto {
+        return postgrest.rpc(
             function = "update_anamnesis_with_details",
             parameters = request
-        )
+        ).decodeAs<AnamnesisDto>()
     }
 
     suspend fun getAnamnesisWithDetailsById(anamnesisId: String): AnamnesisDto? {

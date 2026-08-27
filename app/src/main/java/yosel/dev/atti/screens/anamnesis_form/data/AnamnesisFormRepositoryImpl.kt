@@ -73,37 +73,43 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         vaccines: List<AnamnesisVaccineModel>?,
         dewormings: List<AnamnesisDewormingModel>?
     ): Result<Unit> = runCatching {
-        // 1. Supabase: Ejecutar la función RPC atómica
+        // 1. Ejecución atómica en Supabase que devuelve el DTO con los IDs reales
         val request = UpdateAnamnesisRequest(
             anamnesisData = anamnesis.toDtoForUpdate(),
             environmentOptionsData = environmentOptions?.map { it.toDtoForInsert() },
             vaccinesData = vaccines?.map { it.toDtoForInsert() },
             dewormingsData = dewormings?.map { it.toDtoForInsert() }
         )
-        anamnesisDataSource.updateAnamnesisWithDetails(request)
+        val updatedAnamnesisDto = anamnesisDataSource.updateAnamnesisWithDetails(request)
 
-        // 2. Room: Ejecución atómica local
+        // 2. Ejecución atómica en Room usando los IDs generados por Supabase
         appDatabase.withTransaction {
-            anamnesisDao.upsertAnamnesis(anamnesis.toEntity())
+            anamnesisDao.upsertAnamnesis(updatedAnamnesisDto.toEntity())
 
             if (environmentOptions != null) {
                 anamnesisDao.deleteEnvironmentOptionsByAnamnesisId(anamnesis.id)
-                if (environmentOptions.isNotEmpty()) {
-                    anamnesisDao.upsertEnvironmentOptions(environmentOptions.map { it.toEntity() })
+                if (updatedAnamnesisDto.environmentOptions.isNotEmpty()) {
+                    anamnesisDao.upsertEnvironmentOptions(
+                        updatedAnamnesisDto.environmentOptions.map { it.toEntity() }
+                    )
                 }
             }
 
             if (vaccines != null) {
                 anamnesisDao.deleteVaccinesByAnamnesisId(anamnesis.id)
-                if (vaccines.isNotEmpty()) {
-                    anamnesisDao.upsertVaccines(vaccines.map { it.toEntity() })
+                if (updatedAnamnesisDto.vaccines.isNotEmpty()) {
+                    anamnesisDao.upsertVaccines(
+                        updatedAnamnesisDto.vaccines.map { it.toEntity() }
+                    )
                 }
             }
 
             if (dewormings != null) {
                 anamnesisDao.deleteDewormingsByAnamnesisId(anamnesis.id)
-                if (dewormings.isNotEmpty()) {
-                    anamnesisDao.upsertDewormings(dewormings.map { it.toEntity() })
+                if (updatedAnamnesisDto.dewormings.isNotEmpty()) {
+                    anamnesisDao.upsertDewormings(
+                        updatedAnamnesisDto.dewormings.map { it.toEntity() }
+                    )
                 }
             }
         }
@@ -117,37 +123,29 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAnamnesisWithDetailsById(anamnesisId: String): Result<AnamnesisWithDetailsModel> = runCatching {
-        // 1. Intentar obtener de Room
         val localAnamnesis = anamnesisDao.getAnamnesisWithDetailsById(anamnesisId)
         if (localAnamnesis != null) {
             return@runCatching localAnamnesis.toModel()
         }
 
-        // 2. Si no existe en Room, buscar en Supabase
         val remoteDto = anamnesisDataSource.getAnamnesisWithDetailsById(anamnesisId)
             ?: throw NoSuchElementException("No se encontró la anamnesis con ID: $anamnesisId")
 
-        // 3. Sincronizar catálogos embebidos en Room para mantener consistencia de relaciones
         val catalogsToInsert = buildList {
             remoteDto.foodBrand?.let { add(it.toEntity()) }
             remoteDto.foodUnit?.let { add(it.toEntity()) }
-            remoteDto.environmentOptions.forEach { opt ->
-                opt.catalog?.let { add(it.toEntity()) }
-            }
+            remoteDto.environmentOptions.forEach { opt -> opt.catalog?.let { add(it.toEntity()) } }
             remoteDto.vaccines.forEach { vac ->
                 vac.vaccine?.let { add(it.toEntity()) }
                 vac.scheme?.let { add(it.toEntity()) }
             }
-            remoteDto.dewormings.forEach { dew ->
-                dew.product?.let { add(it.toEntity()) }
-            }
+            remoteDto.dewormings.forEach { dew -> dew.product?.let { add(it.toEntity()) } }
         }.distinctBy { it.id }
 
         if (catalogsToInsert.isNotEmpty()) {
             appCatalogDao.insertAllCatalogs(catalogsToInsert)
         }
 
-        // 4. Guardar datos en Room
         anamnesisDao.saveAnamnesisWithDetails(
             anamnesis = remoteDto.toEntity(),
             options = remoteDto.environmentOptions.map { it.toEntity() },
@@ -155,7 +153,6 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
             dewormings = remoteDto.dewormings.map { it.toEntity() }
         )
 
-        // 5. Retornar los datos desde Room
         anamnesisDao.getAnamnesisWithDetailsById(anamnesisId)?.toModel()
             ?: throw IllegalStateException("Error al recuperar la anamnesis guardada localmente")
     }
