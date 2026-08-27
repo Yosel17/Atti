@@ -9,6 +9,7 @@ import yosel.dev.atti.core.models.model.AnamnesisWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.request.CreateAnamnesisRequest
+import yosel.dev.atti.core.models.request.UpdateAnamnesisRequest
 import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
@@ -50,16 +51,13 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         vaccines: List<AnamnesisVaccineModel>,
         dewormings: List<AnamnesisDewormingModel>
     ): Result<AnamnesisModel> = runCatching {
-        // 1. Armar el request para la función RPC
         val request = CreateAnamnesisRequest(
             anamnesisData = anamnesis.toDtoForInsert(),
             environmentOptionsData = environmentOptions.map { it.toDtoForInsert() },
             vaccinesData = vaccines.map { it.toDtoForInsert() },
             dewormingsData = dewormings.map { it.toDtoForInsert() }
         )
-        // 2. Ejecución atómica en Supabase
         val insertedAnamnesisDto = anamnesisDataSource.insertAnamnesisWithDetails(request = request)
-        // 3. Ejecución atómica en Room con los ID generados por Supabase
         anamnesisDao.saveAnamnesisWithDetails(
             anamnesis = insertedAnamnesisDto.toEntity(),
             options = insertedAnamnesisDto.environmentOptions.map { it.toEntity() },
@@ -71,43 +69,42 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
 
     override suspend fun updateAnamnesisWithDetails(
         anamnesis: AnamnesisModel,
-        environmentOptions: List<AnamnesisEnvironmentOptionModel>,
-        vaccines: List<AnamnesisVaccineModel>,
-        dewormings: List<AnamnesisDewormingModel>
+        environmentOptions: List<AnamnesisEnvironmentOptionModel>?,
+        vaccines: List<AnamnesisVaccineModel>?,
+        dewormings: List<AnamnesisDewormingModel>?
     ): Result<Unit> = runCatching {
-        // 1. En Supabase: actualizar anamnesis, eliminar registros hijos anteriores e insertar los nuevos
-        anamnesisDataSource.updateAnamnesis(anamnesis.toDtoForUpdate())
-        anamnesisDataSource.deleteEnvironmentOptionsByAnamnesisId(anamnesis.id)
-        anamnesisDataSource.deleteVaccinesByAnamnesisId(anamnesis.id)
-        anamnesisDataSource.deleteDewormingsByAnamnesisId(anamnesis.id)
+        // 1. Supabase: Ejecutar la función RPC atómica
+        val request = UpdateAnamnesisRequest(
+            anamnesisData = anamnesis.toDtoForUpdate(),
+            environmentOptionsData = environmentOptions?.map { it.toDtoForInsert() },
+            vaccinesData = vaccines?.map { it.toDtoForInsert() },
+            dewormingsData = dewormings?.map { it.toDtoForInsert() }
+        )
+        anamnesisDataSource.updateAnamnesisWithDetails(request)
 
-        val insertedOptionsDto = if (environmentOptions.isNotEmpty()) {
-            anamnesisDataSource.insertEnvironmentOptions(environmentOptions.map { it.toDtoForInsert() })
-        } else emptyList()
-
-        val insertedVaccinesDto = if (vaccines.isNotEmpty()) {
-            anamnesisDataSource.insertVaccines(vaccines.map { it.toDtoForInsert() })
-        } else emptyList()
-
-        val insertedDewormingsDto = if (dewormings.isNotEmpty()) {
-            anamnesisDataSource.insertDewormings(dewormings.map { it.toDtoForInsert() })
-        } else emptyList()
-
-        // 2. En Room: transacción atómica local
+        // 2. Room: Ejecución atómica local
         appDatabase.withTransaction {
             anamnesisDao.upsertAnamnesis(anamnesis.toEntity())
-            anamnesisDao.deleteEnvironmentOptionsByAnamnesisId(anamnesis.id)
-            anamnesisDao.deleteVaccinesByAnamnesisId(anamnesis.id)
-            anamnesisDao.deleteDewormingsByAnamnesisId(anamnesis.id)
 
-            if (insertedOptionsDto.isNotEmpty()) {
-                anamnesisDao.upsertEnvironmentOptions(insertedOptionsDto.map { it.toEntity() })
+            if (environmentOptions != null) {
+                anamnesisDao.deleteEnvironmentOptionsByAnamnesisId(anamnesis.id)
+                if (environmentOptions.isNotEmpty()) {
+                    anamnesisDao.upsertEnvironmentOptions(environmentOptions.map { it.toEntity() })
+                }
             }
-            if (insertedVaccinesDto.isNotEmpty()) {
-                anamnesisDao.upsertVaccines(insertedVaccinesDto.map { it.toEntity() })
+
+            if (vaccines != null) {
+                anamnesisDao.deleteVaccinesByAnamnesisId(anamnesis.id)
+                if (vaccines.isNotEmpty()) {
+                    anamnesisDao.upsertVaccines(vaccines.map { it.toEntity() })
+                }
             }
-            if (insertedDewormingsDto.isNotEmpty()) {
-                anamnesisDao.upsertDewormings(insertedDewormingsDto.map { it.toEntity() })
+
+            if (dewormings != null) {
+                anamnesisDao.deleteDewormingsByAnamnesisId(anamnesis.id)
+                if (dewormings.isNotEmpty()) {
+                    anamnesisDao.upsertDewormings(dewormings.map { it.toEntity() })
+                }
             }
         }
     }
@@ -119,8 +116,47 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         consultationEntity.toModel()
     }
 
-    override suspend fun getAnamnesisWithDetailsByIdRoom(anamnesisId: String): Result<AnamnesisWithDetailsModel> = runCatching {
-        anamnesisDao.getAnamnesisWithDetailsById(anamnesisId)?.toModel()
+    override suspend fun getAnamnesisWithDetailsById(anamnesisId: String): Result<AnamnesisWithDetailsModel> = runCatching {
+        // 1. Intentar obtener de Room
+        val localAnamnesis = anamnesisDao.getAnamnesisWithDetailsById(anamnesisId)
+        if (localAnamnesis != null) {
+            return@runCatching localAnamnesis.toModel()
+        }
+
+        // 2. Si no existe en Room, buscar en Supabase
+        val remoteDto = anamnesisDataSource.getAnamnesisWithDetailsById(anamnesisId)
             ?: throw NoSuchElementException("No se encontró la anamnesis con ID: $anamnesisId")
+
+        // 3. Sincronizar catálogos embebidos en Room para mantener consistencia de relaciones
+        val catalogsToInsert = buildList {
+            remoteDto.foodBrand?.let { add(it.toEntity()) }
+            remoteDto.foodUnit?.let { add(it.toEntity()) }
+            remoteDto.environmentOptions.forEach { opt ->
+                opt.catalog?.let { add(it.toEntity()) }
+            }
+            remoteDto.vaccines.forEach { vac ->
+                vac.vaccine?.let { add(it.toEntity()) }
+                vac.scheme?.let { add(it.toEntity()) }
+            }
+            remoteDto.dewormings.forEach { dew ->
+                dew.product?.let { add(it.toEntity()) }
+            }
+        }.distinctBy { it.id }
+
+        if (catalogsToInsert.isNotEmpty()) {
+            appCatalogDao.insertAllCatalogs(catalogsToInsert)
+        }
+
+        // 4. Guardar datos en Room
+        anamnesisDao.saveAnamnesisWithDetails(
+            anamnesis = remoteDto.toEntity(),
+            options = remoteDto.environmentOptions.map { it.toEntity() },
+            vaccines = remoteDto.vaccines.map { it.toEntity() },
+            dewormings = remoteDto.dewormings.map { it.toEntity() }
+        )
+
+        // 5. Retornar los datos desde Room
+        anamnesisDao.getAnamnesisWithDetailsById(anamnesisId)?.toModel()
+            ?: throw IllegalStateException("Error al recuperar la anamnesis guardada localmente")
     }
 }

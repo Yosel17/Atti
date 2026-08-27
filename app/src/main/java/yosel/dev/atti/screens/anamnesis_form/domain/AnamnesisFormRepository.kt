@@ -19,10 +19,10 @@ interface AnamnesisFormRepository {
     ): Result<AnamnesisModel>
     suspend fun updateAnamnesisWithDetails(
         anamnesis: AnamnesisModel,
-        environmentOptions: List<AnamnesisEnvironmentOptionModel>,
-        vaccines: List<AnamnesisVaccineModel>,
-        dewormings: List<AnamnesisDewormingModel>
+        environmentOptions: List<AnamnesisEnvironmentOptionModel>?,
+        vaccines: List<AnamnesisVaccineModel>?,
+        dewormings: List<AnamnesisDewormingModel>?
     ): Result<Unit>
     suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel>
-    suspend fun getAnamnesisWithDetailsByIdRoom(anamnesisId: String): Result<AnamnesisWithDetailsModel>
+    suspend fun getAnamnesisWithDetailsById(anamnesisId: String): Result<AnamnesisWithDetailsModel>
 }

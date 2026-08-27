@@ -494,7 +494,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
 
     private fun loadAnamnesisForEdit(id: String, catalogs: List<AppCatalogModel>) {
         viewModelScope.launch {
-            repository.getAnamnesisWithDetailsByIdRoom(id).fold(
+            repository.getAnamnesisWithDetailsById(id).fold(
                 onSuccess = { anamnesisWithDetails ->
                     val foodBrand = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodBrandId }
                     val foodUnit = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodUnitTypeId }
@@ -581,16 +581,25 @@ class AnamnesisFormViewModel @AssistedInject constructor(
         val currentState = _state.value
         val currentAnamnesis = currentState.currentAnamnesis ?: return
         _state.update { it.copy(isLoadingUpdateAnamnesis = true) }
+
         viewModelScope.launch {
-            val updatedAnamnesisModel = currentState.formInputState.toUpdateModel(
+            val initial = currentState.initialFormInputState
+            val current = currentState.formInputState
+
+            val optionsChanged = current.selectedEnvironmentOptions != initial.selectedEnvironmentOptions
+            val vaccinesChanged = current.vaccines != initial.vaccines
+            val dewormingsChanged = current.dewormings != initial.dewormings
+
+            val updatedAnamnesisModel = current.toUpdateModel(
                 anamnesisId = currentAnamnesis.id,
                 consultationId = currentAnamnesis.consultationId,
                 createdAt = currentAnamnesis.createdAt,
                 status = currentAnamnesis.status
             )
-            val envOptions = currentState.formInputState.toEnvironmentOptionModels(anamnesisId = currentAnamnesis.id)
-            val vaccines = currentState.formInputState.toVaccineModels(anamnesisId = currentAnamnesis.id)
-            val dewormings = currentState.formInputState.toDewormingModels(anamnesisId = currentAnamnesis.id)
+
+            val envOptions = if (optionsChanged) current.toEnvironmentOptionModels(currentAnamnesis.id) else null
+            val vaccines = if (vaccinesChanged) current.toVaccineModels(currentAnamnesis.id) else null
+            val dewormings = if (dewormingsChanged) current.toDewormingModels(currentAnamnesis.id) else null
 
             repository.updateAnamnesisWithDetails(
                 anamnesis = updatedAnamnesisModel,
