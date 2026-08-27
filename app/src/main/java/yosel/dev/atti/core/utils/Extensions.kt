@@ -65,6 +65,7 @@ import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyWithDetailsEn
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
+import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormInputsState
 import yosel.dev.atti.screens.detail_client.ui.EditClientFormState
 import yosel.dev.atti.screens.detail_supplier.ui.EditSupplierFormState
 import yosel.dev.atti.screens.product_form.ui.ProductFormInputsState
@@ -1077,6 +1078,64 @@ fun AnamnesisDewormingWithDetailsEntity.toModel() = AnamnesisDewormingWithDetail
     deworming = deworming.toModel(),
     product = product?.toModel() ?: AppCatalogModel()
 )
+
+fun AnamnesisWithDetailsModel.toAnamnesisFormInputsState(
+    foodBrand: AppCatalogModel?,
+    foodUnit: AppCatalogModel?
+): AnamnesisFormInputsState {
+    val hasHomeFood = anamnesis.homemadeFood.isNotBlank() && anamnesis.homemadeFood != "No"
+    return AnamnesisFormInputsState(
+        hasOutdoorAccess = anamnesis.hasOutdoorAccess,
+        selectedEnvironmentOptions = environmentOptions.map { it.catalog },
+        vaccines = vaccines,
+        dewormings = dewormings,
+        housemates = anamnesis.housemates,
+        selectedFoodBrand = foodBrand ?: this.foodBrand.takeIf { it.id != 0 },
+        selectedFoodUnit = foodUnit ?: this.foodUnit.takeIf { it.id != 0 },
+        foodQuantity = if (anamnesis.foodQuantity > 0.0) anamnesis.foodQuantity.toString() else "",
+        hasHomemadeFood = hasHomeFood,
+        homemadeFoodDetails = if (hasHomeFood) anamnesis.homemadeFood else "",
+        feedingFrequency = anamnesis.feedingFrequency.ifBlank { "2 veces al día" },
+        waterConsumption = anamnesis.waterConsumption.ifBlank { "Normal" }
+    )
+}
+
+fun AnamnesisFormInputsState.toUpdateModel(
+    anamnesisId: String,
+    consultationId: String,
+    createdAt: String = "",
+    status: Int = Constants.ACTIVE_STATUS
+) = AnamnesisModel(
+    id = anamnesisId,
+    consultationId = consultationId,
+    hasOutdoorAccess = hasOutdoorAccess,
+    housemates = housemates.trim(),
+    foodBrandId = selectedFoodBrand?.id,
+    foodQuantity = foodQuantity.parseToDouble(),
+    foodUnitTypeId = selectedFoodUnit?.id,
+    homemadeFood = if (hasHomemadeFood) homemadeFoodDetails.trim() else "No",
+    feedingFrequency = feedingFrequency,
+    waterConsumption = waterConsumption,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AnamnesisFormInputsState.toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {
+    return selectedEnvironmentOptions.map { catalog ->
+        AnamnesisEnvironmentOptionModel(
+            anamnesisId = anamnesisId,
+            catalogId = catalog.id
+        )
+    }
+}
+
+fun AnamnesisFormInputsState.toVaccineModels(anamnesisId: String = ""): List<AnamnesisVaccineModel> {
+    return vaccines.map { it.vaccineEntry.copy(anamnesisId = anamnesisId) }
+}
+
+fun AnamnesisFormInputsState.toDewormingModels(anamnesisId: String = ""): List<AnamnesisDewormingModel> {
+    return dewormings.map { it.deworming.copy(anamnesisId = anamnesisId) }
+}
 
 fun String.normalize(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)

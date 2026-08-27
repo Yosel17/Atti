@@ -14,6 +14,9 @@ interface AnamnesisDao {
     @Query("SELECT * FROM anamnesis WHERE consultation_id = :consultationId LIMIT 1")
     suspend fun getAnamnesisByConsultationId(consultationId: String): AnamnesisEntity?
 
+    @Query("SELECT * FROM anamnesis WHERE id = :anamnesisId LIMIT 1")
+    suspend fun getAnamnesisById(anamnesisId: String): AnamnesisEntity?
+
     @Upsert
     suspend fun upsertAnamnesis(anamnesis: AnamnesisEntity)
 
@@ -63,4 +66,8 @@ interface AnamnesisDao {
     @Transaction
     @Query("SELECT * FROM anamnesis WHERE consultation_id = :consultationId LIMIT 1")
     suspend fun getAnamnesisWithDetailsByConsultationId(consultationId: String): AnamnesisWithDetailsEntity?
+
+    @Transaction
+    @Query("SELECT * FROM anamnesis WHERE id = :anamnesisId LIMIT 1")
+    suspend fun getAnamnesisWithDetailsById(anamnesisId: String): AnamnesisWithDetailsEntity?
 }
