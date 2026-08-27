@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.anamnesis_form.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -21,6 +22,8 @@ import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
+import yosel.dev.atti.core.utils.toAnamnesisFormInputsState
+import yosel.dev.atti.core.utils.toUpdateModel
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.ShowErrorSnackbar
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent.ShowSuccessSnackbar
@@ -35,14 +38,19 @@ class AnamnesisFormViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     @AssistedFactory
-    interface Factory{
+    interface Factory {
         fun create(
             @Assisted("consultationId") consultationId: String?,
             @Assisted("anamnesisId") anamnesisId: String?
         ): AnamnesisFormViewModel
     }
 
-    private val _state = MutableStateFlow(AnamnesisFormState())
+    private val _state = MutableStateFlow(
+        AnamnesisFormState(
+            isEditMode = !anamnesisId.isNullOrBlank(),
+            anamnesisId = anamnesisId
+        )
+    )
     val state: StateFlow<AnamnesisFormState> = _state
 
     private val _eventChannel = Channel<AnamnesisFormEvent>()
@@ -356,7 +364,7 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 _state.update { it.copy(formInputState = it.formInputState.copy(waterConsumption = action.consumption)) }
             }
 
-            // Diálogos de adición de catálogo
+            // Catálogos
             is AnamnesisFormAction.OnShowAddCatalogDialog -> {
                 _state.update {
                     it.copy(
@@ -407,18 +415,17 @@ class AnamnesisFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun getConsultation(){
+    private fun getConsultation() {
         _state.update { it.copy(isLoadingDataInitial = true) }
-
         viewModelScope.launch {
-            repository.getConsultation(consultationId = consultationId?:"").fold(
+            repository.getConsultation(consultationId = consultationId ?: "").fold(
                 onSuccess = { consultationWithDetails ->
                     _state.update { it.copy(consultationWithDetails = consultationWithDetails) }
                     getCatalogs()
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
-                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener los catálogos. Inténtalo de nuevo."))
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener la información de la consulta."))
                 }
             )
         }
@@ -474,8 +481,149 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 filteredConcentrateBrands = concentrateBrands,
                 concentrateUnitsOfMeasurement = concentrateUnitsOfMeasurement,
                 filteredConcentrateUnits = concentrateUnitsOfMeasurement,
-                isSuccessGetCatalogs = true,
-                isLoadingDataInitial = false
+                isSuccessGetCatalogs = true
+            )
+        }
+
+        if (!anamnesisId.isNullOrBlank()) {
+            loadAnamnesisForEdit(id = anamnesisId, catalogs = appCatalogs)
+        } else {
+            _state.update { it.copy(isLoadingDataInitial = false) }
+        }
+    }
+
+    private fun loadAnamnesisForEdit(id: String, catalogs: List<AppCatalogModel>) {
+        viewModelScope.launch {
+            repository.getAnamnesisWithDetailsById(id).fold(
+                onSuccess = { anamnesisWithDetails ->
+                    val foodBrand = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodBrandId }
+                    val foodUnit = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodUnitTypeId }
+                    val initialForm = anamnesisWithDetails.toAnamnesisFormInputsState(
+                        foodBrand = foodBrand,
+                        foodUnit = foodUnit
+                    )
+                    val currentSelectedIds = initialForm.selectedEnvironmentOptions.map { it.id }.toSet()
+                    val sortedLifestyles = getFilteredAndSortedAnimalLifestyles(
+                        _state.value.animalLifestyles,
+                        "",
+                        currentSelectedIds
+                    )
+                    _state.update { currentState ->
+                        currentState.copy(
+                            currentAnamnesis = anamnesisWithDetails.anamnesis,
+                            formInputState = initialForm,
+                            initialFormInputState = initialForm,
+                            filteredAnimalLifestyles = sortedLifestyles,
+                            isLoadingDataInitial = false
+                        )
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(
+                        ShowErrorSnackbar("Error al cargar la información de la anamnesis.")
+                    )
+                }
+            )
+        }
+    }
+
+    private fun saveAnamnesis() {
+        val currentState = _state.value
+        if (currentState.isEditMode) {
+            updateAnamnesis()
+        } else {
+            registerAnamnesis()
+        }
+    }
+
+    private fun registerAnamnesis() {
+        val currentState = _state.value
+        _state.update { it.copy(isLoadingSaveAnamnesis = true) }
+        viewModelScope.launch {
+            val anamnesisModel = currentState.formInputState.toAnamnesisModel(
+                consultationId = consultationId ?: ""
+            )
+            val envOptions = currentState.formInputState.toEnvironmentOptionModels()
+            val vaccines = currentState.formInputState.toVaccineModels()
+            val dewormings = currentState.formInputState.toDewormingModels()
+
+            repository.saveAnamnesis(
+                anamnesis = anamnesisModel,
+                environmentOptions = envOptions,
+                vaccines = vaccines,
+                dewormings = dewormings
+            ).fold(
+                onSuccess = { savedAnamnesis ->
+                    val currentForm = currentState.formInputState
+                    _state.update { state ->
+                        state.copy(
+                            isEditMode = true,
+                            anamnesisId = savedAnamnesis.id,
+                            currentAnamnesis = savedAnamnesis,
+                            formInputState = currentForm,
+                            initialFormInputState = currentForm,
+                            isLoadingSaveAnamnesis = false
+                        )
+                    }
+                    _eventChannel.send(ShowSuccessSnackbar("Anamnesis registrada exitosamente."))
+                },
+                onFailure = {
+                    Log.e("AnamnesisFormViewModel", "Error al guardar anamnesis", it)
+                    _state.update { it.copy(isLoadingSaveAnamnesis = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
+                }
+            )
+        }
+    }
+
+    private fun updateAnamnesis() {
+        val currentState = _state.value
+        val currentAnamnesis = currentState.currentAnamnesis ?: return
+        _state.update { it.copy(isLoadingUpdateAnamnesis = true) }
+
+        viewModelScope.launch {
+            val initial = currentState.initialFormInputState
+            val current = currentState.formInputState
+
+            val optionsChanged = current.selectedEnvironmentOptions != initial.selectedEnvironmentOptions
+            val vaccinesChanged = current.vaccines != initial.vaccines
+            val dewormingsChanged = current.dewormings != initial.dewormings
+
+            val updatedAnamnesisModel = current.toUpdateModel(
+                anamnesisId = currentAnamnesis.id,
+                consultationId = currentAnamnesis.consultationId,
+                createdAt = currentAnamnesis.createdAt,
+                status = currentAnamnesis.status
+            )
+
+            val envOptions = if (optionsChanged) current.toEnvironmentOptionModels(currentAnamnesis.id) else null
+            val vaccines = if (vaccinesChanged) current.toVaccineModels(currentAnamnesis.id) else null
+            val dewormings = if (dewormingsChanged) current.toDewormingModels(currentAnamnesis.id) else null
+
+            repository.updateAnamnesisWithDetails(
+                anamnesis = updatedAnamnesisModel,
+                environmentOptions = envOptions,
+                vaccines = vaccines,
+                dewormings = dewormings
+            ).fold(
+                onSuccess = {
+                    val newForm = currentState.formInputState
+                    _state.update { state ->
+                        state.copy(
+                            isLoadingUpdateAnamnesis = false,
+                            currentAnamnesis = updatedAnamnesisModel,
+                            formInputState = newForm,
+                            initialFormInputState = newForm
+                        )
+                    }
+                    _eventChannel.send(ShowSuccessSnackbar("Anamnesis actualizada correctamente."))
+                },
+                onFailure = {
+                    Log.e("AnamnesisFormViewModel", "Error al actualizar la anamnesis", it)
+                    _state.update { it.copy(isLoadingUpdateAnamnesis = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos actualizar la anamnesis. Inténtalo de nuevo."))
+                }
             )
         }
     }
@@ -567,40 +715,6 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 onFailure = {
                     _state.update { it.copy(isLoadingAddCatalog = false, showAddAppCatalogDialog = false) }
                     _eventChannel.send(ShowToast("No se pudo agregar el catálogo."))
-                }
-            )
-        }
-    }
-
-    private fun saveAnamnesis() {
-        val cs = _state.value
-        _state.update { it.copy(isLoadingSaveAnamnesis = true) }
-        viewModelScope.launch {
-            val anamnesisModel = cs.formInputState.toAnamnesisModel(
-                consultationId = consultationId ?: ""
-            )
-            val envOptions = cs.formInputState.toEnvironmentOptionModels()
-            val vaccines = cs.formInputState.toVaccineModels()
-            val dewormings = cs.formInputState.toDewormingModels()
-
-            repository.saveAnamnesis(
-                anamnesis = anamnesisModel,
-                environmentOptions = envOptions,
-                vaccines = vaccines,
-                dewormings = dewormings
-            ).fold(
-                onSuccess = {
-                    _state.update {
-                        it.copy(
-                            formInputState = AnamnesisFormInputsState(),
-                            isLoadingSaveAnamnesis = false
-                        )
-                    }
-                    _eventChannel.send(ShowSuccessSnackbar("Anamnesis guardada exitosamente."))
-                },
-                onFailure = {
-                    _state.update { it.copy(isLoadingSaveAnamnesis = false) }
-                    _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la anamnesis. Inténtalo de nuevo."))
                 }
             )
         }
