@@ -12,6 +12,8 @@ import yosel.dev.atti.screens.add_supplier.data.AddSupplierRepositoryImpl
 import yosel.dev.atti.screens.add_supplier.domain.AddSupplierRepository
 import yosel.dev.atti.screens.anamnesis_form.data.AnamnesisFormRepositoryImpl
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
+import yosel.dev.atti.screens.clinical_exam_form.data.ClinicalExamFormRepositoryImpl
+import yosel.dev.atti.screens.clinical_exam_form.domain.ClinicalExamFormRepository
 import yosel.dev.atti.screens.detail_client.data.DetailClientRepositoryImpl
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import yosel.dev.atti.screens.detail_consultation.data.DetailConsultationRepositoryImpl
@@ -129,4 +131,10 @@ abstract class RepositoryModule {
     abstract fun bindAnamnesisFormRepository(
         impl: AnamnesisFormRepositoryImpl
     ): AnamnesisFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindClinicalExamFormRepository(
+        impl: ClinicalExamFormRepositoryImpl
+    ): ClinicalExamFormRepository
 }
