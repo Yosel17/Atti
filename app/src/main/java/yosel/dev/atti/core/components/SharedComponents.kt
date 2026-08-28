@@ -8,14 +8,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,6 +35,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -47,7 +46,6 @@ import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Inbox
-import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material.icons.outlined.Save
@@ -706,7 +704,7 @@ fun AddCatalogBottomSheet(
                         isTouched = true
                     }
                 },
-                leadingIcon = Icons.Outlined.Label,
+                leadingIcon = Icons.AutoMirrored.Outlined.Label,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text,
@@ -1273,120 +1271,6 @@ fun PhoneInputFieldWithTextGlobal(
 }
 
 @Composable
-fun PatientConsultationHeaderCard(
-    consultation: ConsultationWithDetailsModel,
-    modifier: Modifier = Modifier,
-    statusContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    statusContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PatientAvatar(
-                speciesId = consultation.patientWithDetails.patient.speciesId,
-                modifier = Modifier.size(56.dp)
-            )
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = consultation.patientWithDetails.patient.name.ifBlank { "Sin nombre" },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = consultation.patientWithDetails.patient.breed.ifBlank { "Raza no especificada" },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            ConsultationStatusBadge(
-                modifier = Modifier.align(Alignment.Top),
-                specieName = consultation.patientWithDetails.species.name,
-                containerColor = statusContainerColor,
-                contentColor = statusContentColor
-            )
-        }
-    }
-}
-
-@Composable
-private fun PatientAvatar(
-    speciesId: Int,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                shape = CircleShape
-            )
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(id = getIconSpecies(speciesId)),
-            contentDescription = null,
-            modifier = Modifier.size(32.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun ConsultationStatusBadge(
-    specieName: String,
-    containerColor: Color,
-    contentColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(100),
-        color = containerColor
-    ) {
-        Text(
-            text = specieName.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            color = contentColor,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-        )
-    }
-}
-
-@Composable
 fun AppCatalogMultiSelector(
     selectedCatalogs: List<AppCatalogModel>,
     onOpenSheet: () -> Unit,
@@ -1707,12 +1591,95 @@ fun SelectAppCatalogMultiBottomSheet(
     }
 }
 
+@Composable
+fun PatientConsultationHeaderHero(
+    consultation: ConsultationWithDetailsModel,
+    modifier: Modifier = Modifier
+) {
+    val patient = consultation.patientWithDetails.patient
+    val species = consultation.patientWithDetails.species
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Avatar con contenedor tonal
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = getIconSpecies(patient.speciesId)),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = patient.name.ifBlank { "Sin nombre" },
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = patient.breed.ifBlank { "Raza no especificada" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // Badge redondeado de especie
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Text(
+                        text = species.name.uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
-private fun PatientConsultationHeaderCardPreview() {
+private fun PatientConsultationHeaderHeroPreview() {
     AttiTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(24.dp)){
-            PatientConsultationHeaderCard(
+            PatientConsultationHeaderHero(
                 consultation = ConsultationWithDetailsModel(
                     patientWithDetails = PatientWithCatalogsModel(
                         patient = PatientModel(
