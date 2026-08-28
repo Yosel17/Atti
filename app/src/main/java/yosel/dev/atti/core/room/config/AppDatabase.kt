@@ -13,6 +13,8 @@ import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
 import yosel.dev.atti.core.room.tables.patient.PatientDao
@@ -40,7 +42,8 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         AnamnesisEntity::class,
         AnamnesisEnvironmentOptionEntity::class,
         AnamnesisVaccineEntity::class,
-        AnamnesisDewormingEntity::class
+        AnamnesisDewormingEntity::class,
+        ConsultationStepProgressEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -57,4 +60,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun consultationDao(): ConsultationDao
     abstract fun consultationTypeStepDao(): ConsultationTypeStepDao
     abstract fun anamnesisDao(): AnamnesisDao
+    abstract fun consultationStepProgressDao(): ConsultationStepProgressDao
 }

@@ -10,10 +10,13 @@ import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
 import yosel.dev.atti.core.supabase.AnamnesisDataSource
 import yosel.dev.atti.core.supabase.ConsultationTypeStepsDataSource
 import yosel.dev.atti.core.supabase.ConsultationsDataSource
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
@@ -25,8 +28,7 @@ class DetailConsultationRepositoryImpl @Inject constructor(
     private val consultationTypeStepDao: ConsultationTypeStepDao,
     private val consultationTypeStepsDataSource: ConsultationTypeStepsDataSource,
     private val consultationsDataSource: ConsultationsDataSource,
-    private val anamnesisDao: AnamnesisDao,
-    private val anamnesisDataSource: AnamnesisDataSource,
+    private val consultationStepProgressDao: ConsultationStepProgressDao,
     private val appCatalogDao: AppCatalogDao
 ) : DetailConsultationRepository {
 
@@ -41,25 +43,20 @@ class DetailConsultationRepositoryImpl @Inject constructor(
         consultationTypeId: Int
     ): Flow<List<ConsultationStepProgressModel>> {
         val stepsFlow = consultationTypeStepDao.getStepsWithDetailsByConsultationTypeIdFlow(consultationTypeId)
-        val anamnesisFlow = anamnesisDao.getAnamnesisByConsultationIdFlow(consultationId)
+        val progressFlow = consultationStepProgressDao.getProgressByConsultationIdFlow(consultationId)
 
-        return combine(stepsFlow, anamnesisFlow) { stepsEntities, anamnesisEntity ->
+        return combine(stepsFlow, progressFlow) { stepsEntities, progressEntities ->
+            val progressMap = progressEntities.associateBy { it.stepCatalogId }
+
             stepsEntities.map { stepWithDetailEntity ->
                 val stepModel = stepWithDetailEntity.toModel()
-                val normalizedStepName = stepModel.stepCatalog.name.normalize()
-
-                val (isCompleted, recordId) = when {
-                    normalizedStepName.contains("anamnesis") && anamnesisEntity != null -> {
-                        true to anamnesisEntity.id
-                    }
-                    else -> false to null
-                }
+                val progress = progressMap[stepModel.stepCatalog.id]
 
                 ConsultationStepProgressModel(
                     typeStep = stepModel.typeStep,
                     stepCatalog = stepModel.stepCatalog,
-                    isCompleted = isCompleted,
-                    recordId = recordId
+                    isCompleted = progress?.isCompleted == true,
+                    recordId = progress?.recordId
                 )
             }
         }.flowOn(Dispatchers.IO)
@@ -74,27 +71,34 @@ class DetailConsultationRepositoryImpl @Inject constructor(
         val allCatalogs = remoteSteps.flatMap { step ->
             listOfNotNull(step.consultationType?.toEntity(), step.stepCatalog?.toEntity())
         }.distinctBy { it.id }
-
         appCatalogDao.insertAllCatalogs(allCatalogs)
         consultationTypeStepDao.upsertSteps(remoteSteps.map { it.toEntity() })
 
-        // 2. Consulta anidada única para comprobar progreso en Supabase
-        val progress = consultationsDataSource.getConsultationProgressById(consultationId)
-        val remoteAnamnesis = progress?.anamnesis?.firstOrNull()
+        // 2. Traer ÚNICAMENTE la metadata ligera desde Supabase
+        val progressDto = consultationsDataSource.getConsultationProgressById(consultationId) ?: return@runCatching
 
-        // 3. Si existe anamnesis en Supabase pero no localmente en Room, se sincroniza con detalle
-        if (remoteAnamnesis != null && remoteAnamnesis.id != null) {
-            val localAnamnesis = anamnesisDao.getAnamnesisByConsultationId(consultationId)
-            if (localAnamnesis == null) {
-                anamnesisDataSource.getAnamnesisWithDetailsByConsultationId(consultationId)?.let { detailedDto ->
-                    anamnesisDao.saveAnamnesisWithDetails(
-                        anamnesis = detailedDto.toEntity(),
-                        options = detailedDto.environmentOptions.map { it.toEntity() },
-                        vaccines = detailedDto.vaccines.map { it.toEntity() },
-                        dewormings = detailedDto.dewormings.map { it.toEntity() }
-                    )
-                }
-            }
+        // 3. Mapear cada paso ligero a la tabla de progreso sin consultar datos pesados
+        val progressEntities = mutableListOf<ConsultationStepProgressEntity>()
+
+        // Mapeo Anamnesis
+        val remoteAnamnesis = progressDto.anamnesis.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val anamnesisCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("anamnesis", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (anamnesisCatalogId != null) {
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = anamnesisCatalogId,
+                    recordId = remoteAnamnesis?.id,
+                    isCompleted = remoteAnamnesis != null && !remoteAnamnesis.id.isNullOrBlank(),
+                    status = remoteAnamnesis?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
         }
+
+        // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
+        consultationStepProgressDao.upsertProgress(progressEntities)
     }
 }
