@@ -42,6 +42,9 @@ import yosel.dev.atti.screens.add_supplier.ui.AddSupplierViewModel
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormEvent
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormScreen
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormViewModel
+import yosel.dev.atti.screens.clinical_exam_form.ui.ClinicalExamFormEvent
+import yosel.dev.atti.screens.clinical_exam_form.ui.ClinicalExamFormScreen
+import yosel.dev.atti.screens.clinical_exam_form.ui.ClinicalExamFormViewModel
 import yosel.dev.atti.screens.detail_client.ui.DetailClientEvent
 import yosel.dev.atti.screens.detail_client.ui.DetailClientScreen
 import yosel.dev.atti.screens.detail_client.ui.DetailClientViewModel
@@ -741,5 +744,58 @@ fun EntryProviderScope<NavKey>.emptyEntry(){
                 )
             }
         }
+    }
+}
+
+fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.ClinicalExamForm> { clinicalExamFormKey ->
+        val viewModel: ClinicalExamFormViewModel = hiltViewModel(
+            creationCallback = { factory: ClinicalExamFormViewModel.Factory ->
+                factory.create(
+                    consultationId = clinicalExamFormKey.consultationId,
+                    examId = clinicalExamFormKey.examId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ClinicalExamFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ClinicalExamFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is ClinicalExamFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        ClinicalExamFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
     }
 }
