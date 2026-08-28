@@ -73,6 +73,8 @@ object Constants {
     const val EXTERNAL_DEWORMER_TYPE_CATALOG = 12
     const val CONCENTRATE_BRAND_TYPE_CATALOG = 13
     const val CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG = 14
+    const val COAT_TYPE_CATALOG = 15
+    const val LYMPH_NODE_TYPE_CATALOG = 16
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
