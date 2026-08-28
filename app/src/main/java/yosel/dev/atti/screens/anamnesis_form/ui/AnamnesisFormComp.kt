@@ -107,19 +107,16 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.AppCatalogMultiSelector
 import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
+import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.AnamnesisDewormingWithDetailsModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -142,6 +139,10 @@ fun BodyAnamnesisForm(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(12.dp))
+            PatientConsultationHeaderHero(
+                patientWithDetails = state.consultationWithDetails.patientWithDetails
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             EnvironmentAndRoutineSection(
                 state = state,
                 onAction = onAction
@@ -1303,12 +1304,12 @@ private fun SectionHeader(
 
 @Composable
 fun SaveAnamnesisDialog(
+    modifier: Modifier = Modifier,
     patientName: String,
     recordDate: String,
     isEditMode: Boolean = false,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     Dialog(

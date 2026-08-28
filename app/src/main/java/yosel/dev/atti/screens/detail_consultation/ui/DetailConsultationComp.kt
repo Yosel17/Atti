@@ -52,7 +52,9 @@ fun BodyDetailConsultation(
 ) {
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(8.dp))
-        PatientConsultationHeaderHero(consultation = state.consultationWithDetails)
+        PatientConsultationHeaderHero(
+            patientWithDetails = state.consultationWithDetails.patientWithDetails
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.consultationSteps.isEmpty()) {

@@ -113,7 +113,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.utils.Constants
@@ -1593,11 +1592,11 @@ fun SelectAppCatalogMultiBottomSheet(
 
 @Composable
 fun PatientConsultationHeaderHero(
-    consultation: ConsultationWithDetailsModel,
+    patientWithDetails: PatientWithCatalogsModel,
     modifier: Modifier = Modifier
 ) {
-    val patient = consultation.patientWithDetails.patient
-    val species = consultation.patientWithDetails.species
+    val patient = patientWithDetails.patient
+    val species = patientWithDetails.species
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -1680,16 +1679,14 @@ private fun PatientConsultationHeaderHeroPreview() {
     AttiTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(24.dp)){
             PatientConsultationHeaderHero(
-                consultation = ConsultationWithDetailsModel(
-                    patientWithDetails = PatientWithCatalogsModel(
-                        patient = PatientModel(
-                            name = "Max",
-                            breed = "Labrador",
-                            speciesId = 1
-                        ),
-                        species = AppCatalogModel(
+                patientWithDetails = PatientWithCatalogsModel(
+                    patient = PatientModel(
+                        name = "Max",
+                        breed = "Labrador",
+                        speciesId = 1
+                    ),
+                    species = AppCatalogModel(
                             name = "Canino"
-                        )
                     )
                 )
             )
