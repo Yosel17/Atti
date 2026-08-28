@@ -6,6 +6,8 @@ import yosel.dev.atti.core.models.dto.AnamnesisEnvironmentOptionDto
 import yosel.dev.atti.core.models.dto.AnamnesisVaccineDto
 import yosel.dev.atti.core.models.dto.AppCatalogDto
 import yosel.dev.atti.core.models.dto.ClientDto
+import yosel.dev.atti.core.models.dto.ClinicalExamLymphNodeDto
+import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.PatientDto
@@ -25,6 +27,10 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
+import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeModel
+import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeWithDetailsModel
+import yosel.dev.atti.core.models.model.ClinicalExamWithDetailsModel
+import yosel.dev.atti.core.models.model.ClinicalExaminationModel
 import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
@@ -50,6 +56,10 @@ import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeWithDetailsEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamWithDetailsEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
@@ -1136,6 +1146,116 @@ fun AnamnesisFormInputsState.toVaccineModels(anamnesisId: String = ""): List<Ana
 fun AnamnesisFormInputsState.toDewormingModels(anamnesisId: String = ""): List<AnamnesisDewormingModel> {
     return dewormings.map { it.deworming.copy(anamnesisId = anamnesisId) }
 }
+
+// --- CLINICAL EXAMINATION ---
+
+fun ClinicalExaminationDto.toEntity() = ClinicalExaminationEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes.orEmpty(),
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation.orEmpty(),
+    bodyCondition = bodyCondition ?: 3,
+    otherFindings = otherFindings.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ClinicalExaminationEntity.toModel() = ClinicalExaminationModel(
+    id = id,
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes,
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation,
+    bodyCondition = bodyCondition,
+    otherFindings = otherFindings,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ClinicalExaminationModel.toEntity() = ClinicalExaminationEntity(
+    id = id,
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes,
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation,
+    bodyCondition = bodyCondition,
+    otherFindings = otherFindings,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ClinicalExaminationDto.toModel() = ClinicalExaminationModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes.orEmpty(),
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation.orEmpty(),
+    bodyCondition = bodyCondition ?: 3,
+    otherFindings = otherFindings.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ClinicalExaminationModel.toDtoForInsert() = ClinicalExaminationDto(
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes.ifBlank { null },
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation.ifBlank { null },
+    bodyCondition = bodyCondition,
+    otherFindings = otherFindings.ifBlank { null },
+    status = status
+)
+
+fun ClinicalExaminationModel.toDtoForUpdate() = ClinicalExaminationDto(
+    id = id,
+    consultationId = consultationId,
+    mucousMembranes = mucousMembranes.ifBlank { null },
+    coatCatalogId = coatCatalogId,
+    abdominalPalpation = abdominalPalpation.ifBlank { null },
+    bodyCondition = bodyCondition,
+    otherFindings = otherFindings.ifBlank { null },
+    status = status
+)
+
+fun ClinicalExamWithDetailsEntity.toModel() = ClinicalExamWithDetailsModel(
+    clinicalExam = clinicalExam.toModel(),
+    coat = coat?.toModel() ?: AppCatalogModel(),
+    lymphNodes = lymphNodes.map { it.toModel() }
+)
+
+// --- CLINICAL EXAMINATION LYMPH NODES ---
+
+fun ClinicalExamLymphNodeDto.toEntity() = ClinicalExamLymphNodeEntity(
+    id = id ?: 0,
+    clinicalExaminationId = clinicalExaminationId,
+    catalogId = catalogId,
+    createdAt = createdAt.orEmpty()
+)
+
+fun ClinicalExamLymphNodeEntity.toModel() = ClinicalExamLymphNodeModel(
+    id = id,
+    clinicalExaminationId = clinicalExaminationId,
+    catalogId = catalogId,
+    createdAt = createdAt
+)
+
+fun ClinicalExamLymphNodeModel.toEntity() = ClinicalExamLymphNodeEntity(
+    id = id,
+    clinicalExaminationId = clinicalExaminationId,
+    catalogId = catalogId,
+    createdAt = createdAt
+)
+
+fun ClinicalExamLymphNodeModel.toDtoForInsert() = ClinicalExamLymphNodeDto(
+    clinicalExaminationId = clinicalExaminationId,
+    catalogId = catalogId
+)
+
+fun ClinicalExamLymphNodeWithDetailsEntity.toModel() = ClinicalExamLymphNodeWithDetailsModel(
+    lymphNode = lymphNode.toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
+)
 
 fun String.normalize(): String {
     val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)

@@ -11,6 +11,9 @@ import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.client.ClientEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeEntity
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationDao
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
@@ -43,7 +46,9 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         AnamnesisEnvironmentOptionEntity::class,
         AnamnesisVaccineEntity::class,
         AnamnesisDewormingEntity::class,
-        ConsultationStepProgressEntity::class
+        ConsultationStepProgressEntity::class,
+        ClinicalExaminationEntity::class,
+        ClinicalExamLymphNodeEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -61,4 +66,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun consultationTypeStepDao(): ConsultationTypeStepDao
     abstract fun anamnesisDao(): AnamnesisDao
     abstract fun consultationStepProgressDao(): ConsultationStepProgressDao
+    abstract fun clinicalExaminationDao(): ClinicalExaminationDao
 }
