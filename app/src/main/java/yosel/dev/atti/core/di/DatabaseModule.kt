@@ -11,6 +11,7 @@ import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
+import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
@@ -82,4 +83,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideConsultationStepProgressDao(appDatabase: AppDatabase): ConsultationStepProgressDao = appDatabase.consultationStepProgressDao()
+
+    @Singleton
+    @Provides
+    fun provideClinicalExaminationDao(appDatabase: AppDatabase): ClinicalExaminationDao = appDatabase.clinicalExaminationDao()
 }
