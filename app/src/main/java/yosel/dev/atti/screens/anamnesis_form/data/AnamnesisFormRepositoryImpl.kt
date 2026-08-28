@@ -62,6 +62,7 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
             dewormingsData = dewormings.map { it.toDtoForInsert() }
         )
         val insertedAnamnesisDto = anamnesisDataSource.insertAnamnesisWithDetails(request = request)
+
         anamnesisDao.saveAnamnesisWithDetails(
             anamnesis = insertedAnamnesisDto.toEntity(),
             options = insertedAnamnesisDto.environmentOptions.map { it.toEntity() },
@@ -72,7 +73,7 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         consultationStepProgressDao.upsertSingleProgress(
             ConsultationStepProgressEntity(
                 consultationId = insertedAnamnesisDto.consultationId,
-                stepCatalogId = Constants.CONSULTATION_STEPS_TYPE_CATALOG,
+                stepCatalogId = Constants.CONSULTATION_STEP_ANAMNESIS,
                 recordId = insertedAnamnesisDto.id,
                 isCompleted = true,
                 status = insertedAnamnesisDto.status

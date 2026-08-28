@@ -76,6 +76,10 @@ object Constants {
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
 
+    //pasos de una consulta
+    const val CONSULTATION_STEP_ANAMNESIS = 30
+
+
     //Catalogos
     const val CANINE_SPECIES_CATALOG = 1
     const val FELINE_SPECIES_CATALOG = 3
