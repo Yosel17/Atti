@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.EmptyGlobal
-import yosel.dev.atti.core.components.PatientConsultationHeaderCard
+import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.models.model.ConsultationStepProgressModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getConsultationStepIcon
@@ -52,7 +52,9 @@ fun BodyDetailConsultation(
 ) {
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(8.dp))
-        PatientConsultationHeaderCard(consultation = state.consultationWithDetails)
+        PatientConsultationHeaderHero(
+            patientWithDetails = state.consultationWithDetails.patientWithDetails
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.consultationSteps.isEmpty()) {
