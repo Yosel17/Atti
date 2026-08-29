@@ -83,6 +83,7 @@ object Constants {
     //pasos de una consulta
     const val CONSULTATION_STEP_ANAMNESIS = 30
     const val CONSULTATION_STEP_CLINICAL_EXAM = 31
+    const val CONSULTATION_STEP_PHYSIOLOGICAL_CONSTS = 32
 
 
     //Catalogos
