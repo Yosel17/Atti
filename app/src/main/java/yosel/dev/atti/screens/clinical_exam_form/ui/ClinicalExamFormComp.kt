@@ -343,7 +343,7 @@ private fun AbdominalPalpationSection(
                 onValueChange = { onAction(ClinicalExamFormAction.OnAbdominalPalpationChange(it)) },
                 leadingIcon = Icons.Default.TouchApp,
                 singleLine = false,
-                minLines = 2,
+                minLines = 1,
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -408,14 +408,14 @@ private fun BodyConditionSection(
             Spacer(modifier = Modifier.height(14.dp))
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = conditionText,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp)
                 )
