@@ -268,3 +268,48 @@ val deletedDark = Color(0xFFFFB3AD)
 val onDeletedDark = Color(0xFF561D1C)
 val deletedContainerDark = Color(0xFF733330)
 val onDeletedContainerDark = Color(0xFFFFDAD7)
+
+// ==========================================
+// Physiological Constants Range Colors
+// ==========================================
+// Light Scheme
+val rangeHypoLight = Color(0xFF0288D1)
+val onRangeHypoLight = Color(0xFFFFFFFF)
+val rangeHypoContainerLight = Color(0xFFE1F5FE)
+val onRangeHypoContainerLight = Color(0xFF01579B)
+
+val rangeNormalLight = Color(0xFF2E7D32)
+val onRangeNormalLight = Color(0xFFFFFFFF)
+val rangeNormalContainerLight = Color(0xFFE8F5E9)
+val onRangeNormalContainerLight = Color(0xFF1B5E20)
+
+val rangeHyperLight = Color(0xFFEF6C00)
+val onRangeHyperLight = Color(0xFFFFFFFF)
+val rangeHyperContainerLight = Color(0xFFFFF3E0)
+val onRangeHyperContainerLight = Color(0xFFE65100)
+
+val rangeFeverLight = Color(0xFFC62828)
+val onRangeFeverLight = Color(0xFFFFFFFF)
+val rangeFeverContainerLight = Color(0xFFFFEBEE)
+val onRangeFeverContainerLight = Color(0xFFB71C1C)
+
+// Dark Scheme
+val rangeHypoDark = Color(0xFF81D4FA)
+val onRangeHypoDark = Color(0xFF00344F)
+val rangeHypoContainerDark = Color(0xFF004D74)
+val onRangeHypoContainerDark = Color(0xFFCBE6FF)
+
+val rangeNormalDark = Color(0xFFA5D6A7)
+val onRangeNormalDark = Color(0xFF0F3815)
+val rangeNormalContainerDark = Color(0xFF1B5E20)
+val onRangeNormalContainerDark = Color(0xFFC8E6C9)
+
+val rangeHyperDark = Color(0xFFFFB74D)
+val onRangeHyperDark = Color(0xFF4E2600)
+val rangeHyperContainerDark = Color(0xFF703800)
+val onRangeHyperContainerDark = Color(0xFFFFDCC1)
+
+val rangeFeverDark = Color(0xFFEF9A9A)
+val onRangeFeverDark = Color(0xFF5C0006)
+val rangeFeverContainerDark = Color(0xFF8C000D)
+val onRangeFeverContainerDark = Color(0xFFFFDAD6)
