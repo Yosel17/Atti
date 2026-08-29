@@ -144,7 +144,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             examId = recordId
         )
-        "constantes fisiologicas" -> Screens.Empty
+        "constantes fisiologicas" -> Screens.PhysioConstsForm(
+            consultationId = consultationId,
+            constsId = recordId
+        )
         "diagnostico" -> Screens.Empty
         "pruebas auxiliares" -> Screens.Empty
         "tratamiento" -> Screens.Empty
