@@ -32,6 +32,8 @@ import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryI
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import yosel.dev.atti.screens.navigation_bar.inventory.data.InventoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
+import yosel.dev.atti.screens.physio_consts_form.data.PhysioConstsFormRepositoryImpl
+import yosel.dev.atti.screens.physio_consts_form.domain.PhysioConstsFormRepository
 import yosel.dev.atti.screens.product_form.data.ProductFormRepositoryImpl
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
 import yosel.dev.atti.screens.service_form.data.ServiceFormRepositoryImpl
@@ -137,4 +139,10 @@ abstract class RepositoryModule {
     abstract fun bindClinicalExamFormRepository(
         impl: ClinicalExamFormRepositoryImpl
     ): ClinicalExamFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPhysioConstsFormRepository(
+        impl: PhysioConstsFormRepositoryImpl
+    ): PhysioConstsFormRepository
 }

@@ -19,7 +19,7 @@ import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.physio_consts_form.domain.PhysioConstsFormRepository
 import javax.inject.Inject
 
-class PhysiologicalConstsFormRepositoryImpl @Inject constructor(
+class PhysioConstsFormRepositoryImpl @Inject constructor(
     private val appCatalogsDataSource: AppCatalogsDataSource,
     private val appCatalogDao: AppCatalogDao,
     private val physiologicalConstsDataSource: PhysiologicalConstsDataSource,
