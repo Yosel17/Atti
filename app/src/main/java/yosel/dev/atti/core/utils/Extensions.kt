@@ -11,6 +11,7 @@ import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.PatientDto
+import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
 import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
@@ -37,6 +38,8 @@ import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
+import yosel.dev.atti.core.models.model.PhysiologicalConstsWithDetailsModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
@@ -66,6 +69,8 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
+import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsWithDetailsEntity
 import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.product.ProductWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
@@ -1255,6 +1260,94 @@ fun ClinicalExamLymphNodeModel.toDtoForInsert() = ClinicalExamLymphNodeDto(
 fun ClinicalExamLymphNodeWithDetailsEntity.toModel() = ClinicalExamLymphNodeWithDetailsModel(
     lymphNode = lymphNode.toModel(),
     catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- PHYSIOLOGICAL CONSTANTS ---
+
+fun PhysiologicalConstsDto.toEntity() = PhysiologicalConstsEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PhysiologicalConstsEntity.toModel() = PhysiologicalConstsModel(
+    id = id,
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PhysiologicalConstsModel.toEntity() = PhysiologicalConstsEntity(
+    id = id,
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PhysiologicalConstsDto.toModel() = PhysiologicalConstsModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PhysiologicalConstsModel.toDtoForInsert() = PhysiologicalConstsDto(
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    status = status
+)
+
+fun PhysiologicalConstsModel.toDtoForUpdate() = PhysiologicalConstsDto(
+    id = id,
+    consultationId = consultationId,
+    temperature = temperature,
+    heartRate = heartRate,
+    respiratoryRate = respiratoryRate,
+    weight = weight,
+    weightUnitCatalogId = weightUnitCatalogId,
+    capillaryRefillTime = capillaryRefillTime,
+    skinTurgor = skinTurgor,
+    status = status
+)
+
+fun PhysiologicalConstsWithDetailsEntity.toModel() = PhysiologicalConstsWithDetailsModel(
+    constants = constants.toModel(),
+    weightUnit = weightUnit?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
