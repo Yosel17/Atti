@@ -106,6 +106,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            clinicalExamFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

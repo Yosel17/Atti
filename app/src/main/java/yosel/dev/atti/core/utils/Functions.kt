@@ -140,7 +140,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             anamnesisId = recordId
         )
-        "examen clinico" -> Screens.Empty
+        "examen clinico" -> Screens.ClinicalExamForm(
+            consultationId = consultationId,
+            examId = recordId
+        )
         "constantes fisiologicas" -> Screens.Empty
         "diagnostico" -> Screens.Empty
         "pruebas auxiliares" -> Screens.Empty
