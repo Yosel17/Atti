@@ -118,7 +118,7 @@ fun PhysioConstsFormScreen(
                 showAddAppCatalogDialog = {
                     onAction(
                         PhysioConstsFormAction.OnShowAddCatalogDialog(
-                            catalogTypeId = Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG,
+                            catalogTypeId = Constants.UNIT_OF_WEIGHT_TYPE_CATALOG,
                             catalogTypeName = "Unidad de peso"
                         )
                     )

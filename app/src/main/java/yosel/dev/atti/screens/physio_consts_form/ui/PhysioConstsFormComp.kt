@@ -486,7 +486,7 @@ private fun WeightSectionCard(
                 selectedCatalog = state.formInputState.selectedWeightUnit,
                 onOpenSheet = { onAction(PhysioConstsFormAction.OnOpenWeightUnitSheet) },
                 icon = Icons.Default.Straighten,
-                emptyText = "Selecciona la unidad de peso (Ej: Kg)"
+                emptyText = "Selecciona la unidad de peso"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -501,7 +501,7 @@ private fun WeightSectionCard(
                         onAction(PhysioConstsFormAction.OnWeightChange(sanitized))
                     }
                 },
-                leadingIcon = Icons.Default.Numbers,
+                leadingIcon = Icons.Default.Scale,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Done

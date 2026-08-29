@@ -145,7 +145,7 @@ class PhysioConstsFormViewModel @AssistedInject constructor(
     private fun getCatalogs() {
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
-                types = listOf(Constants.PRODUCT_UNIT_OF_MEASURE_TYPE_CATALOG, Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG)
+                types = listOf(Constants.UNIT_OF_WEIGHT_TYPE_CATALOG)
             ).fold(
                 onSuccess = { appCatalogs ->
                     successGetCatalogs(appCatalogs)
@@ -159,7 +159,7 @@ class PhysioConstsFormViewModel @AssistedInject constructor(
     }
 
     private fun successGetCatalogs(appCatalogs: List<AppCatalogModel>) {
-        val weightUnits = appCatalogs.distinctBy { it.id }.sortedBy { it.name.lowercase() }
+        val weightUnits = appCatalogs.sortedBy { it.name.lowercase() }
         _state.update { currentState ->
             currentState.copy(
                 weightUnits = weightUnits,
@@ -173,7 +173,7 @@ class PhysioConstsFormViewModel @AssistedInject constructor(
         } else {
             // Inicializar valores por defecto acordes a la especie
             val speciesId = _state.value.consultationWithDetails.patientWithDetails.patient.speciesId
-            val defaultKgUnit = weightUnits.find { it.name.normalize().contains("kg") || it.name.normalize().contains("kilo") } ?: weightUnits.firstOrNull()
+            val defaultKgUnit = weightUnits.firstOrNull()
 
             val defaultTemp = when (speciesId) {
                 Constants.CANINE_SPECIES_CATALOG -> "37.6"
