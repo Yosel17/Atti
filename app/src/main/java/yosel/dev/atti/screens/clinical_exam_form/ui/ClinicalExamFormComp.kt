@@ -449,7 +449,7 @@ private fun OtherFindingsSection(
                 onValueChange = { onAction(ClinicalExamFormAction.OnOtherFindingsChange(it)) },
                 leadingIcon = Icons.Default.Description,
                 singleLine = false,
-                minLines = 2,
+                minLines = 1,
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
