@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import yosel.dev.atti.core.models.dto.StepReferenceDto
 import yosel.dev.atti.core.models.model.ConsultationStepProgressModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
@@ -94,6 +95,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
                     recordId = remoteAnamnesis?.id,
                     isCompleted = remoteAnamnesis != null && !remoteAnamnesis.id.isNullOrBlank(),
                     status = remoteAnamnesis?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
+        //Mapeo Clinical Examinations
+        val remoteClinicalExaminations = progressDto.clinicalExaminations.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val clinicalExaminationsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("examen clínico", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (clinicalExaminationsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = clinicalExaminationsCatalogId,
+                    recordId = remoteClinicalExaminations?.id,
+                    isCompleted = remoteClinicalExaminations != null && !remoteClinicalExaminations.id.isNullOrBlank(),
+                    status = remoteClinicalExaminations?.status ?: Constants.ACTIVE_STATUS
                 )
             )
         }

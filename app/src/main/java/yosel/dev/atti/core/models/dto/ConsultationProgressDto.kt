@@ -14,5 +14,6 @@ data class ConsultationProgressDto(
     @SerialName("id") val id: String,
     @SerialName("status") val status: Int = 1,
     @SerialName("consultation_type_id") val consultationTypeId: Int? = null,
-    @SerialName("anamnesis") val anamnesis: List<StepReferenceDto> = emptyList()
+    @SerialName("anamnesis") val anamnesis: List<StepReferenceDto> = emptyList(),
+    @SerialName("clinical_examinations") val clinicalExaminations: List<StepReferenceDto> = emptyList()
 )

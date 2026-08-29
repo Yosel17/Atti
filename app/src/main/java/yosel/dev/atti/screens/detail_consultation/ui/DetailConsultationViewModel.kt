@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.detail_consultation.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -80,6 +81,7 @@ class DetailConsultationViewModel @AssistedInject constructor(
                 consultationId = consultationId,
                 consultationTypeId = Constants.GENERAL_CONSULTATION_TYPE
             ).onFailure {
+                Log.e("DetailConsultationViewModel", "Error al sincronizar datos", it)
                 _eventChannel.send(
                     DetailConsultationEvent.ShowErrorSnackbar("Error al sincronizar el progreso de la consulta.")
                 )
