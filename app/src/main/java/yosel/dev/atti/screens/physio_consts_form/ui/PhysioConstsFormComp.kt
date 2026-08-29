@@ -2,6 +2,7 @@ package yosel.dev.atti.screens.physio_consts_form.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +29,6 @@ import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.DeviceThermostat
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Timer
@@ -66,6 +66,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -74,6 +75,7 @@ import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
 enum class RangeStatus {
@@ -225,7 +227,10 @@ private fun TemperatureCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
                         imageVector = Icons.Default.DeviceThermostat,
                         contentDescription = null,
@@ -242,6 +247,7 @@ private fun TemperatureCard(
                 }
 
                 if (evaluation.statusText.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(100.dp),
                         color = badgeContainer
@@ -251,7 +257,8 @@ private fun TemperatureCard(
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = badgeContent,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -305,7 +312,10 @@ private fun HeartRateCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = null,
@@ -322,6 +332,7 @@ private fun HeartRateCard(
                 }
 
                 if (evaluation.statusText.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(100.dp),
                         color = badgeContainer
@@ -331,7 +342,8 @@ private fun HeartRateCard(
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = badgeContent,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -384,7 +396,10 @@ private fun RespiratoryRateCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Air,
                         contentDescription = null,
@@ -401,6 +416,7 @@ private fun RespiratoryRateCard(
                 }
 
                 if (evaluation.statusText.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(100.dp),
                         color = badgeContainer
@@ -410,7 +426,8 @@ private fun RespiratoryRateCard(
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = badgeContent,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -983,5 +1000,22 @@ private fun getRangeColors(status: RangeStatus): Pair<Color, Color> {
         RangeStatus.HIGH -> custom.rangeHyperContainer to custom.onRangeHyperContainer
         RangeStatus.FEVER -> custom.rangeFeverContainer to custom.onRangeFeverContainer
         RangeStatus.DEFAULT -> MaterialTheme.colorScheme.surfaceContainerHighest to MaterialTheme.colorScheme.onSurfaceVariant
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun InputsPreview() {
+    AttiTheme {
+        Surface(
+            modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)
+        ) {
+            TemperatureCard(
+                value = "37.5",
+                speciesId = Constants.CANINE_SPECIES_CATALOG,
+                onValueChange = {},
+                onNext = {}
+            )
+        }
     }
 }
