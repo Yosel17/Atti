@@ -261,12 +261,9 @@ private fun TemperatureCard(
 
             SelectableNumberInputField(
                 value = value,
-                onValueChange = { input ->
-                    val sanitized = input.replace(',', '.')
-                    if (sanitized.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
-                        onValueChange(sanitized)
-                    }
-                },
+                onValueChange = onValueChange,
+                allowDecimals = true,
+                maxDecimals = 2,
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next,
                 onAction = onNext
@@ -344,11 +341,8 @@ private fun HeartRateCard(
 
             SelectableNumberInputField(
                 value = value,
-                onValueChange = { input ->
-                    if (input.matches(Regex("^\\d*$"))) {
-                        onValueChange(input)
-                    }
-                },
+                onValueChange = onValueChange,
+                allowDecimals = false,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next,
                 onAction = onNext
@@ -426,11 +420,8 @@ private fun RespiratoryRateCard(
 
             SelectableNumberInputField(
                 value = value,
-                onValueChange = { input ->
-                    if (input.matches(Regex("^\\d*$"))) {
-                        onValueChange(input)
-                    }
-                },
+                onValueChange = onValueChange,
+                allowDecimals = false,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done,
                 onAction = onDone
@@ -652,25 +643,33 @@ private fun OptionSelectionButton(
 }
 
 /**
- * Text field que auto-selecciona el texto al obtener foco.
+ * Text field numérico que bloquea caracteres inválidos en tiempo real
+ * y auto-selecciona el texto completo al obtener foco.
  */
 @Composable
 private fun SelectableNumberInputField(
     value: String,
     onValueChange: (String) -> Unit,
+    allowDecimals: Boolean = false,
+    maxDecimals: Int = 2,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onAction: () -> Unit
 ) {
-    var textFieldValue by remember(value) {
+    var textFieldValue by remember {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
     }
+    var isFocused by remember { mutableStateOf(false) }
+
+    // Sincronizar el estado interno si el valor externo cambia (ej. carga inicial)
     LaunchedEffect(value) {
         if (value != textFieldValue.text) {
-            textFieldValue = textFieldValue.copy(text = value, selection = TextRange(value.length))
+            textFieldValue = TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
         }
     }
-    var isFocused by remember { mutableStateOf(false) }
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -680,15 +679,39 @@ private fun SelectableNumberInputField(
         BasicTextField(
             value = textFieldValue,
             onValueChange = { newValue ->
-                textFieldValue = newValue
-                onValueChange(newValue.text)
+                // Sanitizar comas a puntos si se permiten decimales
+                val sanitizedText = if (allowDecimals) {
+                    newValue.text.replace(',', '.')
+                } else {
+                    newValue.text
+                }
+
+                // Validar mediante Regex estricto
+                val isValid = if (allowDecimals) {
+                    sanitizedText.isEmpty() || sanitizedText.matches(Regex("^\\d*(\\.\\d{0,$maxDecimals})?$"))
+                } else {
+                    sanitizedText.isEmpty() || sanitizedText.matches(Regex("^\\d*$"))
+                }
+
+                // Solo actualizar la UI y notificar si cumple la regla
+                if (isValid) {
+                    val selectionDiff = sanitizedText.length - newValue.text.length
+                    val newSelection = TextRange(
+                        (newValue.selection.start + selectionDiff).coerceIn(0, sanitizedText.length),
+                        (newValue.selection.end + selectionDiff).coerceIn(0, sanitizedText.length)
+                    )
+                    textFieldValue = TextFieldValue(text = sanitizedText, selection = newSelection)
+                    onValueChange(sanitizedText)
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp)
                 .onFocusChanged { focusState ->
                     if (focusState.isFocused && !isFocused) {
-                        textFieldValue = textFieldValue.copy(selection = TextRange(0, textFieldValue.text.length))
+                        textFieldValue = textFieldValue.copy(
+                            selection = TextRange(0, textFieldValue.text.length)
+                        )
                     }
                     isFocused = focusState.isFocused
                 },
