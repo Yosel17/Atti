@@ -27,13 +27,13 @@ interface PhysiologicalConstsDao {
     // --- Consultas con Relaciones ---
     @Transaction
     @Query("SELECT * FROM physiological_consts WHERE consultation_id = :consultationId LIMIT 1")
-    fun getConstantsWithDetailsByConsultationIdFlow(consultationId: String): Flow<PhysiologicalConstantsWithDetailsEntity?>
+    fun getConstantsWithDetailsByConsultationIdFlow(consultationId: String): Flow<PhysiologicalConstsWithDetailsEntity?>
 
     @Transaction
     @Query("SELECT * FROM physiological_consts WHERE consultation_id = :consultationId LIMIT 1")
-    suspend fun getConstantsWithDetailsByConsultationId(consultationId: String): PhysiologicalConstantsWithDetailsEntity?
+    suspend fun getConstantsWithDetailsByConsultationId(consultationId: String): PhysiologicalConstsWithDetailsEntity?
 
     @Transaction
     @Query("SELECT * FROM physiological_consts WHERE id = :id LIMIT 1")
-    suspend fun getConstantsWithDetailsById(id: String): PhysiologicalConstantsWithDetailsEntity?
+    suspend fun getConstantsWithDetailsById(id: String): PhysiologicalConstsWithDetailsEntity?
 }

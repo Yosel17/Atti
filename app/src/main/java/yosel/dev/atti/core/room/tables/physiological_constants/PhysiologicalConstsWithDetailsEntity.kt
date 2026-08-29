@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 
-data class PhysiologicalConstantsWithDetailsEntity(
+data class PhysiologicalConstsWithDetailsEntity(
     @Embedded val constants: PhysiologicalConstsEntity,
     @Relation(
         parentColumn = "weight_unit_catalog_id",
