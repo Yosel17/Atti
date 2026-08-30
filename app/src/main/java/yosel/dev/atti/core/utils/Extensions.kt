@@ -10,6 +10,7 @@ import yosel.dev.atti.core.models.dto.ClinicalExamLymphNodeDto
 import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
+import yosel.dev.atti.core.models.dto.DiagnosisDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
 import yosel.dev.atti.core.models.dto.ProductDto
@@ -36,6 +37,8 @@ import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.DiagnosisModel
+import yosel.dev.atti.core.models.model.DiagnosisWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
@@ -67,6 +70,8 @@ import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
+import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
+import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisWithDetailsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
@@ -1348,6 +1353,63 @@ fun PhysiologicalConstsModel.toDtoForUpdate() = PhysiologicalConstsDto(
 fun PhysiologicalConstsWithDetailsEntity.toModel() = PhysiologicalConstsWithDetailsModel(
     constants = constants.toModel(),
     weightUnit = weightUnit?.toModel() ?: AppCatalogModel()
+)
+
+// --- DIAGNOSES ---
+
+fun DiagnosisDto.toEntity() = DiagnosisEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun DiagnosisEntity.toModel() = DiagnosisModel(
+    id = id,
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun DiagnosisModel.toEntity() = DiagnosisEntity(
+    id = id,
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun DiagnosisDto.toModel() = DiagnosisModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun DiagnosisModel.toDtoForInsert() = DiagnosisDto(
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    status = status
+)
+
+fun DiagnosisModel.toDtoForUpdate() = DiagnosisDto(
+    id = id,
+    consultationId = consultationId,
+    diagnosisCatalogId = diagnosisCatalogId,
+    status = status
+)
+
+fun DiagnosisWithDetailsEntity.toModel() = DiagnosisWithDetailsModel(
+    diagnosis = diagnosis.toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+fun DiagnosisDto.toWithDetailsModel() = DiagnosisWithDetailsModel(
+    diagnosis = toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
