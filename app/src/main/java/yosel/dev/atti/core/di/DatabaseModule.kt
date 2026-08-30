@@ -15,6 +15,7 @@ import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationD
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
+import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
@@ -93,4 +94,8 @@ object DatabaseModule {
     @Provides
     fun providePhysiologicalConstsDao(appDatabase: AppDatabase): PhysiologicalConstsDao =
         appDatabase.physiologicalConstantsDao()
+
+    @Singleton
+    @Provides
+    fun provideDiagnosisDao(appDatabase: AppDatabase): DiagnosisDao = appDatabase.diagnosisDao()
 }
