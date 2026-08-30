@@ -117,6 +117,25 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo Constantes Fisiologicas
+        val remotePhysicalConstants = progressDto.physiologicalConstants.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val physicalConstantsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("constantes fisiológicas", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (physicalConstantsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = physicalConstantsCatalogId,
+                    recordId = remotePhysicalConstants?.id,
+                    isCompleted = remotePhysicalConstants != null && !remotePhysicalConstants.id.isNullOrBlank(),
+                    status = remotePhysicalConstants?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
