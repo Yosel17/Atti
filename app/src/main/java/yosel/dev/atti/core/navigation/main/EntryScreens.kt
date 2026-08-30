@@ -64,6 +64,9 @@ import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
+import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormEvent
+import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormScreen
+import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormViewModel
 import yosel.dev.atti.screens.product_form.ui.ProductFormEvent
 import yosel.dev.atti.screens.product_form.ui.ProductFormScreen
 import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
@@ -789,6 +792,59 @@ fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
         }
 
         ClinicalExamFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.physioConstsFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.PhysioConstsForm> { constsKey ->
+        val viewModel: PhysioConstsFormViewModel = hiltViewModel(
+            creationCallback = { factory: PhysioConstsFormViewModel.Factory ->
+                factory.create(
+                    consultationId = constsKey.consultationId,
+                    constsId = constsKey.constsId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is PhysioConstsFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is PhysioConstsFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is PhysioConstsFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        PhysioConstsFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

@@ -49,4 +49,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class ClinicalExamForm(val consultationId: String, val examId: String? = null) : Screens
+
+    @Serializable
+    data class PhysioConstsForm(val consultationId: String, val constsId: String? = null) : Screens
 }
