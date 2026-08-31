@@ -135,6 +135,23 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo Diagnóstico
+        val remoteDiagnoses = progressDto.diagnoses.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val diagnosesCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("diagnóstico", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (diagnosesCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = diagnosesCatalogId,
+                    recordId = remoteDiagnoses?.id,
+                    isCompleted = remoteDiagnoses != null && !remoteDiagnoses.id.isNullOrBlank(),
+                    status = remoteDiagnoses?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
 
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
