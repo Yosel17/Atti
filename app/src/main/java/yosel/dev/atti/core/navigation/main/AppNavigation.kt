@@ -118,6 +118,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            diagnosisFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

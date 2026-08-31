@@ -63,6 +63,9 @@ import yosel.dev.atti.screens.detail_service.ui.DetailServiceViewModel
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
+import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
+import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
+import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormEvent
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormScreen
@@ -845,6 +848,59 @@ fun EntryProviderScope<NavKey>.physioConstsFormEntry(
         }
 
         PhysioConstsFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.diagnosisFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.DiagnosisForm> { key ->
+        val viewModel: DiagnosisFormViewModel = hiltViewModel(
+            creationCallback = { factory: DiagnosisFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    diagnosisId = key.diagnosisId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is DiagnosisFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is DiagnosisFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is DiagnosisFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        DiagnosisFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
