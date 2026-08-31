@@ -17,5 +17,4 @@ interface DiagnosisFormRepository {
     ): Result<List<DiagnosisWithDetailsModel>>
     suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel>
     suspend fun getDiagnosesByConsultationId(consultationId: String): Result<List<DiagnosisWithDetailsModel>>
-    suspend fun getDiagnosisWithDetailsById(id: String): Result<DiagnosisWithDetailsModel>
 }
