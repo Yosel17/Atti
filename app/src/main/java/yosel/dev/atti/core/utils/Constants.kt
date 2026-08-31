@@ -78,6 +78,7 @@ object Constants {
     const val COAT_TYPE_CATALOG = 15
     const val LYMPH_NODE_TYPE_CATALOG = 16
     const val UNIT_OF_WEIGHT_TYPE_CATALOG = 17
+    const val DIAGNOSIS_TYPE_CATALOG = 18
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23

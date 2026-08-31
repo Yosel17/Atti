@@ -132,12 +132,4 @@ class DiagnosisFormRepositoryImpl @Inject constructor(
 
         diagnosisDao.getDiagnosesWithDetailsByConsultationId(consultationId).map { it.toModel() }
     }
-
-    override suspend fun getDiagnosisWithDetailsById(id: String): Result<DiagnosisWithDetailsModel> = runCatching {
-        val local = diagnosisDao.getDiagnosisWithDetailsById(id)
-        if (local != null) {
-            return@runCatching local.toModel()
-        }
-        throw NoSuchElementException("No se encontró el diagnóstico con ID: $id")
-    }
 }

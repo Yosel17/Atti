@@ -148,7 +148,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             constsId = recordId
         )
-        "diagnostico" -> Screens.Empty
+        "diagnostico" -> Screens.DiagnosisForm(
+            consultationId = consultationId,
+            diagnosisId = recordId
+        )
         "pruebas auxiliares" -> Screens.Empty
         "tratamiento" -> Screens.Empty
         "receta" -> Screens.Empty
