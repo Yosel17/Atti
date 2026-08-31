@@ -267,7 +267,7 @@ private fun DiagnosisItemCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
             } else {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
             }

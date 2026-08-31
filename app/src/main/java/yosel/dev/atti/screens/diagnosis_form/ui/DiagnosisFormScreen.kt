@@ -40,7 +40,7 @@ fun DiagnosisFormScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = if (state.isEditMode) "Editar Diagnóstico" else "Diagnóstico Rápido",
+                title = if (state.isEditMode) "Editar Diagnóstico" else "Diagnóstico",
                 onBack = onBack
             )
         }
