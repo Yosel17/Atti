@@ -34,6 +34,8 @@ import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
+import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
+import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
 
 @Database(
     entities = [
@@ -54,7 +56,8 @@ import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
         ClinicalExaminationEntity::class,
         ClinicalExamLymphNodeEntity::class,
         PhysiologicalConstsEntity::class,
-        DiagnosisEntity::class
+        DiagnosisEntity::class,
+        TreatmentEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -75,4 +78,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun clinicalExaminationDao(): ClinicalExaminationDao
     abstract fun physiologicalConstantsDao(): PhysiologicalConstsDao
     abstract fun diagnosisDao(): DiagnosisDao
+    abstract fun treatmentDao(): TreatmentDao
 }
