@@ -17,6 +17,7 @@ import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
 import yosel.dev.atti.core.models.dto.SupplierDto
+import yosel.dev.atti.core.models.dto.TreatmentDto
 import yosel.dev.atti.core.models.model.AnamnesisDewormingModel
 import yosel.dev.atti.core.models.model.AnamnesisDewormingWithDetailsModel
 import yosel.dev.atti.core.models.model.AnamnesisEnviOptWithDetailsModel
@@ -50,6 +51,8 @@ import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
+import yosel.dev.atti.core.models.model.TreatmentModel
+import yosel.dev.atti.core.models.model.TreatmentWithDetailsModel
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDewormingEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDewormingWithDetailsEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEntity
@@ -83,6 +86,8 @@ import yosel.dev.atti.core.room.tables.service.ServiceWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyWithDetailsEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
+import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
+import yosel.dev.atti.core.room.tables.treatment.TreatmentWithDetailsEntity
 import yosel.dev.atti.screens.add_client.ui.AddClientFormState
 import yosel.dev.atti.screens.add_patient.ui.AddPatientFormState
 import yosel.dev.atti.screens.anamnesis_form.ui.AnamnesisFormInputsState
@@ -1410,6 +1415,89 @@ fun DiagnosisWithDetailsEntity.toModel() = DiagnosisWithDetailsModel(
 fun DiagnosisDto.toWithDetailsModel() = DiagnosisWithDetailsModel(
     diagnosis = toModel(),
     catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- TREATMENTS ---
+
+fun TreatmentDto.toEntity() = TreatmentEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun TreatmentEntity.toModel() = TreatmentModel(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    createdAt = createdAt,
+    status = status
+)
+
+fun TreatmentModel.toEntity() = TreatmentEntity(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    createdAt = createdAt,
+    status = status
+)
+
+fun TreatmentDto.toModel() = TreatmentModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun TreatmentModel.toDtoForInsert() = TreatmentDto(
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    status = status
+)
+
+fun TreatmentModel.toDtoForUpdate() = TreatmentDto(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    status = status
+)
+
+fun TreatmentWithDetailsEntity.toModel() = TreatmentWithDetailsModel(
+    treatment = treatment.toModel(),
+    product = product?.toModel(),
+    service = service?.toModel()
+)
+
+fun TreatmentDto.toWithDetailsModel() = TreatmentWithDetailsModel(
+    treatment = toModel(),
+    product = product?.toModel()?.let {
+        ProductWithDetailsModel(
+            product = it,
+            supplier = product.supplier?.toModel() ?: SupplierModel(),
+            category = product.category?.toModel() ?: AppCatalogModel(),
+            unitType = product.unitType?.toModel() ?: AppCatalogModel()
+        )
+    },
+    service = service?.toModel()?.let {
+        ServiceWithDetailsModel(
+            service = it,
+            category = service.category?.toModel() ?: AppCatalogModel()
+        )
+    }
 )
 
 fun String.normalize(): String {
