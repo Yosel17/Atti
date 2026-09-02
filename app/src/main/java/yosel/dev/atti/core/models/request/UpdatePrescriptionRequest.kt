@@ -6,9 +6,9 @@ import yosel.dev.atti.core.models.dto.PrescriptionDto
 import yosel.dev.atti.core.models.dto.PrescriptionItemDto
 
 @Serializable
-data class SavePrescriptionRequest(
+data class UpdatePrescriptionRequest(
     @SerialName("prescription_data")
     val prescriptionData: PrescriptionDto,
     @SerialName("items_data")
-    val itemsData: List<PrescriptionItemDto> = emptyList()
+    val itemsData: List<PrescriptionItemDto>? = null
 )
