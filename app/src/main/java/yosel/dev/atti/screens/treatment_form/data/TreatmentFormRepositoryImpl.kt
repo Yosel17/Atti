@@ -56,8 +56,7 @@ class TreatmentFormRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getActiveServicesWithDetails(): Result<List<ServiceWithDetailsModel>> = runCatching {
-        val remoteServices = servicesDataSource.getAllServicesWithDetails()
-            .filter { it.status == Constants.ACTIVE_STATUS }
+        val remoteServices = servicesDataSource.getActiveServicesWithDetails()
 
         val appCatalogsEntities = remoteServices.mapNotNull { it.category?.toEntity() }.distinctBy { it.id }
         val serviceEntities = remoteServices.map { it.toEntity() }

@@ -38,6 +38,33 @@ class ServicesDataSource @Inject constructor(
             .decodeList<ServiceDto>()
     }
 
+    suspend fun getActiveServicesWithDetails(): List<ServiceDto> {
+        return postgrest.from(Constants.SERVICES_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    value = """
+                    *,
+                    category:app_catalogs!category_id(*),
+                    supplies:service_supplies(
+                        *,
+                        product:products(
+                            *,
+                            supplier:suppliers(*),
+                            category:app_catalogs!category_id(*),
+                            unit_type:app_catalogs!unit_type_id(*)
+                        )
+                    )
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    eq("status", Constants.ACTIVE_STATUS)
+                }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<ServiceDto>()
+    }
+
     suspend fun insertServiceAndReturn(service: ServiceDto): ServiceDto {
         return postgrest.from(Constants.SERVICES_SUPABASE)
             .insert(service) {
