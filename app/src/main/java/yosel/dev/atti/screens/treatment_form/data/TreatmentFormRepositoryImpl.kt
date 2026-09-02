@@ -102,12 +102,16 @@ class TreatmentFormRepositoryImpl @Inject constructor(
         consultationId: String,
         treatments: List<TreatmentModel>
     ): Result<List<TreatmentWithDetailsModel>> = runCatching {
-        val treatmentsDtos = treatments.map { it.toDtoForInsert() }
-        // 1. En Supabase: eliminamos existentes y creamos nuevos
-        treatmentsDataSource.deleteTreatmentsByConsultationId(consultationId)
-        val insertedDtos = treatmentsDataSource.insertTreatments(treatmentsDtos)
 
-        // 2. En Room: sincronización atómica
+        val treatmentsDtos = treatments.map { it.toDtoForInsert() }
+
+        // 1. Ejecución atómica en Supabase vía RPC (si algo falla, PostgreSQL hace rollback automático)
+        val insertedDtos = treatmentsDataSource.replaceTreatmentsRpc(
+            consultationId = consultationId,
+            treatments = treatmentsDtos
+        )
+
+        // 2. Transacción atómica en Room para mantener sincronizada la BD local
         appDatabase.withTransaction {
             val entities = insertedDtos.map { it.toEntity() }
             treatmentDao.syncTreatmentsForConsultation(
@@ -115,6 +119,7 @@ class TreatmentFormRepositoryImpl @Inject constructor(
                 treatments = entities
             )
         }
+
         insertedDtos.map { it.toWithDetailsModel() }
     }
 
