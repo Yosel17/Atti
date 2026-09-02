@@ -139,7 +139,13 @@ class TreatmentFormViewModel @AssistedInject constructor(
                 )
             }
 
-            loadExistingTreatments(products, services)
+            // OPTIMIZACIÓN: Solo consultamos la base de datos si venimos en modo edición
+            if (_state.value.isEditMode) {
+                loadExistingTreatments(products, services)
+            } else {
+                // Modo creación: no consumimos recursos consultando tratamientos inexistentes
+                _state.update { it.copy(isLoadingDataInitial = false) }
+            }
         }
     }
 
@@ -150,8 +156,6 @@ class TreatmentFormViewModel @AssistedInject constructor(
         viewModelScope.launch {
             repository.getTreatmentsByConsultationId(consultationId.orEmpty()).fold(
                 onSuccess = { existingList ->
-                    val isEdit = existingList.isNotEmpty() || !treatmentId.isNullOrBlank()
-
                     val selectedProducts = existingList.mapNotNull { treatmentWithDetails ->
                         val prod = treatmentWithDetails.product
                             ?: products.find { it.product.id == treatmentWithDetails.treatment.productId }
@@ -181,7 +185,7 @@ class TreatmentFormViewModel @AssistedInject constructor(
 
                     _state.update {
                         it.copy(
-                            isEditMode = isEdit,
+                            isEditMode = true,
                             existingTreatmentsWithDetails = existingList,
                             formInputState = inputs,
                             initialFormInputState = inputs,
@@ -191,6 +195,7 @@ class TreatmentFormViewModel @AssistedInject constructor(
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(TreatmentFormEvent.ShowErrorSnackbar("No se pudieron cargar los tratamientos previos."))
                 }
             )
         }
