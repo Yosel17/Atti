@@ -82,7 +82,8 @@ class ConsultationsDataSource @Inject constructor(
                 anamnesis:anamnesis(id, status),
                 clinical_examinations:clinical_examinations(id, status),
                 physiological_constants:physiological_constants(id, status),
-                diagnoses:diagnoses(id, status)
+                diagnoses:diagnoses(id, status),
+                treatments:treatments(id, status)
                 """.trimIndent()
                 )
             ) {
