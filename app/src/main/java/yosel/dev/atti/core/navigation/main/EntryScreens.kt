@@ -76,6 +76,9 @@ import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
 import yosel.dev.atti.screens.service_form.ui.ServiceFormEvent
 import yosel.dev.atti.screens.service_form.ui.ServiceFormScreen
 import yosel.dev.atti.screens.service_form.ui.ServiceFormViewModel
+import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormEvent
+import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormScreen
+import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormViewModel
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
@@ -901,6 +904,59 @@ fun EntryProviderScope<NavKey>.diagnosisFormEntry(
         }
 
         DiagnosisFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.treatmentFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.TreatmentForm> { key ->
+        val viewModel: TreatmentFormViewModel = hiltViewModel(
+            creationCallback = { factory: TreatmentFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    treatmentId = key.treatmentId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is TreatmentFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is TreatmentFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is TreatmentFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        TreatmentFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
