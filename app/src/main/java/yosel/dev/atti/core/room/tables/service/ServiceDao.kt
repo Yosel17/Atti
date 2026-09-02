@@ -45,4 +45,8 @@ interface ServiceDao {
     @Transaction
     @Query("SELECT * FROM services WHERE id = :serviceId")
     suspend fun getServiceWithDetailsById(serviceId: String): ServiceWithDetailsEntity?
+
+    @Transaction
+    @Query("SELECT * FROM services WHERE status = 1")
+    suspend fun getActiveServicesWithDetails(): List<ServiceWithDetailsEntity>
 }
