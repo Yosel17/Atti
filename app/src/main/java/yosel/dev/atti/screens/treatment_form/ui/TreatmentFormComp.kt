@@ -269,7 +269,7 @@ private fun TreatmentTabs(
         contentColor = MaterialTheme.colorScheme.primary,
         indicator = {
             TabRowDefaults.SecondaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(selectedIndex, matchContentSize = true),
+                modifier = Modifier.tabIndicatorOffset(selectedIndex),
                 color = MaterialTheme.colorScheme.primary
             )
         }
