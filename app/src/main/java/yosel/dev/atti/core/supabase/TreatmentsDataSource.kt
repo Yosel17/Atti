@@ -3,7 +3,9 @@ package yosel.dev.atti.core.supabase
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.rpc
 import yosel.dev.atti.core.models.dto.TreatmentDto
+import yosel.dev.atti.core.models.request.ReplaceTreatmentsRequest
 import yosel.dev.atti.core.utils.Constants
 import javax.inject.Inject
 
@@ -104,5 +106,18 @@ class TreatmentsDataSource @Inject constructor(
                     eq("id", id)
                 }
             }
+    }
+
+    suspend fun replaceTreatmentsRpc(
+        consultationId: String,
+        treatments: List<TreatmentDto>
+    ): List<TreatmentDto> {
+        return postgrest.rpc(
+            function = "replace_consultation_treatments",
+            parameters = ReplaceTreatmentsRequest(
+                consultationId = consultationId,
+                treatments = treatments
+            )
+        ).decodeAs<List<TreatmentDto>>()
     }
 }
