@@ -89,7 +89,7 @@ class TreatmentFormRepositoryImpl @Inject constructor(
         consultationStepProgressDao.upsertSingleProgress(
             ConsultationStepProgressEntity(
                 consultationId = consultationId,
-                stepCatalogId = 34,
+                stepCatalogId = Constants.TREATMENT_STEP_DIAGNOSIS,
                 recordId = insertedDtos.firstOrNull()?.id,
                 isCompleted = true,
                 status = Constants.ACTIVE_STATUS
