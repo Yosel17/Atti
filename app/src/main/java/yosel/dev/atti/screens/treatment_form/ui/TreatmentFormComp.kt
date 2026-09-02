@@ -35,10 +35,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -138,7 +140,7 @@ fun BodyTreatmentForm(
                         EmptyTreatmentItemsPlaceholder(
                             title = "Sin productos seleccionados",
                             subtitle = "Agrega medicamentos o insumos que se consuman durante esta consulta.",
-                            icon = Icons.Outlined.Inventory2,
+                            icon = Icons.Outlined.Medication,
                             buttonText = "Vincular producto",
                             onClick = { onAction(TreatmentFormAction.OnOpenProductSheet) }
                         )
@@ -266,10 +268,9 @@ private fun TreatmentTabs(
     SecondaryTabRow(
         selectedTabIndex = selectedIndex,
         containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.primary,
         indicator = {
             TabRowDefaults.SecondaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(selectedIndex, matchContentSize = true),
+                modifier = Modifier.tabIndicatorOffset(selectedIndex),
                 color = MaterialTheme.colorScheme.primary
             )
         }
@@ -277,13 +278,15 @@ private fun TreatmentTabs(
         Tab(
             selected = selectedTab == TreatmentTab.PRODUCTS,
             onClick = { onTabSelected(TreatmentTab.PRODUCTS) },
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             text = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Inventory2,
+                        imageVector = Icons.Outlined.Medication,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -297,6 +300,8 @@ private fun TreatmentTabs(
         Tab(
             selected = selectedTab == TreatmentTab.SERVICES,
             onClick = { onTabSelected(TreatmentTab.SERVICES) },
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             text = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -338,7 +343,7 @@ private fun RemovableProductItem(
             quantity = item.quantity,
             canIncrement = item.quantity < item.productWithDetails.product.stock,
             canDecrement = item.quantity > 1,
-            icon = Icons.Outlined.Inventory2,
+            icon = Icons.Outlined.Medication,
             onIncrement = onIncrement,
             onDecrement = onDecrement,
             onRemove = { isVisible = false }
@@ -771,9 +776,7 @@ fun SelectProductBottomSheet(
                                             text = productWithDetails.product.commercialName,
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = if (hasStock) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
+                                            color = if (hasStock) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
                                         )
                                         Text(
                                             text = productWithDetails.unitType.name,
@@ -790,6 +793,7 @@ fun SelectProductBottomSheet(
                                     }
 
                                     Surface(
+                                        modifier = Modifier.align(Alignment.Top),
                                         shape = RoundedCornerShape(8.dp),
                                         color = if (hasStock) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.errorContainer
                                     ) {
@@ -967,9 +971,7 @@ fun SelectServiceBottomSheet(
                                             text = serviceWithDetails.service.name,
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = if (isAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
+                                            color = if (isAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline
                                         )
                                         Text(
                                             text = serviceWithDetails.category.name,
@@ -986,12 +988,14 @@ fun SelectServiceBottomSheet(
                                     }
 
                                     if (!isAvailable) {
+                                        Spacer(modifier = Modifier.width(8.dp))
                                         Surface(
+                                            modifier = Modifier.align(Alignment.Top),
                                             shape = RoundedCornerShape(8.dp),
                                             color = MaterialTheme.colorScheme.errorContainer
                                         ) {
                                             Text(
-                                                text = "Faltan insumos",
+                                                text = "Sin insumos",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
