@@ -22,6 +22,8 @@ object Constants {
     const val PHYSIOLOGICAL_CONSTANTS_SUPABASE = "physiological_constants"
     const val DIAGNOSES_SUPABASE = "diagnoses"
     const val TREATMENTS_SUPABASE = "treatments"
+    const val PRESCRIPTIONS_SUPABASE = "prescriptions"
+    const val PRESCRIPTION_ITEMS_SUPABASE = "prescription_items"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

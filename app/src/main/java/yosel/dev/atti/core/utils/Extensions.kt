@@ -13,6 +13,8 @@ import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.DiagnosisDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
+import yosel.dev.atti.core.models.dto.PrescriptionDto
+import yosel.dev.atti.core.models.dto.PrescriptionItemDto
 import yosel.dev.atti.core.models.dto.ProductDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
@@ -44,6 +46,10 @@ import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsWithDetailsModel
+import yosel.dev.atti.core.models.model.PrescriptionItemModel
+import yosel.dev.atti.core.models.model.PrescriptionItemWithDetailsModel
+import yosel.dev.atti.core.models.model.PrescriptionModel
+import yosel.dev.atti.core.models.model.PrescriptionWithDetailsModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
@@ -79,6 +85,10 @@ import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsWithDetailsEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemWithDetailsEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionWithDetailsEntity
 import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.product.ProductWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
@@ -1498,6 +1508,147 @@ fun TreatmentDto.toWithDetailsModel() = TreatmentWithDetailsModel(
             category = service.category?.toModel() ?: AppCatalogModel()
         )
     }
+)
+
+// --- PRESCRIPTIONS ---
+
+fun PrescriptionDto.toEntity() = PrescriptionEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    generalNotes = generalNotes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PrescriptionEntity.toModel() = PrescriptionModel(
+    id = id,
+    consultationId = consultationId,
+    generalNotes = generalNotes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PrescriptionModel.toEntity() = PrescriptionEntity(
+    id = id,
+    consultationId = consultationId,
+    generalNotes = generalNotes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PrescriptionDto.toModel() = PrescriptionModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    generalNotes = generalNotes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PrescriptionModel.toDtoForInsert() = PrescriptionDto(
+    consultationId = consultationId,
+    generalNotes = generalNotes.ifBlank { null },
+    status = status
+)
+
+fun PrescriptionModel.toDtoForUpdate() = PrescriptionDto(
+    id = id,
+    consultationId = consultationId,
+    generalNotes = generalNotes.ifBlank { null },
+    status = status
+)
+
+// --- PRESCRIPTION ITEMS ---
+
+fun PrescriptionItemDto.toEntity() = PrescriptionItemEntity(
+    id = id.orEmpty(),
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName.orEmpty(),
+    instructions = instructions,
+    quantity = quantity,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PrescriptionItemEntity.toModel() = PrescriptionItemModel(
+    id = id,
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName,
+    instructions = instructions,
+    quantity = quantity,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PrescriptionItemModel.toEntity() = PrescriptionItemEntity(
+    id = id,
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName,
+    instructions = instructions,
+    quantity = quantity,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PrescriptionItemDto.toModel() = PrescriptionItemModel(
+    id = id.orEmpty(),
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName.orEmpty(),
+    instructions = instructions,
+    quantity = quantity,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PrescriptionItemModel.toDtoForInsert() = PrescriptionItemDto(
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName.ifBlank { null },
+    instructions = instructions,
+    quantity = quantity,
+    status = status
+)
+
+fun PrescriptionItemModel.toDtoForUpdate() = PrescriptionItemDto(
+    id = id,
+    prescriptionId = prescriptionId,
+    productId = productId,
+    customProductName = customProductName.ifBlank { null },
+    instructions = instructions,
+    quantity = quantity,
+    status = status
+)
+
+// --- WITH DETAILS MAPPERS ---
+
+fun PrescriptionItemWithDetailsEntity.toModel() = PrescriptionItemWithDetailsModel(
+    item = item.toModel(),
+    product = product?.toModel()
+)
+
+fun PrescriptionItemDto.toWithDetailsModel() = PrescriptionItemWithDetailsModel(
+    item = toModel(),
+    product = product?.toModel()?.let {
+        ProductWithDetailsModel(
+            product = it,
+            supplier = product.supplier?.toModel() ?: SupplierModel(),
+            category = product.category?.toModel() ?: AppCatalogModel(),
+            unitType = product.unitType?.toModel() ?: AppCatalogModel()
+        )
+    }
+)
+
+fun PrescriptionWithDetailsEntity.toModel() = PrescriptionWithDetailsModel(
+    prescription = prescription.toModel(),
+    items = items.map { it.toModel() }
+)
+
+fun PrescriptionDto.toWithDetailsModel() = PrescriptionWithDetailsModel(
+    prescription = toModel(),
+    items = items.map { it.toWithDetailsModel() }
 )
 
 fun String.normalize(): String {

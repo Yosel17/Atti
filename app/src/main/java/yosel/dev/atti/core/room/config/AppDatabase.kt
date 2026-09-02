@@ -26,6 +26,9 @@ import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
+import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemEntity
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.service.ServiceDao
@@ -57,7 +60,9 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         ClinicalExamLymphNodeEntity::class,
         PhysiologicalConstsEntity::class,
         DiagnosisEntity::class,
-        TreatmentEntity::class
+        TreatmentEntity::class,
+        PrescriptionEntity::class,
+        PrescriptionItemEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -79,4 +84,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun physiologicalConstantsDao(): PhysiologicalConstsDao
     abstract fun diagnosisDao(): DiagnosisDao
     abstract fun treatmentDao(): TreatmentDao
+    abstract fun prescriptionDao(): PrescriptionDao
 }
