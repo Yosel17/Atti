@@ -16,6 +16,7 @@ import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationSt
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
+import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
 import yosel.dev.atti.core.supabase.PrescriptionsDataSource
 import yosel.dev.atti.core.supabase.ProductsDataSource
@@ -33,6 +34,7 @@ class PrescriptionFormRepositoryImpl @Inject constructor(
     private val appCatalogDao: AppCatalogDao,
     private val productsDataSource: ProductsDataSource,
     private val productDao: ProductDao,
+    private val supplierDao: SupplierDao,
     private val prescriptionsDataSource: PrescriptionsDataSource,
     private val prescriptionDao: PrescriptionDao,
     private val consultationDao: ConsultationDao,
@@ -66,8 +68,10 @@ class PrescriptionFormRepositoryImpl @Inject constructor(
                 product.unitType?.toEntity()
             )
         }.distinctBy { it.id }
+        val supplierEntities = remoteProducts.mapNotNull { it.supplier?.toEntity() }.distinctBy { it.id }
         val productEntities = remoteProducts.map { it.toEntity() }
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
+        supplierDao.upsertSuppliers(supplierEntities)
         productDao.upsertProducts(productEntities)
         // Retorno de solo lectura directa desde Room (no Flow)
         productDao.getActiveProductsWithDetails().map { it.toModel() }

@@ -65,6 +65,7 @@ class ProductsDataSource @Inject constructor(
                 columns = Columns.raw(
                     value = """
                 *,
+                supplier:suppliers!supplier_id(*),
                 category:app_catalogs!category_id(*),
                 unit_type:app_catalogs!unit_type_id(*)
                 """.trimIndent()

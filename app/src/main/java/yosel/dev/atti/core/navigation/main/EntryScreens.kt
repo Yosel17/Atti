@@ -70,6 +70,9 @@ import yosel.dev.atti.screens.main.ui.MainScreen
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormEvent
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormScreen
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormViewModel
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormEvent
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormScreen
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormViewModel
 import yosel.dev.atti.screens.product_form.ui.ProductFormEvent
 import yosel.dev.atti.screens.product_form.ui.ProductFormScreen
 import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
@@ -957,6 +960,59 @@ fun EntryProviderScope<NavKey>.treatmentFormEntry(
         }
 
         TreatmentFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.prescriptionFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.PrescriptionForm> { key ->
+        val viewModel: PrescriptionFormViewModel = hiltViewModel(
+            creationCallback = { factory: PrescriptionFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    prescriptionId = key.prescriptionId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is PrescriptionFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is PrescriptionFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is PrescriptionFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        PrescriptionFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
