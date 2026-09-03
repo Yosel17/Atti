@@ -22,6 +22,8 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisDao
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
+import yosel.dev.atti.core.room.tables.observation.ObservationDao
+import yosel.dev.atti.core.room.tables.observation.ObservationEntity
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
@@ -62,7 +64,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         DiagnosisEntity::class,
         TreatmentEntity::class,
         PrescriptionEntity::class,
-        PrescriptionItemEntity::class
+        PrescriptionItemEntity::class,
+        ObservationEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -85,4 +88,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun diagnosisDao(): DiagnosisDao
     abstract fun treatmentDao(): TreatmentDao
     abstract fun prescriptionDao(): PrescriptionDao
+    abstract fun observationDao(): ObservationDao
 }
