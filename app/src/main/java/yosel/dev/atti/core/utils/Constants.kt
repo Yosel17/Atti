@@ -82,6 +82,7 @@ object Constants {
     const val LYMPH_NODE_TYPE_CATALOG = 16
     const val UNIT_OF_WEIGHT_TYPE_CATALOG = 17
     const val DIAGNOSIS_TYPE_CATALOG = 18
+    const val PRESETS_CATALOG_TYPE = 19
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
@@ -92,6 +93,7 @@ object Constants {
     const val CONSULTATION_STEP_PHYSIOLOGICAL_CONSTS = 32
     const val CONSULTATION_STEP_DIAGNOSIS = 33
     const val TREATMENT_STEP_DIAGNOSIS = 35
+    const val PRESCRIPTION_STEP_DIAGNOSIS = 36
 
 
     //Catalogos
