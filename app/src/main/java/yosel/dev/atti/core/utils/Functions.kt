@@ -157,7 +157,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             treatmentId = recordId
         )
-        "receta" -> Screens.Empty
+        "receta" -> Screens.PrescriptionForm(
+            consultationId = consultationId,
+            prescriptionId = recordId
+        )
         "observaciones" -> Screens.Empty
         "reconsulta" -> Screens.Empty
         else -> Screens.Empty
