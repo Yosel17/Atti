@@ -11,6 +11,7 @@ import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.DiagnosisDto
+import yosel.dev.atti.core.models.dto.ObservationDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
 import yosel.dev.atti.core.models.dto.PrescriptionDto
@@ -42,6 +43,7 @@ import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.DiagnosisModel
 import yosel.dev.atti.core.models.model.DiagnosisWithDetailsModel
+import yosel.dev.atti.core.models.model.ObservationModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
@@ -81,6 +83,7 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisWithDetailsEntity
+import yosel.dev.atti.core.room.tables.observation.ObservationEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
@@ -1649,6 +1652,52 @@ fun PrescriptionWithDetailsEntity.toModel() = PrescriptionWithDetailsModel(
 fun PrescriptionDto.toWithDetailsModel() = PrescriptionWithDetailsModel(
     prescription = toModel(),
     items = items.map { it.toWithDetailsModel() }
+)
+
+// --- OBSERVATIONS ---
+fun ObservationDto.toEntity() = ObservationEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    observation = observation,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ObservationEntity.toModel() = ObservationModel(
+    id = id,
+    consultationId = consultationId,
+    observation = observation,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ObservationModel.toEntity() = ObservationEntity(
+    id = id,
+    consultationId = consultationId,
+    observation = observation,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ObservationDto.toModel() = ObservationModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    observation = observation,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ObservationModel.toDtoForInsert() = ObservationDto(
+    consultationId = consultationId,
+    observation = observation.trim(),
+    status = status
+)
+
+fun ObservationModel.toDtoForUpdate() = ObservationDto(
+    id = id,
+    consultationId = consultationId,
+    observation = observation.trim(),
+    status = status
 )
 
 fun String.normalize(): String {
