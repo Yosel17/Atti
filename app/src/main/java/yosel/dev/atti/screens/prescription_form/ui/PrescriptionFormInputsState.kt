@@ -20,7 +20,7 @@ data class SelectedPrescriptionItem(
         get() = productWithDetails?.let {
             val cat = it.category.name.ifBlank { "PRODUCTO" }
             val unit = it.unitType.name
-            if (unit.isNotBlank()) "$cat / $unit".uppercase() else cat.uppercase()
+            if (unit.isNotBlank()) "$unit / $cat".uppercase() else cat.uppercase()
         } ?: "FUERA DE INVENTARIO"
 
     val maxStock: Int
