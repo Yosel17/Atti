@@ -171,6 +171,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo receta
+        val remotePrescription = progressDto.prescriptions.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val prescriptionCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("receta", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (prescriptionCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = prescriptionCatalogId,
+                    recordId = remotePrescription?.id,
+                    isCompleted = remotePrescription != null && !remotePrescription.id.isNullOrBlank(),
+                    status = remotePrescription?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
