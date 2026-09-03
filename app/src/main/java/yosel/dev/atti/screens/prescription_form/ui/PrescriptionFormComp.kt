@@ -179,7 +179,7 @@ fun BodyPrescriptionForm(
                 onValueChange = { onAction(PrescriptionFormAction.OnGeneralNotesChange(it)) },
                 leadingIcon = Icons.Outlined.Description,
                 singleLine = false,
-                minLines = 3,
+                minLines = 1,
                 maxLines = 5,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,

@@ -83,7 +83,7 @@ class PrescriptionFormViewModel @AssistedInject constructor(
             // Presets Rápidos
             is PrescriptionFormAction.OnOpenPresetSheet -> handleOpenPresetSheet(action.targetItemId)
             PrescriptionFormAction.OnDismissPresetSheet -> {
-                _state.update { it.copy(isPresetSheetOpen = false, targetPresetItemId = null) }
+                _state.update { it.copy(isPresetSheetOpen = false) }
             }
             is PrescriptionFormAction.OnPresetSearchQueryChange -> {
                 _state.update { it.copy(presetSearchQuery = action.query) }
