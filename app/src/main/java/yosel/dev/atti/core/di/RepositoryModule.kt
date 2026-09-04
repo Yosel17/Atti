@@ -28,6 +28,8 @@ import yosel.dev.atti.screens.detail_supplier.data.DetailSupplierRepositoryImpl
 import yosel.dev.atti.screens.detail_supplier.domain.DetailSupplierRepository
 import yosel.dev.atti.screens.diagnosis_form.data.DiagnosisFormRepositoryImpl
 import yosel.dev.atti.screens.diagnosis_form.domain.DiagnosisFormRepository
+import yosel.dev.atti.screens.follow_up_form.data.FollowUpFormRepositoryImpl
+import yosel.dev.atti.screens.follow_up_form.domain.FollowUpFormRepository
 import yosel.dev.atti.screens.navigation_bar.consultation.data.ConsultationRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
@@ -177,4 +179,9 @@ abstract class RepositoryModule {
     abstract fun bindObservationFormRepository(
         impl: ObservationFormRepositoryImpl
     ): ObservationFormRepository
+
+    @Binds
+    abstract fun bindFollowUpFormRepository(
+        impl: FollowUpFormRepositoryImpl
+    ): FollowUpFormRepository
 }
