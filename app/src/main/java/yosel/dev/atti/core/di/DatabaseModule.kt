@@ -16,6 +16,7 @@ import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisDao
+import yosel.dev.atti.core.room.tables.follow_up.FollowUpDao
 import yosel.dev.atti.core.room.tables.observation.ObservationDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
@@ -113,4 +114,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideObservationDao(appDatabase: AppDatabase): ObservationDao = appDatabase.observationDao()
+
+    @Singleton
+    @Provides
+    fun provideFollowUpDao(appDatabase: AppDatabase): FollowUpDao = appDatabase.followUpDao()
 }

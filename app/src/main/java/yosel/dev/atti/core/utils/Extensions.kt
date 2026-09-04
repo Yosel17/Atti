@@ -11,6 +11,7 @@ import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.DiagnosisDto
+import yosel.dev.atti.core.models.dto.FollowUpDto
 import yosel.dev.atti.core.models.dto.ObservationDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
@@ -43,6 +44,8 @@ import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.DiagnosisModel
 import yosel.dev.atti.core.models.model.DiagnosisWithDetailsModel
+import yosel.dev.atti.core.models.model.FollowUpModel
+import yosel.dev.atti.core.models.model.FollowUpWithDetailsModel
 import yosel.dev.atti.core.models.model.ObservationModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
@@ -83,6 +86,8 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisWithDetailsEntity
+import yosel.dev.atti.core.room.tables.follow_up.FollowUpEntity
+import yosel.dev.atti.core.room.tables.follow_up.FollowUpWithDetailsEntity
 import yosel.dev.atti.core.room.tables.observation.ObservationEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
@@ -184,6 +189,22 @@ fun ClientDto.toModel() = ClientModel(
 
 // DTO -> Entity
 fun PatientDto.toEntity() = PatientEntity(
+    id = id.orEmpty(),
+    clientId = clientId,
+    name = name,
+    speciesId = speciesId ?: 0,
+    genderId = genderId ?: 0,
+    breed = breed.orEmpty(),
+    ageYears = ageYears ?: 0,
+    ageMonths = ageMonths ?: 0,
+    color = color.orEmpty(),
+    isNeutered = isNeutered ?: false,
+    photoUrl = photoUrl.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PatientDto.toModel() = PatientModel(
     id = id.orEmpty(),
     clientId = clientId,
     name = name,
@@ -1698,6 +1719,95 @@ fun ObservationModel.toDtoForUpdate() = ObservationDto(
     consultationId = consultationId,
     observation = observation.trim(),
     status = status
+)
+
+// --- FOLLOW UPS ---
+
+fun FollowUpDto.toEntity() = FollowUpEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun FollowUpEntity.toModel() = FollowUpModel(
+    id = id,
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason,
+    createdAt = createdAt,
+    status = status
+)
+
+fun FollowUpModel.toEntity() = FollowUpEntity(
+    id = id,
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason,
+    createdAt = createdAt,
+    status = status
+)
+
+fun FollowUpDto.toModel() = FollowUpModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun FollowUpModel.toDtoForInsert() = FollowUpDto(
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason.trim(),
+    status = status
+)
+
+fun FollowUpModel.toDtoForUpdate() = FollowUpDto(
+    id = id,
+    consultationId = consultationId,
+    patientId = patientId,
+    scheduledAt = scheduledAt,
+    reason = reason.trim(),
+    status = status
+)
+
+fun FollowUpWithDetailsEntity.toModel() = FollowUpWithDetailsModel(
+    followUp = followUp.toModel(),
+    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithCatalogsModel(),
+    consultationWithDetails = consultationWithDetails?.toModel() ?: ConsultationWithDetailsModel()
+)
+
+fun FollowUpDto.toWithDetailsModel() = FollowUpWithDetailsModel(
+    followUp = toModel(),
+    patientWithDetails = patient?.toModel()?.let {
+        PatientWithCatalogsModel(
+            patient = it,
+            species = patient.species?.toModel() ?: AppCatalogModel(),
+            gender = patient.gender?.toModel() ?: AppCatalogModel()
+        )
+    } ?: PatientWithCatalogsModel(),
+    consultationWithDetails = consultation?.toModel()?.let {
+        ConsultationWithDetailsModel(
+            consultation = it,
+            patientWithDetails = consultation.patient?.toModel()?.let { p ->
+                PatientWithCatalogsModel(
+                    patient = p,
+                    species = consultation.patient.species?.toModel() ?: AppCatalogModel(),
+                    gender = consultation.patient.gender?.toModel() ?: AppCatalogModel()
+                )
+            } ?: PatientWithCatalogsModel(),
+            consultationType = consultation.consultationType?.toModel() ?: AppCatalogModel()
+        )
+    } ?: ConsultationWithDetailsModel()
 )
 
 fun String.normalize(): String {
