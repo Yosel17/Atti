@@ -61,4 +61,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class PrescriptionForm(val consultationId: String, val prescriptionId: String? = null) : Screens
+
+    @Serializable
+    data class ObservationForm(val consultationId: String, val observationId: String? = null) : Screens
 }
