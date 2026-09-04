@@ -142,6 +142,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            followUpFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

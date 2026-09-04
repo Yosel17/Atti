@@ -66,6 +66,9 @@ import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
+import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormEvent
+import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormScreen
+import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
 import yosel.dev.atti.screens.observation_form.ui.ObservationFormEvent
 import yosel.dev.atti.screens.observation_form.ui.ObservationFormScreen
@@ -1074,6 +1077,59 @@ fun EntryProviderScope<NavKey>.observationFormEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.followUpFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.FollowUpForm> { followUpKey ->
+        val viewModel: FollowUpFormViewModel = hiltViewModel(
+            creationCallback = { factory: FollowUpFormViewModel.Factory ->
+                factory.create(
+                    consultationId = followUpKey.consultationId,
+                    followUpId = followUpKey.followUpId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is FollowUpFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is FollowUpFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackBarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is FollowUpFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        FollowUpFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
         )
