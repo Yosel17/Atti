@@ -152,7 +152,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             observationId = recordId
         )
-        "reconsulta" -> Screens.Empty
+        "reconsulta" -> Screens.FollowUpForm(
+            consultationId = consultationId,
+            followUpId = recordId
+        )
         else -> Screens.Empty
     }
 }
