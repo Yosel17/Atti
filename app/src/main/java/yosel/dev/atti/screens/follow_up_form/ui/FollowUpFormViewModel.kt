@@ -25,6 +25,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = FollowUpFormViewModel.Factory::class)
@@ -185,7 +186,8 @@ class FollowUpFormViewModel @AssistedInject constructor(
                     if (existing != null) {
                         val parsedDateTime = parseIsoToLocalDateTime(existing.followUp.scheduledAt)
                         val initialDate = parsedDateTime?.toLocalDate() ?: LocalDate.now()
-                        val initialTime = parsedDateTime?.toLocalTime() ?: LocalTime.of(8, 0)
+                        // Truncar a minutos para asegurar coincidencia exacta con los chips de hora
+                        val initialTime = (parsedDateTime?.toLocalTime() ?: LocalTime.of(8, 0)).truncatedTo(ChronoUnit.MINUTES)
 
                         val today = LocalDate.now()
                         val isOutOfRange = initialDate.isBefore(today.minusDays(30)) || initialDate.isAfter(today.plusDays(30))
@@ -381,8 +383,9 @@ class FollowUpFormViewModel @AssistedInject constructor(
                 OffsetDateTime.parse(sanitized)
                     .atZoneSameInstant(ZoneId.systemDefault())
                     .toLocalDateTime()
+                    .truncatedTo(ChronoUnit.MINUTES)
             } else {
-                LocalDateTime.parse(sanitized)
+                LocalDateTime.parse(sanitized).truncatedTo(ChronoUnit.MINUTES)
             }
         } catch (e: Exception) {
             null
