@@ -65,7 +65,6 @@ class FollowUpsDataSource @Inject constructor(
             .select(columns = detailedColumns) {
                 filter {
                     eq("consultation_id", consultationId)
-                    eq("status", Constants.ACTIVE_STATUS)
                 }
                 order("scheduled_at", Order.ASCENDING)
             }
