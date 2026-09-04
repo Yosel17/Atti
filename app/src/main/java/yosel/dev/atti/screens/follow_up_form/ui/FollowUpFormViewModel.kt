@@ -269,11 +269,11 @@ class FollowUpFormViewModel @AssistedInject constructor(
                         )
                     }
                     applyQuickReason(inserted.name)
-                    _eventChannel.send(FollowUpFormEvent.ShowToast("Motivo rápido agregado exitosamente."))
+                    _eventChannel.send(FollowUpFormEvent.ShowToast("Motivo de consulta rápido agregado exitosamente."))
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingAddQuickReason = false, showAddQuickReasonDialog = false) }
-                    _eventChannel.send(FollowUpFormEvent.ShowToast("No se pudo guardar el motivo rápido."))
+                    _eventChannel.send(FollowUpFormEvent.ShowToast("No se pudo guardar el motivo de consulta rápido."))
                 }
             )
         }

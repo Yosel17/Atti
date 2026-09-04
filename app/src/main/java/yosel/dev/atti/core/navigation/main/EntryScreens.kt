@@ -1098,6 +1098,7 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
@@ -1117,7 +1118,9 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
                         )
                     }
                 }
-                is FollowUpFormEvent.ShowToast -> Unit
+                is FollowUpFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
