@@ -207,6 +207,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo reconsulta
+        val remoteFollowUps = progressDto.followUps.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val followUpsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("reconsulta", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (followUpsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = followUpsCatalogId,
+                    recordId = remoteFollowUps?.id,
+                    isCompleted = remoteFollowUps != null && !remoteFollowUps.id.isNullOrBlank(),
+                    status = remoteFollowUps?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
