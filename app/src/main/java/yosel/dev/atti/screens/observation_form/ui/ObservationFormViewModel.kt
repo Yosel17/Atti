@@ -75,7 +75,12 @@ class ObservationFormViewModel @AssistedInject constructor(
                             isSuccessGetData = true
                         )
                     }
-                    loadExistingObservation()
+                    if (_state.value.isEditMode){
+                        loadExistingObservation()
+                    }else{
+                        _state.update { it.copy(isLoadingDataInitial = false) }
+                    }
+
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
