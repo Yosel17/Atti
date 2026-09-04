@@ -72,10 +72,20 @@ class FollowUpFormViewModel @AssistedInject constructor(
             is FollowUpFormAction.OnSelectDate -> {
                 _state.update {
                     it.copy(
-                        showDatePickerDialog = false,
                         formInputState = it.formInputState.copy(
                             selectedDate = action.date,
                             isCustomDateFromPicker = false
+                        )
+                    )
+                }
+            }
+            is FollowUpFormAction.OnSelectDateForCalendar ->{
+                _state.update {
+                    it.copy(
+                        showDatePickerDialog = false,
+                        formInputState = it.formInputState.copy(
+                            selectedDate = action.date,
+                            isCustomDateFromPicker = true
                         )
                     )
                 }

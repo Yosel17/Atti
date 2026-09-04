@@ -104,7 +104,7 @@ fun FollowUpFormScreen(
             FollowUpDatePickerDialog(
                 initialDate = state.formInputState.selectedDate,
                 onDateSelected = { selectedDate ->
-                    onAction(FollowUpFormAction.OnSelectDate(selectedDate))
+                    onAction(FollowUpFormAction.OnSelectDateForCalendar(selectedDate))
                 },
                 onDismiss = {
                     onAction(FollowUpFormAction.ToggleDatePickerDialog(show = false))

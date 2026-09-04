@@ -1,8 +1,5 @@
 package yosel.dev.atti.screens.follow_up_form.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +28,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventRepeat
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -337,9 +333,20 @@ private fun HorizontalDayPicker(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
+        val selectedIndex = days.indexOfFirst { it.isEqual(selectedDate) }
         val todayIndex = days.indexOfFirst { it.isEqual(LocalDate.now()) }
-        if (todayIndex != -1) {
-            listState.scrollToItem((todayIndex - 2).coerceAtLeast(0))
+
+        // Si la fecha seleccionada está en la lista la usamos; si no, vamos a hoy
+        val targetIndex = if (selectedIndex != -1) {
+            selectedIndex
+        } else {
+            todayIndex
+        }
+
+        if (targetIndex != -1) {
+            // Restamos 2 para dejar margen y centrar mejor el ítem en la pantalla
+            val scrollPosition = (targetIndex - 2).coerceAtLeast(0)
+            listState.animateScrollToItem(scrollPosition)
         }
     }
 

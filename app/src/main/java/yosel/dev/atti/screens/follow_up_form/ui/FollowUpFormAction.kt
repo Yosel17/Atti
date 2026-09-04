@@ -10,6 +10,7 @@ sealed interface FollowUpFormAction {
     data class ToggleSaveDialog(val show: Boolean) : FollowUpFormAction
     data class ToggleDatePickerDialog(val show: Boolean) : FollowUpFormAction
     data class OnSelectDate(val date: LocalDate) : FollowUpFormAction
+    data class OnSelectDateForCalendar(val date: LocalDate) : FollowUpFormAction
     data class OnSelectTime(val time: LocalTime) : FollowUpFormAction
     data object OnResetToDaySelector : FollowUpFormAction
     data class OnReasonChange(val reason: String) : FollowUpFormAction
