@@ -67,6 +67,9 @@ import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
 import yosel.dev.atti.screens.main.ui.MainScreen
+import yosel.dev.atti.screens.observation_form.ui.ObservationFormEvent
+import yosel.dev.atti.screens.observation_form.ui.ObservationFormScreen
+import yosel.dev.atti.screens.observation_form.ui.ObservationFormViewModel
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormEvent
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormScreen
 import yosel.dev.atti.screens.physio_consts_form.ui.PhysioConstsFormViewModel
@@ -1013,6 +1016,59 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
         }
 
         PrescriptionFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.observationFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.ObservationForm> { key ->
+        val viewModel: ObservationFormViewModel = hiltViewModel(
+            creationCallback = { factory: ObservationFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    observationId = key.observationId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ObservationFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ObservationFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is ObservationFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        ObservationFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

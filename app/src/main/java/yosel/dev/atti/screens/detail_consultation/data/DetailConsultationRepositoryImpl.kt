@@ -189,6 +189,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo Observaciones
+        val remoteObservations = progressDto.observations.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val observationsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("observaciones", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (observationsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = observationsCatalogId,
+                    recordId = remoteObservations?.id,
+                    isCompleted = remoteObservations != null && !remoteObservations.id.isNullOrBlank(),
+                    status = remoteObservations?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }

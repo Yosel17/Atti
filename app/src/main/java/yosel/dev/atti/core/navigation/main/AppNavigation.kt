@@ -136,6 +136,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            observationFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

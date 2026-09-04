@@ -95,6 +95,7 @@ object Constants {
     const val CONSULTATION_STEP_DIAGNOSIS = 33
     const val TREATMENT_STEP_DIAGNOSIS = 35
     const val PRESCRIPTION_STEP_DIAGNOSIS = 36
+    const val OBSERVATION_STEP_DIAGNOSIS = 37
 
 
     //Catalogos

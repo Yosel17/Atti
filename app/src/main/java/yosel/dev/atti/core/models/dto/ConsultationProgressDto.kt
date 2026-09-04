@@ -19,5 +19,6 @@ data class ConsultationProgressDto(
     @SerialName("physiological_constants") val physiologicalConstants: List<StepReferenceDto> = emptyList(),
     @SerialName("diagnoses") val diagnoses: List<StepReferenceDto> = emptyList(),
     @SerialName("treatments") val treatments: List<StepReferenceDto> = emptyList(),
-    @SerialName("prescriptions") val prescriptions: List<StepReferenceDto> = emptyList()
+    @SerialName("prescriptions") val prescriptions: List<StepReferenceDto> = emptyList(),
+    @SerialName("observations") val observations: List<StepReferenceDto> = emptyList(),
 )
