@@ -85,6 +85,7 @@ object Constants {
     const val UNIT_OF_WEIGHT_TYPE_CATALOG = 17
     const val DIAGNOSIS_TYPE_CATALOG = 18
     const val PRESETS_CATALOG_TYPE = 19
+    const val QUICK_REASONS_CATALOG_TYPE = 20
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
@@ -97,6 +98,7 @@ object Constants {
     const val TREATMENT_STEP_DIAGNOSIS = 35
     const val PRESCRIPTION_STEP_DIAGNOSIS = 36
     const val OBSERVATION_STEP_DIAGNOSIS = 37
+    const val FOLLOW_UP_STEP_DIAGNOSIS = 38
 
 
     //Catalogos
