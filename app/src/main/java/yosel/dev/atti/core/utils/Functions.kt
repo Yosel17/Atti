@@ -33,34 +33,21 @@ import kotlinx.datetime.toLocalDateTime
 import yosel.dev.atti.R
 import yosel.dev.atti.core.navigation.main.Screens
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/**
+ * Actualización de formatDate general para prescindir del Instant deprecado.
+ * Ejemplo: "16 de octubre, 2026"
+ */
 fun formatDate(isoString: String): String {
-    if (isoString.isBlank()) return ""
-    return try {
-        // Supabase envía el formato "yyyy-MM-dd HH:mm:ss.SSSSSS+00"
-        // Instant.parse espera el formato ISO con 'T' en lugar de espacio.
-        val sanitizedIso = isoString.replace(" ", "T")
-        val instant = Instant.parse(sanitizedIso)
-        val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-
-        val javaLocalDateTime = java.time.LocalDateTime.of(
-            localDateTime.year,
-            localDateTime.month.number,
-            localDateTime.day,
-            localDateTime.hour,
-            localDateTime.minute
-        )
-
-        // FORMA MODERNA (remueve el deprecado):
-        val locale = Locale.forLanguageTag("es-ES")
-        val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM, yyyy", locale)
-
-        javaLocalDateTime.format(formatter)
-    } catch (e: Exception) {
-        isoString
-    }
+    val dateTime = parseToLocalDateTime(isoString) ?: return isoString
+    val locale = Locale.forLanguageTag("es-ES")
+    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM, yyyy", locale)
+    return dateTime.format(formatter)
 }
 
 /**
@@ -189,4 +176,64 @@ fun getFormattedCurrentDate(): String {
     val localeSpanish = Locale.forLanguageTag("es-ES")
     val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", localeSpanish)
     return LocalDate.now().format(formatter)
+}
+
+/**
+ * Parsea con seguridad cualquier formato ISO devuelto por Supabase o SQLite
+ * manejando microsegundos, espacios (" ") o "T", y offsets como "+00" o "+00:00".
+ */
+private fun parseToLocalDateTime(isoString: String): LocalDateTime? {
+    if (isoString.isBlank()) return null
+    return try {
+        var sanitized = isoString.trim().replace(" ", "T")
+
+        // Supabase/Postgres a veces envía offset de 2 dígitos (+00); java.time requiere +00:00
+        if (Regex("[+-]\\d{2}$").containsMatchIn(sanitized)) {
+            sanitized += ":00"
+        }
+
+        if (sanitized.contains("+") || sanitized.endsWith("Z") || Regex("-\\d{2}:\\d{2}$").containsMatchIn(sanitized)) {
+            OffsetDateTime.parse(sanitized)
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime()
+        } else {
+            LocalDateTime.parse(sanitized)
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/**
+ * Fecha completa para cabeceras o detalles.
+ * Ejemplo: "Miércoles, 16 de octubre"
+ */
+fun formatScheduledDate(isoString: String): String {
+    val dateTime = parseToLocalDateTime(isoString) ?: return isoString
+    val locale = Locale.forLanguageTag("es-ES")
+    val formatter = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", locale)
+    return dateTime.format(formatter)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+}
+
+/**
+ * Hora exacta en formato de 12 horas para los chips de mañana/tarde.
+ * Ejemplo: "10:00 AM" o "03:30 PM"
+ */
+fun formatScheduledTime(isoString: String): String {
+    val dateTime = parseToLocalDateTime(isoString) ?: return isoString
+    val formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.US)
+    return dateTime.format(formatter).uppercase()
+}
+
+/**
+ * Día abreviado y número para los chips superiores del selector de fecha.
+ * Ejemplo: "Mié 16"
+ */
+fun formatScheduledDayOfWeek(isoString: String): String {
+    val dateTime = parseToLocalDateTime(isoString) ?: return isoString
+    val locale = Locale.forLanguageTag("es-ES")
+    val formatter = DateTimeFormatter.ofPattern("EEE d", locale)
+    return dateTime.format(formatter)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
