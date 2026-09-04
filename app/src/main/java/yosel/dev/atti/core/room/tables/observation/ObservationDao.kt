@@ -11,7 +11,7 @@ interface ObservationDao {
     @Query("SELECT * FROM observations WHERE consultation_id = :consultationId AND status = 1 LIMIT 1")
     fun getObservationByConsultationIdFlow(consultationId: String): Flow<ObservationEntity?>
 
-    @Query("SELECT * FROM observations WHERE consultation_id = :consultationId AND status = 1 LIMIT 1")
+    @Query("SELECT * FROM observations WHERE consultation_id = :consultationId LIMIT 1")
     suspend fun getObservationByConsultationId(consultationId: String): ObservationEntity?
 
     @Query("SELECT * FROM observations WHERE id = :id LIMIT 1")
