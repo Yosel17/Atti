@@ -5,8 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
@@ -23,7 +22,7 @@ class DetailPatientRepositoryImpl @Inject constructor(
     private val patientsDataSource: PatientsDataSource
 ): DetailPatientRepository {
 
-    override fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithCatalogsModel?> =
+    override fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithDetailsModel?> =
         patientDao.getPatientWithCatalogsByIdFlow(patientId = patientId)
             .map { entity -> entity?.toModel() }
             .flowOn(Dispatchers.IO)

@@ -50,7 +50,7 @@ import yosel.dev.atti.core.models.model.FollowUpModel
 import yosel.dev.atti.core.models.model.FollowUpWithDetailsModel
 import yosel.dev.atti.core.models.model.ObservationModel
 import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
@@ -408,7 +408,7 @@ fun AddPatientFormState.toUpdateModel(
     status = status
 )
 
-fun PatientWithCatalogsEntity.toModel() = PatientWithCatalogsModel(
+fun PatientWithCatalogsEntity.toModel() = PatientWithDetailsModel(
     patient = patient.toModel(),
     species = species?.toModel() ?: AppCatalogModel(),
     gender = gender?.toModel() ?: AppCatalogModel()
@@ -891,7 +891,7 @@ fun ConsultationModel.toDtoForUpdate() = ConsultationDto(
 
 fun ConsultationWithDetailsEntity.toModel() = ConsultationWithDetailsModel(
     consultation = consultation.toModel(),
-    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithCatalogsModel(),
+    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithDetailsModel(),
     consultationType = consultationType?.toModel() ?: AppCatalogModel()
 )
 
@@ -1792,29 +1792,29 @@ fun FollowUpModel.toDtoForUpdate() = FollowUpDto(
 
 fun FollowUpWithDetailsEntity.toModel() = FollowUpWithDetailsModel(
     followUp = followUp.toModel(),
-    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithCatalogsModel(),
+    patientWithDetails = patientWithDetails?.toModel() ?: PatientWithDetailsModel(),
     consultationWithDetails = consultationWithDetails?.toModel() ?: ConsultationWithDetailsModel()
 )
 
 fun FollowUpDto.toWithDetailsModel() = FollowUpWithDetailsModel(
     followUp = toModel(),
     patientWithDetails = patient?.toModel()?.let {
-        PatientWithCatalogsModel(
+        PatientWithDetailsModel(
             patient = it,
             species = patient.species?.toModel() ?: AppCatalogModel(),
             gender = patient.gender?.toModel() ?: AppCatalogModel()
         )
-    } ?: PatientWithCatalogsModel(),
+    } ?: PatientWithDetailsModel(),
     consultationWithDetails = consultation?.toModel()?.let {
         ConsultationWithDetailsModel(
             consultation = it,
             patientWithDetails = consultation.patient?.toModel()?.let { p ->
-                PatientWithCatalogsModel(
+                PatientWithDetailsModel(
                     patient = p,
                     species = consultation.patient.species?.toModel() ?: AppCatalogModel(),
                     gender = consultation.patient.gender?.toModel() ?: AppCatalogModel()
                 )
-            } ?: PatientWithCatalogsModel(),
+            } ?: PatientWithDetailsModel(),
             consultationType = consultation.consultationType?.toModel() ?: AppCatalogModel()
         )
     } ?: ConsultationWithDetailsModel()
@@ -2011,12 +2011,12 @@ fun ReceiptDto.toWithDetailsModel() = ReceiptWithDetailsModel(
         ConsultationWithDetailsModel(
             consultation = c,
             patientWithDetails = consultation.patient?.toModel()?.let { p ->
-                PatientWithCatalogsModel(
+                PatientWithDetailsModel(
                     patient = p,
                     species = consultation.patient.species?.toModel() ?: AppCatalogModel(),
                     gender = consultation.patient.gender?.toModel() ?: AppCatalogModel()
                 )
-            } ?: PatientWithCatalogsModel(),
+            } ?: PatientWithDetailsModel(),
             consultationType = consultation.consultationType?.toModel() ?: AppCatalogModel()
         )
     },

@@ -8,7 +8,7 @@ import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
@@ -62,7 +62,7 @@ class ConsultationRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithCatalogsModel>> =
+    override fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithDetailsModel>> =
         patientDao.getAllPatientsWithCatalogsFlow()
             .map { entities ->
                 entities.map { it.toModel() }

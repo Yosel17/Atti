@@ -11,7 +11,6 @@ import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,12 +19,11 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
-import yosel.dev.atti.core.components.SnackBarError
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 
@@ -105,7 +103,7 @@ private fun ConsultationPreview() {
                     )
                 ),
                 patients = listOf(
-                    PatientWithCatalogsModel(
+                    PatientWithDetailsModel(
                         patient = PatientModel(
                             id = "1",
                             name = "Max",
@@ -115,7 +113,7 @@ private fun ConsultationPreview() {
                     )
                 ),
                  filteredPatients = listOf(
-                     PatientWithCatalogsModel(
+                     PatientWithDetailsModel(
                          patient = PatientModel(
                              id = "1",
                              name = "Max",
@@ -130,7 +128,7 @@ private fun ConsultationPreview() {
                         patientId = "1",
                         consultationTypeId = 1
                     ),
-                    patientWithDetails = PatientWithCatalogsModel(
+                    patientWithDetails = PatientWithDetailsModel(
                         patient = PatientModel(
                             id = "1",
                             name = "Max",
@@ -143,7 +141,7 @@ private fun ConsultationPreview() {
                     id = 1,
                     name = "Consulta general"
                 ),
-                selectedPatient = PatientWithCatalogsModel(
+                selectedPatient = PatientWithDetailsModel(
                     patient = PatientModel(
                         id = "1",
                         name = "Max",

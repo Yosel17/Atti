@@ -75,7 +75,7 @@ import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getIconGender
@@ -539,7 +539,7 @@ fun ClientItem(
 
 @Composable
 fun PatientList(
-    patientsWithCatalogs: List<PatientWithCatalogsModel>,
+    patientsWithCatalogs: List<PatientWithDetailsModel>,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     onPatientClick: (String) -> Unit
@@ -688,7 +688,7 @@ fun NotFoundPatientsState(
 
 @Composable
 fun PatientCard(
-    patientWithCatalogs: PatientWithCatalogsModel,
+    patientWithCatalogs: PatientWithDetailsModel,
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
