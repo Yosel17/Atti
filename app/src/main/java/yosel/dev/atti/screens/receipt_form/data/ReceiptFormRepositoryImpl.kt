@@ -163,7 +163,7 @@ class ReceiptFormRepositoryImpl @Inject constructor(
         updatedDto.toWithDetailsModel()
     }
 
-    override suspend fun getReceiptWithDetailsById(receiptId: Long): Result<ReceiptWithDetailsModel?> = runCatching {
+    override suspend fun getReceiptWithDetailsById(receiptId: String): Result<ReceiptWithDetailsModel?> = runCatching {
         val local = receiptDao.getReceiptWithDetailsById(receiptId)
         if (local != null) return@runCatching local.toModel()
 
