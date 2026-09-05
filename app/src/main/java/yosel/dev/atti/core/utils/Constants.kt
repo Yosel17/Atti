@@ -26,6 +26,8 @@ object Constants {
     const val PRESCRIPTION_ITEMS_SUPABASE = "prescription_items"
     const val OBSERVATIONS_SUPABASE = "observations"
     const val FOLLOW_UPS_SUPABASE = "follow_ups"
+    const val RECEIPTS_SUPABASE = "receipts"
+    const val RECEIPT_ITEMS_SUPABASE = "receipt_items"
 
     //inputs
     const val FIRST_NAME_FIELD = 0
