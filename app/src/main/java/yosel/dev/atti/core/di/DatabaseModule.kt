@@ -22,6 +22,7 @@ import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
+import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
@@ -118,4 +119,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideFollowUpDao(appDatabase: AppDatabase): FollowUpDao = appDatabase.followUpDao()
+
+    @Singleton
+    @Provides
+    fun provideReceiptDao(appDatabase: AppDatabase): ReceiptDao = appDatabase.receiptDao()
 }

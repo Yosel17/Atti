@@ -35,6 +35,9 @@ import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemEntity
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.product.ProductEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
+import yosel.dev.atti.core.room.tables.receipt.ReceiptEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptItemEntity
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
@@ -68,7 +71,9 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         PrescriptionEntity::class,
         PrescriptionItemEntity::class,
         ObservationEntity::class,
-        FollowUpEntity::class
+        FollowUpEntity::class,
+        ReceiptEntity::class,
+        ReceiptItemEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -93,4 +98,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun prescriptionDao(): PrescriptionDao
     abstract fun observationDao(): ObservationDao
     abstract fun followUpDao(): FollowUpDao
+    abstract fun receiptDao(): ReceiptDao
 }
