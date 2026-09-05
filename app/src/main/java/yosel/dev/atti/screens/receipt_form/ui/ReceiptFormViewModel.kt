@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class ReceiptFormViewModel @AssistedInject constructor(
     private val repository: ReceiptFormRepository,
     @Assisted("consultationId") private val consultationId: String?,
-    @Assisted("receiptId") private val receiptId: Long?
+    @Assisted("receiptId") private val receiptId: String?
 ) : ViewModel() {
 
     @AssistedFactory
@@ -41,7 +41,7 @@ class ReceiptFormViewModel @AssistedInject constructor(
 
     private val _state = MutableStateFlow(
         ReceiptFormState(
-            isEditMode = receiptId != null && receiptId > 0L,
+            isEditMode = receiptId != null,
             receiptId = receiptId,
             consultationId = consultationId,
             hasConsultation = !consultationId.isNullOrBlank()
@@ -544,7 +544,7 @@ class ReceiptFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun buildReceiptModel(receiptId: Long = 0L): ReceiptModel {
+    private fun buildReceiptModel(receiptId: String = ""): ReceiptModel {
         val s = _state.value
         return ReceiptModel(
             id = receiptId,
@@ -560,7 +560,7 @@ class ReceiptFormViewModel @AssistedInject constructor(
         )
     }
 
-    private fun buildReceiptItemModels(receiptId: Long = 0L): List<ReceiptItemModel> {
+    private fun buildReceiptItemModels(receiptId: String = ""): List<ReceiptItemModel> {
         val s = _state.value
         val productItems = s.formInputState.selectedProducts.map {
             ReceiptItemModel(
