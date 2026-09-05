@@ -35,7 +35,7 @@ class ReceiptFormViewModel @AssistedInject constructor(
     interface Factory {
         fun create(
             @Assisted("consultationId") consultationId: String?,
-            @Assisted("receiptId") receiptId: Long?
+            @Assisted("receiptId") receiptId: String?
         ): ReceiptFormViewModel
     }
 
