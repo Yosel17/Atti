@@ -5,7 +5,7 @@ import yosel.dev.atti.core.utils.formatPrice
 
 data class ReceiptItemModel(
     val id: String = "",
-    val receiptId: Long = 0L,
+    val receiptId: String = "",
     val productId: String? = null,
     val serviceId: String? = null,
     val quantity: Double = 1.0,
