@@ -42,7 +42,7 @@ data class ReceiptItemEntity(
     @ColumnInfo(name = "id")
     val id: String, // UUID generado por Supabase
     @ColumnInfo(name = "receipt_id")
-    val receiptId: Long,
+    val receiptId: String,
     @ColumnInfo(name = "product_id")
     val productId: String? = null,
     @ColumnInfo(name = "service_id")

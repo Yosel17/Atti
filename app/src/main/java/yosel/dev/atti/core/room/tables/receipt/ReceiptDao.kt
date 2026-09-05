@@ -12,7 +12,7 @@ interface ReceiptDao {
     fun getAllReceiptsFlow(): Flow<List<ReceiptEntity>>
 
     @Query("SELECT * FROM receipts WHERE id = :id LIMIT 1")
-    suspend fun getReceiptById(id: Long): ReceiptEntity?
+    suspend fun getReceiptById(id: String): ReceiptEntity?
 
     @Query("SELECT * FROM receipts WHERE consultation_id = :consultationId LIMIT 1")
     suspend fun getReceiptByConsultationId(consultationId: String): ReceiptEntity?
@@ -27,13 +27,13 @@ interface ReceiptDao {
     suspend fun upsertReceiptItems(items: List<ReceiptItemEntity>)
 
     @Query("DELETE FROM receipt_items WHERE receipt_id = :receiptId")
-    suspend fun deleteItemsByReceiptId(receiptId: Long)
+    suspend fun deleteItemsByReceiptId(receiptId: String)
 
     @Query("DELETE FROM receipts WHERE id = :id")
-    suspend fun deleteReceiptById(id: Long)
+    suspend fun deleteReceiptById(id: String)
 
     @Query("UPDATE receipts SET status = :newStatus WHERE id = :id")
-    suspend fun updateReceiptStatus(id: Long, newStatus: Int)
+    suspend fun updateReceiptStatus(id: String, newStatus: Int)
 
     // --- Consultas con Relaciones ---
     @Transaction
@@ -42,11 +42,11 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM receipts WHERE id = :id LIMIT 1")
-    fun getReceiptWithDetailsByIdFlow(id: Long): Flow<ReceiptWithDetailsEntity?>
+    fun getReceiptWithDetailsByIdFlow(id: String): Flow<ReceiptWithDetailsEntity?>
 
     @Transaction
     @Query("SELECT * FROM receipts WHERE id = :id LIMIT 1")
-    suspend fun getReceiptWithDetailsById(id: Long): ReceiptWithDetailsEntity?
+    suspend fun getReceiptWithDetailsById(id: String): ReceiptWithDetailsEntity?
 
     @Transaction
     @Query("SELECT * FROM receipts WHERE consultation_id = :consultationId LIMIT 1")

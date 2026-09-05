@@ -63,7 +63,7 @@ class ReceiptsDataSource @Inject constructor(
             .decodeList<ReceiptDto>()
     }
 
-    suspend fun getReceiptWithDetailsById(receiptId: Long): ReceiptDto? {
+    suspend fun getReceiptWithDetailsById(receiptId: String): ReceiptDto? {
         return postgrest.from(Constants.RECEIPTS_SUPABASE)
             .select(columns = detailedColumns) {
                 filter {
@@ -84,7 +84,7 @@ class ReceiptsDataSource @Inject constructor(
             .decodeSingleOrNull<ReceiptDto>()
     }
 
-    suspend fun deleteReceiptById(receiptId: Long) {
+    suspend fun deleteReceiptById(receiptId: String) {
         postgrest.from(Constants.RECEIPTS_SUPABASE)
             .delete {
                 filter {

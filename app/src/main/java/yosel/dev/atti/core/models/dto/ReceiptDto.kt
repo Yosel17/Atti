@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReceiptDto(
-    @SerialName("id") val id: Long? = null,
+    @SerialName("id") val id: String? = null,
+    @SerialName("receipt_number") val receiptNumber: Long? = null,
     @SerialName("consultation_id") val consultationId: String? = null,
     @SerialName("customer_name") val customerName: String? = null,
     @SerialName("subtotal") val subtotal: Double = 0.0,

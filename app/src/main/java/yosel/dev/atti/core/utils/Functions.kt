@@ -156,6 +156,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             followUpId = recordId
         )
+        "recibo" -> Screens.ReceiptForm(
+            consultationId = consultationId,
+            receiptId = recordId
+        )
         else -> Screens.Empty
     }
 }

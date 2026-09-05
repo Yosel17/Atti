@@ -24,6 +24,6 @@ interface ReceiptFormRepository {
         receipt: ReceiptModel,
         items: List<ReceiptItemModel>
     ): Result<ReceiptWithDetailsModel>
-    suspend fun getReceiptWithDetailsById(receiptId: Long): Result<ReceiptWithDetailsModel?>
+    suspend fun getReceiptWithDetailsById(receiptId: String): Result<ReceiptWithDetailsModel?>
     suspend fun getReceiptWithDetailsByConsultationId(consultationId: String): Result<ReceiptWithDetailsModel?>
 }

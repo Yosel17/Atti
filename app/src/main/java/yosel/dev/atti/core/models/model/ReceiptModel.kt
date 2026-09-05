@@ -4,7 +4,8 @@ import yosel.dev.atti.core.utils.formatDate
 import yosel.dev.atti.core.utils.formatPrice
 
 data class ReceiptModel(
-    val id: Long = 0L,
+    val id: String = "",
+    val receiptNumber: Long = 0L,
     val consultationId: String? = null,
     val customerName: String = "",
     val subtotal: Double = 0.0,
@@ -25,5 +26,5 @@ data class ReceiptModel(
         get() = total.formatPrice()
 
     val formattedCorrelative: String
-        get() = "#${id.toString().padStart(5, '0')}"
+        get() = "#${receiptNumber.toString().padStart(5, '0')}"
 }

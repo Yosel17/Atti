@@ -7,7 +7,7 @@ import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 
 data class ReceiptFormState(
     val isEditMode: Boolean = false,
-    val receiptId: Long? = null,
+    val receiptId: String? = null,
     val consultationId: String? = null,
     val hasConsultation: Boolean = false,
     val currentTab: ReceiptTab = ReceiptTab.PRODUCTS,
