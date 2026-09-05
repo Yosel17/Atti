@@ -26,7 +26,9 @@ import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 data class ReceiptEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
-    val id: Long, // Correlativo autoincremental de Supabase
+    val id: String, //UUID generado por Supabase
+    @ColumnInfo(name = "receipt_number")
+    val receiptNumber: Long,
     @ColumnInfo(name = "consultation_id")
     val consultationId: String? = null,
     @ColumnInfo(name = "customer_name")
