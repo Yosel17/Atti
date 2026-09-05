@@ -101,6 +101,7 @@ object Constants {
     const val PRESCRIPTION_STEP_DIAGNOSIS = 36
     const val OBSERVATION_STEP_DIAGNOSIS = 37
     const val FOLLOW_UP_STEP_DIAGNOSIS = 38
+    const val RECEIPT_STEP_DIAGNOSIS = 75
 
 
     //Catalogos
