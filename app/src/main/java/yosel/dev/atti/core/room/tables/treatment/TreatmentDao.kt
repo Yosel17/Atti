@@ -12,7 +12,7 @@ interface TreatmentDao {
     @Query("SELECT * FROM treatments WHERE consultation_id = :consultationId AND status = 1")
     fun getTreatmentsByConsultationIdFlow(consultationId: String): Flow<List<TreatmentEntity>>
 
-    @Query("SELECT * FROM treatments WHERE consultation_id = :consultationId AND status = 1")
+    @Query("SELECT * FROM treatments WHERE consultation_id = :consultationId")
     suspend fun getTreatmentsByConsultationId(consultationId: String): List<TreatmentEntity>
 
     @Query("SELECT * FROM treatments WHERE id = :id LIMIT 1")

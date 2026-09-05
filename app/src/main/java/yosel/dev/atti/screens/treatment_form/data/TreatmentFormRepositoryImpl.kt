@@ -14,6 +14,7 @@ import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationSt
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
+import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
 import yosel.dev.atti.core.supabase.ProductsDataSource
 import yosel.dev.atti.core.supabase.ServicesDataSource
@@ -37,7 +38,8 @@ class TreatmentFormRepositoryImpl @Inject constructor(
     private val consultationDao: ConsultationDao,
     private val consultationStepProgressDao: ConsultationStepProgressDao,
     private val appCatalogDao: AppCatalogDao,
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val supplierDao: SupplierDao,
 ) : TreatmentFormRepository {
 
     override suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>> = runCatching {
@@ -48,10 +50,13 @@ class TreatmentFormRepositoryImpl @Inject constructor(
                 product.unitType?.toEntity()
             )
         }.distinctBy { it.id }
+        val supplierEntities = remoteProducts.mapNotNull { it.supplier?.toEntity() }.distinctBy { it.id }
         val productEntities = remoteProducts.map { it.toEntity() }
 
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
+        supplierDao.upsertSuppliers(supplierEntities)
         productDao.upsertProducts(productEntities)
+
         productDao.getActiveProductsWithDetails().map { it.toModel() }
     }
 

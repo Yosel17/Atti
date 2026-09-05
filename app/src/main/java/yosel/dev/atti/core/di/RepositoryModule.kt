@@ -44,6 +44,8 @@ import yosel.dev.atti.screens.prescription_form.data.PrescriptionFormRepositoryI
 import yosel.dev.atti.screens.prescription_form.domain.PrescriptionFormRepository
 import yosel.dev.atti.screens.product_form.data.ProductFormRepositoryImpl
 import yosel.dev.atti.screens.product_form.domain.ProductFormRepository
+import yosel.dev.atti.screens.receipt_form.data.ReceiptFormRepositoryImpl
+import yosel.dev.atti.screens.receipt_form.domain.ReceiptFormRepository
 import yosel.dev.atti.screens.service_form.data.ServiceFormRepositoryImpl
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
 import yosel.dev.atti.screens.treatment_form.data.TreatmentFormRepositoryImpl
@@ -184,4 +186,10 @@ abstract class RepositoryModule {
     abstract fun bindFollowUpFormRepository(
         impl: FollowUpFormRepositoryImpl
     ): FollowUpFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReceiptFormRepository(
+        receiptFormRepositoryImpl: ReceiptFormRepositoryImpl
+    ): ReceiptFormRepository
 }

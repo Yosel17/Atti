@@ -4,6 +4,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.rpc
 import yosel.dev.atti.core.models.dto.PrescriptionDto
+import yosel.dev.atti.core.models.dto.PrescriptionItemDto
 import yosel.dev.atti.core.models.request.CreatePrescriptionRequest
 import yosel.dev.atti.core.models.request.UpdatePrescriptionRequest
 import yosel.dev.atti.core.utils.Constants
@@ -94,5 +95,23 @@ class PrescriptionsDataSource @Inject constructor(
                     eq("consultation_id", consultationId)
                 }
             }
+    }
+
+    suspend fun getPrescriptionItemsByConsultationId(consultationId: String): List<PrescriptionItemDto> {
+        val prescription = postgrest.from(Constants.PRESCRIPTIONS_SUPABASE)
+            .select {
+                filter {
+                    eq("consultation_id", consultationId)
+                }
+            }
+            .decodeSingleOrNull<PrescriptionDto>() ?: return emptyList()
+
+        return postgrest.from(Constants.PRESCRIPTION_ITEMS_SUPABASE)
+            .select {
+                filter {
+                    eq("prescription_id", prescription.id ?: "")
+                }
+            }
+            .decodeList<PrescriptionItemDto>()
     }
 }

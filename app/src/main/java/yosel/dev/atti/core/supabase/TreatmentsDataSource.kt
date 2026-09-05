@@ -120,4 +120,14 @@ class TreatmentsDataSource @Inject constructor(
             )
         ).decodeAs<List<TreatmentDto>>()
     }
+
+    suspend fun getTreatmentsByConsultationId(consultationId: String): List<TreatmentDto> {
+        return postgrest.from(Constants.TREATMENTS_SUPABASE)
+            .select {
+                filter {
+                    eq("consultation_id", consultationId)
+                }
+            }
+            .decodeList<TreatmentDto>()
+    }
 }
