@@ -96,7 +96,7 @@ import yosel.dev.atti.core.room.tables.follow_up.FollowUpEntity
 import yosel.dev.atti.core.room.tables.follow_up.FollowUpWithDetailsEntity
 import yosel.dev.atti.core.room.tables.observation.ObservationEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
-import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.patient.PatientWithDetailsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsWithDetailsEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
@@ -408,7 +408,7 @@ fun AddPatientFormState.toUpdateModel(
     status = status
 )
 
-fun PatientWithCatalogsEntity.toModel() = PatientWithDetailsModel(
+fun PatientWithDetailsEntity.toModel() = PatientWithDetailsModel(
     patient = patient.toModel(),
     species = species?.toModel() ?: AppCatalogModel(),
     gender = gender?.toModel() ?: AppCatalogModel()

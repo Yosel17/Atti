@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import yosel.dev.atti.core.room.tables.client.ClientEntity
 
 @Dao
 interface PatientDao {
@@ -52,9 +51,9 @@ interface PatientDao {
         CASE WHEN status = 3 THEN 1 ELSE 0 END ASC,
         created_at DESC
 """)
-    fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithCatalogsEntity>>
+    fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithDetailsEntity>>
 
     @Transaction
     @Query("SELECT * FROM patients WHERE id = :patientId")
-    fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithCatalogsEntity?>
+    fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithDetailsEntity?>
 }

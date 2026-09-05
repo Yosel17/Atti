@@ -5,7 +5,7 @@ import androidx.room.Relation
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
-import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.patient.PatientWithDetailsEntity
 
 data class FollowUpWithDetailsEntity(
     @Embedded val followUp: FollowUpEntity,
@@ -14,7 +14,7 @@ data class FollowUpWithDetailsEntity(
         parentColumn = "patient_id",
         entityColumn = "id"
     )
-    val patientWithDetails: PatientWithCatalogsEntity?,
+    val patientWithDetails: PatientWithDetailsEntity?,
     @Relation(
         entity = ConsultationEntity::class,
         parentColumn = "consultation_id",

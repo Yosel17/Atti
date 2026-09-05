@@ -3,7 +3,7 @@ package yosel.dev.atti.core.room.tables.client
 import androidx.room.Embedded
 import androidx.room.Relation
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
-import yosel.dev.atti.core.room.tables.patient.PatientWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.patient.PatientWithDetailsEntity
 
 data class ClientWithPatientsWithCatalogsEntity(
     @Embedded val client: ClientEntity,
@@ -12,5 +12,5 @@ data class ClientWithPatientsWithCatalogsEntity(
         parentColumn = "id",
         entityColumn = "client_id"
     )
-    val patients: List<PatientWithCatalogsEntity>
+    val patients: List<PatientWithDetailsEntity>
 )
