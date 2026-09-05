@@ -82,6 +82,9 @@ import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormViewModel
 import yosel.dev.atti.screens.product_form.ui.ProductFormEvent
 import yosel.dev.atti.screens.product_form.ui.ProductFormScreen
 import yosel.dev.atti.screens.product_form.ui.ProductFormViewModel
+import yosel.dev.atti.screens.receipt_form.ui.ReceiptFormEvent
+import yosel.dev.atti.screens.receipt_form.ui.ReceiptFormScreen
+import yosel.dev.atti.screens.receipt_form.ui.ReceiptFormViewModel
 import yosel.dev.atti.screens.service_form.ui.ServiceFormEvent
 import yosel.dev.atti.screens.service_form.ui.ServiceFormScreen
 import yosel.dev.atti.screens.service_form.ui.ServiceFormViewModel
@@ -1135,3 +1138,57 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
         )
     }
 }
+
+fun EntryProviderScope<NavKey>.receiptFormEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.ReceiptForm> { receiptFormKey ->
+        val viewModel: ReceiptFormViewModel = hiltViewModel(
+            creationCallback = { factory: ReceiptFormViewModel.Factory ->
+                factory.create(
+                    consultationId = receiptFormKey.consultationId,
+                    receiptId = receiptFormKey.receiptId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ReceiptFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ReceiptFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is ReceiptFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        ReceiptFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
