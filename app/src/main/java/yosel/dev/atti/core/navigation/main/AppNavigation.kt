@@ -148,6 +148,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            receiptFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )
