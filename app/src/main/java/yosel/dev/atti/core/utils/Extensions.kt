@@ -1823,7 +1823,8 @@ fun FollowUpDto.toWithDetailsModel() = FollowUpWithDetailsModel(
 // --- RECEIPTS ---
 
 fun ReceiptDto.toEntity() = ReceiptEntity(
-    id = id ?: 0L,
+    id = id.orEmpty(),
+    receiptNumber = receiptNumber ?: 0L,
     consultationId = consultationId,
     customerName = customerName.orEmpty(),
     subtotal = subtotal,
@@ -1837,6 +1838,7 @@ fun ReceiptDto.toEntity() = ReceiptEntity(
 
 fun ReceiptEntity.toModel() = ReceiptModel(
     id = id,
+    receiptNumber = receiptNumber,
     consultationId = consultationId,
     customerName = customerName,
     subtotal = subtotal,
@@ -1850,6 +1852,7 @@ fun ReceiptEntity.toModel() = ReceiptModel(
 
 fun ReceiptModel.toEntity() = ReceiptEntity(
     id = id,
+    receiptNumber = receiptNumber,
     consultationId = consultationId,
     customerName = customerName,
     subtotal = subtotal,
@@ -1862,7 +1865,8 @@ fun ReceiptModel.toEntity() = ReceiptEntity(
 )
 
 fun ReceiptDto.toModel() = ReceiptModel(
-    id = id ?: 0L,
+    id = id.orEmpty(),
+    receiptNumber = receiptNumber ?: 0L,
     consultationId = consultationId,
     customerName = customerName.orEmpty(),
     subtotal = subtotal,
@@ -1887,6 +1891,7 @@ fun ReceiptModel.toDtoForInsert() = ReceiptDto(
 
 fun ReceiptModel.toDtoForUpdate() = ReceiptDto(
     id = id,
+    receiptNumber = receiptNumber,
     consultationId = consultationId?.takeIf { it.isNotBlank() },
     customerName = customerName.ifBlank { null },
     subtotal = subtotal,
@@ -1901,7 +1906,7 @@ fun ReceiptModel.toDtoForUpdate() = ReceiptDto(
 
 fun ReceiptItemDto.toEntity() = ReceiptItemEntity(
     id = id.orEmpty(),
-    receiptId = receiptId ?: 0L,
+    receiptId = receiptId.orEmpty(),
     productId = productId,
     serviceId = serviceId,
     quantity = quantity,
@@ -1937,7 +1942,7 @@ fun ReceiptItemModel.toEntity() = ReceiptItemEntity(
 
 fun ReceiptItemDto.toModel() = ReceiptItemModel(
     id = id.orEmpty(),
-    receiptId = receiptId ?: 0L,
+    receiptId = receiptId.orEmpty(),
     productId = productId,
     serviceId = serviceId,
     quantity = quantity,
@@ -1948,7 +1953,7 @@ fun ReceiptItemDto.toModel() = ReceiptItemModel(
 )
 
 fun ReceiptItemModel.toDtoForInsert() = ReceiptItemDto(
-    receiptId = receiptId.takeIf { it != 0L },
+    receiptId = receiptId.takeIf { it.isNotBlank() },
     productId = productId,
     serviceId = serviceId,
     quantity = quantity,
