@@ -18,6 +18,8 @@ import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
 import yosel.dev.atti.core.models.dto.PrescriptionDto
 import yosel.dev.atti.core.models.dto.PrescriptionItemDto
 import yosel.dev.atti.core.models.dto.ProductDto
+import yosel.dev.atti.core.models.dto.ReceiptDto
+import yosel.dev.atti.core.models.dto.ReceiptItemDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
 import yosel.dev.atti.core.models.dto.SupplierDto
@@ -57,6 +59,10 @@ import yosel.dev.atti.core.models.model.PrescriptionModel
 import yosel.dev.atti.core.models.model.PrescriptionWithDetailsModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.ReceiptItemModel
+import yosel.dev.atti.core.models.model.ReceiptItemWithDetailsModel
+import yosel.dev.atti.core.models.model.ReceiptModel
+import yosel.dev.atti.core.models.model.ReceiptWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
@@ -99,6 +105,10 @@ import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemWithDetailsE
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionWithDetailsEntity
 import yosel.dev.atti.core.room.tables.product.ProductEntity
 import yosel.dev.atti.core.room.tables.product.ProductWithDetailsEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptItemEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptItemWithDetailsEntity
+import yosel.dev.atti.core.room.tables.receipt.ReceiptWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
 import yosel.dev.atti.core.room.tables.service.ServiceWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
@@ -1808,6 +1818,204 @@ fun FollowUpDto.toWithDetailsModel() = FollowUpWithDetailsModel(
             consultationType = consultation.consultationType?.toModel() ?: AppCatalogModel()
         )
     } ?: ConsultationWithDetailsModel()
+)
+
+// --- RECEIPTS ---
+
+fun ReceiptDto.toEntity() = ReceiptEntity(
+    id = id ?: 0L,
+    consultationId = consultationId,
+    customerName = customerName.orEmpty(),
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ReceiptEntity.toModel() = ReceiptModel(
+    id = id,
+    consultationId = consultationId,
+    customerName = customerName,
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ReceiptModel.toEntity() = ReceiptEntity(
+    id = id,
+    consultationId = consultationId,
+    customerName = customerName,
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ReceiptDto.toModel() = ReceiptModel(
+    id = id ?: 0L,
+    consultationId = consultationId,
+    customerName = customerName.orEmpty(),
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ReceiptModel.toDtoForInsert() = ReceiptDto(
+    consultationId = consultationId?.takeIf { it.isNotBlank() },
+    customerName = customerName.ifBlank { null },
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+fun ReceiptModel.toDtoForUpdate() = ReceiptDto(
+    id = id,
+    consultationId = consultationId?.takeIf { it.isNotBlank() },
+    customerName = customerName.ifBlank { null },
+    subtotal = subtotal,
+    discount = discount,
+    tax = tax,
+    total = total,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+// --- RECEIPT ITEMS ---
+
+fun ReceiptItemDto.toEntity() = ReceiptItemEntity(
+    id = id.orEmpty(),
+    receiptId = receiptId ?: 0L,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ReceiptItemEntity.toModel() = ReceiptItemModel(
+    id = id,
+    receiptId = receiptId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ReceiptItemModel.toEntity() = ReceiptItemEntity(
+    id = id,
+    receiptId = receiptId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ReceiptItemDto.toModel() = ReceiptItemModel(
+    id = id.orEmpty(),
+    receiptId = receiptId ?: 0L,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ReceiptItemModel.toDtoForInsert() = ReceiptItemDto(
+    receiptId = receiptId.takeIf { it != 0L },
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    status = status
+)
+
+fun ReceiptItemModel.toDtoForUpdate() = ReceiptItemDto(
+    id = id,
+    receiptId = receiptId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    subtotal = subtotal,
+    status = status
+)
+
+// --- RECEIPT WITH DETAILS MAPPERS ---
+
+fun ReceiptItemWithDetailsEntity.toModel() = ReceiptItemWithDetailsModel(
+    item = item.toModel(),
+    product = product?.toModel(),
+    service = service?.toModel()
+)
+
+fun ReceiptItemDto.toWithDetailsModel() = ReceiptItemWithDetailsModel(
+    item = toModel(),
+    product = product?.toModel()?.let {
+        ProductWithDetailsModel(
+            product = it,
+            supplier = product.supplier?.toModel() ?: SupplierModel(),
+            category = product.category?.toModel() ?: AppCatalogModel(),
+            unitType = product.unitType?.toModel() ?: AppCatalogModel()
+        )
+    },
+    service = service?.toModel()?.let {
+        ServiceWithDetailsModel(
+            service = it,
+            category = service.category?.toModel() ?: AppCatalogModel()
+        )
+    }
+)
+
+fun ReceiptWithDetailsEntity.toModel() = ReceiptWithDetailsModel(
+    receipt = receipt.toModel(),
+    consultationWithDetails = consultation?.toModel(),
+    items = items.map { it.toModel() }
+)
+
+fun ReceiptDto.toWithDetailsModel() = ReceiptWithDetailsModel(
+    receipt = toModel(),
+    consultationWithDetails = consultation?.toModel()?.let { c ->
+        ConsultationWithDetailsModel(
+            consultation = c,
+            patientWithDetails = consultation.patient?.toModel()?.let { p ->
+                PatientWithCatalogsModel(
+                    patient = p,
+                    species = consultation.patient.species?.toModel() ?: AppCatalogModel(),
+                    gender = consultation.patient.gender?.toModel() ?: AppCatalogModel()
+                )
+            } ?: PatientWithCatalogsModel(),
+            consultationType = consultation.consultationType?.toModel() ?: AppCatalogModel()
+        )
+    },
+    items = items.map { it.toWithDetailsModel() }
 )
 
 fun String.normalize(): String {
