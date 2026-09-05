@@ -33,6 +33,13 @@ interface PrescriptionDao {
     @Query("DELETE FROM prescriptions WHERE consultation_id = :consultationId")
     suspend fun deletePrescriptionByConsultationId(consultationId: String)
 
+    @Query("""
+    SELECT pi.* FROM prescription_items pi
+    INNER JOIN prescriptions p ON pi.prescription_id = p.id
+    WHERE p.consultation_id = :consultationId
+    """)
+    suspend fun getPrescriptionItemsByConsultationId(consultationId: String): List<PrescriptionItemEntity>
+
     // --- Transacción atómica completa estilo Anamnesis ---
     @Transaction
     suspend fun savePrescriptionWithDetails(
