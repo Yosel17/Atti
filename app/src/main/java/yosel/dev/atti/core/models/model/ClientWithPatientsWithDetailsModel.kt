@@ -1,6 +1,6 @@
 package yosel.dev.atti.core.models.model
 
-data class ClientWithPatientsWithCatalogsModel(
+data class ClientWithPatientsWithDetailsModel(
     val client: ClientModel = ClientModel(),
     val patients: List<PatientWithDetailsModel> = emptyList()
 ){

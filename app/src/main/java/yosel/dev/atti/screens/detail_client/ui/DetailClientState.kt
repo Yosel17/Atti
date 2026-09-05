@@ -1,10 +1,10 @@
 package yosel.dev.atti.screens.detail_client.ui
 
-import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
+import yosel.dev.atti.core.models.model.ClientWithPatientsWithDetailsModel
 
 data class DetailClientState(
     val isLoading: Boolean = true,
-    val clientWithPatientsWithCatalogs: ClientWithPatientsWithCatalogsModel = ClientWithPatientsWithCatalogsModel(),
+    val clientWithPatientsWithCatalogs: ClientWithPatientsWithDetailsModel = ClientWithPatientsWithDetailsModel(),
     val isEditing: Boolean = false,
     val isLoadingUpdate: Boolean = false,
     val editFormState: EditClientFormState = EditClientFormState(),

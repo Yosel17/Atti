@@ -42,5 +42,5 @@ interface ClientDao {
 
     @Transaction
     @Query("SELECT * FROM clients WHERE id = :clientId")
-    fun getClientWithPatientsWithCatalogsFlow(clientId: String): Flow<ClientWithPatientsWithCatalogsEntity?>
+    fun getClientWithPatientsWithCatalogsFlow(clientId: String): Flow<ClientWithPatientsWithDetailsEntity?>
 }

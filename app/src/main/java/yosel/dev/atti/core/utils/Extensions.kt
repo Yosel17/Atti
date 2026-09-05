@@ -35,7 +35,7 @@ import yosel.dev.atti.core.models.model.AnamnesisWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
-import yosel.dev.atti.core.models.model.ClientWithPatientsWithCatalogsModel
+import yosel.dev.atti.core.models.model.ClientWithPatientsWithDetailsModel
 import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeModel
 import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeWithDetailsModel
 import yosel.dev.atti.core.models.model.ClinicalExamWithDetailsModel
@@ -81,7 +81,7 @@ import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisWithDetailsEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
-import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithCatalogsEntity
+import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithDetailsEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeWithDetailsEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamWithDetailsEntity
@@ -411,10 +411,11 @@ fun AddPatientFormState.toUpdateModel(
 fun PatientWithDetailsEntity.toModel() = PatientWithDetailsModel(
     patient = patient.toModel(),
     species = species?.toModel() ?: AppCatalogModel(),
-    gender = gender?.toModel() ?: AppCatalogModel()
+    gender = gender?.toModel() ?: AppCatalogModel(),
+    client = client?.toModel() ?: ClientModel()
 )
 
-fun ClientWithPatientsWithCatalogsEntity.toModel() = ClientWithPatientsWithCatalogsModel(
+fun ClientWithPatientsWithDetailsEntity.toModel() = ClientWithPatientsWithDetailsModel(
     client = client.toModel(),
     patients = patients.map { it.toModel() }
 )
