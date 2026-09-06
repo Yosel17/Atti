@@ -436,6 +436,8 @@ private fun TreatmentSelectedCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
+            val totalPrice = price * quantity
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -454,7 +456,12 @@ private fun TreatmentSelectedCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Q ${price.formatPrice()}",
+                    text = "Q ${price.formatPrice()} c/u",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Total: Q ${totalPrice.formatPrice()}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
