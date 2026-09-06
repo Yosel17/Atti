@@ -48,11 +48,15 @@ class ConsultationRepositoryImpl @Inject constructor(
                 consultation.patient?.gender?.toEntity()
             )
         }.distinctBy { it.id }
+        val clientEntities = remoteConsultations.mapNotNull { it.patient?.client?.toEntity() }
         val patientEntities = remoteConsultations.mapNotNull { it.patient?.toEntity() }
         val consultationEntities = remoteConsultations.map { it.toEntity() }
 
         if (allCatalogEntities.isNotEmpty()) {
             appCatalogDao.insertAllCatalogs(allCatalogEntities)
+        }
+        if (clientEntities.isNotEmpty()){
+            clientDao.upsertClients(clientEntities)
         }
         if (patientEntities.isNotEmpty()) {
             patientDao.upsertPatients(patientEntities)
