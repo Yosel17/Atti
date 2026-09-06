@@ -301,24 +301,20 @@ private fun PrescriptionItemCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(2.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = if (item.isCustom) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+                    )
+                    if (!item.isCustom && item.unitPrice > 0.0) {
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = item.subtitle,
+                            text = "Q ${item.unitPrice.formatPrice()} c/u",
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = if (item.isCustom) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        if (!item.isCustom && item.unitPrice > 0.0) {
-                            Text(
-                                text = "•  Q ${item.unitPrice.formatPrice()} c/u",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
                     }
                 }
                 IconButton(

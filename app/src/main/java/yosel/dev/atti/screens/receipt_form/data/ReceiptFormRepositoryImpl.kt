@@ -119,8 +119,7 @@ class ReceiptFormRepositoryImpl @Inject constructor(
         }
         if (entities != null){
             if (entities.isNotEmpty()) {
-                val entitiesWithProductId = entities.filter { it.productId != null }
-                prescriptionDao.upsertPrescriptionItems(entitiesWithProductId)
+                prescriptionDao.upsertPrescriptionItems(entities)
             }
         }
 
