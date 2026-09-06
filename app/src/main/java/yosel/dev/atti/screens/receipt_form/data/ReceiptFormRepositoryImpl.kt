@@ -99,20 +99,33 @@ class ReceiptFormRepositoryImpl @Inject constructor(
 
     override suspend fun getTreatmentsByConsultationId(consultationId: String): Result<List<TreatmentModel>> = runCatching {
         val remote = treatmentsDataSource.getTreatmentsByConsultationId(consultationId)
+
         val entities = remote.map { it.toEntity() }
         if (entities.isNotEmpty()) {
             treatmentDao.upsertTreatments(entities)
         }
+
         treatmentDao.getTreatmentsByConsultationId(consultationId).map { it.toModel() }
     }
 
     override suspend fun getPrescriptionItemsByConsultationId(consultationId: String): Result<List<PrescriptionItemModel>> = runCatching {
-        val remote = prescriptionsDataSource.getPrescriptionItemsByConsultationId(consultationId)
-        val entities = remote.map { it.toEntity() }
-        if (entities.isNotEmpty()) {
-            prescriptionDao.upsertPrescriptionItems(entities)
+        val remote = prescriptionsDataSource.getPrescriptionWithDetailsByConsultationId(consultationId)
+
+        val entity = remote?.toEntity()
+        val entities = remote?.items?.map { it.toEntity() }
+
+        if (entity !=null){
+            prescriptionDao.upsertPrescription(entity)
         }
+        if (entities != null){
+            if (entities.isNotEmpty()) {
+                val entitiesWithProductId = entities.filter { it.productId != null }
+                prescriptionDao.upsertPrescriptionItems(entitiesWithProductId)
+            }
+        }
+
         prescriptionDao.getPrescriptionItemsByConsultationId(consultationId).map { it.toModel() }
+
     }
 
     override suspend fun saveReceipt(
