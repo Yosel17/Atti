@@ -52,6 +52,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -306,6 +307,15 @@ private fun PrescriptionItemCard(
                         fontWeight = FontWeight.Bold,
                         color = if (item.isCustom) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
                     )
+                    if (!item.isCustom && item.unitPrice > 0.0) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Q ${item.unitPrice.formatPrice()} c/u",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 IconButton(
                     onClick = onRemove,
@@ -391,19 +401,31 @@ private fun PrescriptionItemCard(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Selector de Cantidad
+            // Selector de Cantidad y Precio Total
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Cantidad",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column {
+                    Text(
+                        text = "Cantidad",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (!item.isCustom && item.unitPrice > 0.0) {
+                        Text(
+                            text = "Total: Q ${item.totalPrice.formatPrice()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
 
                 Surface(
                     shape = RoundedCornerShape(100.dp),

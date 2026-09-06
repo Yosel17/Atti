@@ -85,6 +85,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -99,6 +100,7 @@ import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.utils.formatPrice
 import yosel.dev.atti.screens.service_form.ui.dashedBorder
+import yosel.dev.atti.ui.theme.AttiTheme
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -484,6 +486,8 @@ private fun ReceiptSelectedCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
+            val totalPrice = price * quantity
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -502,7 +506,12 @@ private fun ReceiptSelectedCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Q ${price.formatPrice()}",
+                    text = "Q ${price.formatPrice()} c/u",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Total: Q ${totalPrice.formatPrice()}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -1237,5 +1246,40 @@ private fun DataRow(label: String, value: String) {
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun ReceiptSelectedCardPreview() {
+    AttiTheme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ReceiptSelectedCard(
+                    title = "Amoxicilina 500mg",
+                    subtitle = "Caja x 10 tabletas",
+                    price = 45.0,
+                    quantity = 1,
+                    canIncrement = true,
+                    canDecrement = false,
+                    icon = Icons.Outlined.Medication,
+                    onIncrement = {},
+                    onDecrement = {},
+                    onRemove = {}
+                )
+                ReceiptSelectedCard(
+                    title = "Consulta Médica General",
+                    subtitle = "Servicios clínicos",
+                    price = 150.0,
+                    quantity = 3,
+                    canIncrement = true,
+                    canDecrement = true,
+                    icon = Icons.Filled.MedicalServices,
+                    onIncrement = {},
+                    onDecrement = {},
+                    onRemove = {}
+                )
+            }
+        }
     }
 }

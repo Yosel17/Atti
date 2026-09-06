@@ -25,6 +25,12 @@ data class SelectedPrescriptionItem(
 
     val maxStock: Int
         get() = productWithDetails?.product?.stock ?: Int.MAX_VALUE
+
+    val unitPrice: Double
+        get() = productWithDetails?.product?.salePrice ?: 0.0
+
+    val totalPrice: Double
+        get() = unitPrice * quantity
 }
 
 data class PrescriptionFormInputsState(

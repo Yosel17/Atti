@@ -73,7 +73,6 @@ class PrescriptionsDataSource @Inject constructor(
             ) {
                 filter {
                     eq("consultation_id", consultationId)
-                    eq("status", Constants.ACTIVE_STATUS)
                 }
             }
             .decodeSingleOrNull<PrescriptionDto>()
