@@ -73,7 +73,7 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getIconGender
@@ -717,7 +717,7 @@ private fun PetsSectionHeader(onAddPetClick: () -> Unit) {
 @Composable
 private fun DetailPatientCard(
     modifier: Modifier = Modifier,
-    patientWithCatalogs: PatientWithCatalogsModel,
+    patientWithCatalogs: PatientWithDetailsModel,
     onCardClick: (String) -> Unit
 ) {
     val iconSpecie = getIconSpecies(patientWithCatalogs.patient.speciesId)

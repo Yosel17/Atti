@@ -3,8 +3,6 @@ package yosel.dev.atti.screens.navigation_bar.consultation.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -51,7 +49,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -61,7 +58,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -69,7 +65,7 @@ import androidx.compose.ui.window.DialogProperties
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
@@ -227,7 +223,7 @@ fun BodyConsultation(
 @Composable
 fun PatientAvatarItem(
     modifier: Modifier = Modifier,
-    patientItem: PatientWithCatalogsModel,
+    patientItem: PatientWithDetailsModel,
     isSelected: Boolean,
     isLocked: Boolean,
     onClick: () -> Unit
@@ -519,7 +515,7 @@ private fun PatientAvatarItemPreview() {
             modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)
         ){
             PatientAvatarItem(
-                patientItem = PatientWithCatalogsModel(
+                patientItem = PatientWithDetailsModel(
                     patient = PatientModel(
                         name = "Neron",
                         speciesId = 1

@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import javax.inject.Inject
@@ -50,7 +50,7 @@ class ConsultationViewModel @Inject constructor(
     // Solo se suscribe al Flow de Room si NO hay consulta activa
     private val patientsFlow = activeConsultationFlow.flatMapLatest { activeConsultation ->
         if (activeConsultation != null) {
-            flowOf(emptyList<PatientWithCatalogsModel>() to emptyList<PatientWithCatalogsModel>())
+            flowOf(emptyList<PatientWithDetailsModel>() to emptyList<PatientWithDetailsModel>())
         } else {
             combine(
                 repository.getAllPatientsWithCatalogsFlow().catch {

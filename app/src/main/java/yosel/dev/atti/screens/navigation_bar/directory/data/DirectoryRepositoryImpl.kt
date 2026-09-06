@@ -1,14 +1,11 @@
 package yosel.dev.atti.screens.navigation_bar.directory.data
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
@@ -42,7 +39,7 @@ class DirectoryRepositoryImpl @Inject constructor(
         clientDao.upsertClients(entities)
     }
 
-    override fun getAllPatientsWithCatalogs(): Flow<List<PatientWithCatalogsModel>> =
+    override fun getAllPatientsWithCatalogs(): Flow<List<PatientWithDetailsModel>> =
         patientDao.getAllPatientsWithCatalogsFlow()
             .map { entities ->
                 entities.map { it.toModel() }

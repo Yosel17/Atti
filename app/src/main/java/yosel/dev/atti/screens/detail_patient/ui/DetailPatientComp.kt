@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.utils.getIconGender
 import yosel.dev.atti.core.utils.getIconSpecies
 
@@ -82,7 +82,7 @@ fun BodyDetailPatient(
  */
 @Composable
 private fun PatientProfileHeader(
-    patientWithCatalogs: PatientWithCatalogsModel,
+    patientWithCatalogs: PatientWithDetailsModel,
     modifier: Modifier = Modifier
 ) {
     val iconSpecie = getIconSpecies(patientWithCatalogs.patient.speciesId)
@@ -153,7 +153,7 @@ private fun PatientProfileHeader(
  */
 @Composable
 private fun PatientInformationCard(
-    patientWithCatalogs: PatientWithCatalogsModel,
+    patientWithCatalogs: PatientWithDetailsModel,
     client: ClientModel,
     modifier: Modifier = Modifier
 ) {

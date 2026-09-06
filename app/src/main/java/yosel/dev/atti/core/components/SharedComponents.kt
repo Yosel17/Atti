@@ -114,7 +114,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getIconSpecies
 import yosel.dev.atti.ui.theme.AttiTheme
@@ -1592,7 +1592,7 @@ fun SelectAppCatalogMultiBottomSheet(
 
 @Composable
 fun PatientConsultationHeaderHero(
-    patientWithDetails: PatientWithCatalogsModel,
+    patientWithDetails: PatientWithDetailsModel,
     modifier: Modifier = Modifier
 ) {
     val patient = patientWithDetails.patient
@@ -1679,7 +1679,7 @@ private fun PatientConsultationHeaderHeroPreview() {
     AttiTheme {
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(24.dp)){
             PatientConsultationHeaderHero(
-                patientWithDetails = PatientWithCatalogsModel(
+                patientWithDetails = PatientWithDetailsModel(
                     patient = PatientModel(
                         name = "Max",
                         breed = "Labrador",

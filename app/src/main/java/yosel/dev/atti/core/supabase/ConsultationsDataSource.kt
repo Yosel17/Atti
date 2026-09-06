@@ -20,7 +20,8 @@ class ConsultationsDataSource @Inject constructor(
                 patient:patients(
                     *,
                     species:app_catalogs!species_id(*),
-                    gender:app_catalogs!gender_id(*)
+                    gender:app_catalogs!gender_id(*),
+                    client:clients!client_id(*)
                 ),
                 consultation_type:app_catalogs!consultation_type_id(*)
                 """.trimIndent()

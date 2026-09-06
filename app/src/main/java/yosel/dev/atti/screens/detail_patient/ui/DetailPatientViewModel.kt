@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.ClientModel
-import yosel.dev.atti.core.models.model.PatientWithCatalogsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens.*
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
@@ -77,7 +77,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                 .collectLatest { patientWithCatalogsModel ->
                     _state.update { currentState ->
                         currentState.copy(
-                            patientWithCatalogs = patientWithCatalogsModel ?: PatientWithCatalogsModel(),
+                            patientWithCatalogs = patientWithCatalogsModel ?: PatientWithDetailsModel(),
                             isLoading = false
                         )
                     }
