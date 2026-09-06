@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.MedicalInformation
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
@@ -175,6 +176,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
         "observaciones" -> Icons.Default.Visibility
         "reconsulta" -> Icons.Default.EventRepeat
+        "recibo" -> Icons.Default.Receipt
         else -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }
