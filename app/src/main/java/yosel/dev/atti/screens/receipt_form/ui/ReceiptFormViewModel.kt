@@ -273,7 +273,7 @@ class ReceiptFormViewModel @AssistedInject constructor(
             }
 
             val inputs = ReceiptFormInputsState(
-                customerName = _state.value.consultationWithDetails.patientWithDetails.patient.name,
+                customerName = _state.value.consultationWithDetails.patientWithDetails.client.fullName,
                 selectedProducts = initialProducts,
                 selectedServices = initialServices
             )
