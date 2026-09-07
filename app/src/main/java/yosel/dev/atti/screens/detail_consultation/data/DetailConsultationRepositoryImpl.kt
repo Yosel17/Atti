@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import yosel.dev.atti.core.models.dto.StepReferenceDto
 import yosel.dev.atti.core.models.model.ConsultationStepProgressModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
@@ -227,5 +228,19 @@ class DetailConsultationRepositoryImpl @Inject constructor(
 
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
+    }
+
+    override suspend fun finalizeConsultation(consultationId: String): Result<Unit> = runCatching {
+        val completedAt = Instant.now().toString()
+        consultationsDataSource.finalizeConsultation(
+            consultationId = consultationId,
+            newStatus = Constants.CONSULTATION_COMPLETED_STATUS,
+            completedAt = completedAt
+        )
+        consultationDao.finalizeConsultation(
+            consultationId = consultationId,
+            newStatus = Constants.CONSULTATION_COMPLETED_STATUS,
+            completedAt = completedAt
+        )
     }
 }
