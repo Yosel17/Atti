@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -42,6 +43,15 @@ class ConsultationViewModel @Inject constructor(
         .debounce(300.milliseconds)
 
     private val activeConsultationFlow = repository.getActiveConsultationFlow()
+        .onEach { activeConsultation ->
+            _state.update { local ->
+                local.copy(
+                    activeConsultation = activeConsultation,
+                    selectedPatient = if (activeConsultation != null) null else local.selectedPatient,
+                    selectedReason = if (activeConsultation != null) null else local.selectedReason
+                )
+            }
+        }
         .catch {
             _events.send(ConsultationEvent.ShowSnackBarError("Error al cargar la consulta activa"))
             emit(null)
@@ -169,7 +179,8 @@ class ConsultationViewModel @Inject constructor(
                     it.copy(
                         isStartingConsultation = false,
                         showConfirmDialog = false,
-                        selectedReason = pendingReason,
+                        selectedPatient = null,
+                        selectedReason = null,
                         pendingSelectedReason = null
                     )
                 }
