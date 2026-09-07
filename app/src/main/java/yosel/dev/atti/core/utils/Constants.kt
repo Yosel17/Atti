@@ -125,4 +125,8 @@ object Constants {
     const val ACTIVE_CLIENT_STATUS = 1
     const val INACTIVE_CLIENT_STATUS = 2
     const val DELETED_CLIENT_STATUS = 3
+
+    //Estados de consulta
+    const val CONSULTATION_ACTIVE_STATUS = 1
+    const val CONSULTATION_COMPLETED_STATUS = 2
 }

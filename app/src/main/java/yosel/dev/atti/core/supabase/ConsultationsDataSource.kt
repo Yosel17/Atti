@@ -6,6 +6,7 @@ import io.github.jan.supabase.postgrest.query.Order
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationProgressDto
 import yosel.dev.atti.core.utils.Constants
+import java.time.Instant
 import javax.inject.Inject
 
 class ConsultationsDataSource @Inject constructor(
@@ -120,6 +121,24 @@ class ConsultationsDataSource @Inject constructor(
             .update(
                 {
                     set("status", newStatus)
+                }
+            ) {
+                filter {
+                    eq("id", consultationId)
+                }
+            }
+    }
+
+    suspend fun finalizeConsultation(
+        consultationId: String,
+        newStatus: Int = Constants.CONSULTATION_COMPLETED_STATUS,
+        completedAt: String = Instant.now().toString()
+    ) {
+        postgrest.from(Constants.CONSULTATIONS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                    set("completed_at", completedAt)
                 }
             ) {
                 filter {
