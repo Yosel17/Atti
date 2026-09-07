@@ -655,7 +655,10 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
     entry<Screens.DetailConsultation> { detailConsultationKey ->
         val viewModel: DetailConsultationViewModel = hiltViewModel(
             creationCallback = { factory: DetailConsultationViewModel.Factory ->
-                factory.create(consultationId = detailConsultationKey.consultationId)
+                factory.create(
+                    consultationId = detailConsultationKey.consultationId,
+                    consultationTypeId = detailConsultationKey.consultationTypeId
+                )
             }
         )
         val state by viewModel.state.collectAsStateWithLifecycle()

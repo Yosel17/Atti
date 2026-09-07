@@ -205,7 +205,12 @@ fun BodyConsultation(
                 onClick = {
                     if (state.hasActiveConsultation ){
                         if (reason.id == state.selectedReason?.id){
-                            onNavigationMain(Screens.DetailConsultation(consultationId = state.activeConsultation!!.consultation.id))
+                            onNavigationMain(
+                                Screens.DetailConsultation(
+                                    consultationId = state.activeConsultation!!.consultation.id,
+                                    consultationTypeId = state.activeConsultation.consultation.consultationTypeId
+                                )
+                            )
                         }
                     }else{
                         onAction(ConsultationAction.OnSelectConsultationReason(reason))

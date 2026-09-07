@@ -21,12 +21,13 @@ import yosel.dev.atti.screens.detail_consultation.domain.DetailConsultationRepos
 @HiltViewModel(assistedFactory = DetailConsultationViewModel.Factory::class)
 class DetailConsultationViewModel @AssistedInject constructor(
     private val repository: DetailConsultationRepository,
-    @Assisted private val consultationId: String
+    @Assisted private val consultationId: String,
+    @Assisted private val consultationTypeId: Int,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(consultationId: String): DetailConsultationViewModel
+        fun create(consultationId: String, consultationTypeId: Int): DetailConsultationViewModel
     }
 
     private val _state = MutableStateFlow(DetailConsultationState())
