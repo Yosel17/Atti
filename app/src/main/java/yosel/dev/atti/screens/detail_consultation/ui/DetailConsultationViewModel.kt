@@ -101,7 +101,7 @@ class DetailConsultationViewModel @AssistedInject constructor(
         viewModelScope.launch {
             repository.getConsultationStepsProgressFlow(
                 consultationId = consultationId,
-                consultationTypeId = Constants.GENERAL_CONSULTATION_TYPE
+                consultationTypeId = consultationTypeId
             ).catch {
                 _eventChannel.send(
                     DetailConsultationEvent.ShowErrorSnackbar("No pudimos cargar los pasos de la consulta.")
@@ -116,7 +116,7 @@ class DetailConsultationViewModel @AssistedInject constructor(
         viewModelScope.launch {
             repository.syncConsultationSteps(
                 consultationId = consultationId,
-                consultationTypeId = Constants.GENERAL_CONSULTATION_TYPE
+                consultationTypeId = consultationTypeId
             ).onFailure {
                 Log.e("DetailConsultationViewModel", "Error al sincronizar datos", it)
                 _eventChannel.send(
