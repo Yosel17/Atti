@@ -41,6 +41,52 @@ class DetailConsultationViewModel @AssistedInject constructor(
         syncData()
     }
 
+    fun onAction(action: DetailConsultationAction) {
+        when (action) {
+            is DetailConsultationAction.ToggleConfirmFinalizeDialog -> {
+                _state.update { it.copy(showConfirmFinalizeDialog = action.show) }
+            }
+            DetailConsultationAction.FinalizeConsultation -> {
+                finalizeConsultation()
+            }
+        }
+    }
+
+    private fun finalizeConsultation() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    showConfirmFinalizeDialog = false,
+                    isFinalizingLoading = true
+                )
+            }
+            repository.finalizeConsultation(consultationId = consultationId)
+                .onSuccess {
+                    _state.update { currentState ->
+                        val updatedConsultation = currentState.consultationWithDetails.consultation.copy(
+                            status = Constants.CONSULTATION_COMPLETED_STATUS
+                        )
+                        currentState.copy(
+                            isFinalizingLoading = false,
+                            consultationWithDetails = currentState.consultationWithDetails.copy(
+                                consultation = updatedConsultation
+                            )
+                        )
+                    }
+                    _eventChannel.send(
+                        DetailConsultationEvent.ShowSuccessSnackbar("Consulta finalizada correctamente.")
+                    )
+                }
+                .onFailure { exception ->
+                    Log.e("DetailConsultationViewModel", "Error al finalizar consulta", exception)
+                    _state.update { it.copy(isFinalizingLoading = false) }
+                    _eventChannel.send(
+                        DetailConsultationEvent.ShowErrorSnackbar("No se pudo finalizar la consulta. Intenta de nuevo.")
+                    )
+                }
+        }
+    }
+
     private fun observeConsultation() {
         viewModelScope.launch {
             repository.getConsultationWithDetailsFlow(consultationId = consultationId)

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.navigation.main.Screens
 
@@ -27,7 +28,8 @@ fun DetailConsultationScreen(
     state: DetailConsultationState,
     snackBarHostState: SnackbarHostState,
     onBack: () -> Unit,
-    onNavigationMain: (Screens) -> Unit
+    onNavigationMain: (Screens) -> Unit,
+    onAction: (DetailConsultationAction) -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier,
@@ -79,11 +81,32 @@ fun DetailConsultationScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
-                            onNavigationMain = onNavigationMain
+                            onNavigationMain = onNavigationMain,
+                            onFinishConsultation = {
+                                onAction(DetailConsultationAction.ToggleConfirmFinalizeDialog(show = true))
+                            }
                         )
                     }
                 }
             }
         }
+    }
+
+    if (state.showConfirmFinalizeDialog) {
+        FinalizeConsultationDialog(
+            onConfirm = {
+                onAction(DetailConsultationAction.FinalizeConsultation)
+            },
+            onDismiss = {
+                onAction(DetailConsultationAction.ToggleConfirmFinalizeDialog(show = false))
+            }
+        )
+    }
+
+    if (state.isFinalizingLoading) {
+        LoadingDialog(
+            title = "Finalizando consulta...",
+            subtitle = "Guardando información, por favor espera"
+        )
     }
 }
