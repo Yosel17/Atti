@@ -672,6 +672,14 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
                         )
                     }
                 }
+                is DetailConsultationEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
             }
         }
 
@@ -682,7 +690,8 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onBack = onBack,
-            onNavigationMain = onNavigationMain
+            onNavigationMain = onNavigationMain,
+            onAction = viewModel::onAction
         )
     }
 }

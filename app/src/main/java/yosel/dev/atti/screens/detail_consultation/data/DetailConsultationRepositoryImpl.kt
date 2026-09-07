@@ -228,4 +228,16 @@ class DetailConsultationRepositoryImpl @Inject constructor(
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
+
+    override suspend fun finalizeConsultation(consultationId: String): Result<Unit> = runCatching {
+        val updatedConsultation = consultationsDataSource.finalizeConsultation(
+            consultationId = consultationId,
+            newStatus = Constants.CONSULTATION_COMPLETED_STATUS
+        )
+        consultationDao.finalizeConsultation(
+            consultationId = consultationId,
+            newStatus = updatedConsultation.status,
+            completedAt = updatedConsultation.completedAt.orEmpty()
+        )
+    }
 }

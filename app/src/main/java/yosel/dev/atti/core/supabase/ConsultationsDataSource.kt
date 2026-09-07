@@ -127,4 +127,23 @@ class ConsultationsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun finalizeConsultation(
+        consultationId: String,
+        newStatus: Int = Constants.CONSULTATION_COMPLETED_STATUS
+    ): ConsultationDto {
+        return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
+            .update(
+                {
+                    set("status", newStatus)
+                    set("completed_at", "now()")
+                }
+            ) {
+                select()
+                filter {
+                    eq("id", consultationId)
+                }
+            }
+            .decodeSingle<ConsultationDto>()
+    }
 }

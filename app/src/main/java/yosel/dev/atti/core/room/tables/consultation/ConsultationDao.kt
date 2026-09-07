@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import yosel.dev.atti.core.utils.Constants
 
 @Dao
 interface ConsultationDao {
@@ -31,6 +32,13 @@ interface ConsultationDao {
 
     @Query("UPDATE consultations SET status = :newStatus WHERE id = :consultationId")
     suspend fun updateConsultationStatus(consultationId: String, newStatus: Int)
+
+    @Query("UPDATE consultations SET status = :newStatus, completed_at = :completedAt WHERE id = :consultationId")
+    suspend fun finalizeConsultation(
+        consultationId: String,
+        newStatus: Int = Constants.CONSULTATION_COMPLETED_STATUS,
+        completedAt: String
+    )
 
     // --- Consultas con Relaciones ---
 

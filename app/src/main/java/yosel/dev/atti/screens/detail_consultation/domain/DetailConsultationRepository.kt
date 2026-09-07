@@ -8,4 +8,5 @@ interface DetailConsultationRepository {
     fun getConsultationWithDetailsFlow(consultationId: String): Flow<ConsultationWithDetailsModel?>
     fun getConsultationStepsProgressFlow(consultationId: String, consultationTypeId: Int): Flow<List<ConsultationStepProgressModel>>
     suspend fun syncConsultationSteps(consultationId: String, consultationTypeId: Int): Result<Unit>
+    suspend fun finalizeConsultation(consultationId: String): Result<Unit>
 }

@@ -5,6 +5,8 @@ import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 
 data class DetailConsultationState(
     val isLoading: Boolean = true,
+    val showConfirmFinalizeDialog: Boolean = false,
+    val isFinalizingLoading: Boolean = false,
     val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
     val consultationSteps: List<ConsultationStepProgressModel> = emptyList()
 )
