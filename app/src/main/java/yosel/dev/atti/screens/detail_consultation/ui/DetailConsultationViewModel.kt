@@ -62,17 +62,7 @@ class DetailConsultationViewModel @AssistedInject constructor(
             }
             repository.finalizeConsultation(consultationId = consultationId)
                 .onSuccess {
-                    _state.update { currentState ->
-                        val updatedConsultation = currentState.consultationWithDetails.consultation.copy(
-                            status = Constants.CONSULTATION_COMPLETED_STATUS
-                        )
-                        currentState.copy(
-                            isFinalizingLoading = false,
-                            consultationWithDetails = currentState.consultationWithDetails.copy(
-                                consultation = updatedConsultation
-                            )
-                        )
-                    }
+                    _state.update { it.copy(isFinalizingLoading = false) }
                     _eventChannel.send(
                         DetailConsultationEvent.ShowSuccessSnackbar("Consulta finalizada correctamente.")
                     )

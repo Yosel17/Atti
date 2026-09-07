@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import java.time.Instant
 import yosel.dev.atti.core.models.dto.StepReferenceDto
 import yosel.dev.atti.core.models.model.ConsultationStepProgressModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
@@ -231,16 +230,14 @@ class DetailConsultationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun finalizeConsultation(consultationId: String): Result<Unit> = runCatching {
-        val completedAt = Instant.now().toString()
-        consultationsDataSource.finalizeConsultation(
+        val updatedConsultation = consultationsDataSource.finalizeConsultation(
             consultationId = consultationId,
-            newStatus = Constants.CONSULTATION_COMPLETED_STATUS,
-            completedAt = completedAt
+            newStatus = Constants.CONSULTATION_COMPLETED_STATUS
         )
         consultationDao.finalizeConsultation(
             consultationId = consultationId,
-            newStatus = Constants.CONSULTATION_COMPLETED_STATUS,
-            completedAt = completedAt
+            newStatus = updatedConsultation.status,
+            completedAt = updatedConsultation.completedAt.orEmpty()
         )
     }
 }
