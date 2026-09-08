@@ -124,6 +124,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            auxiliaryTestFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             treatmentFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
