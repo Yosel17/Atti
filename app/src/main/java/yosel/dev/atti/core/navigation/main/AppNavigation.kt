@@ -127,12 +127,18 @@ fun AppNavigation(startDestination: Screens) {
             treatmentFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigation = { screens ->
+                    backStack.add(screens)
                 }
             )
 
             prescriptionFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigation = { screen ->
+                    backStack.add(screen)
                 }
             )
 
@@ -151,6 +157,9 @@ fun AppNavigation(startDestination: Screens) {
             receiptFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigation = { screen ->
+                    backStack.add(screen)
                 }
             )
 

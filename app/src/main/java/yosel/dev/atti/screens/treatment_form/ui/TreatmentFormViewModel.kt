@@ -12,6 +12,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -52,12 +56,17 @@ class TreatmentFormViewModel @AssistedInject constructor(
     private var searchJob: Job? = null
 
     init {
+        observeProductsAndServices()
+        syncProductsAndServices()
         loadInitialData()
     }
 
     fun onAction(action: TreatmentFormAction) {
         when (action) {
-            TreatmentFormAction.TryLoadAgain -> loadInitialData()
+            TreatmentFormAction.TryLoadAgain -> {
+                syncProductsAndServices()
+                loadInitialData()
+            }
             is TreatmentFormAction.OnTabSelected -> {
                 _state.update { it.copy(currentTab = action.tab) }
             }
@@ -101,13 +110,85 @@ class TreatmentFormViewModel @AssistedInject constructor(
         }
     }
 
+    private fun observeProductsAndServices() {
+        viewModelScope.launch {
+            combine(
+                repository.getActiveProductsWithDetailsFlow(),
+                repository.getActiveServicesWithDetailsFlow()
+            ) { products, services ->
+                products to services
+            }
+                .catch { error ->
+                    Log.e("TreatmentFormViewModel", "Error al observar productos y servicios", error)
+                    _eventChannel.send(TreatmentFormEvent.ShowErrorSnackbar("Error al observar productos y servicios."))
+                }
+                .collectLatest { (products, services) ->
+                    _state.update { currentState ->
+                        val updatedState = currentState.copy(
+                            productsWithDetails = products,
+                            servicesWithDetails = services,
+                            isSuccessGetData = true
+                        )
+
+                        val newFilteredProducts = if (currentState.isProductSheetOpen) {
+                            getFilteredAndSortedProducts(
+                                products = products,
+                                query = currentState.productSearchQuery,
+                                selectedIds = currentState.tempSelectedProductIds
+                            )
+                        } else updatedState.filteredProducts
+
+                        val newFilteredServices = if (currentState.isServiceSheetOpen) {
+                            getFilteredAndSortedServices(
+                                services = services,
+                                query = currentState.serviceSearchQuery,
+                                selectedIds = currentState.tempSelectedServiceIds
+                            )
+                        } else updatedState.filteredServices
+
+                        val updatedSelectedProducts = currentState.formInputState.selectedProducts.map { selected ->
+                            val updatedProd = products.find { it.product.id == selected.productWithDetails.product.id }
+                            if (updatedProd != null) selected.copy(productWithDetails = updatedProd) else selected
+                        }
+
+                        val updatedSelectedServices = currentState.formInputState.selectedServices.map { selected ->
+                            val updatedServ = services.find { it.service.id == selected.serviceWithDetails.service.id }
+                            if (updatedServ != null) selected.copy(serviceWithDetails = updatedServ) else selected
+                        }
+
+                        updatedState.copy(
+                            filteredProducts = newFilteredProducts,
+                            filteredServices = newFilteredServices,
+                            formInputState = updatedState.formInputState.copy(
+                                selectedProducts = updatedSelectedProducts,
+                                selectedServices = updatedSelectedServices
+                            )
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun syncProductsAndServices() {
+        viewModelScope.launch {
+            val productsSync = repository.syncProducts()
+            val servicesSync = repository.syncServices()
+
+            if (productsSync.isFailure || servicesSync.isFailure) {
+                _eventChannel.send(
+                    TreatmentFormEvent.ShowErrorSnackbar("No pudimos sincronizar algunos productos o servicios.")
+                )
+            }
+        }
+    }
+
     private fun loadInitialData() {
         _state.update { it.copy(isLoadingDataInitial = true) }
         viewModelScope.launch {
             repository.getConsultation(consultationId.orEmpty()).fold(
                 onSuccess = { consultation ->
                     _state.update { it.copy(consultationWithDetails = consultation) }
-                    loadCatalogsAndTreatments()
+                    loadFormContent()
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
@@ -117,35 +198,14 @@ class TreatmentFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun loadCatalogsAndTreatments() {
-        viewModelScope.launch {
-            val productsResult = repository.getActiveProductsWithDetails()
-            val servicesResult = repository.getActiveServicesWithDetails()
+    private suspend fun loadFormContent() {
+        val products = repository.getActiveProductsWithDetailsFlow().first()
+        val services = repository.getActiveServicesWithDetailsFlow().first()
 
-            if (productsResult.isFailure || servicesResult.isFailure) {
-                _state.update { it.copy(isLoadingDataInitial = false) }
-                _eventChannel.send(TreatmentFormEvent.ShowErrorSnackbar("Error al sincronizar productos y servicios."))
-                return@launch
-            }
-
-            val products = productsResult.getOrDefault(emptyList())
-            val services = servicesResult.getOrDefault(emptyList())
-
-            _state.update {
-                it.copy(
-                    productsWithDetails = products,
-                    servicesWithDetails = services,
-                    isSuccessGetData = true
-                )
-            }
-
-            // OPTIMIZACIÓN: Solo consultamos la base de datos si venimos en modo edición
-            if (_state.value.isEditMode) {
-                loadExistingTreatments(products, services)
-            } else {
-                // Modo creación: no consumimos recursos consultando tratamientos inexistentes
-                _state.update { it.copy(isLoadingDataInitial = false) }
-            }
+        if (_state.value.isEditMode) {
+            loadExistingTreatments(products, services)
+        } else {
+            _state.update { it.copy(isLoadingDataInitial = false) }
         }
     }
 

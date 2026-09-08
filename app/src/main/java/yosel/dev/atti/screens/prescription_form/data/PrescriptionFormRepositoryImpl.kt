@@ -1,6 +1,10 @@
 package yosel.dev.atti.screens.prescription_form.data
 
 import androidx.room.withTransaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
@@ -42,11 +46,6 @@ class PrescriptionFormRepositoryImpl @Inject constructor(
     private val appDatabase: AppDatabase
 ) : PrescriptionFormRepository {
 
-    companion object {
-
-
-    }
-
     override suspend fun getPresetCatalogs(): Result<List<AppCatalogModel>> = runCatching {
         val remoteCatalogs = appCatalogsDataSource.getCatalogsByTypes(listOf(Constants.PRESETS_CATALOG_TYPE))
         val entities = remoteCatalogs.map { it.toEntity() }
@@ -60,7 +59,13 @@ class PrescriptionFormRepositoryImpl @Inject constructor(
         appCatalogDto.toModel()
     }
 
-    override suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>> = runCatching {
+    override fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsModel>> {
+        return productDao.getActiveProductsWithDetailsFlow()
+            .map { entities -> entities.map { it.toModel() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun syncProducts(): Result<Unit> = runCatching {
         val remoteProducts = productsDataSource.getActiveProductsWithDetails()
         val appCatalogsEntities = remoteProducts.flatMap { product ->
             listOfNotNull(
@@ -70,11 +75,10 @@ class PrescriptionFormRepositoryImpl @Inject constructor(
         }.distinctBy { it.id }
         val supplierEntities = remoteProducts.mapNotNull { it.supplier?.toEntity() }.distinctBy { it.id }
         val productEntities = remoteProducts.map { it.toEntity() }
+
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
         supplierDao.upsertSuppliers(supplierEntities)
         productDao.upsertProducts(productEntities)
-        // Retorno de solo lectura directa desde Room (no Flow)
-        productDao.getActiveProductsWithDetails().map { it.toModel() }
     }
 
     override suspend fun savePrescription(

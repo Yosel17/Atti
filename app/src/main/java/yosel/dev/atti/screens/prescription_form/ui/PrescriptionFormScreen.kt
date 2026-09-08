@@ -25,6 +25,7 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -34,7 +35,8 @@ fun PrescriptionFormScreen(
     state: PrescriptionFormState,
     snackBarHostState: SnackbarHostState,
     onAction: (PrescriptionFormAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -87,7 +89,8 @@ fun PrescriptionFormScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
-                            onAction = onAction
+                            onAction = onAction,
+                            onNavigation = onNavigation
                         )
                     }
                 }

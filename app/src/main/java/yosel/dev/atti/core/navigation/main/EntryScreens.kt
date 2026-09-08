@@ -940,7 +940,8 @@ fun EntryProviderScope<NavKey>.diagnosisFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.treatmentFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ) {
     entry<Screens.TreatmentForm> { key ->
         val viewModel: TreatmentFormViewModel = hiltViewModel(
@@ -987,13 +988,15 @@ fun EntryProviderScope<NavKey>.treatmentFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.prescriptionFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ) {
     entry<Screens.PrescriptionForm> { key ->
         val viewModel: PrescriptionFormViewModel = hiltViewModel(
@@ -1040,7 +1043,8 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }
@@ -1152,7 +1156,8 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.receiptFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ){
     entry<Screens.ReceiptForm> { receiptFormKey ->
         val viewModel: ReceiptFormViewModel = hiltViewModel(
@@ -1199,7 +1204,8 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }

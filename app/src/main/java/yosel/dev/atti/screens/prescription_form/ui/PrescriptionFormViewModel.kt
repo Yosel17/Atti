@@ -12,6 +12,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -54,12 +57,17 @@ class PrescriptionFormViewModel @AssistedInject constructor(
     private var searchJob: Job? = null
 
     init {
+        observeProducts()
+        syncProducts()
         loadInitialData()
     }
 
     fun onAction(action: PrescriptionFormAction) {
         when (action) {
-            PrescriptionFormAction.TryLoadAgain -> loadInitialData()
+            PrescriptionFormAction.TryLoadAgain -> {
+                syncProducts()
+                loadInitialData()
+            }
             PrescriptionFormAction.SavePrescription -> savePrescription()
             is PrescriptionFormAction.ToggleSaveDialog -> {
                 _state.update { it.copy(showDialogConfirm = action.show) }
@@ -115,13 +123,66 @@ class PrescriptionFormViewModel @AssistedInject constructor(
         }
     }
 
+    private fun observeProducts() {
+        viewModelScope.launch {
+            repository.getActiveProductsWithDetailsFlow()
+                .catch { error ->
+                    Log.e("PrescriptionFormViewModel", "Error al observar productos", error)
+                    _eventChannel.send(PrescriptionFormEvent.ShowErrorSnackbar("Error al observar productos."))
+                }
+                .collectLatest { products ->
+                    _state.update { currentState ->
+                        val updatedState = currentState.copy(
+                            productsWithDetails = products,
+                            isSuccessGetData = true
+                        )
+
+                        val newFilteredProducts = if (currentState.isProductSheetOpen) {
+                            getFilteredAndSortedProducts(
+                                products = products,
+                                query = currentState.productSearchQuery,
+                                selectedIds = currentState.tempSelectedProductIds
+                            )
+                        } else updatedState.filteredProducts
+
+                        val updatedSelectedItems = currentState.formInputState.selectedItems.map { selected ->
+                            if (selected.productWithDetails != null) {
+                                val updatedProd = products.find { it.product.id == selected.productWithDetails.product.id }
+                                if (updatedProd != null) selected.copy(productWithDetails = updatedProd) else selected
+                            } else {
+                                selected
+                            }
+                        }
+
+                        updatedState.copy(
+                            filteredProducts = newFilteredProducts,
+                            formInputState = updatedState.formInputState.copy(
+                                selectedItems = updatedSelectedItems
+                            )
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun syncProducts() {
+        viewModelScope.launch {
+            val syncResult = repository.syncProducts()
+            if (syncResult.isFailure) {
+                _eventChannel.send(
+                    PrescriptionFormEvent.ShowErrorSnackbar("No pudimos sincronizar los productos.")
+                )
+            }
+        }
+    }
+
     private fun loadInitialData() {
         _state.update { it.copy(isLoadingDataInitial = true) }
         viewModelScope.launch {
             repository.getConsultation(consultationId.orEmpty()).fold(
                 onSuccess = { consultation ->
                     _state.update { it.copy(consultationWithDetails = consultation) }
-                    loadCatalogsAndPrescriptions()
+                    loadPresetsAndFormContent()
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
@@ -131,34 +192,25 @@ class PrescriptionFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun loadCatalogsAndPrescriptions() {
-        viewModelScope.launch {
-            val productsResult = repository.getActiveProductsWithDetails()
-            val presetsResult = repository.getPresetCatalogs()
+    private suspend fun loadPresetsAndFormContent() {
+        val presetsResult = repository.getPresetCatalogs()
+        if (presetsResult.isFailure) {
+            _eventChannel.send(PrescriptionFormEvent.ShowErrorSnackbar("Error al sincronizar presets."))
+        }
+        val presets = presetsResult.getOrDefault(emptyList()).sortedBy { it.name.lowercase() }
 
-            if (productsResult.isFailure || presetsResult.isFailure) {
-                _state.update { it.copy(isLoadingDataInitial = false) }
-                _eventChannel.send(PrescriptionFormEvent.ShowErrorSnackbar("Error al sincronizar productos o presets."))
-                return@launch
-            }
+        _state.update {
+            it.copy(
+                presetCatalogs = presets,
+                filteredPresetCatalogs = presets
+            )
+        }
 
-            val products = productsResult.getOrDefault(emptyList())
-            val presets = presetsResult.getOrDefault(emptyList()).sortedBy { it.name.lowercase() }
-
-            _state.update {
-                it.copy(
-                    productsWithDetails = products,
-                    presetCatalogs = presets,
-                    filteredPresetCatalogs = presets,
-                    isSuccessGetData = true
-                )
-            }
-
-            if (_state.value.isEditMode) {
-                loadExistingPrescription(products)
-            } else {
-                _state.update { it.copy(isLoadingDataInitial = false) }
-            }
+        if (_state.value.isEditMode) {
+            val products = repository.getActiveProductsWithDetailsFlow().first()
+            loadExistingPrescription(products)
+        } else {
+            _state.update { it.copy(isLoadingDataInitial = false) }
         }
     }
 
