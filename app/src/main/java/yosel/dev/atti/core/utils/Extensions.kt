@@ -12,6 +12,7 @@ import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.DiagnosisDto
+import yosel.dev.atti.core.models.dto.FastingDto
 import yosel.dev.atti.core.models.dto.FollowUpDto
 import yosel.dev.atti.core.models.dto.ObservationDto
 import yosel.dev.atti.core.models.dto.PatientDto
@@ -49,6 +50,8 @@ import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.DiagnosisModel
 import yosel.dev.atti.core.models.model.DiagnosisWithDetailsModel
+import yosel.dev.atti.core.models.model.FastingModel
+import yosel.dev.atti.core.models.model.FastingWithDetailsModel
 import yosel.dev.atti.core.models.model.FollowUpModel
 import yosel.dev.atti.core.models.model.FollowUpWithDetailsModel
 import yosel.dev.atti.core.models.model.ObservationModel
@@ -97,6 +100,8 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepWithDetailsEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisWithDetailsEntity
+import yosel.dev.atti.core.room.tables.fasting.FastingEntity
+import yosel.dev.atti.core.room.tables.fasting.FastingWithDetailsEntity
 import yosel.dev.atti.core.room.tables.follow_up.FollowUpEntity
 import yosel.dev.atti.core.room.tables.follow_up.FollowUpWithDetailsEntity
 import yosel.dev.atti.core.room.tables.observation.ObservationEntity
@@ -2084,6 +2089,71 @@ fun AuxiliaryTestWithDetailsEntity.toModel() = AuxiliaryTestWithDetailsModel(
 fun AuxiliaryTestDto.toWithDetailsModel() = AuxiliaryTestWithDetailsModel(
     auxiliaryTest = toModel(),
     catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- FASTING ---
+
+fun FastingDto.toEntity() = FastingEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun FastingEntity.toModel() = FastingModel(
+    id = id,
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun FastingModel.toEntity() = FastingEntity(
+    id = id,
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun FastingDto.toModel() = FastingModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun FastingModel.toDtoForInsert() = FastingDto(
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    status = status
+)
+
+fun FastingModel.toDtoForUpdate() = FastingDto(
+    id = id,
+    consultationId = consultationId,
+    foodFastingCatalogId = foodFastingCatalogId,
+    waterFastingCatalogId = waterFastingCatalogId,
+    status = status
+)
+
+fun FastingWithDetailsEntity.toModel() = FastingWithDetailsModel(
+    fasting = fasting.toModel(),
+    foodFasting = foodFasting?.toModel() ?: AppCatalogModel(),
+    waterFasting = waterFasting?.toModel() ?: AppCatalogModel()
+)
+
+fun FastingDto.toWithDetailsModel() = FastingWithDetailsModel(
+    fasting = toModel(),
+    foodFasting = foodFasting?.toModel() ?: AppCatalogModel(),
+    waterFasting = waterFasting?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
