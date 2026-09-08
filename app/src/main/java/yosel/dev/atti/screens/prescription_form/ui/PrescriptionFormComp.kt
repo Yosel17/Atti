@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -94,6 +93,7 @@ import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.formatPrice
 import yosel.dev.atti.screens.service_form.ui.dashedBorder
 import kotlin.time.Duration.Companion.milliseconds
@@ -102,7 +102,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun BodyPrescriptionForm(
     modifier: Modifier = Modifier,
     state: PrescriptionFormState,
-    onAction: (PrescriptionFormAction) -> Unit
+    onAction: (PrescriptionFormAction) -> Unit,
+    onNavigation: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -147,7 +148,12 @@ fun BodyPrescriptionForm(
                                 onOpenPresets = { onAction(PrescriptionFormAction.OnOpenPresetSheet(item.localId)) },
                                 onIncrement = { onAction(PrescriptionFormAction.OnIncrementQuantity(item.localId)) },
                                 onDecrement = { onAction(PrescriptionFormAction.OnDecrementQuantity(item.localId)) },
-                                onRemove = { onAction(PrescriptionFormAction.OnRemoveItem(item.localId)) }
+                                onRemove = { onAction(PrescriptionFormAction.OnRemoveItem(item.localId)) },
+                                onClickItem = {
+                                    if (item.productWithDetails != null){
+                                        onNavigation(Screens.DetailProduct(productId = item.productWithDetails.product.id))
+                                    }
+                                }
                             )
                         }
                     }
@@ -235,7 +241,8 @@ private fun RemovablePrescriptionItem(
     onOpenPresets: () -> Unit,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onClickItem: () -> Unit
 ) {
     var isVisible by remember(item.localId) { mutableStateOf(true) }
 
@@ -250,7 +257,8 @@ private fun RemovablePrescriptionItem(
             onOpenPresets = onOpenPresets,
             onIncrement = onIncrement,
             onDecrement = onDecrement,
-            onRemove = { isVisible = false }
+            onRemove = { isVisible = false },
+            onClickItem = onClickItem
         )
     }
 
@@ -270,12 +278,15 @@ private fun PrescriptionItemCard(
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onRemove: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickItem: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClickItem),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         tonalElevation = 1.dp
@@ -297,7 +308,7 @@ private fun PrescriptionItemCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
+                        maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(2.dp))

@@ -995,7 +995,8 @@ fun EntryProviderScope<NavKey>.treatmentFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.prescriptionFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ) {
     entry<Screens.PrescriptionForm> { key ->
         val viewModel: PrescriptionFormViewModel = hiltViewModel(
@@ -1042,7 +1043,8 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }
