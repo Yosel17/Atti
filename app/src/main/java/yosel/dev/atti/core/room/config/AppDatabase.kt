@@ -24,6 +24,8 @@ import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeSt
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisDao
 import yosel.dev.atti.core.room.tables.diagnosis.DiagnosisEntity
+import yosel.dev.atti.core.room.tables.fasting.FastingDao
+import yosel.dev.atti.core.room.tables.fasting.FastingEntity
 import yosel.dev.atti.core.room.tables.follow_up.FollowUpDao
 import yosel.dev.atti.core.room.tables.follow_up.FollowUpEntity
 import yosel.dev.atti.core.room.tables.observation.ObservationDao
@@ -76,7 +78,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         FollowUpEntity::class,
         ReceiptEntity::class,
         ReceiptItemEntity::class,
-        AuxiliaryTestEntity::class
+        AuxiliaryTestEntity::class,
+        FastingEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -103,4 +106,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun followUpDao(): FollowUpDao
     abstract fun receiptDao(): ReceiptDao
     abstract fun auxiliaryTestDao(): AuxiliaryTestDao
+    abstract fun fastingDao(): FastingDao
 }
