@@ -1156,7 +1156,8 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.receiptFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
 ){
     entry<Screens.ReceiptForm> { receiptFormKey ->
         val viewModel: ReceiptFormViewModel = hiltViewModel(
@@ -1203,7 +1204,8 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }

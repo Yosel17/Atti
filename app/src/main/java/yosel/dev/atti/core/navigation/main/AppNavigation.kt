@@ -157,6 +157,9 @@ fun AppNavigation(startDestination: Screens) {
             receiptFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigation = { screen ->
+                    backStack.add(screen)
                 }
             )
 
