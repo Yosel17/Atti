@@ -79,7 +79,7 @@ fun BodyDetailService(
         ServiceSuppliesSection(
             serviceWithDetails = serviceWithDetails,
             onClickItem = { productId ->
-                onNavigationMain(Screens.DetailProduct(productId = productId, showEditAction = false))
+                onNavigationMain(Screens.DetailProduct(productId = productId, showEditAction = true))
             }
         )
 
