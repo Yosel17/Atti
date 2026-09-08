@@ -225,6 +225,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo recibo
+        val remoteReceipts = progressDto.receipts.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val receiptsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("recibo", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (receiptsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = receiptsCatalogId,
+                    recordId = remoteReceipts?.id,
+                    isCompleted = remoteReceipts != null && !remoteReceipts.id.isNullOrBlank(),
+                    status = remoteReceipts?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }

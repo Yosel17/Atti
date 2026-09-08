@@ -21,5 +21,6 @@ data class ConsultationProgressDto(
     @SerialName("treatments") val treatments: List<StepReferenceDto> = emptyList(),
     @SerialName("prescriptions") val prescriptions: List<StepReferenceDto> = emptyList(),
     @SerialName("observations") val observations: List<StepReferenceDto> = emptyList(),
-    @SerialName("follow_ups") val followUps: List<StepReferenceDto> = emptyList()
+    @SerialName("follow_ups") val followUps: List<StepReferenceDto> = emptyList(),
+    @SerialName("receipts") val receipts: List<StepReferenceDto> = emptyList(),
 )
