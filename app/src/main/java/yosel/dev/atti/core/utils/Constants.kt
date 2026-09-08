@@ -28,6 +28,7 @@ object Constants {
     const val FOLLOW_UPS_SUPABASE = "follow_ups"
     const val RECEIPTS_SUPABASE = "receipts"
     const val RECEIPT_ITEMS_SUPABASE = "receipt_items"
+    const val AUXILIARY_TESTS_SUPABASE = "auxiliary_tests"
 
     //inputs
     const val FIRST_NAME_FIELD = 0
