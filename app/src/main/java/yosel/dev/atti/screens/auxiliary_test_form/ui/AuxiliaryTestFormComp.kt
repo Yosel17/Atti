@@ -100,7 +100,7 @@ fun BodyAuxiliaryTestForm(
             AttiSearchBar(
                 value = state.searchQuery,
                 onValueChange = { onAction(AuxiliaryTestFormAction.OnSearchQueryChange(it)) },
-                placeholder = "Buscar prueba auxiliar o paciente..."
+                placeholder = "Buscar prueba auxiliar"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
