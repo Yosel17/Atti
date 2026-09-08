@@ -32,6 +32,12 @@ interface ProductDao {
     @Query("UPDATE products SET status = :newStatus WHERE id = :productId")
     suspend fun updateProductStatus(productId: String, newStatus: Int)
 
+    @Query("UPDATE products SET stock = MAX(0, stock - :quantity) WHERE id = :productId")
+    suspend fun decreaseStock(productId: String, quantity: Int)
+
+    @Query("UPDATE products SET stock = stock + :quantity WHERE id = :productId")
+    suspend fun increaseStock(productId: String, quantity: Int)
+
     // --- Consultas con Relaciones ---
     @Transaction
     @Query("""
@@ -49,4 +55,8 @@ interface ProductDao {
     @Transaction
     @Query("SELECT * FROM products WHERE status = 1")
     suspend fun getActiveProductsWithDetails(): List<ProductWithDetailsEntity>
+
+    @Transaction
+    @Query("SELECT * FROM products WHERE status = 1")
+    fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsEntity>>
 }

@@ -17,6 +17,9 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipts WHERE consultation_id = :consultationId LIMIT 1")
     suspend fun getReceiptByConsultationId(consultationId: String): ReceiptEntity?
 
+    @Query("SELECT * FROM receipt_items WHERE receipt_id = :receiptId")
+    suspend fun getReceiptItemsByReceiptId(receiptId: String): List<ReceiptItemEntity>
+
     @Upsert
     suspend fun upsertReceipt(receipt: ReceiptEntity)
 
