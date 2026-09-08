@@ -9,6 +9,8 @@ import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisEnvironmentOptionEntit
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
+import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestDao
+import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestEntity
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeEntity
@@ -73,7 +75,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         ObservationEntity::class,
         FollowUpEntity::class,
         ReceiptEntity::class,
-        ReceiptItemEntity::class
+        ReceiptItemEntity::class,
+        AuxiliaryTestEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -99,4 +102,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun observationDao(): ObservationDao
     abstract fun followUpDao(): FollowUpDao
     abstract fun receiptDao(): ReceiptDao
+    abstract fun auxiliaryTestDao(): AuxiliaryTestDao
 }

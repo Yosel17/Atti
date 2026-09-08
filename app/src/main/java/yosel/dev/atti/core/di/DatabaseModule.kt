@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import yosel.dev.atti.core.room.config.AppDatabase
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisDao
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
+import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
@@ -123,4 +124,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideReceiptDao(appDatabase: AppDatabase): ReceiptDao = appDatabase.receiptDao()
+
+    @Singleton
+    @Provides
+    fun provideAuxiliaryTestDao(appDatabase: AppDatabase): AuxiliaryTestDao = appDatabase.auxiliaryTestDao()
 }
