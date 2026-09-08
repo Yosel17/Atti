@@ -94,6 +94,7 @@ import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.formatPrice
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 import yosel.dev.atti.screens.service_form.ui.dashedBorder
@@ -103,7 +104,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun BodyTreatmentForm(
     modifier: Modifier = Modifier,
     state: TreatmentFormState,
-    onAction: (TreatmentFormAction) -> Unit
+    onAction: (TreatmentFormAction) -> Unit,
+    onNavigation:(Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -152,7 +154,8 @@ fun BodyTreatmentForm(
                                         item = item,
                                         onIncrement = { onAction(TreatmentFormAction.OnIncrementProduct(item.productWithDetails.product.id)) },
                                         onDecrement = { onAction(TreatmentFormAction.OnDecrementProduct(item.productWithDetails.product.id)) },
-                                        onRemove = { onAction(TreatmentFormAction.OnRemoveProduct(item.productWithDetails.product.id)) }
+                                        onRemove = { onAction(TreatmentFormAction.OnRemoveProduct(item.productWithDetails.product.id)) },
+                                        onClickItem = { onNavigation(Screens.DetailProduct(productId = item.productWithDetails.product.id)) }
                                     )
                                 }
                             }
@@ -181,7 +184,8 @@ fun BodyTreatmentForm(
                                         item = item,
                                         onIncrement = { onAction(TreatmentFormAction.OnIncrementService(item.serviceWithDetails.service.id)) },
                                         onDecrement = { onAction(TreatmentFormAction.OnDecrementService(item.serviceWithDetails.service.id)) },
-                                        onRemove = { onAction(TreatmentFormAction.OnRemoveService(item.serviceWithDetails.service.id)) }
+                                        onRemove = { onAction(TreatmentFormAction.OnRemoveService(item.serviceWithDetails.service.id)) },
+                                        onClickItem = { onNavigation(Screens.DetailService(serviceId = item.serviceWithDetails.service.id))}
                                     )
                                 }
                             }
@@ -327,7 +331,8 @@ private fun RemovableProductItem(
     item: SelectedTreatmentProduct,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onClickItem: () -> Unit
 ) {
     var isVisible by remember(item.productWithDetails.product.id) { mutableStateOf(true) }
 
@@ -346,7 +351,8 @@ private fun RemovableProductItem(
             icon = Icons.Outlined.Medication,
             onIncrement = onIncrement,
             onDecrement = onDecrement,
-            onRemove = { isVisible = false }
+            onRemove = { isVisible = false },
+            onClickItem = onClickItem
         )
     }
 
@@ -363,7 +369,8 @@ private fun RemovableServiceItem(
     item: SelectedTreatmentService,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onClickItem: () -> Unit
 ) {
     var isVisible by remember(item.serviceWithDetails.service.id) { mutableStateOf(true) }
 
@@ -382,7 +389,8 @@ private fun RemovableServiceItem(
             icon = Icons.Filled.MedicalServices,
             onIncrement = onIncrement,
             onDecrement = onDecrement,
-            onRemove = { isVisible = false }
+            onRemove = { isVisible = false },
+            onClickItem = onClickItem
         )
     }
 
@@ -406,10 +414,15 @@ private fun TreatmentSelectedCard(
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onRemove: () -> Unit,
+    onClickItem: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(
+                onClick = onClickItem
+            ),
         shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
@@ -444,7 +457,7 @@ private fun TreatmentSelectedCard(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
                 if (subtitle.isNotBlank()) {
