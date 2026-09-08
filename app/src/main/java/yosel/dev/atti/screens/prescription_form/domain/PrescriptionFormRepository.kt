@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.prescription_form.domain
 
+import kotlinx.coroutines.flow.Flow
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
@@ -8,9 +9,10 @@ import yosel.dev.atti.core.models.model.PrescriptionWithDetailsModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 
 interface PrescriptionFormRepository {
+    fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsModel>>
+    suspend fun syncProducts(): Result<Unit>
     suspend fun getPresetCatalogs(): Result<List<AppCatalogModel>>
     suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel>
-    suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>>
     suspend fun savePrescription(
         consultationId: String,
         prescription: PrescriptionModel,
