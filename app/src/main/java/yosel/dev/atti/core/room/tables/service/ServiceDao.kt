@@ -49,4 +49,8 @@ interface ServiceDao {
     @Transaction
     @Query("SELECT * FROM services WHERE status = 1")
     suspend fun getActiveServicesWithDetails(): List<ServiceWithDetailsEntity>
+
+    @Transaction
+    @Query("SELECT * FROM services WHERE status = 1")
+    fun getActiveServicesWithDetailsFlow(): Flow<List<ServiceWithDetailsEntity>>
 }

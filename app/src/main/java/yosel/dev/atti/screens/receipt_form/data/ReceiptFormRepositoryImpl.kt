@@ -1,6 +1,10 @@
 package yosel.dev.atti.screens.receipt_form.data
 
 import androidx.room.withTransaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
@@ -62,7 +66,19 @@ class ReceiptFormRepositoryImpl @Inject constructor(
         consultationEntity.toModel()
     }
 
-    override suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>> = runCatching {
+    override fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsModel>> {
+        return productDao.getActiveProductsWithDetailsFlow()
+            .map { entities -> entities.map { it.toModel() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override fun getActiveServicesWithDetailsFlow(): Flow<List<ServiceWithDetailsModel>> {
+        return serviceDao.getActiveServicesWithDetailsFlow()
+            .map { entities -> entities.map { it.toModel() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun syncProducts(): Result<Unit> = runCatching {
         val remoteProducts = productsDataSource.getActiveProductsWithDetails()
         val appCatalogsEntities = remoteProducts.flatMap { product ->
             listOfNotNull(
@@ -76,11 +92,9 @@ class ReceiptFormRepositoryImpl @Inject constructor(
         appCatalogDao.insertAllCatalogs(appCatalogsEntities)
         supplierDao.upsertSuppliers(supplierEntities)
         productDao.upsertProducts(productEntities)
-
-        productDao.getActiveProductsWithDetails().map { it.toModel() }
     }
 
-    override suspend fun getActiveServicesWithDetails(): Result<List<ServiceWithDetailsModel>> = runCatching {
+    override suspend fun syncServices(): Result<Unit> = runCatching {
         val remoteServices = servicesDataSource.getActiveServicesWithDetails()
         val appCatalogsEntities = remoteServices.mapNotNull { it.category?.toEntity() }.distinctBy { it.id }
         val serviceEntities = remoteServices.map { it.toEntity() }
@@ -93,8 +107,6 @@ class ReceiptFormRepositoryImpl @Inject constructor(
                 serviceSupplyDao.upsertSupplies(suppliesEntities)
             }
         }
-
-        serviceDao.getActiveServicesWithDetails().map { it.toModel() }
     }
 
     override suspend fun getTreatmentsByConsultationId(consultationId: String): Result<List<TreatmentModel>> = runCatching {

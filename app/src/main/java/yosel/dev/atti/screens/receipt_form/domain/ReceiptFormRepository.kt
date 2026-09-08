@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.receipt_form.domain
 
+import kotlinx.coroutines.flow.Flow
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
@@ -11,8 +12,10 @@ import yosel.dev.atti.core.models.model.TreatmentModel
 
 interface ReceiptFormRepository {
     suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel>
-    suspend fun getActiveProductsWithDetails(): Result<List<ProductWithDetailsModel>>
-    suspend fun getActiveServicesWithDetails(): Result<List<ServiceWithDetailsModel>>
+    fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsModel>>
+    fun getActiveServicesWithDetailsFlow(): Flow<List<ServiceWithDetailsModel>>
+    suspend fun syncProducts(): Result<Unit>
+    suspend fun syncServices(): Result<Unit>
     suspend fun getTreatmentsByConsultationId(consultationId: String): Result<List<TreatmentModel>>
     suspend fun getPrescriptionItemsByConsultationId(consultationId: String): Result<List<PrescriptionItemModel>>
     suspend fun saveReceipt(
