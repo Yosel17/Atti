@@ -89,6 +89,7 @@ object Constants {
     const val DIAGNOSIS_TYPE_CATALOG = 18
     const val PRESETS_CATALOG_TYPE = 19
     const val QUICK_REASONS_CATALOG_TYPE = 20
+    const val AUXILIARY_TEST_TYPE_CATALOG = 21
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
@@ -98,6 +99,7 @@ object Constants {
     const val CONSULTATION_STEP_CLINICAL_EXAM = 31
     const val CONSULTATION_STEP_PHYSIOLOGICAL_CONSTS = 32
     const val CONSULTATION_STEP_DIAGNOSIS = 33
+    const val CONSULTATION_STEP_AUXILIARY_TEST = 34
     const val TREATMENT_STEP_DIAGNOSIS = 35
     const val PRESCRIPTION_STEP_DIAGNOSIS = 36
     const val OBSERVATION_STEP_DIAGNOSIS = 37

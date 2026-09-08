@@ -63,6 +63,9 @@ import yosel.dev.atti.screens.detail_service.ui.DetailServiceViewModel
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierEvent
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierScreen
 import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
+import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormEvent
+import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormScreen
+import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormViewModel
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
@@ -928,6 +931,59 @@ fun EntryProviderScope<NavKey>.diagnosisFormEntry(
         }
 
         DiagnosisFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.auxiliaryTestFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.AuxiliaryTestForm> { key ->
+        val viewModel: AuxiliaryTestFormViewModel = hiltViewModel(
+            creationCallback = { factory: AuxiliaryTestFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    auxiliaryTestId = key.auxiliaryTestId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is AuxiliaryTestFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AuxiliaryTestFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is AuxiliaryTestFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        AuxiliaryTestFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

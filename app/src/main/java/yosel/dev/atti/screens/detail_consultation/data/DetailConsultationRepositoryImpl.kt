@@ -135,6 +135,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo pruebas auxiliares
+        val remoteAuxiliaryTests = progressDto.auxiliaryTests.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val auxiliaryTestsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("pruebas auxiliares", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (auxiliaryTestsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = auxiliaryTestsCatalogId,
+                    recordId = remoteAuxiliaryTests?.id,
+                    isCompleted = remoteAuxiliaryTests != null && !remoteAuxiliaryTests.id.isNullOrBlank(),
+                    status = remoteAuxiliaryTests?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         //Mapeo Diagnóstico
         val remoteDiagnoses = progressDto.diagnoses.firstOrNull { it.status != Constants.DELETED_STATUS }
         val diagnosesCatalogId = remoteSteps.firstOrNull {
@@ -221,6 +239,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
                     recordId = remoteFollowUps?.id,
                     isCompleted = remoteFollowUps != null && !remoteFollowUps.id.isNullOrBlank(),
                     status = remoteFollowUps?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
+        //mapeo recibo
+        val remoteReceipts = progressDto.receipts.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val receiptsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("recibo", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (receiptsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = receiptsCatalogId,
+                    recordId = remoteReceipts?.id,
+                    isCompleted = remoteReceipts != null && !remoteReceipts.id.isNullOrBlank(),
+                    status = remoteReceipts?.status ?: Constants.ACTIVE_STATUS
                 )
             )
         }
