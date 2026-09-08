@@ -5,6 +5,7 @@ import yosel.dev.atti.core.models.dto.AnamnesisDto
 import yosel.dev.atti.core.models.dto.AnamnesisEnvironmentOptionDto
 import yosel.dev.atti.core.models.dto.AnamnesisVaccineDto
 import yosel.dev.atti.core.models.dto.AppCatalogDto
+import yosel.dev.atti.core.models.dto.AuxiliaryTestDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.ClinicalExamLymphNodeDto
 import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
@@ -33,6 +34,8 @@ import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
 import yosel.dev.atti.core.models.model.AnamnesisWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.AuxiliaryTestModel
+import yosel.dev.atti.core.models.model.AuxiliaryTestWithDetailsModel
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsModel
 import yosel.dev.atti.core.models.model.ClientWithPatientsWithDetailsModel
@@ -79,6 +82,8 @@ import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineWithDetailsEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisWithDetailsEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
+import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestEntity
+import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestWithDetailsEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsEntity
 import yosel.dev.atti.core.room.tables.client.ClientWithPatientsWithDetailsEntity
@@ -2022,6 +2027,63 @@ fun ReceiptDto.toWithDetailsModel() = ReceiptWithDetailsModel(
         )
     },
     items = items.map { it.toWithDetailsModel() }
+)
+
+// --- AUXILIARY TESTS ---
+
+fun AuxiliaryTestDto.toEntity() = AuxiliaryTestEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AuxiliaryTestEntity.toModel() = AuxiliaryTestModel(
+    id = id,
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AuxiliaryTestModel.toEntity() = AuxiliaryTestEntity(
+    id = id,
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AuxiliaryTestDto.toModel() = AuxiliaryTestModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AuxiliaryTestModel.toDtoForInsert() = AuxiliaryTestDto(
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    status = status
+)
+
+fun AuxiliaryTestModel.toDtoForUpdate() = AuxiliaryTestDto(
+    id = id,
+    consultationId = consultationId,
+    testCatalogId = testCatalogId,
+    status = status
+)
+
+fun AuxiliaryTestWithDetailsEntity.toModel() = AuxiliaryTestWithDetailsModel(
+    auxiliaryTest = auxiliaryTest.toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+fun AuxiliaryTestDto.toWithDetailsModel() = AuxiliaryTestWithDetailsModel(
+    auxiliaryTest = toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
