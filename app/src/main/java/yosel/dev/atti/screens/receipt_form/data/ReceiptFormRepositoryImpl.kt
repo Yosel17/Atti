@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlin.math.roundToInt
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
@@ -23,6 +24,7 @@ import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationSt
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
+import yosel.dev.atti.core.room.tables.receipt.ReceiptItemEntity
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
@@ -149,11 +151,14 @@ class ReceiptFormRepositoryImpl @Inject constructor(
             itemsData = items.map { it.toDtoForInsert() }
         )
         val insertedDto = receiptsDataSource.insertReceiptWithDetails(request)
+        val newItemsEntities = insertedDto.items.map { it.toEntity() }.ifEmpty { items.map { it.toEntity() } }
         appDatabase.withTransaction {
             receiptDao.saveReceiptWithDetails(
                 receipt = insertedDto.toEntity(),
-                items = insertedDto.items.map { it.toEntity() }
+                items = newItemsEntities
             )
+            deductStockForReceiptItems(newItemsEntities)
+
             if (consultationId != null){
                 consultationStepProgressDao.upsertSingleProgress(
                     ConsultationStepProgressEntity(
@@ -178,13 +183,57 @@ class ReceiptFormRepositoryImpl @Inject constructor(
             itemsData = items.map { it.toDtoForInsert() }
         )
         val updatedDto = receiptsDataSource.updateReceiptWithDetails(request)
+        val receiptId = updatedDto.id ?: receipt.id
+        val newItemsEntities = updatedDto.items.map { it.toEntity() }.ifEmpty { items.map { it.toEntity() } }
         appDatabase.withTransaction {
+            val previousItems = receiptDao.getReceiptItemsByReceiptId(receiptId)
+            restoreStockForReceiptItems(previousItems)
+
             receiptDao.saveReceiptWithDetails(
                 receipt = updatedDto.toEntity(),
-                items = updatedDto.items.map { it.toEntity() }
+                items = newItemsEntities
             )
+            deductStockForReceiptItems(newItemsEntities)
         }
         updatedDto.toWithDetailsModel()
+    }
+
+    private suspend fun restoreStockForReceiptItems(items: List<ReceiptItemEntity>) {
+        for (item in items) {
+            val qty = item.quantity.roundToInt()
+            if (!item.productId.isNullOrBlank()) {
+                if (qty > 0) {
+                    productDao.increaseStock(item.productId, qty)
+                }
+            } else if (!item.serviceId.isNullOrBlank()) {
+                val supplies = serviceSupplyDao.getSuppliesByServiceId(item.serviceId)
+                for (supply in supplies) {
+                    val requiredQty = (supply.quantityRequired * item.quantity).roundToInt()
+                    if (requiredQty > 0) {
+                        productDao.increaseStock(supply.productId, requiredQty)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun deductStockForReceiptItems(items: List<ReceiptItemEntity>) {
+        for (item in items) {
+            val qty = item.quantity.roundToInt()
+            if (!item.productId.isNullOrBlank()) {
+                if (qty > 0) {
+                    productDao.decreaseStock(item.productId, qty)
+                }
+            } else if (!item.serviceId.isNullOrBlank()) {
+                val supplies = serviceSupplyDao.getSuppliesByServiceId(item.serviceId)
+                for (supply in supplies) {
+                    val requiredQty = (supply.quantityRequired * item.quantity).roundToInt()
+                    if (requiredQty > 0) {
+                        productDao.decreaseStock(supply.productId, requiredQty)
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun getReceiptWithDetailsById(receiptId: String): Result<ReceiptWithDetailsModel?> = runCatching {
