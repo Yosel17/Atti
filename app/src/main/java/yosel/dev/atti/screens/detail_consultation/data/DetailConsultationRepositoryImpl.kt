@@ -135,6 +135,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //Mapeo pruebas auxiliares
+        val remoteAuxiliaryTests = progressDto.auxiliaryTests.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val auxiliaryTestsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("pruebas auxiliares", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (auxiliaryTestsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = auxiliaryTestsCatalogId,
+                    recordId = remoteAuxiliaryTests?.id,
+                    isCompleted = remoteAuxiliaryTests != null && !remoteAuxiliaryTests.id.isNullOrBlank(),
+                    status = remoteAuxiliaryTests?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         //Mapeo Diagnóstico
         val remoteDiagnoses = progressDto.diagnoses.firstOrNull { it.status != Constants.DELETED_STATUS }
         val diagnosesCatalogId = remoteSteps.firstOrNull {

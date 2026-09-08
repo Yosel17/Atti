@@ -88,7 +88,8 @@ class ConsultationsDataSource @Inject constructor(
                 prescriptions:prescriptions(id, status),
                 observations:observations(id, status),
                 follow_ups:follow_ups(id, status),
-                receipts:receipts(id, status)
+                receipts:receipts(id, status),
+                auxiliary_tests:auxiliary_tests(id, status)
                 """.trimIndent()
                 )
             ) {
