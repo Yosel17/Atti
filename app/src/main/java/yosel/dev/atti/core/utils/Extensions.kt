@@ -5,6 +5,7 @@ import yosel.dev.atti.core.models.dto.AnamnesisDto
 import yosel.dev.atti.core.models.dto.AnamnesisEnvironmentOptionDto
 import yosel.dev.atti.core.models.dto.AnamnesisVaccineDto
 import yosel.dev.atti.core.models.dto.AppCatalogDto
+import yosel.dev.atti.core.models.dto.AsaClassificationDto
 import yosel.dev.atti.core.models.dto.AuxiliaryTestDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.ClinicalExamLymphNodeDto
@@ -35,6 +36,8 @@ import yosel.dev.atti.core.models.model.AnamnesisVaccineModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
 import yosel.dev.atti.core.models.model.AnamnesisWithDetailsModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.AsaClassificationModel
+import yosel.dev.atti.core.models.model.AsaClassificationWithDetailsModel
 import yosel.dev.atti.core.models.model.AuxiliaryTestModel
 import yosel.dev.atti.core.models.model.AuxiliaryTestWithDetailsModel
 import yosel.dev.atti.core.models.model.ClientModel
@@ -85,6 +88,8 @@ import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisVaccineWithDetailsEntity
 import yosel.dev.atti.core.room.tables.anamnesis.AnamnesisWithDetailsEntity
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogEntity
+import yosel.dev.atti.core.room.tables.asa_classification.AsaClassificationEntity
+import yosel.dev.atti.core.room.tables.asa_classification.AsaClassificationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestEntity
 import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestWithDetailsEntity
 import yosel.dev.atti.core.room.tables.client.ClientEntity
@@ -2154,6 +2159,62 @@ fun FastingDto.toWithDetailsModel() = FastingWithDetailsModel(
     fasting = toModel(),
     foodFasting = foodFasting?.toModel() ?: AppCatalogModel(),
     waterFasting = waterFasting?.toModel() ?: AppCatalogModel()
+)
+
+// --- ASA CLASSIFICATIONS ---
+fun AsaClassificationDto.toEntity() = AsaClassificationEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AsaClassificationEntity.toModel() = AsaClassificationModel(
+    id = id,
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AsaClassificationModel.toEntity() = AsaClassificationEntity(
+    id = id,
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    createdAt = createdAt,
+    status = status
+)
+
+fun AsaClassificationDto.toModel() = AsaClassificationModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun AsaClassificationModel.toDtoForInsert() = AsaClassificationDto(
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    status = status
+)
+
+fun AsaClassificationModel.toDtoForUpdate() = AsaClassificationDto(
+    id = id,
+    consultationId = consultationId,
+    asaCatalogId = asaCatalogId,
+    status = status
+)
+
+fun AsaClassificationWithDetailsEntity.toModel() = AsaClassificationWithDetailsModel(
+    asaClassification = asaClassification.toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+fun AsaClassificationDto.toWithDetailsModel() = AsaClassificationWithDetailsModel(
+    asaClassification = toModel(),
+    catalog = catalog?.toModel() ?: AppCatalogModel()
 )
 
 fun String.normalize(): String {
