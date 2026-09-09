@@ -261,6 +261,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo ayuno
+        val remoteFasting = progressDto.fasting
+        val fastingCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("ayuno", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (fastingCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = fastingCatalogId,
+                    recordId = remoteFasting?.id,
+                    isCompleted = remoteFasting != null && !remoteFasting.id.isNullOrBlank(),
+                    status = remoteFasting?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }

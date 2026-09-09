@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StepReferenceDto(
     @SerialName("id") val id: String? = null,
-    @SerialName("status") val status: Int = 1
+    @SerialName("status") val status: Int = 1,
 )
 
 @Serializable
@@ -24,4 +24,5 @@ data class ConsultationProgressDto(
     @SerialName("observations") val observations: List<StepReferenceDto> = emptyList(),
     @SerialName("follow_ups") val followUps: List<StepReferenceDto> = emptyList(),
     @SerialName("receipts") val receipts: List<StepReferenceDto> = emptyList(),
+    @SerialName("fasting") val fasting: StepReferenceDto? = null,
 )

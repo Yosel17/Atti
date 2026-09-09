@@ -91,6 +91,8 @@ object Constants {
     const val PRESETS_CATALOG_TYPE = 19
     const val QUICK_REASONS_CATALOG_TYPE = 20
     const val AUXILIARY_TEST_TYPE_CATALOG = 21
+    const val FOOD_FASTING_TYPE_CATALOG = 22
+    const val WATER_FASTING_TYPE_CATALOG = 23
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
@@ -106,6 +108,7 @@ object Constants {
     const val OBSERVATION_STEP_DIAGNOSIS = 37
     const val FOLLOW_UP_STEP_DIAGNOSIS = 38
     const val RECEIPT_STEP_DIAGNOSIS = 75
+    const val CONSULTATION_STEP_FASTING = 83
 
 
     //Catalogos

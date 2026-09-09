@@ -69,6 +69,9 @@ import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormViewModel
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
+import yosel.dev.atti.screens.fasting_form.ui.FastingFormEvent
+import yosel.dev.atti.screens.fasting_form.ui.FastingFormScreen
+import yosel.dev.atti.screens.fasting_form.ui.FastingFormViewModel
 import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormEvent
 import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormScreen
 import yosel.dev.atti.screens.follow_up_form.ui.FollowUpFormViewModel
@@ -1262,6 +1265,61 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
             onAction = viewModel::onAction,
             onBack = onBack,
             onNavigation = onNavigation
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.fastingFormEntry(
+    onBack: () -> Unit
+){
+    entry<Screens.FastingForm> { fastingFormKey ->
+        val viewModel: FastingFormViewModel = hiltViewModel(
+            creationCallback = { factory: FastingFormViewModel.Factory ->
+                factory.create(
+                    consultationId = fastingFormKey.consultationId,
+                    fastingId = fastingFormKey.fastingId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is FastingFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+
+                is FastingFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+
+                is FastingFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        FastingFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
         )
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.MedicalInformation
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.NoFood
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
@@ -164,6 +165,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             receiptId = recordId
         )
+        "ayuno" -> Screens.FastingForm(
+            consultationId = consultationId,
+            fastingId = recordId
+        )
         else -> Screens.Empty
     }
 }
@@ -180,6 +185,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "observaciones" -> Icons.Default.Visibility
         "reconsulta" -> Icons.Default.EventRepeat
         "recibo" -> Icons.Default.Receipt
+        "ayuno" -> Icons.Default.NoFood
         else -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }

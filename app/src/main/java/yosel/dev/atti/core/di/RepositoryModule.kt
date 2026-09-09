@@ -30,6 +30,8 @@ import yosel.dev.atti.screens.auxiliary_test_form.data.AuxiliaryTestFormReposito
 import yosel.dev.atti.screens.auxiliary_test_form.domain.AuxiliaryTestFormRepository
 import yosel.dev.atti.screens.diagnosis_form.data.DiagnosisFormRepositoryImpl
 import yosel.dev.atti.screens.diagnosis_form.domain.DiagnosisFormRepository
+import yosel.dev.atti.screens.fasting_form.data.FastingFormRepositoryImpl
+import yosel.dev.atti.screens.fasting_form.domain.FastingFormRepository
 import yosel.dev.atti.screens.follow_up_form.data.FollowUpFormRepositoryImpl
 import yosel.dev.atti.screens.follow_up_form.domain.FollowUpFormRepository
 import yosel.dev.atti.screens.navigation_bar.consultation.data.ConsultationRepositoryImpl
@@ -171,6 +173,12 @@ abstract class RepositoryModule {
     abstract fun bindAuxiliaryTestFormRepository(
         impl: AuxiliaryTestFormRepositoryImpl
     ): AuxiliaryTestFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFastingFormRepository(
+        impl: FastingFormRepositoryImpl
+    ): FastingFormRepository
 
     @Binds
     @Singleton
