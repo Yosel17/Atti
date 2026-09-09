@@ -6,6 +6,8 @@ import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.FastingWithDetailsModel
 import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
+import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
 import yosel.dev.atti.core.room.tables.fasting.FastingDao
 import yosel.dev.atti.core.supabase.AppCatalogsDataSource
 import yosel.dev.atti.core.supabase.FastingDataSource
@@ -22,7 +24,8 @@ class FastingFormRepositoryImpl @Inject constructor(
     private val appCatalogDao: AppCatalogDao,
     private val fastingDataSource: FastingDataSource,
     private val fastingDao: FastingDao,
-    private val consultationDao: ConsultationDao
+    private val consultationDao: ConsultationDao,
+    private val consultationStepProgressDao: ConsultationStepProgressDao
 ) : FastingFormRepository {
 
     override suspend fun getAppCatalogsByTypes(types: List<Int>): Result<List<AppCatalogModel>> = runCatching {
@@ -53,6 +56,16 @@ class FastingFormRepositoryImpl @Inject constructor(
         val insertedDto = fastingDataSource.insertAndGetFasting(fastingDto)
 
         fastingDao.upsertFasting(insertedDto.toEntity())
+
+        consultationStepProgressDao.upsertSingleProgress(
+            ConsultationStepProgressEntity(
+                consultationId = consultationId,
+                stepCatalogId = Constants.CONSULTATION_STEP_FASTING,
+                recordId = insertedDto.id,
+                isCompleted = true,
+                status = Constants.ACTIVE_STATUS
+            )
+        )
 
         insertedDto.toWithDetailsModel()
     }
