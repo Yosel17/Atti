@@ -1,12 +1,12 @@
 package yosel.dev.atti.screens.fasting_form.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -41,10 +41,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
 fun BodyFastingForm(
@@ -77,29 +84,42 @@ fun BodyFastingForm(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Selectores de tiempo de ayuno
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                CatalogSelectorCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Comida",
-                    selectedValue = state.formInputState.selectedFood?.name ?: "Seleccionar",
-                    icon = Icons.Default.Restaurant,
-                    onClick = { onAction(FastingFormAction.OnShowFoodSheet) }
-                )
-                
-                CatalogSelectorCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Agua",
-                    selectedValue = state.formInputState.selectedWater?.name ?: "Seleccionar",
-                    icon = Icons.Default.WaterDrop,
-                    onClick = { onAction(FastingFormAction.OnShowWaterSheet) }
-                )
-            }
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "Comida",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            AppCatalogSelector(
+                selectedCatalog = state.formInputState.selectedFood,
+                onOpenSheet = { onAction(FastingFormAction.OnShowFoodSheet) },
+                icon = Icons.Default.Restaurant,
+                emptyText = "Seleccionar tiempo de comida"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "Agua",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            AppCatalogSelector(
+                selectedCatalog = state.formInputState.selectedWater,
+                onOpenSheet = { onAction(FastingFormAction.OnShowWaterSheet) },
+                icon = Icons.Default.WaterDrop,
+                emptyText = "Seleccionar tiempo de agua"
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
         }
 
@@ -139,52 +159,6 @@ fun BodyFastingForm(
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-    }
-}
-
-@Composable
-fun CatalogSelectorCard(
-    title: String,
-    selectedValue: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = selectedValue,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = if (selectedValue == "Seleccionar") 
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                else MaterialTheme.colorScheme.onSurface
-            )
-        }
     }
 }
 
@@ -334,5 +308,41 @@ private fun DataRow(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun FastingFormPreview() {
+    AttiTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            BodyFastingForm(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                state = FastingFormState(
+                    consultationWithDetails = ConsultationWithDetailsModel(
+                        patientWithDetails = PatientWithDetailsModel(
+                            patient = PatientModel(
+                                id = "1",
+                                name = "Max",
+                                breed = "Golden Retriever",
+                                ageYears = 3,
+                                ageMonths = 2
+                            ),
+                            species = AppCatalogModel(id = 1, name = "Canino"),
+                            gender = AppCatalogModel(id = 1, name = "Macho")
+                        )
+                    ),
+                    formInputState = FastingFormInputsState(
+                        selectedFood = AppCatalogModel(id = 1, name = "8 - 12 Horas"),
+                        selectedWater = AppCatalogModel(id = 2, name = "2 - 4 Horas")
+                    )
+                ),
+                onAction = {}
+            )
+        }
     }
 }
