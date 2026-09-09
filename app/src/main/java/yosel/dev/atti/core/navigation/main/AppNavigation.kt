@@ -169,6 +169,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            fastingFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )
