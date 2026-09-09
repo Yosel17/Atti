@@ -119,7 +119,7 @@ fun FastingFormScreen(
                     onAction(
                         FastingFormAction.OnShowAddCatalogDialog(
                             catalogTypeId = Constants.FOOD_FASTING_TYPE_CATALOG,
-                            catalogTypeName = "Comida"
+                            catalogTypeName = "Tiempo de comida"
                         )
                     )
                 },
@@ -141,7 +141,7 @@ fun FastingFormScreen(
                     onAction(
                         FastingFormAction.OnShowAddCatalogDialog(
                             catalogTypeId = Constants.WATER_FASTING_TYPE_CATALOG,
-                            catalogTypeName = "Agua"
+                            catalogTypeName = "Tiempo de agua"
                         )
                     )
                 },

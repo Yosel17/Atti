@@ -287,7 +287,7 @@ class FastingFormViewModel @AssistedInject constructor(
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingAddCatalog = false) }
-                    _eventChannel.send(FastingFormEvent.ShowErrorSnackbar("No se pudo agregar la nueva opción."))
+                    _eventChannel.send(FastingFormEvent.ShowToast("No se pudo agregar la nueva opción."))
                 }
             )
         }

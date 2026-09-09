@@ -7,7 +7,7 @@ data class FastingFormInputsState(
     val selectedWater: AppCatalogModel? = null
 ) {
     val isValid: Boolean
-        get() = selectedFood != null && selectedWater != null
+        get() = selectedFood != null || selectedWater != null
 
     fun hasChangesFrom(initialState: FastingFormInputsState): Boolean {
         return this.selectedFood?.id != initialState.selectedFood?.id ||
