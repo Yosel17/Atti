@@ -30,6 +30,7 @@ object Constants {
     const val RECEIPT_ITEMS_SUPABASE = "receipt_items"
     const val AUXILIARY_TESTS_SUPABASE = "auxiliary_tests"
     const val FASTING_SUPABASE = "fasting"
+    const val ASA_CLASSIFICATIONS_SUPABASE = "asa_classifications"
 
     //inputs
     const val FIRST_NAME_FIELD = 0
@@ -93,6 +94,7 @@ object Constants {
     const val AUXILIARY_TEST_TYPE_CATALOG = 21
     const val FOOD_FASTING_TYPE_CATALOG = 22
     const val WATER_FASTING_TYPE_CATALOG = 23
+    const val ASA_CLASSIFICATION_TYPE_CATALOG = 24
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
