@@ -262,7 +262,7 @@ class DetailConsultationRepositoryImpl @Inject constructor(
         }
 
         //mapeo ayuno
-        val remoteFasting = progressDto.fasting.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val remoteFasting = progressDto.fasting
         val fastingCatalogId = remoteSteps.firstOrNull {
             it.stepCatalog?.name?.contains("ayuno", ignoreCase = true) == true
         }?.stepCatalogId
