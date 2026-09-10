@@ -90,7 +90,8 @@ class ConsultationsDataSource @Inject constructor(
                 follow_ups:follow_ups(id, status),
                 receipts:receipts(id, status),
                 auxiliary_tests:auxiliary_tests(id, status),
-                fasting:fasting(id, status)
+                fasting:fasting(id, status),
+                asa_classifications:asa_classifications(id, status)
                 """.trimIndent()
                 )
             ) {

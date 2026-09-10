@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.auxiliary_test_form.ui
+package yosel.dev.atti.screens.asa_classification_form.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -18,36 +18,36 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
-import yosel.dev.atti.screens.auxiliary_test_form.domain.AuxiliaryTestFormRepository
-import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormEvent.ShowErrorSnackbar
-import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormEvent.ShowSuccessSnackbar
-import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormEvent.ShowToast
+import yosel.dev.atti.screens.asa_classification_form.domain.AsaClassificationFormRepository
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormEvent.ShowErrorSnackbar
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormEvent.ShowSuccessSnackbar
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormEvent.ShowToast
 import kotlin.time.Duration.Companion.milliseconds
 
-@HiltViewModel(assistedFactory = AuxiliaryTestFormViewModel.Factory::class)
-class AuxiliaryTestFormViewModel @AssistedInject constructor(
-    private val repository: AuxiliaryTestFormRepository,
+@HiltViewModel(assistedFactory = AsaClassificationFormViewModel.Factory::class)
+class AsaClassificationFormViewModel @AssistedInject constructor(
+    private val repository: AsaClassificationFormRepository,
     @Assisted("consultationId") private val consultationId: String?,
-    @Assisted("auxiliaryTestId") private val auxiliaryTestId: String?
+    @Assisted("asaClassificationId") private val asaClassificationId: String?
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
         fun create(
             @Assisted("consultationId") consultationId: String?,
-            @Assisted("auxiliaryTestId") auxiliaryTestId: String?
-        ): AuxiliaryTestFormViewModel
+            @Assisted("asaClassificationId") asaClassificationId: String?
+        ): AsaClassificationFormViewModel
     }
 
     private val _state = MutableStateFlow(
-        AuxiliaryTestFormState(
-            isEditMode = !auxiliaryTestId.isNullOrBlank(),
-            auxiliaryTestId = auxiliaryTestId
+        AsaClassificationFormState(
+            isEditMode = !asaClassificationId.isNullOrBlank(),
+            asaClassificationId = asaClassificationId
         )
     )
-    val state: StateFlow<AuxiliaryTestFormState> = _state
+    val state: StateFlow<AsaClassificationFormState> = _state
 
-    private val _eventChannel = Channel<AuxiliaryTestFormEvent>()
+    private val _eventChannel = Channel<AsaClassificationFormEvent>()
     val events = _eventChannel.receiveAsFlow()
 
     private var searchJob: Job? = null
@@ -56,34 +56,34 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
         getConsultation()
     }
 
-    fun onAction(action: AuxiliaryTestFormAction) {
+    fun onAction(action: AsaClassificationFormAction) {
         when (action) {
-            AuxiliaryTestFormAction.TryCatalogsAgain -> getConsultation()
-            AuxiliaryTestFormAction.SaveAuxiliaryTest -> saveAuxiliaryTests()
-            is AuxiliaryTestFormAction.ToggleSaveAuxiliaryTestDialog -> {
+            AsaClassificationFormAction.TryCatalogsAgain -> getConsultation()
+            AsaClassificationFormAction.SaveAsaClassification -> saveAsaClassifications()
+            is AsaClassificationFormAction.ToggleSaveAsaClassificationDialog -> {
                 _state.update { it.copy(showDialogConfirm = action.show) }
             }
-            is AuxiliaryTestFormAction.OnSearchQueryChange -> {
+            is AsaClassificationFormAction.OnSearchQueryChange -> {
                 _state.update { it.copy(searchQuery = action.query) }
                 debounceSearch {
-                    val currentSelectedIds = _state.value.formInputState.selectedAuxiliaryTests.map { it.id }.toSet()
+                    val currentSelectedIds = _state.value.formInputState.selectedAsaClassifications.map { it.id }.toSet()
                     val filtered = getFilteredAndSortedCatalogs(
-                        catalogs = _state.value.auxiliaryTestCatalogs,
+                        catalogs = _state.value.asaClassificationCatalogs,
                         query = action.query,
                         selectedIds = currentSelectedIds
                     )
-                    _state.update { s -> s.copy(filteredAuxiliaryTestCatalogs = filtered) }
+                    _state.update { s -> s.copy(filteredAsaClassificationCatalogs = filtered) }
                 }
             }
-            is AuxiliaryTestFormAction.OnNewTagNameChange -> {
+            is AsaClassificationFormAction.OnNewTagNameChange -> {
                 _state.update {
                     it.copy(formInputState = it.formInputState.copy(newTagName = action.value))
                 }
             }
-            AuxiliaryTestFormAction.OnAddNewTag -> onAddNewTag()
-            is AuxiliaryTestFormAction.OnToggleAuxiliaryTestOption -> {
+            AsaClassificationFormAction.OnAddNewTag -> onAddNewTag()
+            is AsaClassificationFormAction.OnToggleAsaClassificationOption -> {
                 _state.update { s ->
-                    val current = s.formInputState.selectedAuxiliaryTests
+                    val current = s.formInputState.selectedAsaClassifications
                     val updated = if (current.any { it.id == action.catalog.id }) {
                         current.filterNot { it.id == action.catalog.id }
                     } else {
@@ -91,28 +91,28 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
                     }
                     val newSelectedIds = updated.map { it.id }.toSet()
                     val sorted = getFilteredAndSortedCatalogs(
-                        catalogs = s.auxiliaryTestCatalogs,
+                        catalogs = s.asaClassificationCatalogs,
                         query = s.searchQuery,
                         selectedIds = newSelectedIds
                     )
                     s.copy(
-                        formInputState = s.formInputState.copy(selectedAuxiliaryTests = updated),
-                        filteredAuxiliaryTestCatalogs = sorted
+                        formInputState = s.formInputState.copy(selectedAsaClassifications = updated),
+                        filteredAsaClassificationCatalogs = sorted
                     )
                 }
             }
-            is AuxiliaryTestFormAction.OnRemoveAuxiliaryTestOption -> {
+            is AsaClassificationFormAction.OnRemoveAsaClassificationOption -> {
                 _state.update { s ->
-                    val updated = s.formInputState.selectedAuxiliaryTests.filterNot { it.id == action.catalog.id }
+                    val updated = s.formInputState.selectedAsaClassifications.filterNot { it.id == action.catalog.id }
                     val newSelectedIds = updated.map { it.id }.toSet()
                     val sorted = getFilteredAndSortedCatalogs(
-                        catalogs = s.auxiliaryTestCatalogs,
+                        catalogs = s.asaClassificationCatalogs,
                         query = s.searchQuery,
                         selectedIds = newSelectedIds
                     )
                     s.copy(
-                        formInputState = s.formInputState.copy(selectedAuxiliaryTests = updated),
-                        filteredAuxiliaryTestCatalogs = sorted
+                        formInputState = s.formInputState.copy(selectedAsaClassifications = updated),
+                        filteredAsaClassificationCatalogs = sorted
                     )
                 }
             }
@@ -163,46 +163,45 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
     private fun getCatalogs() {
         viewModelScope.launch {
             repository.getAppCatalogsByTypes(
-                types = listOf(Constants.AUXILIARY_TEST_TYPE_CATALOG)
+                types = listOf(Constants.ASA_CLASSIFICATION_TYPE_CATALOG)
             ).fold(
                 onSuccess = { appCatalogs ->
                     successGetCatalogs(appCatalogs)
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingDataInitial = false) }
-                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener los catálogos de pruebas auxiliares."))
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos obtener los catálogos de clasificación ASA."))
                 }
             )
         }
     }
 
     private fun successGetCatalogs(appCatalogs: List<AppCatalogModel>) {
-        val auxiliaryTestList = appCatalogs
-            .filter { it.catalogTypeId == Constants.AUXILIARY_TEST_TYPE_CATALOG }
+        val asaClassificationList = appCatalogs
+            .filter { it.catalogTypeId == Constants.ASA_CLASSIFICATION_TYPE_CATALOG }
             .sortedBy { it.name.lowercase() }
 
         _state.update { currentState ->
             currentState.copy(
-                auxiliaryTestCatalogs = auxiliaryTestList,
-                filteredAuxiliaryTestCatalogs = auxiliaryTestList,
+                asaClassificationCatalogs = asaClassificationList,
+                filteredAsaClassificationCatalogs = asaClassificationList,
                 isSuccessGetCatalogs = true
             )
         }
 
         if (_state.value.isEditMode){
-            loadExistingAuxiliaryTests(auxiliaryTestList)
+            loadExistingAsaClassifications(asaClassificationList)
         }else{
             _state.update { it.copy(isLoadingDataInitial = false) }
         }
-
     }
 
-    private fun loadExistingAuxiliaryTests(catalogs: List<AppCatalogModel>) {
+    private fun loadExistingAsaClassifications(catalogs: List<AppCatalogModel>) {
         viewModelScope.launch {
-            repository.getAuxiliaryTestsByConsultationId(consultationId = consultationId.orEmpty()).fold(
-                onSuccess = { testsWithDetails ->
-                    val isEdit = testsWithDetails.isNotEmpty() || !auxiliaryTestId.isNullOrBlank()
-                    val selectedCatalogs = testsWithDetails.map { it.catalog }
+            repository.getAsaClassificationsByConsultationId(consultationId = consultationId.orEmpty()).fold(
+                onSuccess = { classificationsWithDetails ->
+                    val isEdit = classificationsWithDetails.isNotEmpty() || !asaClassificationId.isNullOrBlank()
+                    val selectedCatalogs = classificationsWithDetails.map { it.catalog }
                     val currentSelectedIds = selectedCatalogs.map { it.id }.toSet()
 
                     val sortedList = getFilteredAndSortedCatalogs(
@@ -211,18 +210,18 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
                         selectedIds = currentSelectedIds
                     )
 
-                    val initialInputs = AuxiliaryTestFormInputsState(
-                        selectedAuxiliaryTests = selectedCatalogs,
+                    val initialInputs = AsaClassificationFormInputsState(
+                        selectedAsaClassifications = selectedCatalogs,
                         newTagName = ""
                     )
 
                     _state.update { currentState ->
                         currentState.copy(
                             isEditMode = isEdit,
-                            existingAuxiliaryTestsWithDetails = testsWithDetails,
+                            existingAsaClassificationsWithDetails = classificationsWithDetails,
                             formInputState = initialInputs,
                             initialFormInputState = initialInputs,
-                            filteredAuxiliaryTestCatalogs = sortedList,
+                            filteredAsaClassificationCatalogs = sortedList,
                             isLoadingDataInitial = false
                         )
                     }
@@ -242,7 +241,7 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
         viewModelScope.launch {
             val newCatalog = AppCatalogModel(
                 id = 0,
-                catalogTypeId = Constants.AUXILIARY_TEST_TYPE_CATALOG,
+                catalogTypeId = Constants.ASA_CLASSIFICATION_TYPE_CATALOG,
                 name = tagName,
                 description = "",
                 isActive = true,
@@ -252,8 +251,8 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
             repository.insertCatalog(catalog = newCatalog).fold(
                 onSuccess = { inserted ->
                     _state.update { s ->
-                        val updatedCatalogs = (s.auxiliaryTestCatalogs + inserted).sortedBy { it.name.lowercase() }
-                        val updatedSelected = s.formInputState.selectedAuxiliaryTests + inserted
+                        val updatedCatalogs = (s.asaClassificationCatalogs + inserted).sortedBy { it.name.lowercase() }
+                        val updatedSelected = s.formInputState.selectedAsaClassifications + inserted
                         val currentSelectedIds = updatedSelected.map { it.id }.toSet()
                         val sortedFiltered = getFilteredAndSortedCatalogs(
                             catalogs = updatedCatalogs,
@@ -262,16 +261,16 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
                         )
 
                         s.copy(
-                            auxiliaryTestCatalogs = updatedCatalogs,
-                            filteredAuxiliaryTestCatalogs = sortedFiltered,
+                            asaClassificationCatalogs = updatedCatalogs,
+                            filteredAsaClassificationCatalogs = sortedFiltered,
                             formInputState = s.formInputState.copy(
-                                selectedAuxiliaryTests = updatedSelected,
+                                selectedAsaClassifications = updatedSelected,
                                 newTagName = ""
                             ),
                             isLoadingAddTag = false
                         )
                     }
-                    _eventChannel.send(ShowToast("Prueba auxiliar \"$tagName\" agregada y seleccionada."))
+                    _eventChannel.send(ShowToast("Clasificación ASA \"$tagName\" agregada y seleccionada."))
                 },
                 onFailure = {
                     _state.update { it.copy(isLoadingAddTag = false) }
@@ -281,69 +280,69 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun saveAuxiliaryTests() {
+    private fun saveAsaClassifications() {
         val currentState = _state.value
         if (currentState.isEditMode) {
-            updateAuxiliaryTests()
+            updateAsaClassifications()
         } else {
-            registerAuxiliaryTests()
+            registerAsaClassifications()
         }
     }
 
-    private fun registerAuxiliaryTests() {
+    private fun registerAsaClassifications() {
         val currentState = _state.value
-        _state.update { it.copy(isLoadingSaveAuxiliaryTest = true) }
+        _state.update { it.copy(isLoadingSaveAsaClassification = true) }
         viewModelScope.launch {
-            repository.saveAuxiliaryTests(
+            repository.saveAsaClassifications(
                 consultationId = consultationId.orEmpty(),
-                selectedCatalogs = currentState.formInputState.selectedAuxiliaryTests
+                selectedCatalogs = currentState.formInputState.selectedAsaClassifications
             ).fold(
                 onSuccess = { savedList ->
                     val currentForm = currentState.formInputState
                     _state.update { state ->
                         state.copy(
                             isEditMode = true,
-                            existingAuxiliaryTestsWithDetails = savedList,
+                            existingAsaClassificationsWithDetails = savedList,
                             formInputState = currentForm,
                             initialFormInputState = currentForm,
-                            isLoadingSaveAuxiliaryTest = false
+                            isLoadingSaveAsaClassification = false
                         )
                     }
-                    _eventChannel.send(ShowSuccessSnackbar("Pruebas auxiliares registradas exitosamente."))
+                    _eventChannel.send(ShowSuccessSnackbar("Clasificación ASA registrada exitosamente."))
                 },
                 onFailure = { error ->
-                    Log.e("AuxiliaryTestFormVM", "Error al guardar pruebas auxiliares", error)
-                    _state.update { it.copy(isLoadingSaveAuxiliaryTest = false) }
-                    _eventChannel.send(ShowErrorSnackbar("No pudimos guardar las pruebas auxiliares. Inténtalo de nuevo."))
+                    Log.e("AsaClassificationFormVM", "Error al guardar clasificación ASA", error)
+                    _state.update { it.copy(isLoadingSaveAsaClassification = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos guardar la clasificación ASA. Inténtalo de nuevo."))
                 }
             )
         }
     }
 
-    private fun updateAuxiliaryTests() {
+    private fun updateAsaClassifications() {
         val currentState = _state.value
-        _state.update { it.copy(isLoadingUpdateAuxiliaryTest = true) }
+        _state.update { it.copy(isLoadingUpdateAsaClassification = true) }
         viewModelScope.launch {
-            repository.updateAuxiliaryTests(
+            repository.updateAsaClassifications(
                 consultationId = consultationId.orEmpty(),
-                selectedCatalogs = currentState.formInputState.selectedAuxiliaryTests
+                selectedCatalogs = currentState.formInputState.selectedAsaClassifications
             ).fold(
                 onSuccess = { updatedList ->
                     val currentForm = currentState.formInputState
                     _state.update { state ->
                         state.copy(
-                            isLoadingUpdateAuxiliaryTest = false,
-                            existingAuxiliaryTestsWithDetails = updatedList,
+                            isLoadingUpdateAsaClassification = false,
+                            existingAsaClassificationsWithDetails = updatedList,
                             formInputState = currentForm,
                             initialFormInputState = currentForm
                         )
                     }
-                    _eventChannel.send(ShowSuccessSnackbar("Pruebas auxiliares actualizadas correctamente."))
+                    _eventChannel.send(ShowSuccessSnackbar("Clasificación ASA actualizada correctamente."))
                 },
                 onFailure = { error ->
-                    Log.e("AuxiliaryTestFormVM", "Error al actualizar pruebas auxiliares", error)
-                    _state.update { it.copy(isLoadingUpdateAuxiliaryTest = false) }
-                    _eventChannel.send(ShowErrorSnackbar("No pudimos actualizar las pruebas auxiliares. Inténtalo de nuevo."))
+                    Log.e("AsaClassificationFormVM", "Error al actualizar clasificación ASA", error)
+                    _state.update { it.copy(isLoadingUpdateAsaClassification = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No pudimos actualizar la clasificación ASA. Inténtalo de nuevo."))
                 }
             )
         }

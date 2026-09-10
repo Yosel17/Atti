@@ -66,6 +66,9 @@ import yosel.dev.atti.screens.detail_supplier.ui.DetailSupplierViewModel
 import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormEvent
 import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormScreen
 import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormViewModel
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormEvent
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormScreen
+import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormViewModel
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
@@ -1313,6 +1316,59 @@ fun EntryProviderScope<NavKey>.fastingFormEntry(
         }
 
         FastingFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
+    onBack: () -> Unit
+) {
+    entry<Screens.AsaClassificationForm> { key ->
+        val viewModel: AsaClassificationFormViewModel = hiltViewModel(
+            creationCallback = { factory: AsaClassificationFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    asaClassificationId = key.asaClassificationId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is AsaClassificationFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is AsaClassificationFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is AsaClassificationFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        AsaClassificationFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
