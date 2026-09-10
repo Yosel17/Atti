@@ -189,7 +189,12 @@ class AuxiliaryTestFormViewModel @AssistedInject constructor(
             )
         }
 
-        loadExistingAuxiliaryTests(auxiliaryTestList)
+        if (_state.value.isEditMode){
+            loadExistingAuxiliaryTests(auxiliaryTestList)
+        }else{
+            _state.update { it.copy(isLoadingDataInitial = false) }
+        }
+
     }
 
     private fun loadExistingAuxiliaryTests(catalogs: List<AppCatalogModel>) {
