@@ -23,6 +23,7 @@ import yosel.dev.atti.core.room.tables.follow_up.FollowUpDao
 import yosel.dev.atti.core.room.tables.observation.ObservationDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestDao
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
@@ -138,4 +139,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideAsaClassificationDao(appDatabase: AppDatabase): AsaClassificationDao = appDatabase.asaClassificationDao()
+
+    @Singleton
+    @Provides
+    fun providePreAnestheticTestDao(appDatabase: AppDatabase): PreAnestheticTestDao = appDatabase.preAnestheticTestDao()
 }

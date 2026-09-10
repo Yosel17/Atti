@@ -36,6 +36,8 @@ import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsDao
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestDao
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemEntity
@@ -82,7 +84,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         ReceiptItemEntity::class,
         AuxiliaryTestEntity::class,
         FastingEntity::class,
-        AsaClassificationEntity::class
+        AsaClassificationEntity::class,
+        PreAnestheticTestEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -111,4 +114,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun auxiliaryTestDao(): AuxiliaryTestDao
     abstract fun fastingDao(): FastingDao
     abstract fun asaClassificationDao(): AsaClassificationDao
+    abstract fun preAnestheticTestDao(): PreAnestheticTestDao
 }
