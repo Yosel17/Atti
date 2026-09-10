@@ -31,6 +31,7 @@ object Constants {
     const val AUXILIARY_TESTS_SUPABASE = "auxiliary_tests"
     const val FASTING_SUPABASE = "fasting"
     const val ASA_CLASSIFICATIONS_SUPABASE = "asa_classifications"
+    const val PRE_ANESTHETIC_TESTS_SUPABASE = "pre_anesthetic_tests"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

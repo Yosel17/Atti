@@ -18,6 +18,7 @@ import yosel.dev.atti.core.models.dto.FollowUpDto
 import yosel.dev.atti.core.models.dto.ObservationDto
 import yosel.dev.atti.core.models.dto.PatientDto
 import yosel.dev.atti.core.models.dto.PhysiologicalConstsDto
+import yosel.dev.atti.core.models.dto.PreAnestheticTestDto
 import yosel.dev.atti.core.models.dto.PrescriptionDto
 import yosel.dev.atti.core.models.dto.PrescriptionItemDto
 import yosel.dev.atti.core.models.dto.ProductDto
@@ -62,6 +63,8 @@ import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsModel
 import yosel.dev.atti.core.models.model.PhysiologicalConstsWithDetailsModel
+import yosel.dev.atti.core.models.model.PreAnestheticTestModel
+import yosel.dev.atti.core.models.model.PreAnestheticTestWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.PrescriptionItemWithDetailsModel
 import yosel.dev.atti.core.models.model.PrescriptionModel
@@ -114,6 +117,8 @@ import yosel.dev.atti.core.room.tables.patient.PatientEntity
 import yosel.dev.atti.core.room.tables.patient.PatientWithDetailsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsEntity
 import yosel.dev.atti.core.room.tables.physiological_constants.PhysiologicalConstsWithDetailsEntity
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestEntity
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestWithDetailsEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemEntity
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionItemWithDetailsEntity
@@ -2215,6 +2220,95 @@ fun AsaClassificationWithDetailsEntity.toModel() = AsaClassificationWithDetailsM
 fun AsaClassificationDto.toWithDetailsModel() = AsaClassificationWithDetailsModel(
     asaClassification = toModel(),
     catalog = catalog?.toModel() ?: AppCatalogModel()
+)
+
+// --- PRE ANESTHETIC TESTS ---
+
+fun PreAnestheticTestDto.toEntity() = PreAnestheticTestEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PreAnestheticTestEntity.toModel() = PreAnestheticTestModel(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PreAnestheticTestModel.toEntity() = PreAnestheticTestEntity(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun PreAnestheticTestDto.toModel() = PreAnestheticTestModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun PreAnestheticTestModel.toDtoForInsert() = PreAnestheticTestDto(
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+fun PreAnestheticTestModel.toDtoForUpdate() = PreAnestheticTestDto(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+fun PreAnestheticTestWithDetailsEntity.toModel() = PreAnestheticTestWithDetailsModel(
+    preAnestheticTest = preAnestheticTest.toModel(),
+    product = product?.toModel(),
+    service = service?.toModel()
+)
+
+fun PreAnestheticTestDto.toWithDetailsModel() = PreAnestheticTestWithDetailsModel(
+    preAnestheticTest = toModel(),
+    product = product?.toModel()?.let {
+        ProductWithDetailsModel(
+            product = it,
+            supplier = product.supplier?.toModel() ?: SupplierModel(),
+            category = product.category?.toModel() ?: AppCatalogModel(),
+            unitType = product.unitType?.toModel() ?: AppCatalogModel()
+        )
+    },
+    service = service?.toModel()?.let {
+        ServiceWithDetailsModel(
+            service = it,
+            category = service.category?.toModel() ?: AppCatalogModel()
+        )
+    }
 )
 
 fun String.normalize(): String {
