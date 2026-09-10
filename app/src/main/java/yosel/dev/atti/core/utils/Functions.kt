@@ -173,6 +173,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             asaClassificationId = recordId
         )
+        "exámenes pre anestésicos" -> Screens.PreAnestheticTestForm(
+            consultationId = consultationId,
+            preAnestheticTestId = recordId
+        )
         else -> Screens.Empty
     }
 }
@@ -185,6 +189,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "diagnostico" -> Icons.AutoMirrored.Filled.Assignment
         "pruebas auxiliares" -> Icons.Default.Biotech
         "clasificacion asa", "clasificación asa" -> Icons.Outlined.MedicalServices
+        "exámenes pre anestésicos" -> Icons.Default.Biotech
         "tratamiento" -> Icons.Default.Medication
         "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
         "observaciones" -> Icons.Default.Visibility
