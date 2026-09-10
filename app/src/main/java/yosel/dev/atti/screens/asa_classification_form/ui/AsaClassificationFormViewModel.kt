@@ -189,7 +189,11 @@ class AsaClassificationFormViewModel @AssistedInject constructor(
             )
         }
 
-        loadExistingAsaClassifications(asaClassificationList)
+        if (_state.value.isEditMode){
+            loadExistingAsaClassifications(asaClassificationList)
+        }else{
+            _state.update { it.copy(isLoadingDataInitial = false) }
+        }
     }
 
     private fun loadExistingAsaClassifications(catalogs: List<AppCatalogModel>) {
