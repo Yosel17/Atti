@@ -121,8 +121,10 @@ class PreAnestheticTestFormRepositoryImpl @Inject constructor(
     ): Result<List<PreAnestheticTestWithDetailsModel>> = runCatching {
         val testsDtos = tests.map { it.toDtoForInsert() }
 
-        preAnestheticTestsDataSource.deletePreAnestheticTestsByConsultationId(consultationId)
-        val insertedDtos = preAnestheticTestsDataSource.insertPreAnestheticTests(testsDtos)
+        val insertedDtos = preAnestheticTestsDataSource.replacePreAnestheticTestsRpc(
+            consultationId = consultationId,
+            tests = testsDtos
+        )
 
         appDatabase.withTransaction {
             val entities = insertedDtos.map { it.toEntity() }
@@ -146,7 +148,7 @@ class PreAnestheticTestFormRepositoryImpl @Inject constructor(
         if (localTests.isNotEmpty()) {
             return@runCatching localTests.map { it.toModel() }
         }
-        val remoteDtos = preAnestheticTestsDataSource.getPreAnestheticTestsWithDetailsByConsultationId(consultationId)
+        val remoteDtos = preAnestheticTestsDataSource.getPreAnestheticTestsByConsultationId(consultationId)
         val entities = remoteDtos.map { it.toEntity() }
         preAnestheticTestDao.syncPreAnestheticTestsForConsultation(consultationId, entities)
         preAnestheticTestDao.getPreAnestheticTestsWithDetailsByConsultationId(consultationId).map { it.toModel() }

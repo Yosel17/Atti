@@ -2,8 +2,9 @@ package yosel.dev.atti.core.supabase
 
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
-import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.rpc
 import yosel.dev.atti.core.models.dto.PreAnestheticTestDto
+import yosel.dev.atti.core.models.request.ReplacePreAnestheticTestsRequest
 import yosel.dev.atti.core.utils.Constants
 import javax.inject.Inject
 
@@ -43,18 +44,6 @@ class PreAnestheticTestsDataSource @Inject constructor(
             .decodeSingle<PreAnestheticTestDto>()
     }
 
-    suspend fun getPreAnestheticTestsWithDetailsByConsultationId(consultationId: String): List<PreAnestheticTestDto> {
-        return postgrest.from(Constants.PRE_ANESTHETIC_TESTS_SUPABASE)
-            .select(columns = detailedColumns) {
-                filter {
-                    eq("consultation_id", consultationId)
-                    eq("status", Constants.ACTIVE_STATUS)
-                }
-                order("created_at", Order.ASCENDING)
-            }
-            .decodeList<PreAnestheticTestDto>()
-    }
-
     suspend fun deletePreAnestheticTestsByConsultationId(consultationId: String) {
         postgrest.from(Constants.PRE_ANESTHETIC_TESTS_SUPABASE)
             .delete {
@@ -71,6 +60,19 @@ class PreAnestheticTestsDataSource @Inject constructor(
                     eq("id", id)
                 }
             }
+    }
+
+    suspend fun replacePreAnestheticTestsRpc(
+        consultationId: String,
+        tests: List<PreAnestheticTestDto>
+    ): List<PreAnestheticTestDto> {
+        return postgrest.rpc(
+            function = "replace_consultation_pre_anesthetic_tests",
+            parameters = ReplacePreAnestheticTestsRequest(
+                consultationId = consultationId,
+                tests = tests
+            )
+        ).decodeAs<List<PreAnestheticTestDto>>()
     }
 
     suspend fun getPreAnestheticTestsByConsultationId(consultationId: String): List<PreAnestheticTestDto> {
