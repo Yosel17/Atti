@@ -169,6 +169,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             fastingId = recordId
         )
+        "clasificacion asa", "clasificación asa" -> Screens.AsaClassificationForm(
+            consultationId = consultationId,
+            asaClassificationId = recordId
+        )
         else -> Screens.Empty
     }
 }
@@ -180,6 +184,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "constantes fisiologicas" -> Icons.Default.MonitorHeart
         "diagnostico" -> Icons.AutoMirrored.Filled.Assignment
         "pruebas auxiliares" -> Icons.Default.Biotech
+        "clasificacion asa", "clasificación asa" -> Icons.Outlined.MedicalServices
         "tratamiento" -> Icons.Default.Medication
         "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
         "observaciones" -> Icons.Default.Visibility

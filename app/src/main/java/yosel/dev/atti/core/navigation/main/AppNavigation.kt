@@ -175,6 +175,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            asaClassificationFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

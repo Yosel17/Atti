@@ -25,4 +25,5 @@ data class ConsultationProgressDto(
     @SerialName("follow_ups") val followUps: List<StepReferenceDto> = emptyList(),
     @SerialName("receipts") val receipts: List<StepReferenceDto> = emptyList(),
     @SerialName("fasting") val fasting: StepReferenceDto? = null,
+    @SerialName("asa_classifications") val asaClassifications: List<StepReferenceDto> = emptyList(),
 )

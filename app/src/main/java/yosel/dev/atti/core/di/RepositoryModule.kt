@@ -28,6 +28,8 @@ import yosel.dev.atti.screens.detail_supplier.data.DetailSupplierRepositoryImpl
 import yosel.dev.atti.screens.detail_supplier.domain.DetailSupplierRepository
 import yosel.dev.atti.screens.auxiliary_test_form.data.AuxiliaryTestFormRepositoryImpl
 import yosel.dev.atti.screens.auxiliary_test_form.domain.AuxiliaryTestFormRepository
+import yosel.dev.atti.screens.asa_classification_form.data.AsaClassificationFormRepositoryImpl
+import yosel.dev.atti.screens.asa_classification_form.domain.AsaClassificationFormRepository
 import yosel.dev.atti.screens.diagnosis_form.data.DiagnosisFormRepositoryImpl
 import yosel.dev.atti.screens.diagnosis_form.domain.DiagnosisFormRepository
 import yosel.dev.atti.screens.fasting_form.data.FastingFormRepositoryImpl
@@ -208,4 +210,10 @@ abstract class RepositoryModule {
     abstract fun bindReceiptFormRepository(
         receiptFormRepositoryImpl: ReceiptFormRepositoryImpl
     ): ReceiptFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAsaClassificationFormRepository(
+        impl: AsaClassificationFormRepositoryImpl
+    ): AsaClassificationFormRepository
 }

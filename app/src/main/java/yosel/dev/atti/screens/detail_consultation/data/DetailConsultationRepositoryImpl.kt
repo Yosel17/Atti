@@ -279,6 +279,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo clasificacion asa
+        val remoteAsaClassifications = progressDto.asaClassifications.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val asaClassificationsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("clasificación asa", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (asaClassificationsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = asaClassificationsCatalogId,
+                    recordId = remoteAsaClassifications?.id,
+                    isCompleted = remoteAsaClassifications != null && !remoteAsaClassifications.id.isNullOrBlank(),
+                    status = remoteAsaClassifications?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
