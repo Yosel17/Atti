@@ -297,6 +297,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo examenes pre anestesicos
+        val remotePreAnestheticTests = progressDto.preAnestheticTests.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val preAnestheticTestsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("exámenes pre anestésicos", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (preAnestheticTestsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = preAnestheticTestsCatalogId,
+                    recordId = remotePreAnestheticTests?.id,
+                    isCompleted = remotePreAnestheticTests != null && !remotePreAnestheticTests.id.isNullOrBlank(),
+                    status = remotePreAnestheticTests?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
