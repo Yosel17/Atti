@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.NoFood
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
@@ -28,10 +29,6 @@ import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.net.toUri
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
 import yosel.dev.atti.R
 import yosel.dev.atti.core.navigation.main.Screens
 import java.time.LocalDate
@@ -173,7 +170,7 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             asaClassificationId = recordId
         )
-        "exámenes pre anestésicos" -> Screens.PreAnestheticTestForm(
+        "examenes pre anestesicos" -> Screens.PreAnestheticTestForm(
             consultationId = consultationId,
             preAnestheticTestId = recordId
         )
@@ -189,7 +186,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "diagnostico" -> Icons.AutoMirrored.Filled.Assignment
         "pruebas auxiliares" -> Icons.Default.Biotech
         "clasificacion asa", "clasificación asa" -> Icons.Outlined.MedicalServices
-        "exámenes pre anestésicos" -> Icons.Default.Biotech
+        "examenes pre anestesicos" -> Icons.Default.Science
         "tratamiento" -> Icons.Default.Medication
         "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
         "observaciones" -> Icons.Default.Visibility
