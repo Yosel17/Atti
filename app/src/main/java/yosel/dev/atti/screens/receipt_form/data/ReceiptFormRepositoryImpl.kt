@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PreAnestheticTestModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ReceiptItemModel
@@ -21,6 +22,7 @@ import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressEntity
+import yosel.dev.atti.core.room.tables.pre_anesthetic_test.PreAnestheticTestDao
 import yosel.dev.atti.core.room.tables.prescription.PrescriptionDao
 import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
@@ -29,6 +31,7 @@ import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
+import yosel.dev.atti.core.supabase.PreAnestheticTestsDataSource
 import yosel.dev.atti.core.supabase.PrescriptionsDataSource
 import yosel.dev.atti.core.supabase.ProductsDataSource
 import yosel.dev.atti.core.supabase.ReceiptsDataSource
@@ -56,6 +59,8 @@ class ReceiptFormRepositoryImpl @Inject constructor(
     private val treatmentDao: TreatmentDao,
     private val prescriptionsDataSource: PrescriptionsDataSource,
     private val prescriptionDao: PrescriptionDao,
+    private val preAnestheticTestsDataSource: PreAnestheticTestsDataSource,
+    private val preAnestheticTestDao: PreAnestheticTestDao,
     private val receiptsDataSource: ReceiptsDataSource,
     private val receiptDao: ReceiptDao,
     private val appDatabase: AppDatabase,
@@ -139,6 +144,17 @@ class ReceiptFormRepositoryImpl @Inject constructor(
 
         prescriptionDao.getPrescriptionItemsByConsultationId(consultationId).map { it.toModel() }
 
+    }
+
+    override suspend fun getPreAnestheticTestsByConsultationId(consultationId: String): Result<List<PreAnestheticTestModel>> = runCatching {
+        val remote = preAnestheticTestsDataSource.getPreAnestheticTestsByConsultationId(consultationId)
+
+        val entities = remote.map { it.toEntity() }
+        if (entities.isNotEmpty()) {
+            preAnestheticTestDao.upsertPreAnestheticTests(entities)
+        }
+
+        preAnestheticTestDao.getPreAnestheticTestsByConsultationId(consultationId).map { it.toModel() }
     }
 
     override suspend fun saveReceipt(

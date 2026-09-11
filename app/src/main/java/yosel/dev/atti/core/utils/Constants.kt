@@ -99,6 +99,12 @@ object Constants {
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23
+    const val CONTROL_CONSULTATION_TYPE = 24
+    const val PROPHYLAXIS_CONSULTATION_TYPE = 25
+    const val SURGERY_CONSULTATION_TYPE = 26
+    const val HOME_CONSULTATION_TYPE = 27
+    const val EMERGENCY_CONSULTATION_TYPE = 28
+    const val HOSPITALIZATION_CONSULTATION_TYPE = 29
 
     //pasos de una consulta
     const val CONSULTATION_STEP_ANAMNESIS = 30

@@ -9,6 +9,7 @@ sealed interface ReceiptFormAction {
     data class OnCustomerNameChange(val name: String) : ReceiptFormAction
     data object SaveReceipt : ReceiptFormAction
     data class ToggleSaveDialog(val show: Boolean) : ReceiptFormAction
+    data class ToggleReceiptErrorDialog(val show: Boolean) : ReceiptFormAction
 
     // BottomSheet Productos
     data object OnOpenProductSheet : ReceiptFormAction
