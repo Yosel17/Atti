@@ -14,6 +14,7 @@ import yosel.dev.atti.core.room.tables.asa_classification.AsaClassificationDao
 import yosel.dev.atti.core.room.tables.auxiliary_test.AuxiliaryTestDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationDao
+import yosel.dev.atti.core.room.tables.consent.ConsentDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepDao
@@ -143,4 +144,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun providePreAnestheticTestDao(appDatabase: AppDatabase): PreAnestheticTestDao = appDatabase.preAnestheticTestDao()
+
+    @Singleton
+    @Provides
+    fun provideConsentDao(appDatabase: AppDatabase): ConsentDao = appDatabase.consentDao()
 }
