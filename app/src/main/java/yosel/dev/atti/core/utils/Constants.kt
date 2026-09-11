@@ -32,6 +32,7 @@ object Constants {
     const val FASTING_SUPABASE = "fasting"
     const val ASA_CLASSIFICATIONS_SUPABASE = "asa_classifications"
     const val PRE_ANESTHETIC_TESTS_SUPABASE = "pre_anesthetic_tests"
+    const val CONSENTS_SUPABASE = "consents"
 
     //Supabase Buckets
     const val MULTIMEDIA_BUCKET_SUPABASE = "multimedia"

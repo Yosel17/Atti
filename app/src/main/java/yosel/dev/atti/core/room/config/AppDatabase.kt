@@ -18,6 +18,8 @@ import yosel.dev.atti.core.room.tables.client.ClientEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationDao
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationEntity
+import yosel.dev.atti.core.room.tables.consent.ConsentDao
+import yosel.dev.atti.core.room.tables.consent.ConsentEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation_step_progress.ConsultationStepProgressDao
@@ -85,7 +87,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         AuxiliaryTestEntity::class,
         FastingEntity::class,
         AsaClassificationEntity::class,
-        PreAnestheticTestEntity::class
+        PreAnestheticTestEntity::class,
+        ConsentEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -115,4 +118,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun fastingDao(): FastingDao
     abstract fun asaClassificationDao(): AsaClassificationDao
     abstract fun preAnestheticTestDao(): PreAnestheticTestDao
+    abstract fun consentDao(): ConsentDao
 }
