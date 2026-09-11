@@ -20,6 +20,8 @@ data class ReceiptFormState(
     val showDialogConfirm: Boolean = false,
     val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
     val existingReceiptWithDetails: ReceiptWithDetailsModel? = null,
+    val showReceiptErrorDialog: Boolean = false,
+    val detailedError: String? = null,
 
     // Catálogo Productos
     val productsWithDetails: List<ProductWithDetailsModel> = emptyList(),

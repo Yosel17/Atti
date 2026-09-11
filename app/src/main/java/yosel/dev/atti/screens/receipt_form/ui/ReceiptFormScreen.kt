@@ -155,5 +155,14 @@ fun ReceiptFormScreen(
                 }
             )
         }
+
+        if (state.showReceiptErrorDialog) {
+            ReceiptErrorCustomDialog(
+                onDismiss = {
+                    onAction(ReceiptFormAction.ToggleReceiptErrorDialog(show = false))
+                },
+                detailedError = state.detailedError
+            )
+        }
     }
 }

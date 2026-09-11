@@ -109,6 +109,9 @@ class ReceiptFormViewModel @AssistedInject constructor(
             is ReceiptFormAction.OnIncrementService -> incrementService(action.serviceId)
             is ReceiptFormAction.OnDecrementService -> decrementService(action.serviceId)
             is ReceiptFormAction.OnRemoveService -> removeService(action.serviceId)
+            is ReceiptFormAction.ToggleReceiptErrorDialog -> {
+                _state.update { it.copy(showReceiptErrorDialog = action.show) }
+            }
         }
     }
 
@@ -717,8 +720,13 @@ class ReceiptFormViewModel @AssistedInject constructor(
                 },
                 onFailure = { error ->
                     Log.e("ReceiptFormViewModel", "Error al guardar recibo", error)
-                    _state.update { it.copy(isLoadingSaveReceipt = false) }
-                    _eventChannel.send(ReceiptFormEvent.ShowErrorSnackbar("Error al registrar el recibo."))
+                    _state.update {
+                        it.copy(
+                            detailedError = error.localizedMessage,
+                            showReceiptErrorDialog = true,
+                            isLoadingSaveReceipt = false
+                        )
+                    }
                 }
             )
         }
@@ -748,8 +756,13 @@ class ReceiptFormViewModel @AssistedInject constructor(
                 },
                 onFailure = { error ->
                     Log.e("ReceiptFormViewModel", "Error al actualizar recibo", error)
-                    _state.update { it.copy(isLoadingUpdateReceipt = false) }
-                    _eventChannel.send(ReceiptFormEvent.ShowErrorSnackbar("Error al actualizar el recibo."))
+                    _state.update {
+                        it.copy(
+                            detailedError = error.localizedMessage,
+                            showReceiptErrorDialog = true,
+                            isLoadingSaveReceipt = false
+                        )
+                    }
                 }
             )
         }
