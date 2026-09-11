@@ -8,6 +8,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.storage.storage
 import javax.inject.Singleton
 import yosel.dev.atti.BuildConfig
 
@@ -21,9 +23,10 @@ object SupabaseModule {
     fun provideSupabaseClient(): SupabaseClient {
         return createSupabaseClient(
             supabaseUrl = BuildConfig.SUPABASE_URL,
-            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY,
         ) {
             install(Postgrest)
+            install(Storage)
         }
     }
 
@@ -31,5 +34,11 @@ object SupabaseModule {
     @Provides
     fun providePostgrest(client: SupabaseClient): Postgrest {
         return client.postgrest
+    }
+
+    @Singleton
+    @Provides
+    fun provideStorage(client: SupabaseClient): Storage {
+        return client.storage
     }
 }

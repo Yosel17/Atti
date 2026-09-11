@@ -7,8 +7,8 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 kotlin = "2.4.20"
-composeBom = "2026.08.00"
-material3 = "1.5.0-alpha27"
+composeBom = "2026.09.00"
+material3 = "1.5.0-alpha28"
 ksp = "2.3.10"
 navigation3 = "1.1.7"
 lifecycleViewmodelNav3 = "2.11.0"
@@ -48,6 +48,7 @@ androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = 
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
+supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
