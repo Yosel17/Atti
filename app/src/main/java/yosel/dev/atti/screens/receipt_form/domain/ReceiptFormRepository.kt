@@ -2,6 +2,7 @@ package yosel.dev.atti.screens.receipt_form.domain
 
 import kotlinx.coroutines.flow.Flow
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PreAnestheticTestModel
 import yosel.dev.atti.core.models.model.PrescriptionItemModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ReceiptItemModel
@@ -18,6 +19,7 @@ interface ReceiptFormRepository {
     suspend fun syncServices(): Result<Unit>
     suspend fun getTreatmentsByConsultationId(consultationId: String): Result<List<TreatmentModel>>
     suspend fun getPrescriptionItemsByConsultationId(consultationId: String): Result<List<PrescriptionItemModel>>
+    suspend fun getPreAnestheticTestsByConsultationId(consultationId: String): Result<List<PreAnestheticTestModel>>
     suspend fun saveReceipt(
         consultationId: String?,
         receipt: ReceiptModel,

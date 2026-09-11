@@ -211,7 +211,28 @@ class ReceiptFormViewModel @AssistedInject constructor(
         if (_state.value.isEditMode) {
             loadExistingReceipt(products, services)
         } else if (!consultationId.isNullOrBlank()) {
-            loadTreatmentsAndPrescriptionsForReceipt(products, services)
+            val consultationTypeId = _state.value.consultationWithDetails.consultation.consultationTypeId
+            when (consultationTypeId) {
+                Constants.GENERAL_CONSULTATION_TYPE,
+                Constants.CONTROL_CONSULTATION_TYPE,
+                Constants.PROPHYLAXIS_CONSULTATION_TYPE -> {
+                    loadConsultationItemsForReceipt(
+                        products = products,
+                        services = services,
+                        includePreAnestheticTests = false
+                    )
+                }
+                Constants.SURGERY_CONSULTATION_TYPE -> {
+                    loadConsultationItemsForReceipt(
+                        products = products,
+                        services = services,
+                        includePreAnestheticTests = true
+                    )
+                }
+                else -> {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                }
+            }
         } else {
             _state.update { it.copy(isLoadingDataInitial = false) }
         }
@@ -284,19 +305,26 @@ class ReceiptFormViewModel @AssistedInject constructor(
         }
     }
 
-    private fun loadTreatmentsAndPrescriptionsForReceipt(
+    private fun loadConsultationItemsForReceipt(
         products: List<ProductWithDetailsModel>,
-        services: List<ServiceWithDetailsModel>
+        services: List<ServiceWithDetailsModel>,
+        includePreAnestheticTests: Boolean
     ) {
         viewModelScope.launch {
             val cId = consultationId.orEmpty()
             val treatmentsResult = repository.getTreatmentsByConsultationId(cId)
             val prescriptionsResult = repository.getPrescriptionItemsByConsultationId(cId)
+            val preAnestheticTestsResult = if (includePreAnestheticTests) {
+                repository.getPreAnestheticTestsByConsultationId(cId)
+            } else {
+                Result.success(emptyList())
+            }
 
             val treatments = treatmentsResult.getOrDefault(emptyList())
             val prescriptionItems = prescriptionsResult.getOrDefault(emptyList())
+            val preAnestheticTests = preAnestheticTestsResult.getOrDefault(emptyList())
 
-            // Agrupación de productos (Tratamientos + Receta)
+            // Agrupación de productos (Tratamientos + Receta + Exámenes Pre Anestésicos)
             val productQuantities = mutableMapOf<String, Int>()
             treatments.filter { !it.productId.isNullOrBlank() }.forEach { t ->
                 val id = t.productId!!
@@ -305,6 +333,12 @@ class ReceiptFormViewModel @AssistedInject constructor(
             prescriptionItems.filter { !it.productId.isNullOrBlank() }.forEach { pi ->
                 val id = pi.productId!!
                 productQuantities[id] = (productQuantities[id] ?: 0) + pi.quantity.toInt().coerceAtLeast(1)
+            }
+            if (includePreAnestheticTests) {
+                preAnestheticTests.filter { it.isProduct && !it.productId.isNullOrBlank() }.forEach { pat ->
+                    val id = pat.productId!!
+                    productQuantities[id] = (productQuantities[id] ?: 0) + pat.quantity.toInt().coerceAtLeast(1)
+                }
             }
 
             val initialProducts = productQuantities.mapNotNull { (productId, qty) ->
@@ -317,11 +351,17 @@ class ReceiptFormViewModel @AssistedInject constructor(
                 }
             }
 
-            // Agrupación de servicios (Tratamientos)
+            // Agrupación de servicios (Tratamientos + Exámenes Pre Anestésicos)
             val serviceQuantities = mutableMapOf<String, Int>()
             treatments.filter { !it.serviceId.isNullOrBlank() }.forEach { t ->
                 val id = t.serviceId!!
                 serviceQuantities[id] = (serviceQuantities[id] ?: 0) + t.quantity.toInt().coerceAtLeast(1)
+            }
+            if (includePreAnestheticTests) {
+                preAnestheticTests.filter { it.isService && !it.serviceId.isNullOrBlank() }.forEach { pat ->
+                    val id = pat.serviceId!!
+                    serviceQuantities[id] = (serviceQuantities[id] ?: 0) + pat.quantity.toInt().coerceAtLeast(1)
+                }
             }
 
             val initialServices = serviceQuantities.mapNotNull { (serviceId, qty) ->
