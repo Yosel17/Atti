@@ -32,7 +32,6 @@ class ConsentsDataSource @Inject constructor(
             .select {
                 filter {
                     eq("consultation_id", consultationId)
-                    eq("status", Constants.ACTIVE_STATUS)
                 }
             }
             .decodeSingleOrNull<ConsentDto>()
