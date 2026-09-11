@@ -14,6 +14,8 @@ import yosel.dev.atti.screens.anamnesis_form.data.AnamnesisFormRepositoryImpl
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
 import yosel.dev.atti.screens.clinical_exam_form.data.ClinicalExamFormRepositoryImpl
 import yosel.dev.atti.screens.clinical_exam_form.domain.ClinicalExamFormRepository
+import yosel.dev.atti.screens.consent_form.data.ConsentFormRepositoryImpl
+import yosel.dev.atti.screens.consent_form.domain.ConsentFormRepository
 import yosel.dev.atti.screens.detail_client.data.DetailClientRepositoryImpl
 import yosel.dev.atti.screens.detail_client.domain.DetailClientRepository
 import yosel.dev.atti.screens.detail_consultation.data.DetailConsultationRepositoryImpl
@@ -224,4 +226,10 @@ abstract class RepositoryModule {
     abstract fun bindAsaClassificationFormRepository(
         impl: AsaClassificationFormRepositoryImpl
     ): AsaClassificationFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConsentFormRepository(
+        impl: ConsentFormRepositoryImpl
+    ): ConsentFormRepository
 }

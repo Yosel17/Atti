@@ -123,7 +123,9 @@ object Constants {
     const val RECEIPT_STEP_DIAGNOSIS = 75
     const val CONSULTATION_STEP_FASTING = 83
     const val CONSULTATION_STEP_ASA_CLASSIFICATION = 84
+    const val CONSULTATION_STEP_CONSENT = 85
     const val CONSULTATION_STEP_PRE_ANESTHETIC_TEST = 86
+
 
 
     //Catalogos
