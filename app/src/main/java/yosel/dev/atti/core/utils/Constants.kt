@@ -33,6 +33,9 @@ object Constants {
     const val ASA_CLASSIFICATIONS_SUPABASE = "asa_classifications"
     const val PRE_ANESTHETIC_TESTS_SUPABASE = "pre_anesthetic_tests"
 
+    //Supabase Buckets
+    const val MULTIMEDIA_BUCKET_SUPABASE = "multimedia"
+
     //inputs
     const val FIRST_NAME_FIELD = 0
     const val LAST_NAME_FIELD = 1
