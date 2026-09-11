@@ -79,4 +79,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class AsaClassificationForm(val consultationId: String, val asaClassificationId: String? = null) : Screens
+
+    @Serializable
+    data class PreAnestheticTestForm(val consultationId: String, val preAnestheticTestId: String? = null) : Screens
 }

@@ -91,7 +91,8 @@ class ConsultationsDataSource @Inject constructor(
                 receipts:receipts(id, status),
                 auxiliary_tests:auxiliary_tests(id, status),
                 fasting:fasting(id, status),
-                asa_classifications:asa_classifications(id, status)
+                asa_classifications:asa_classifications(id, status),
+                pre_anesthetic_tests:pre_anesthetic_tests(id, status)
                 """.trimIndent()
                 )
             ) {

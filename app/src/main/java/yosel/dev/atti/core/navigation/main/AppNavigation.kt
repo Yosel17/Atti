@@ -181,6 +181,15 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            preAnestheticTestFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                },
+                onNavigation = { screens ->
+                    backStack.add(screens)
+                }
+            )
+
             emptyEntry()
         }
     )

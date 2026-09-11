@@ -56,6 +56,8 @@ import yosel.dev.atti.screens.service_form.data.ServiceFormRepositoryImpl
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
 import yosel.dev.atti.screens.treatment_form.data.TreatmentFormRepositoryImpl
 import yosel.dev.atti.screens.treatment_form.domain.TreatmentFormRepository
+import yosel.dev.atti.screens.pre_anesthetic_test_form.data.PreAnestheticTestFormRepositoryImpl
+import yosel.dev.atti.screens.pre_anesthetic_test_form.domain.PreAnestheticTestFormRepository
 import javax.inject.Singleton
 
 @Module
@@ -187,6 +189,12 @@ abstract class RepositoryModule {
     abstract fun bindTreatmentFormRepository(
         impl: TreatmentFormRepositoryImpl
     ): TreatmentFormRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPreAnestheticTestFormRepository(
+        impl: PreAnestheticTestFormRepositoryImpl
+    ): PreAnestheticTestFormRepository
 
     @Binds
     @Singleton

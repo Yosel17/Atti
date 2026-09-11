@@ -100,6 +100,9 @@ import yosel.dev.atti.screens.service_form.ui.ServiceFormViewModel
 import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormEvent
 import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormScreen
 import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormViewModel
+import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormEvent
+import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormScreen
+import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormViewModel
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
@@ -1376,6 +1379,61 @@ fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.preAnestheticTestFormEntry(
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
+) {
+    entry<Screens.PreAnestheticTestForm> { key ->
+        val viewModel: PreAnestheticTestFormViewModel = hiltViewModel(
+            creationCallback = { factory: PreAnestheticTestFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    preAnestheticTestId = key.preAnestheticTestId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is PreAnestheticTestFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is PreAnestheticTestFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is PreAnestheticTestFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        PreAnestheticTestFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }
