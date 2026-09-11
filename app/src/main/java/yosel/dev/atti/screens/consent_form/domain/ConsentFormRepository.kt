@@ -12,6 +12,8 @@ interface ConsentFormRepository {
 
     suspend fun saveImageConsent(image: Uri): Result<String>
 
+    suspend fun updateImageConsent(image: Uri, previousImageUrl: String? = null): Result<String>
+
     suspend fun saveConsent(consent: ConsentModel): Result<ConsentModel>
 
     suspend fun updateConsent(consent: ConsentModel): Result<ConsentModel>

@@ -71,6 +71,13 @@ class ConsentFormRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun updateImageConsent(image: Uri, previousImageUrl: String?): Result<String> = runCatching {
+        if (!previousImageUrl.isNullOrBlank()) {
+            deleteImageFromSupabase(previousImageUrl)
+        }
+        saveImageConsent(image).getOrThrow()
+    }
+
     override suspend fun saveConsent(consent: ConsentModel): Result<ConsentModel> = runCatching {
         val insertdDto = consentsDataSource.insertAndGetConsent(consent.toDtoForInsert())
         appDatabase.withTransaction {
@@ -157,5 +164,19 @@ class ConsentFormRepositoryImpl @Inject constructor(
         }
 
         return bitmap.scale(newWidth, newHeight, filter = true)
+    }
+
+    private suspend fun deleteImageFromSupabase(imageUrl: String) {
+        runCatching {
+            val bucketPrefix = "/${Constants.MULTIMEDIA_BUCKET_SUPABASE}/"
+            val path = if (imageUrl.contains(bucketPrefix)) {
+                imageUrl.substringAfter(bucketPrefix)
+            } else {
+                imageUrl
+            }
+            if (path.isNotBlank()) {
+                multimediaDataSource.deleteImage(path = path)
+            }
+        }
     }
 }
