@@ -1,8 +1,11 @@
 package yosel.dev.atti.core.models.dto
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class PrescriptionItemDto(
     @SerialName("id") val id: String? = null,
@@ -10,9 +13,9 @@ data class PrescriptionItemDto(
     @SerialName("product_id") val productId: String? = null,
     @SerialName("custom_product_name") val customProductName: String? = null,
     @SerialName("instructions") val instructions: String,
-    @SerialName("quantity") val quantity: Double = 1.0,
+    @EncodeDefault @SerialName("quantity") val quantity: Double = 1.0,
     @SerialName("created_at") val createdAt: String? = null,
-    @SerialName("status") val status: Int = 1,
+    @EncodeDefault @SerialName("status") val status: Int = 1,
     // Relación opcional para cuando el producto proviene del inventario
     @SerialName("product") val product: ProductDto? = null
 )
