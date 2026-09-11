@@ -10,6 +10,7 @@ import yosel.dev.atti.core.models.dto.AuxiliaryTestDto
 import yosel.dev.atti.core.models.dto.ClientDto
 import yosel.dev.atti.core.models.dto.ClinicalExamLymphNodeDto
 import yosel.dev.atti.core.models.dto.ClinicalExaminationDto
+import yosel.dev.atti.core.models.dto.ConsentDto
 import yosel.dev.atti.core.models.dto.ConsultationDto
 import yosel.dev.atti.core.models.dto.ConsultationTypeStepDto
 import yosel.dev.atti.core.models.dto.DiagnosisDto
@@ -48,6 +49,7 @@ import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeModel
 import yosel.dev.atti.core.models.model.ClinicalExamLymphNodeWithDetailsModel
 import yosel.dev.atti.core.models.model.ClinicalExamWithDetailsModel
 import yosel.dev.atti.core.models.model.ClinicalExaminationModel
+import yosel.dev.atti.core.models.model.ConsentModel
 import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepModel
 import yosel.dev.atti.core.models.model.ConsultationTypeStepWithDetailsModel
@@ -102,6 +104,7 @@ import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNod
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamLymphNodeWithDetailsEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExamWithDetailsEntity
 import yosel.dev.atti.core.room.tables.clinical_examination.ClinicalExaminationEntity
+import yosel.dev.atti.core.room.tables.consent.ConsentEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
 import yosel.dev.atti.core.room.tables.consultation.ConsultationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.consultation_type_step.ConsultationTypeStepEntity
@@ -2309,6 +2312,52 @@ fun PreAnestheticTestDto.toWithDetailsModel() = PreAnestheticTestWithDetailsMode
             category = service.category?.toModel() ?: AppCatalogModel()
         )
     }
+)
+
+// --- CONSENTS ---
+fun ConsentDto.toEntity() = ConsentEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    imageUrl = imageUrl,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ConsentEntity.toModel() = ConsentModel(
+    id = id,
+    consultationId = consultationId,
+    imageUrl = imageUrl,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ConsentModel.toEntity() = ConsentEntity(
+    id = id,
+    consultationId = consultationId,
+    imageUrl = imageUrl,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ConsentDto.toModel() = ConsentModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    imageUrl = imageUrl,
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ConsentModel.toDtoForInsert() = ConsentDto(
+    consultationId = consultationId,
+    imageUrl = imageUrl.trim(),
+    status = status
+)
+
+fun ConsentModel.toDtoForUpdate() = ConsentDto(
+    id = id,
+    consultationId = consultationId,
+    imageUrl = imageUrl.trim(),
+    status = status
 )
 
 fun String.normalize(): String {
