@@ -1,10 +1,10 @@
-package yosel.dev.atti.screens.consent.domain
+package yosel.dev.atti.screens.consent_form.domain
 
 import android.net.Uri
 import yosel.dev.atti.core.models.model.ConsentModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 
-interface ConsentRepository {
+interface ConsentFormRepository {
 
     suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel>
 

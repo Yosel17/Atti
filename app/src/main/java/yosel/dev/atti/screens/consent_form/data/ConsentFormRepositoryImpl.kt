@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.consent.data
+package yosel.dev.atti.screens.consent_form.data
 
 import android.net.Uri
 import androidx.room.withTransaction
@@ -15,16 +15,16 @@ import yosel.dev.atti.core.utils.toDtoForInsert
 import yosel.dev.atti.core.utils.toDtoForUpdate
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
-import yosel.dev.atti.screens.consent.domain.ConsentRepository
+import yosel.dev.atti.screens.consent_form.domain.ConsentFormRepository
 import javax.inject.Inject
 
-class ConsentRepositoryImpl @Inject constructor(
+class ConsentFormRepositoryImpl @Inject constructor(
     private val consultationDao: ConsultationDao,
     private val consentDao: ConsentDao,
     private val consentsDataSource: ConsentsDataSource,
     private val appDatabase: AppDatabase,
     private val consultationStepProgressDao: ConsultationStepProgressDao,
-): ConsentRepository{
+): ConsentFormRepository{
 
     override suspend fun getConsultation(consultationId: String): Result<ConsultationWithDetailsModel> = runCatching {
         val consultationEntity = consultationDao.getConsultationWithDetailsById(consultationId)
