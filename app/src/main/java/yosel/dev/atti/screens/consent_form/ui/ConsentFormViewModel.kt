@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.consent_form.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.model.ConsentModel
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.screens.consent_form.domain.ConsentFormRepository
 
 @HiltViewModel(assistedFactory = ConsentFormViewModel.Factory::class)
@@ -138,6 +141,106 @@ class ConsentFormViewModel @AssistedInject constructor(
     }
 
     private fun saveConsent(){
+        val s = _state.value
+        if (!s.formInputState.isValid) return
+        if (s.isEditMode){
+            updateImageConsent()
+        }else{
+            registerImageConsent()
+        }
+    }
 
+    private fun registerImageConsent(){
+        val s = _state.value
+        val currentUri = s.formInputState.imageUri ?: return
+        _state.update { it.copy(isLoadingSaveConsent = true) }
+        viewModelScope.launch {
+            repository.saveImageConsent(image = currentUri, consultationId = consultationId?:"").fold(
+                onSuccess = { url ->
+                    registerConsent(url = url)
+                },
+                onFailure = { error ->
+                    Log.e("ConsentFormVM", "error al guardar la imagen del consentimiento", error)
+                    _state.update { it.copy(isLoadingSaveConsent = false) }
+                    _eventChannel.send(ConsentFormEvent.ShowErrorSnackbar("No se pudo guardar la imagen del consentimiento."))
+                }
+            )
+        }
+    }
+
+    private suspend fun registerConsent(url: String){
+        val consent = ConsentModel(
+            consultationId = consultationId.orEmpty(),
+            imageUrl = url,
+            status = Constants.ACTIVE_STATUS
+        )
+        repository.saveConsent(consent = consent).fold(
+            onSuccess = { savedConsent ->
+                _state.update {
+                    it.copy(
+                        isEditMode = true,
+                        consentId = savedConsent.id,
+                        existingConsent = savedConsent,
+                        isLoadingSaveConsent = false
+                    )
+                }
+            },
+            onFailure = { error ->
+                Log.e("ConsentFormVM", "error al guardar el consentimiento", error)
+                _state.update { it.copy(isLoadingSaveConsent = false) }
+                _eventChannel.send(ConsentFormEvent.ShowErrorSnackbar("No se pudo guardar el consentimiento."))
+            }
+        )
+    }
+
+    private fun updateImageConsent(){
+        val s = _state.value
+        val currentUri = s.formInputState.imageUri ?: return
+        _state.update { it.copy(isLoadingUpdateConsent = true) }
+        viewModelScope.launch {
+            repository.updateImageConsent(
+                image = currentUri,
+                previousImageUrl = s.existingConsent?.imageUrl,
+                consultationId = consultationId?:""
+            ).fold(
+                onSuccess = { url ->
+                    updateConsent(imageUrl = url)
+                },
+                onFailure = { error ->
+                    Log.e("ConsentFormVM", "error al actualizar la imagen del consentimiento", error)
+                    _state.update { it.copy(isLoadingUpdateConsent = false) }
+                    _eventChannel.send(ConsentFormEvent.ShowErrorSnackbar("No se pudo actualizar la imagen del consentimiento."))
+                }
+            )
+        }
+    }
+
+    private suspend fun updateConsent(imageUrl: String) {
+        val s = _state.value
+        val existingId = s.consentId ?: s.existingConsent?.id ?: return
+        _state.update { it.copy(isLoadingUpdateConsent = true) }
+        val consent = ConsentModel(
+            id = existingId,
+            consultationId = consultationId.orEmpty(),
+            imageUrl = imageUrl,
+            createdAt = s.existingConsent?.createdAt.orEmpty(),
+            status = Constants.ACTIVE_STATUS
+        )
+        repository.updateConsent(consent = consent).fold(
+            onSuccess = {
+                _state.update {
+                    it.copy(
+                        isEditMode = true,
+                        existingConsent = it.existingConsent?.copy(imageUrl = imageUrl),
+                        isLoadingUpdateConsent = false
+                    )
+                }
+            },
+            onFailure = {error ->
+                Log.e("ConsentFormVM", "error al actualizar el consentimiento", error)
+                _state.update { it.copy(isLoadingUpdateConsent = false) }
+                _eventChannel.send(ConsentFormEvent.ShowErrorSnackbar("No se pudo actualizar el consentimiento."))
+            }
+        )
     }
 }

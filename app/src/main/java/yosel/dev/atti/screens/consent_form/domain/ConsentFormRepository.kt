@@ -10,9 +10,9 @@ interface ConsentFormRepository {
 
     suspend fun getConsentByConsultationId(consultationId: String): Result<ConsentModel?>
 
-    suspend fun saveImageConsent(image: Uri): Result<String>
+    suspend fun saveImageConsent(image: Uri, consultationId: String): Result<String>
 
-    suspend fun updateImageConsent(image: Uri, previousImageUrl: String? = null): Result<String>
+    suspend fun updateImageConsent(image: Uri, previousImageUrl: String? = null, consultationId: String): Result<String>
 
     suspend fun saveConsent(consent: ConsentModel): Result<ConsentModel>
 

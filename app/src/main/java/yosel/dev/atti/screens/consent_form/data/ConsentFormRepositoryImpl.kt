@@ -55,14 +55,14 @@ class ConsentFormRepositoryImpl @Inject constructor(
         remoteDto.toModel()
     }
 
-    override suspend fun saveImageConsent(image: Uri): Result<String> = runCatching {
+    override suspend fun saveImageConsent(image: Uri, consultationId: String): Result<String> = runCatching {
         val compressedBytes = compressImageUri(image)
 
         if (compressedBytes.isEmpty()) {
             throw IllegalStateException("No se pudo procesar o comprimir la imagen de consentimiento")
         }
 
-        val fileName = "consent_${UUID.randomUUID()}.jpg"
+        val fileName = "consent_$consultationId.jpg"
 
         multimediaDataSource.uploadImage(
             byteArray = compressedBytes,
@@ -71,11 +71,11 @@ class ConsentFormRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun updateImageConsent(image: Uri, previousImageUrl: String?): Result<String> = runCatching {
+    override suspend fun updateImageConsent(image: Uri, previousImageUrl: String?, consultationId: String): Result<String> = runCatching {
         if (!previousImageUrl.isNullOrBlank()) {
             deleteImageFromSupabase(previousImageUrl)
         }
-        saveImageConsent(image).getOrThrow()
+        saveImageConsent(image = image, consultationId = consultationId).getOrThrow()
     }
 
     override suspend fun saveConsent(consent: ConsentModel): Result<ConsentModel> = runCatching {
@@ -168,7 +168,7 @@ class ConsentFormRepositoryImpl @Inject constructor(
 
     private suspend fun deleteImageFromSupabase(imageUrl: String) {
         runCatching {
-            val bucketPrefix = "/${Constants.MULTIMEDIA_BUCKET_SUPABASE}/"
+            val bucketPrefix = "/${Constants.CLINICAL_RECORDS_BUCKET_SUPABASE}/"
             val path = if (imageUrl.contains(bucketPrefix)) {
                 imageUrl.substringAfter(bucketPrefix)
             } else {
