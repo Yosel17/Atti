@@ -27,4 +27,5 @@ data class ConsultationProgressDto(
     @SerialName("fasting") val fasting: StepReferenceDto? = null,
     @SerialName("asa_classifications") val asaClassifications: List<StepReferenceDto> = emptyList(),
     @SerialName("pre_anesthetic_tests") val preAnestheticTests: List<StepReferenceDto> = emptyList(),
+    @SerialName("consents") val consents: List<StepReferenceDto> = emptyList(),
 )
