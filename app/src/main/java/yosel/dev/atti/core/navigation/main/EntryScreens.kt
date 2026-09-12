@@ -1,6 +1,10 @@
 package yosel.dev.atti.core.navigation.main
 
+import android.Manifest
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,8 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
@@ -28,7 +35,9 @@ import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.SnackbarType
 import yosel.dev.atti.core.components.showCustomSnackbar
 import yosel.dev.atti.core.utils.ObserveAsEvents
+import yosel.dev.atti.core.utils.createTempUri
 import yosel.dev.atti.core.utils.dialPhoneNumber
+import yosel.dev.atti.core.utils.findActivity
 import yosel.dev.atti.core.utils.openWhatsApp
 import yosel.dev.atti.screens.add_client.ui.AddClientEvent
 import yosel.dev.atti.screens.add_client.ui.AddClientScreen
@@ -69,6 +78,10 @@ import yosel.dev.atti.screens.auxiliary_test_form.ui.AuxiliaryTestFormViewModel
 import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormEvent
 import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormScreen
 import yosel.dev.atti.screens.asa_classification_form.ui.AsaClassificationFormViewModel
+import yosel.dev.atti.screens.consent_form.ui.ConsentFormAction
+import yosel.dev.atti.screens.consent_form.ui.ConsentFormEvent
+import yosel.dev.atti.screens.consent_form.ui.ConsentFormScreen
+import yosel.dev.atti.screens.consent_form.ui.ConsentFormViewModel
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormEvent
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormScreen
 import yosel.dev.atti.screens.diagnosis_form.ui.DiagnosisFormViewModel
@@ -1434,6 +1447,106 @@ fun EntryProviderScope<NavKey>.preAnestheticTestFormEntry(
             onAction = viewModel::onAction,
             onBack = onBack,
             onNavigation = onNavigation
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.consentFormEntry(
+    onBack: () -> Unit,
+){
+    entry<Screens.ConsentForm> { consentFormKey ->
+        val viewModel: ConsentFormViewModel = hiltViewModel(
+            creationCallback = { factory: ConsentFormViewModel.Factory ->
+                factory.create(
+                    consultationId = consentFormKey.consultationId,
+                    consentId = consentFormKey.consentId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+        var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+        val activity = context.findActivity()
+
+        val galleryLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            viewModel.onAction(ConsentFormAction.OnImageSelected(uri))
+        }
+
+        val cameraLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture()
+        ) { success: Boolean ->
+            if (success && tempCameraUri != null) {
+                viewModel.onAction(ConsentFormAction.OnImageSelected(tempCameraUri))
+            }
+        }
+
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                if (isGranted) {
+                    val uri = context.createTempUri()
+                    tempCameraUri = uri
+                    cameraLauncher.launch(uri)
+                } else {
+                    if (activity != null) {
+                        val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                            activity,
+                            android.Manifest.permission.CAMERA
+                        )
+                        if (shouldShowRationale) {
+                            viewModel.onAction(ConsentFormAction.OnToggleRationaleDialog(true))
+                        } else {
+                            viewModel.onAction(ConsentFormAction.OnToggleSettingsDialog(true))
+                        }
+                    }
+                }
+            }
+        )
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                ConsentFormEvent.LaunchCamera -> {
+                    val uri = context.createTempUri()
+                    tempCameraUri = uri
+                    cameraLauncher.launch(uri)
+                }
+                ConsentFormEvent.LaunchGallery -> {
+                    galleryLauncher.launch("image/*")
+                }
+                ConsentFormEvent.LaunchPermission -> {
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+                is ConsentFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ConsentFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
+
+        ConsentFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack
         )
     }
 }

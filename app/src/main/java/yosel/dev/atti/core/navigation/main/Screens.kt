@@ -82,4 +82,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class PreAnestheticTestForm(val consultationId: String, val preAnestheticTestId: String? = null) : Screens
+
+    @Serializable
+    data class ConsentForm(val consultationId: String, val consentId: String? = null) : Screens
 }
