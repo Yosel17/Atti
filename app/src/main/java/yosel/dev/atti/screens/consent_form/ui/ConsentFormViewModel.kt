@@ -120,11 +120,14 @@ class ConsentFormViewModel @AssistedInject constructor(
             repository.getConsentByConsultationId(consultationId = consultationId.orEmpty()).fold(
                 onSuccess = { existing ->
                     if (existing != null){
+                        val inputState = ConsentFormInputsState(imageUrl = existing.imageUrl)
                         _state.update {
                             it.copy(
                                 isEditMode = true,
                                 consentId = existing.id,
                                 existingConsent = existing,
+                                formInputState = inputState,
+                                initialFormInputState = inputState,
                                 isLoadingDataInitial = false
                             )
                         }
@@ -176,11 +179,14 @@ class ConsentFormViewModel @AssistedInject constructor(
         )
         repository.saveConsent(consent = consent).fold(
             onSuccess = { savedConsent ->
+                val inputState = ConsentFormInputsState(imageUrl = savedConsent.imageUrl)
                 _state.update {
                     it.copy(
                         isEditMode = true,
                         consentId = savedConsent.id,
                         existingConsent = savedConsent,
+                        formInputState = inputState,
+                        initialFormInputState = inputState,
                         isLoadingSaveConsent = false
                     )
                 }
@@ -228,10 +234,13 @@ class ConsentFormViewModel @AssistedInject constructor(
         )
         repository.updateConsent(consent = consent).fold(
             onSuccess = {
+                val inputState = ConsentFormInputsState(imageUrl = imageUrl)
                 _state.update {
                     it.copy(
                         isEditMode = true,
                         existingConsent = it.existingConsent?.copy(imageUrl = imageUrl),
+                        formInputState = inputState,
+                        initialFormInputState = inputState,
                         isLoadingUpdateConsent = false
                     )
                 }

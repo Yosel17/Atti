@@ -1,6 +1,5 @@
 package yosel.dev.atti.screens.consent_form.ui
 
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -24,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudUpload
@@ -39,7 +39,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -61,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -81,17 +83,17 @@ fun BodyConsentForm(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedContent(
-            targetState = state.formInputState.imageUri,
+            targetState = state.formInputState.displayImage,
             label = "InvoiceImageTransition",
             modifier = Modifier.weight(1f)
-        ) { uri ->
-            if (uri == null) {
+        ) { imageModel ->
+            if (imageModel == null) {
                 UploadInvoiceBox(
                     onUploadClick = { onAction(ConsentFormAction.OnUploadImageClick) }
                 )
             } else {
                 PreviewInvoiceCard(
-                    imageUri = uri,
+                    imageModel = imageModel,
                     onChangeClick = { onAction(ConsentFormAction.OnUploadImageClick) }
                 )
             }
@@ -209,9 +211,10 @@ fun UploadInvoiceBox(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PreviewInvoiceCard(
-    imageUri: Uri,
+    imageModel: Any?,
     onChangeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -222,11 +225,50 @@ fun PreviewInvoiceCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
     ) {
-        AsyncImage(
-            model = imageUri,
-            contentDescription = "Vista previa de factura",
+        SubcomposeAsyncImage(
+            model = imageModel,
+            contentDescription = "Vista previa de consentimiento",
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            loading = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingIndicator(modifier = Modifier.size(48.dp))
+                }
+            },
+            error = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BrokenImage,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Error al cargar la imagen",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Verifica tu conexión a internet o intenta cambiar la foto",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         )
 
         Button(
