@@ -62,7 +62,7 @@ class ConsentFormRepositoryImpl @Inject constructor(
             throw IllegalStateException("No se pudo procesar o comprimir la imagen de consentimiento")
         }
 
-        val fileName = "consent_$consultationId.jpg"
+        val fileName = "consent_${consultationId}_${UUID.randomUUID()}.jpg"
 
         multimediaDataSource.uploadImage(
             byteArray = compressedBytes,

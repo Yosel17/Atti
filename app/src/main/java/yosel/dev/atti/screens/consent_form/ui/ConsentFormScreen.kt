@@ -31,8 +31,6 @@ import yosel.dev.atti.core.components.PermissionSettingsDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 import yosel.dev.atti.core.utils.openAppSettings
-import yosel.dev.atti.screens.observation_form.ui.ObservationFormAction
-import yosel.dev.atti.screens.observation_form.ui.SaveObservationDialog
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +120,7 @@ fun ConsentFormScreen(
         }
 
         if (state.showDialogConfirm){
-            SaveObservationDialog(
+            SaveConsentDialog(
                 patientName = state.consultationWithDetails.patientWithDetails.patient.name,
                 recordDate = getFormattedCurrentDate(),
                 isEditMode = state.isEditMode,
