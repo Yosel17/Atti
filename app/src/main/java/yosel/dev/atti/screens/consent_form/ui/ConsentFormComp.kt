@@ -200,7 +200,7 @@ fun UploadInvoiceBox(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Seleccionar consentimiento",
+                        text = "Seleccionar foto",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

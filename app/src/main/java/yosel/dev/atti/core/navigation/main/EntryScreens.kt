@@ -1473,7 +1473,9 @@ fun EntryProviderScope<NavKey>.consentFormEntry(
         val galleryLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
-            viewModel.onAction(ConsentFormAction.OnImageSelected(uri))
+            if (uri != null) {
+                viewModel.onAction(ConsentFormAction.OnImageSelected(uri))
+            }
         }
 
         val cameraLauncher = rememberLauncherForActivityResult(

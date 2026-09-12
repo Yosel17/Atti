@@ -49,7 +49,9 @@ class ConsentFormViewModel @AssistedInject constructor(
             ConsentFormAction.OnDismissBottomSheet -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
             }
-            is ConsentFormAction.OnImageSelected -> TODO()
+            is ConsentFormAction.OnImageSelected -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(imageUri = action.uri)) }
+            }
             ConsentFormAction.OnObtainPermits -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
                 viewModelScope.launch {
