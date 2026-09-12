@@ -56,7 +56,6 @@ class ConsentFormViewModel @AssistedInject constructor(
                     _eventChannel.send(ConsentFormEvent.LaunchPermission)
                 }
             }
-            ConsentFormAction.OnShowDialogConfirmation -> TODO()
             ConsentFormAction.OnSelectCameraClick -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
                 viewModelScope.launch {
