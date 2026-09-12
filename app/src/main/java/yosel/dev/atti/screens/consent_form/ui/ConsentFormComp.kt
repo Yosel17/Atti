@@ -76,12 +76,12 @@ fun BodyConsentForm(
         ) { uri ->
             if (uri == null) {
                 UploadInvoiceBox(
-                    onUploadClick = { onAction(UploadBillAction.OnUploadBillClick) }
+                    onUploadClick = { onAction(ConsentFormAction.OnUploadImageClick) }
                 )
             } else {
                 PreviewInvoiceCard(
                     imageUri = uri,
-                    onChangeClick = { onAction(UploadBillAction.OnUploadBillClick) }
+                    onChangeClick = { onAction(ConsentFormAction.OnUploadImageClick) }
                 )
             }
         }
@@ -89,7 +89,7 @@ fun BodyConsentForm(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { onAction(UploadBillAction.OnProcessBillClick) },
+            onClick = { onAction(ConsentFormAction.OnShowDialogConfirmation) },
             enabled = isButtonEnabled,
             modifier = Modifier
                 .fillMaxWidth()

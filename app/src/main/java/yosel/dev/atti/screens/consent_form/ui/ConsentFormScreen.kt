@@ -29,6 +29,7 @@ import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.PermissionRationaleDialog
 import yosel.dev.atti.core.components.PermissionSettingsDialog
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.utils.openAppSettings
 import yosel.dev.atti.screens.observation_form.ui.ObservationFormAction
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -124,7 +125,7 @@ fun ConsentFormScreen(
 
         if (state.isBottomSheetVisible) {
             SourceSelectionBottomSheet(
-                onDismiss = { onAction(UploadBillAction.OnDismissBottomSheet) },
+                onDismiss = { onAction(ConsentFormAction.OnDismissBottomSheet) },
                 onSelectCamera = {
                     val hasPermission = ContextCompat.checkSelfPermission(
                         context,
@@ -132,30 +133,30 @@ fun ConsentFormScreen(
                     ) == PackageManager.PERMISSION_GRANTED
 
                     if (hasPermission) {
-                        onAction(UploadBillAction.OnSelectCameraClick)
+                        onAction(ConsentFormAction.OnSelectCameraClick)
                     } else {
-                        onAction(UploadBillAction.OnObtainPermits)
+                        onAction(ConsentFormAction.OnObtainPermits)
                     }
                 },
-                onSelectGallery = { onAction(UploadBillAction.OnSelectGalleryClick) }
+                onSelectGallery = { onAction(ConsentFormAction.OnSelectGalleryClick) }
             )
         }
 
         if (state.showRationaleDialog) {
             PermissionRationaleDialog(
-                onDismiss = { onAction(UploadBillAction.OnToggleRationaleDialog(show = false)) },
+                onDismiss = { onAction(ConsentFormAction.OnToggleRationaleDialog(show = false)) },
                 onConfirm = {
-                    onAction(UploadBillAction.OnToggleRationaleDialog(show = false))
-                    onAction(UploadBillAction.OnObtainPermits)
+                    onAction(ConsentFormAction.OnToggleRationaleDialog(show = false))
+                    onAction(ConsentFormAction.OnObtainPermits)
                 }
             )
         }
 
         if (state.showSettingsDialog) {
             PermissionSettingsDialog(
-                onDismiss = { onAction(UploadBillAction.OnToggleSettingsDialog(show = false)) },
+                onDismiss = { onAction(ConsentFormAction.OnToggleSettingsDialog(show = false)) },
                 onGoToSettings = {
-                    onAction(UploadBillAction.OnToggleSettingsDialog(show = false))
+                    onAction(ConsentFormAction.OnToggleSettingsDialog(show = false))
                     context.openAppSettings()
                 }
             )

@@ -11,8 +11,9 @@ sealed interface ConsentFormAction {
     data object OnSelectCameraClick : ConsentFormAction
     data object OnSelectGalleryClick : ConsentFormAction
     data class OnImageSelected(val uri: Uri?) : ConsentFormAction
-    data object OnProcessBillClick : ConsentFormAction
+    data object OnShowDialogConfirmation : ConsentFormAction
     data object OnObtainPermits : ConsentFormAction
     data class OnToggleRationaleDialog(val show: Boolean) : ConsentFormAction
     data class OnToggleSettingsDialog(val show: Boolean) : ConsentFormAction
+    data object OnUploadImageClick : ConsentFormAction
 }

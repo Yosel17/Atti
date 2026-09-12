@@ -2,6 +2,8 @@ package yosel.dev.atti.core.utils
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -261,4 +263,13 @@ fun formatScheduledDayOfWeek(isoString: String): String {
     val formatter = DateTimeFormatter.ofPattern("EEE d", locale)
     return dateTime.format(formatter)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+}
+
+fun Context.openAppSettings() {
+    Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    ).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }.also { startActivity(it) }
 }

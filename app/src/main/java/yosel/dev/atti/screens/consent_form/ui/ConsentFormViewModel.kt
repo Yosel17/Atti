@@ -46,19 +46,43 @@ class ConsentFormViewModel @AssistedInject constructor(
 
     fun onAction(action: ConsentFormAction){
         when(action){
-            ConsentFormAction.OnDismissBottomSheet -> TODO()
+            ConsentFormAction.OnDismissBottomSheet -> {
+                _state.update { it.copy(isBottomSheetVisible = false) }
+            }
             is ConsentFormAction.OnImageSelected -> TODO()
-            ConsentFormAction.OnObtainPermits -> TODO()
-            ConsentFormAction.OnProcessBillClick -> TODO()
-            ConsentFormAction.OnSelectCameraClick -> TODO()
-            ConsentFormAction.OnSelectGalleryClick -> TODO()
-            is ConsentFormAction.OnToggleRationaleDialog -> TODO()
-            is ConsentFormAction.OnToggleSettingsDialog -> TODO()
+            ConsentFormAction.OnObtainPermits -> {
+                _state.update { it.copy(isBottomSheetVisible = false) }
+                viewModelScope.launch {
+                    _eventChannel.send(ConsentFormEvent.LaunchPermission)
+                }
+            }
+            ConsentFormAction.OnShowDialogConfirmation -> TODO()
+            ConsentFormAction.OnSelectCameraClick -> {
+                _state.update { it.copy(isBottomSheetVisible = false) }
+                viewModelScope.launch {
+                    _eventChannel.send(ConsentFormEvent.LaunchCamera)
+                }
+            }
+            ConsentFormAction.OnSelectGalleryClick -> {
+                _state.update { it.copy(isBottomSheetVisible = false) }
+                viewModelScope.launch {
+                    _eventChannel.send(ConsentFormEvent.LaunchGallery)
+                }
+            }
+            is ConsentFormAction.OnToggleRationaleDialog -> {
+                _state.update { it.copy(showRationaleDialog = action.show) }
+            }
+            is ConsentFormAction.OnToggleSettingsDialog -> {
+                _state.update { it.copy(showSettingsDialog = action.show) }
+            }
             ConsentFormAction.SaveConsent -> saveConsent()
             is ConsentFormAction.ToggleSaveDialog -> {
                 _state.update { it.copy(showDialogConfirm = action.show) }
             }
             ConsentFormAction.TryLoadAgain -> loadInitialData()
+            ConsentFormAction.OnUploadImageClick -> {
+                _state.update { it.copy(isBottomSheetVisible = true) }
+            }
         }
     }
 
