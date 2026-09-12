@@ -1,7 +1,11 @@
 package yosel.dev.atti.core.utils
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -15,6 +19,7 @@ import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.NoFood
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
@@ -28,9 +33,11 @@ import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import yosel.dev.atti.R
 import yosel.dev.atti.core.navigation.main.Screens
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -174,6 +181,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             preAnestheticTestId = recordId
         )
+        "consentimiento" -> Screens.ConsentForm(
+            consultationId = consultationId,
+            consentId = recordId
+        )
         else -> Screens.Empty
     }
 }
@@ -193,6 +204,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "reconsulta" -> Icons.Default.EventRepeat
         "recibo" -> Icons.Default.Receipt
         "ayuno" -> Icons.Default.NoFood
+        "consentimiento" -> Icons.Default.VerifiedUser
         else -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }
@@ -261,4 +273,31 @@ fun formatScheduledDayOfWeek(isoString: String): String {
     val formatter = DateTimeFormatter.ofPattern("EEE d", locale)
     return dateTime.format(formatter)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+}
+
+fun Context.openAppSettings() {
+    Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    ).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }.also { startActivity(it) }
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
+fun Context.createTempUri(
+    prefix: String = "temp_",
+    suffix: String = ".jpg"
+): Uri {
+    val file = File.createTempFile(prefix, suffix, cacheDir)
+    return FileProvider.getUriForFile(
+        this,
+        "$packageName.fileprovider",
+        file
+    )
 }

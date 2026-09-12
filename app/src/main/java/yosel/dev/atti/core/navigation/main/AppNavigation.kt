@@ -190,6 +190,12 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            consentFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                }
+            )
+
             emptyEntry()
         }
     )

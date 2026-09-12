@@ -35,7 +35,7 @@ object Constants {
     const val CONSENTS_SUPABASE = "consents"
 
     //Supabase Buckets
-    const val MULTIMEDIA_BUCKET_SUPABASE = "multimedia"
+    const val CLINICAL_RECORDS_BUCKET_SUPABASE = "clinical-records"
 
     //inputs
     const val FIRST_NAME_FIELD = 0

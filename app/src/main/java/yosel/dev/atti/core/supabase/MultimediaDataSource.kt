@@ -26,7 +26,7 @@ class MultimediaDataSource @Inject constructor(
         byteArray: ByteArray,
         fileName: String,
         folderPath: String = "",
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE,
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE,
         upsert: Boolean = true
     ): String {
         val path = buildPath(folderPath, fileName)
@@ -48,7 +48,7 @@ class MultimediaDataSource @Inject constructor(
      */
     fun getPublicUrl(
         path: String,
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ): String {
         return storage.from(bucketName).publicUrl(path)
     }
@@ -64,7 +64,7 @@ class MultimediaDataSource @Inject constructor(
     suspend fun createSignedUrl(
         path: String,
         expiresIn: Duration,
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ): String {
         return storage.from(bucketName).createSignedUrl(path = path, expiresIn = expiresIn)
     }
@@ -78,7 +78,7 @@ class MultimediaDataSource @Inject constructor(
      */
     suspend fun downloadImage(
         path: String,
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ): ByteArray {
         return storage.from(bucketName).downloadPublic(path)
     }
@@ -91,7 +91,7 @@ class MultimediaDataSource @Inject constructor(
      */
     suspend fun deleteImage(
         path: String,
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ) {
         storage.from(bucketName).delete(path)
     }
@@ -104,7 +104,7 @@ class MultimediaDataSource @Inject constructor(
      */
     suspend fun deleteImages(
         paths: List<String>,
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ) {
         if (paths.isEmpty()) return
         storage.from(bucketName).delete(paths)
@@ -119,7 +119,7 @@ class MultimediaDataSource @Inject constructor(
      */
     suspend fun listImages(
         folderPath: String = "",
-        bucketName: String = Constants.MULTIMEDIA_BUCKET_SUPABASE
+        bucketName: String = Constants.CLINICAL_RECORDS_BUCKET_SUPABASE
     ): List<FileObject> {
         return storage.from(bucketName).list(folderPath)
     }
