@@ -315,6 +315,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo consentimiento
+        val remoteConsents = progressDto.consents.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val consentsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("consentimiento", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if(consentsCatalogId != null){
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = consentsCatalogId,
+                    recordId = remoteConsents?.id,
+                    isCompleted = remoteConsents != null && !remoteConsents.id.isNullOrBlank(),
+                    status = remoteConsents?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }

@@ -56,13 +56,13 @@ class ConsentFormRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveImageConsent(image: Uri, consultationId: String): Result<String> = runCatching {
-        val compressedBytes = compressImageUri(image)
+        val compressedBytes = compressImageUri(imageUri = image, quality = 60)
 
         if (compressedBytes.isEmpty()) {
             throw IllegalStateException("No se pudo procesar o comprimir la imagen de consentimiento")
         }
 
-        val fileName = "consent_$consultationId.jpg"
+        val fileName = "consent_${consultationId}_${UUID.randomUUID()}.jpg"
 
         multimediaDataSource.uploadImage(
             byteArray = compressedBytes,

@@ -190,6 +190,7 @@ class ConsentFormViewModel @AssistedInject constructor(
                         isLoadingSaveConsent = false
                     )
                 }
+                _eventChannel.send(ConsentFormEvent.ShowSuccessSnackbar("Consentimiento guardado con éxito."))
             },
             onFailure = { error ->
                 Log.e("ConsentFormVM", "error al guardar el consentimiento", error)
@@ -244,6 +245,7 @@ class ConsentFormViewModel @AssistedInject constructor(
                         isLoadingUpdateConsent = false
                     )
                 }
+                _eventChannel.send(ConsentFormEvent.ShowSuccessSnackbar("Consentimiento actualizado con éxito."))
             },
             onFailure = {error ->
                 Log.e("ConsentFormVM", "error al actualizar el consentimiento", error)
