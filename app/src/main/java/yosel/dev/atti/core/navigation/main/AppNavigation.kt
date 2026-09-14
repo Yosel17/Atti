@@ -196,6 +196,15 @@ fun AppNavigation(startDestination: Screens) {
                 }
             )
 
+            shiftMedicationFormEntry(
+                onBack = {
+                    backStack.removeLastOrNull()
+                },
+                onNavigation = { screens ->
+                    backStack.add(screens)
+                }
+            )
+
             emptyEntry()
         }
     )

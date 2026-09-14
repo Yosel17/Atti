@@ -116,6 +116,9 @@ import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormViewModel
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormEvent
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormScreen
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormViewModel
+import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormEvent
+import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormScreen
+import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormViewModel
 
 fun EntryProviderScope<NavKey>.mainEntry(
     onNavigation: (Screens) -> Unit,
@@ -1549,6 +1552,61 @@ fun EntryProviderScope<NavKey>.consentFormEntry(
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
             onBack = onBack
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.shiftMedicationFormEntry(
+    onBack: () -> Unit,
+    onNavigation: (Screens) -> Unit
+) {
+    entry<Screens.ShiftMedicationForm> { key ->
+        val viewModel: ShiftMedicationFormViewModel = hiltViewModel(
+            creationCallback = { factory: ShiftMedicationFormViewModel.Factory ->
+                factory.create(
+                    consultationId = key.consultationId,
+                    shiftMedicationId = key.shiftMedicationId
+                )
+            }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ShiftMedicationFormEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+                is ShiftMedicationFormEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+                is ShiftMedicationFormEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        ShiftMedicationFormScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onAction = viewModel::onAction,
+            onBack = onBack,
+            onNavigation = onNavigation
         )
     }
 }
