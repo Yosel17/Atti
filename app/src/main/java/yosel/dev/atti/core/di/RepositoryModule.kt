@@ -42,6 +42,8 @@ import yosel.dev.atti.screens.navigation_bar.consultation.data.ConsultationRepos
 import yosel.dev.atti.screens.navigation_bar.consultation.domain.ConsultationRepository
 import yosel.dev.atti.screens.navigation_bar.directory.data.DirectoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
+import yosel.dev.atti.screens.navigation_bar.home.data.HomeRepositoryImpl
+import yosel.dev.atti.screens.navigation_bar.home.domain.HomeRepository
 import yosel.dev.atti.screens.navigation_bar.inventory.data.InventoryRepositoryImpl
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
 import yosel.dev.atti.screens.observation_form.data.ObservationFormRepositoryImpl
@@ -240,4 +242,9 @@ abstract class RepositoryModule {
     abstract fun bindShiftMedicationFormRepository(
         impl: ShiftMedicationFormRepositoryImpl
     ): ShiftMedicationFormRepository
+
+    @Binds
+    abstract fun bindHomeRepository(
+        impl: HomeRepositoryImpl
+    ): HomeRepository
 }
