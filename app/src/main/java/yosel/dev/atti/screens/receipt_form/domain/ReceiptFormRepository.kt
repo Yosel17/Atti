@@ -9,6 +9,7 @@ import yosel.dev.atti.core.models.model.ReceiptItemModel
 import yosel.dev.atti.core.models.model.ReceiptModel
 import yosel.dev.atti.core.models.model.ReceiptWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.models.model.ShiftMedicationModel
 import yosel.dev.atti.core.models.model.TreatmentModel
 
 interface ReceiptFormRepository {
@@ -20,6 +21,7 @@ interface ReceiptFormRepository {
     suspend fun getTreatmentsByConsultationId(consultationId: String): Result<List<TreatmentModel>>
     suspend fun getPrescriptionItemsByConsultationId(consultationId: String): Result<List<PrescriptionItemModel>>
     suspend fun getPreAnestheticTestsByConsultationId(consultationId: String): Result<List<PreAnestheticTestModel>>
+    suspend fun getShiftMedicationsByConsultationId(consultationId: String): Result<List<ShiftMedicationModel>>
     suspend fun saveReceipt(
         consultationId: String?,
         receipt: ReceiptModel,
