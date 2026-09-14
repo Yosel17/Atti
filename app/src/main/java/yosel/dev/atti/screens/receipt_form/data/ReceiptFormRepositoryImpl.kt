@@ -14,6 +14,7 @@ import yosel.dev.atti.core.models.model.ReceiptItemModel
 import yosel.dev.atti.core.models.model.ReceiptModel
 import yosel.dev.atti.core.models.model.ReceiptWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.models.model.ShiftMedicationModel
 import yosel.dev.atti.core.models.model.TreatmentModel
 import yosel.dev.atti.core.models.request.CreateReceiptRequest
 import yosel.dev.atti.core.models.request.UpdateReceiptRequest
@@ -29,6 +30,7 @@ import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
 import yosel.dev.atti.core.room.tables.receipt.ReceiptItemEntity
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
 import yosel.dev.atti.core.supabase.PreAnestheticTestsDataSource
@@ -36,6 +38,7 @@ import yosel.dev.atti.core.supabase.PrescriptionsDataSource
 import yosel.dev.atti.core.supabase.ProductsDataSource
 import yosel.dev.atti.core.supabase.ReceiptsDataSource
 import yosel.dev.atti.core.supabase.ServicesDataSource
+import yosel.dev.atti.core.supabase.ShiftMedicationsDataSource
 import yosel.dev.atti.core.supabase.TreatmentsDataSource
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.toDtoForInsert
@@ -61,6 +64,8 @@ class ReceiptFormRepositoryImpl @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
     private val preAnestheticTestsDataSource: PreAnestheticTestsDataSource,
     private val preAnestheticTestDao: PreAnestheticTestDao,
+    private val shiftMedicationsDataSource: ShiftMedicationsDataSource,
+    private val shiftMedicationDao: ShiftMedicationDao,
     private val receiptsDataSource: ReceiptsDataSource,
     private val receiptDao: ReceiptDao,
     private val appDatabase: AppDatabase,
@@ -155,6 +160,17 @@ class ReceiptFormRepositoryImpl @Inject constructor(
         }
 
         preAnestheticTestDao.getPreAnestheticTestsByConsultationId(consultationId).map { it.toModel() }
+    }
+
+    override suspend fun getShiftMedicationsByConsultationId(consultationId: String): Result<List<ShiftMedicationModel>> = runCatching {
+        val remote = shiftMedicationsDataSource.getShiftMedicationsByConsultationId(consultationId)
+
+        val entities = remote.map { it.toEntity() }
+        if (entities.isNotEmpty()) {
+            shiftMedicationDao.upsertShiftMedications(entities)
+        }
+
+        shiftMedicationDao.getShiftMedicationsByConsultationId(consultationId).map { it.toModel() }
     }
 
     override suspend fun saveReceipt(

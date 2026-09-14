@@ -232,6 +232,15 @@ class ReceiptFormViewModel @AssistedInject constructor(
                         includePreAnestheticTests = true
                     )
                 }
+                Constants.HOSPITALIZATION_CONSULTATION_TYPE -> {
+                    loadConsultationItemsForReceipt(
+                        products = products,
+                        services = services,
+                        includeTreatments = false,
+                        includePreAnestheticTests = false,
+                        includeShiftMedications = true
+                    )
+                }
                 else -> {
                     _state.update { it.copy(isLoadingDataInitial = false) }
                 }
@@ -311,14 +320,25 @@ class ReceiptFormViewModel @AssistedInject constructor(
     private fun loadConsultationItemsForReceipt(
         products: List<ProductWithDetailsModel>,
         services: List<ServiceWithDetailsModel>,
-        includePreAnestheticTests: Boolean
+        includeTreatments: Boolean = true,
+        includePreAnestheticTests: Boolean = false,
+        includeShiftMedications: Boolean = false
     ) {
         viewModelScope.launch {
             val cId = consultationId.orEmpty()
-            val treatmentsResult = repository.getTreatmentsByConsultationId(cId)
+            val treatmentsResult = if (includeTreatments) {
+                repository.getTreatmentsByConsultationId(cId)
+            } else {
+                Result.success(emptyList())
+            }
             val prescriptionsResult = repository.getPrescriptionItemsByConsultationId(cId)
             val preAnestheticTestsResult = if (includePreAnestheticTests) {
                 repository.getPreAnestheticTestsByConsultationId(cId)
+            } else {
+                Result.success(emptyList())
+            }
+            val shiftMedicationsResult = if (includeShiftMedications) {
+                repository.getShiftMedicationsByConsultationId(cId)
             } else {
                 Result.success(emptyList())
             }
@@ -326,12 +346,15 @@ class ReceiptFormViewModel @AssistedInject constructor(
             val treatments = treatmentsResult.getOrDefault(emptyList())
             val prescriptionItems = prescriptionsResult.getOrDefault(emptyList())
             val preAnestheticTests = preAnestheticTestsResult.getOrDefault(emptyList())
+            val shiftMedications = shiftMedicationsResult.getOrDefault(emptyList())
 
-            // Agrupación de productos (Tratamientos + Receta + Exámenes Pre Anestésicos)
+            // Agrupación de productos (Tratamientos + Receta + Exámenes Pre Anestésicos + Fármacos de Turno)
             val productQuantities = mutableMapOf<String, Int>()
-            treatments.filter { !it.productId.isNullOrBlank() }.forEach { t ->
-                val id = t.productId!!
-                productQuantities[id] = (productQuantities[id] ?: 0) + t.quantity.toInt().coerceAtLeast(1)
+            if (includeTreatments) {
+                treatments.filter { !it.productId.isNullOrBlank() }.forEach { t ->
+                    val id = t.productId!!
+                    productQuantities[id] = (productQuantities[id] ?: 0) + t.quantity.toInt().coerceAtLeast(1)
+                }
             }
             prescriptionItems.filter { !it.productId.isNullOrBlank() }.forEach { pi ->
                 val id = pi.productId!!
@@ -341,6 +364,12 @@ class ReceiptFormViewModel @AssistedInject constructor(
                 preAnestheticTests.filter { it.isProduct && !it.productId.isNullOrBlank() }.forEach { pat ->
                     val id = pat.productId!!
                     productQuantities[id] = (productQuantities[id] ?: 0) + pat.quantity.toInt().coerceAtLeast(1)
+                }
+            }
+            if (includeShiftMedications) {
+                shiftMedications.filter { it.isProduct && !it.productId.isNullOrBlank() }.forEach { sm ->
+                    val id = sm.productId!!
+                    productQuantities[id] = (productQuantities[id] ?: 0) + sm.quantity.toInt().coerceAtLeast(1)
                 }
             }
 
@@ -354,16 +383,24 @@ class ReceiptFormViewModel @AssistedInject constructor(
                 }
             }
 
-            // Agrupación de servicios (Tratamientos + Exámenes Pre Anestésicos)
+            // Agrupación de servicios (Tratamientos + Exámenes Pre Anestésicos + Fármacos de Turno)
             val serviceQuantities = mutableMapOf<String, Int>()
-            treatments.filter { !it.serviceId.isNullOrBlank() }.forEach { t ->
-                val id = t.serviceId!!
-                serviceQuantities[id] = (serviceQuantities[id] ?: 0) + t.quantity.toInt().coerceAtLeast(1)
+            if (includeTreatments) {
+                treatments.filter { !it.serviceId.isNullOrBlank() }.forEach { t ->
+                    val id = t.serviceId!!
+                    serviceQuantities[id] = (serviceQuantities[id] ?: 0) + t.quantity.toInt().coerceAtLeast(1)
+                }
             }
             if (includePreAnestheticTests) {
                 preAnestheticTests.filter { it.isService && !it.serviceId.isNullOrBlank() }.forEach { pat ->
                     val id = pat.serviceId!!
                     serviceQuantities[id] = (serviceQuantities[id] ?: 0) + pat.quantity.toInt().coerceAtLeast(1)
+                }
+            }
+            if (includeShiftMedications) {
+                shiftMedications.filter { it.isService && !it.serviceId.isNullOrBlank() }.forEach { sm ->
+                    val id = sm.serviceId!!
+                    serviceQuantities[id] = (serviceQuantities[id] ?: 0) + sm.quantity.toInt().coerceAtLeast(1)
                 }
             }
 
