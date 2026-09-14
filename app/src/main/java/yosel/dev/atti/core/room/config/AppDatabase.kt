@@ -52,6 +52,8 @@ import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service.ServiceEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationDao
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
@@ -88,7 +90,8 @@ import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
         FastingEntity::class,
         AsaClassificationEntity::class,
         PreAnestheticTestEntity::class,
-        ConsentEntity::class
+        ConsentEntity::class,
+        ShiftMedicationEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -119,4 +122,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun asaClassificationDao(): AsaClassificationDao
     abstract fun preAnestheticTestDao(): PreAnestheticTestDao
     abstract fun consentDao(): ConsentDao
+    abstract fun shiftMedicationDao(): ShiftMedicationDao
 }

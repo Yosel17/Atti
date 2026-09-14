@@ -30,6 +30,7 @@ import yosel.dev.atti.core.room.tables.product.ProductDao
 import yosel.dev.atti.core.room.tables.receipt.ReceiptDao
 import yosel.dev.atti.core.room.tables.service.ServiceDao
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyDao
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationDao
 import yosel.dev.atti.core.room.tables.supplier.SupplierDao
 import yosel.dev.atti.core.room.tables.treatment.TreatmentDao
 import yosel.dev.atti.core.utils.Constants
@@ -148,4 +149,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideConsentDao(appDatabase: AppDatabase): ConsentDao = appDatabase.consentDao()
+
+    @Singleton
+    @Provides
+    fun provideShiftMedicationDao(appDatabase: AppDatabase): ShiftMedicationDao = appDatabase.shiftMedicationDao()
 }

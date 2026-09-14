@@ -27,6 +27,7 @@ import yosel.dev.atti.core.models.dto.ReceiptDto
 import yosel.dev.atti.core.models.dto.ReceiptItemDto
 import yosel.dev.atti.core.models.dto.ServiceDto
 import yosel.dev.atti.core.models.dto.ServiceSupplyDto
+import yosel.dev.atti.core.models.dto.ShiftMedicationDto
 import yosel.dev.atti.core.models.dto.SupplierDto
 import yosel.dev.atti.core.models.dto.TreatmentDto
 import yosel.dev.atti.core.models.model.AnamnesisDewormingModel
@@ -81,6 +82,8 @@ import yosel.dev.atti.core.models.model.ServiceModel
 import yosel.dev.atti.core.models.model.ServiceSupplyModel
 import yosel.dev.atti.core.models.model.ServiceSupplyWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.models.model.ShiftMedicationModel
+import yosel.dev.atti.core.models.model.ShiftMedicationWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.models.model.TreatmentModel
 import yosel.dev.atti.core.models.model.TreatmentWithDetailsModel
@@ -136,6 +139,8 @@ import yosel.dev.atti.core.room.tables.service.ServiceEntity
 import yosel.dev.atti.core.room.tables.service.ServiceWithDetailsEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyEntity
 import yosel.dev.atti.core.room.tables.service_supply.ServiceSupplyWithDetailsEntity
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationEntity
+import yosel.dev.atti.core.room.tables.shift_medication.ShiftMedicationWithDetailsEntity
 import yosel.dev.atti.core.room.tables.supplier.SupplierEntity
 import yosel.dev.atti.core.room.tables.treatment.TreatmentEntity
 import yosel.dev.atti.core.room.tables.treatment.TreatmentWithDetailsEntity
@@ -2358,6 +2363,95 @@ fun ConsentModel.toDtoForUpdate() = ConsentDto(
     consultationId = consultationId,
     imageUrl = imageUrl.trim(),
     status = status
+)
+
+// --- SHIFT MEDICATIONS ---
+
+fun ShiftMedicationDto.toEntity() = ShiftMedicationEntity(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ShiftMedicationEntity.toModel() = ShiftMedicationModel(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ShiftMedicationModel.toEntity() = ShiftMedicationEntity(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes,
+    createdAt = createdAt,
+    status = status
+)
+
+fun ShiftMedicationDto.toModel() = ShiftMedicationModel(
+    id = id.orEmpty(),
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.orEmpty(),
+    createdAt = createdAt.orEmpty(),
+    status = status
+)
+
+fun ShiftMedicationModel.toDtoForInsert() = ShiftMedicationDto(
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+fun ShiftMedicationModel.toDtoForUpdate() = ShiftMedicationDto(
+    id = id,
+    consultationId = consultationId,
+    productId = productId,
+    serviceId = serviceId,
+    quantity = quantity,
+    notes = notes.ifBlank { null },
+    status = status
+)
+
+fun ShiftMedicationWithDetailsEntity.toModel() = ShiftMedicationWithDetailsModel(
+    shiftMedication = shiftMedication.toModel(),
+    product = product?.toModel(),
+    service = service?.toModel()
+)
+
+fun ShiftMedicationDto.toWithDetailsModel() = ShiftMedicationWithDetailsModel(
+    shiftMedication = toModel(),
+    product = product?.toModel()?.let {
+        ProductWithDetailsModel(
+            product = it,
+            supplier = product.supplier?.toModel() ?: SupplierModel(),
+            category = product.category?.toModel() ?: AppCatalogModel(),
+            unitType = product.unitType?.toModel() ?: AppCatalogModel()
+        )
+    },
+    service = service?.toModel()?.let {
+        ServiceWithDetailsModel(
+            service = it,
+            category = service.category?.toModel() ?: AppCatalogModel()
+        )
+    }
 )
 
 fun String.normalize(): String {
