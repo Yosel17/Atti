@@ -86,4 +86,16 @@ interface FollowUpDao {
             upsertFollowUps(followUps)
         }
     }
+
+    @Transaction
+    @Query("""
+    SELECT * FROM follow_ups 
+    WHERE scheduled_at >= :startDateIso AND scheduled_at <= :endDateIso 
+      AND status = 1 
+    ORDER BY scheduled_at ASC
+""")
+    fun getFollowUpsWithDetailsByDateRangeFlow(
+        startDateIso: String,
+        endDateIso: String
+    ): Flow<List<FollowUpWithDetailsEntity>>
 }
