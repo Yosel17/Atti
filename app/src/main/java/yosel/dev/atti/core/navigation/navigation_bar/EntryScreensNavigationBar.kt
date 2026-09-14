@@ -28,17 +28,42 @@ import yosel.dev.atti.screens.navigation_bar.consultation.ui.ConsultationViewMod
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryEvent
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryScreen
 import yosel.dev.atti.screens.navigation_bar.directory.ui.DirectoryViewModel
+import yosel.dev.atti.screens.navigation_bar.home.ui.HomeEvent
+import yosel.dev.atti.screens.navigation_bar.home.ui.HomeScreen
+import yosel.dev.atti.screens.navigation_bar.home.ui.HomeViewModel
 import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryEvent
 import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryScreen
 import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(){
     entry<ScreensNavigationBar.Home> {
-        Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)
-        ){
-            Text(text = "HomeScreen", color = MaterialTheme.colorScheme.onPrimary)
+        val viewModel = hiltViewModel<HomeViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event) {
+                is HomeEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = event.message
+                        )
+                    }
+                }
+            }
         }
+
+        HomeScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = {}
+        )
     }
 }
 
