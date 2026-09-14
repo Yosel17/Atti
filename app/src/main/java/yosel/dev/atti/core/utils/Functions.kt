@@ -181,6 +181,10 @@ fun getConsultationStepScreen(
             consultationId = consultationId,
             preAnestheticTestId = recordId
         )
+        "farmacos de turno" -> Screens.ShiftMedicationForm(
+            consultationId = consultationId,
+            shiftMedicationId = recordId
+        )
         "consentimiento" -> Screens.ConsentForm(
             consultationId = consultationId,
             consentId = recordId
@@ -198,6 +202,7 @@ fun getConsultationStepIcon(stepName: String): ImageVector {
         "pruebas auxiliares" -> Icons.Default.Biotech
         "clasificacion asa", "clasificación asa" -> Icons.Outlined.MedicalServices
         "examenes pre anestesicos" -> Icons.Default.Science
+        "farmacos de turno" -> Icons.Default.Medication
         "tratamiento" -> Icons.Default.Medication
         "receta" -> Icons.AutoMirrored.Filled.ReceiptLong
         "observaciones" -> Icons.Default.Visibility

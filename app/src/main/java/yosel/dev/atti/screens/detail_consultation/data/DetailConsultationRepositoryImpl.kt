@@ -333,6 +333,24 @@ class DetailConsultationRepositoryImpl @Inject constructor(
             )
         }
 
+        //mapeo farmacos de turno
+        val remoteShiftMedications = progressDto.shiftMedications.firstOrNull { it.status != Constants.DELETED_STATUS }
+        val shiftMedicationsCatalogId = remoteSteps.firstOrNull {
+            it.stepCatalog?.name?.contains("fármacos de turno", ignoreCase = true) == true
+        }?.stepCatalogId
+
+        if (shiftMedicationsCatalogId != null) {
+            progressEntities.add(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = shiftMedicationsCatalogId,
+                    recordId = remoteShiftMedications?.id,
+                    isCompleted = remoteShiftMedications != null && !remoteShiftMedications.id.isNullOrBlank(),
+                    status = remoteShiftMedications?.status ?: Constants.ACTIVE_STATUS
+                )
+            )
+        }
+
         // Aquí se agregarán los mapeos de futuros pasos (examen físico, diagnóstico, etc.)
         consultationStepProgressDao.upsertProgress(progressEntities)
     }
