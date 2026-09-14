@@ -59,4 +59,12 @@ interface ProductDao {
     @Transaction
     @Query("SELECT * FROM products WHERE status = 1")
     fun getActiveProductsWithDetailsFlow(): Flow<List<ProductWithDetailsEntity>>
+
+    @Transaction
+    @Query("""
+    SELECT * FROM products 
+    WHERE stock <= min_stock AND status = 1 
+    ORDER BY stock ASC
+""")
+    fun getLowStockProductsWithDetailsFlow(): Flow<List<ProductWithDetailsEntity>>
 }

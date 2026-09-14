@@ -78,4 +78,25 @@ class ProductsDataSource @Inject constructor(
             }
             .decodeList<ProductDto>()
     }
+
+    suspend fun getLowStockProductsWithDetails(): List<ProductDto> {
+        return postgrest.from(Constants.PRODUCTS_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    value = """
+                    *,
+                    supplier:suppliers!supplier_id(*),
+                    category:app_catalogs!category_id(*),
+                    unit_type:app_catalogs!unit_type_id(*)
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    eq("status", Constants.ACTIVE_STATUS)
+                }
+                order("stock", Order.ASCENDING)
+            }
+            .decodeList<ProductDto>()
+            .filter { (it.stock) <= (it.minStock ?: 0) }
+    }
 }
