@@ -391,49 +391,6 @@ fun CalendarCard(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Leyenda: "Día con citas agendadas" y "Hoy"
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Pets,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Día con citas agendadas",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                    Text(
-                        text = "Hoy",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
         }
     }
 }
@@ -680,7 +637,7 @@ fun LowStockProductCard(
     modifier: Modifier = Modifier
 ) {
     val product = productWithDetails.product
-    val unitLabel = productWithDetails.unitType.name.ifBlank { "unidades" }
+    val unitLabel = productWithDetails.unitType.name.ifBlank { "sin tipo de unidad" }
 
     OutlinedCard(
         modifier = modifier
@@ -730,8 +687,6 @@ fun LowStockProductCard(
                         text = product.commercialName.ifBlank { "Sin nombre" },
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
 
@@ -750,17 +705,23 @@ fun LowStockProductCard(
                     }
                 }
 
+                Text(
+                    text = unitLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val stockFormatted = if (product.stock % 1.0 == 0.0) {
-                        product.stock.toInt().toString()
+                        product.stock.toString()
                     } else {
                         "%.2f".format(Locale.US, product.stock)
                     }
                     Text(
-                        text = "$stockFormatted $unitLabel restantes",
+                        text = "$stockFormatted restantes",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.error
                     )
@@ -926,7 +887,7 @@ private fun BodyHomePreview() {
                         ProductWithDetailsModel(
                             product = ProductModel(
                                 id = "p1",
-                                commercialName = "Amoxicilina 500mg",
+                                commercialName = "Amoxicilina 500mg adklfa sdfasd lkfasl;kd",
                                 stock = 3,
                                 minStock = 10
                             ),
