@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.filter.DateSortOrder
+import yosel.dev.atti.core.models.filter.NeuteredFilter
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import javax.inject.Inject
@@ -30,7 +32,6 @@ class DirectoryViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(DirectoryState())
 
-    // 1. Flujos con debounce para cada buscador
     private val debouncedClientQuery = _state
         .map { it.clientSearchQuery }
         .distinctUntilChanged()
@@ -41,47 +42,77 @@ class DirectoryViewModel @Inject constructor(
         .distinctUntilChanged()
         .debounce(300L.milliseconds)
 
-    // 2. Filtrado independiente de clientes
+    private val clientFilterFlow = _state
+        .map { it.clientFilter }
+        .distinctUntilChanged()
+
+    private val patientFilterFlow = _state
+        .map { it.patientFilter }
+        .distinctUntilChanged()
+
     private val clientsFlow = combine(
         repository.getAllClients().catch {
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los clientes locales"))
         },
-        debouncedClientQuery
-    ) { clients, query ->
+        debouncedClientQuery,
+        clientFilterFlow
+    ) { clients, query, filter ->
         val queryNormalized = query.normalize()
-        val filtered = if (queryNormalized.isBlank()) {
-            clients
-        } else {
-            clients.filter { client ->
-                client.firstName.normalize().contains(queryNormalized) ||
+        val filtered = clients
+            .filter { client ->
+                val matchesQuery = queryNormalized.isBlank() ||
+                        client.firstName.normalize().contains(queryNormalized) ||
                         client.lastName.normalize().contains(queryNormalized) ||
                         client.phoneNumber.normalize().contains(queryNormalized) ||
                         client.documentId.normalize().contains(queryNormalized)
+
+                val matchesStatus = filter.status.statusCode == null || client.status == filter.status.statusCode
+                matchesQuery && matchesStatus
             }
-        }
+            .let { list ->
+                when (filter.dateSort) {
+                    DateSortOrder.NEWEST -> list.sortedByDescending { it.createdAt }
+                    DateSortOrder.OLDEST -> list.sortedBy { it.createdAt }
+                }
+            }
         clients to filtered
     }
 
-    // 3. Filtrado independiente de pacientes
     private val patientsFlow = combine(
         repository.getAllPatientsWithCatalogs().catch {
             _events.send(DirectoryEvent.ShowSnackBarError("Error al obtener los pacientes locales"))
         },
-        debouncedPatientQuery
-    ) { patients, query ->
+        debouncedPatientQuery,
+        patientFilterFlow
+    ) { patients, query, filter ->
         val queryNormalized = query.normalize()
-        val filtered = if (queryNormalized.isBlank()) {
-            patients
-        } else {
-            patients.filter { patientWithCatalogs ->
-                patientWithCatalogs.patient.name.normalize().contains(queryNormalized) ||
-                        patientWithCatalogs.patient.breed.normalize().contains(queryNormalized)
+        val filtered = patients
+            .filter { patientWithCatalogs ->
+                val p = patientWithCatalogs.patient
+                val matchesQuery = queryNormalized.isBlank() ||
+                        p.name.normalize().contains(queryNormalized) ||
+                        p.breed.normalize().contains(queryNormalized)
+
+                val matchesSpecies = filter.speciesId == null || p.speciesId == filter.speciesId
+                val matchesGender = filter.genderId == null || p.genderId == filter.genderId
+                val matchesNeutered = when (filter.neutered) {
+                    NeuteredFilter.ALL -> true
+                    NeuteredFilter.YES -> p.isNeutered
+                    NeuteredFilter.NO -> !p.isNeutered
+                }
+                val matchesStatus = filter.status.statusCode == null || p.status == filter.status.statusCode
+
+                matchesQuery && matchesSpecies && matchesGender && matchesNeutered && matchesStatus
             }
-        }
+            .let { list ->
+                when (filter.dateSort) {
+                    DateSortOrder.NEWEST -> list.sortedByDescending { it.patient.createdAt }
+                    DateSortOrder.OLDEST -> list.sortedBy { it.patient.createdAt }
+                }
+            }
         patients to filtered
     }
 
-    // 4. Estado unificado para la UI
     val state: StateFlow<DirectoryState> = combine(
         clientsFlow,
         patientsFlow,
@@ -108,9 +139,7 @@ class DirectoryViewModel @Inject constructor(
 
     fun onAction(event: DirectoryAction) {
         when (event) {
-            is DirectoryAction.OnTabSelected -> {
-                onTabSelected(index = event.index)
-            }
+            is DirectoryAction.OnTabSelected -> onTabSelected(index = event.index)
             is DirectoryAction.OnCallClick -> {
                 viewModelScope.launch {
                     _events.send(DirectoryEvent.NavigateToPhone(event.phoneNumber))
@@ -126,6 +155,12 @@ class DirectoryViewModel @Inject constructor(
             }
             is DirectoryAction.OnPatientSearchQueryChange -> {
                 _state.update { it.copy(patientSearchQuery = event.query) }
+            }
+            is DirectoryAction.OnApplyClientFilter -> {
+                _state.update { it.copy(clientFilter = event.filter) }
+            }
+            is DirectoryAction.OnApplyPatientFilter -> {
+                _state.update { it.copy(patientFilter = event.filter) }
             }
         }
     }

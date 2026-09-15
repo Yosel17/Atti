@@ -1,5 +1,7 @@
 package yosel.dev.atti.screens.navigation_bar.directory.ui
 
+import yosel.dev.atti.core.models.filter.ClientFilter
+import yosel.dev.atti.core.models.filter.PatientFilter
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 
@@ -15,5 +17,7 @@ data class DirectoryState(
     val filteredPatientsWithCatalogs: List<PatientWithDetailsModel> = emptyList(),
     val selectedTabIndex: Int = 0,
     val clientSearchQuery: String = "",
-    val patientSearchQuery: String = ""
+    val patientSearchQuery: String = "",
+    val clientFilter: ClientFilter = ClientFilter(),
+    val patientFilter: PatientFilter = PatientFilter()
 )
