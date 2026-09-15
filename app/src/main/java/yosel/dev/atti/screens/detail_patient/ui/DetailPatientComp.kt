@@ -21,12 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Fingerprint
@@ -75,6 +77,7 @@ import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.formatDate
 import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconGender
@@ -270,6 +273,17 @@ private fun PatientInformationCard(
                     StatusChip(status = patientWithCatalogs.patient.status)
                 }
             )
+
+            if (patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS){
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                DetailRow(
+                    icon = Icons.AutoMirrored.Outlined.Comment,
+                    label = "Comentario",
+                    value = patientWithCatalogs.patient.comment.ifBlank { "Sin comentarios" }
+                )
+            }
         }
     }
 }
