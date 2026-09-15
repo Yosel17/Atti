@@ -14,6 +14,7 @@ import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
 import yosel.dev.atti.core.supabase.ConsultationsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
+import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
 import yosel.dev.atti.screens.detail_patient.domain.DetailPatientRepository
@@ -51,6 +52,22 @@ class DetailPatientRepositoryImpl @Inject constructor(
     override suspend fun changeStatusPatient(patientId: String, newStatus: Int): Result<Unit> = runCatching{
         patientsDataSource.updatePatientStatus(patientId = patientId, newStatus = newStatus)
         patientDao.updatePatientStatus(patientId = patientId, newStatus = newStatus)
+    }
+
+    override suspend fun deletePatient(patientId: String, comment: String): Result<Unit> = runCatching {
+        val trimmed = comment.trim()
+        val supabaseComment = trimmed.ifBlank { null }
+
+        patientsDataSource.updatePatientStatusAndComment(
+            patientId = patientId,
+            newStatus = Constants.DELETED_PATIENT_STATUS,
+            comment = supabaseComment
+        )
+        patientDao.updatePatientStatusAndComment(
+            patientId = patientId,
+            newStatus = Constants.DELETED_PATIENT_STATUS,
+            comment = trimmed
+        )
     }
 
     override suspend fun getPatientConsultations(patientId: String): Result<List<ConsultationWithDetailsModel>> = runCatching {
