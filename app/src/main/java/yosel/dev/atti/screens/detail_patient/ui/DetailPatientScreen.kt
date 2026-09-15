@@ -139,6 +139,7 @@ fun DetailPatientScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
+                            onAction = onAction
                         )
                     }
                 }

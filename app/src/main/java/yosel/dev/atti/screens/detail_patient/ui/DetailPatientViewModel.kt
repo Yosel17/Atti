@@ -58,11 +58,45 @@ class DetailPatientViewModel @AssistedInject constructor(
             is DetailPatientAction.ToggleShowDialogConfirmRestore -> {
                 _state.update { it.copy(showDialogConfirmRestore = action.show) }
             }
+
+            is DetailPatientAction.OnConsultationClick -> {
+                viewModelScope.launch {
+                    _eventChannel.send(
+                        OnNavigationMain(
+                            DetailConsultation(
+                                consultationId = action.consultationId,
+                                consultationTypeId = action.consultationTypeId
+                            )
+                        )
+                    )
+                }
+            }
         }
     }
 
     init {
         observePatient()
+        loadConsultations()
+    }
+
+    private fun loadConsultations() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingConsultations = true) }
+            repository.getPatientConsultations(patientId).fold(
+                onSuccess = { consultationsList ->
+                    _state.update { currentState ->
+                        currentState.copy(
+                            consultations = consultationsList,
+                            isLoadingConsultations = false
+                        )
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingConsultations = false) }
+                    _eventChannel.send(ShowErrorSnackbar("No se pudo recuperar el historial clínico del paciente"))
+                }
+            )
+        }
     }
 
     private fun observePatient() {
