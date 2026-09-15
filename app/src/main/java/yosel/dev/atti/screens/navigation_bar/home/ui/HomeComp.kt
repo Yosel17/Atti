@@ -25,6 +25,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Medication
@@ -400,7 +405,7 @@ fun CalendarCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_animals),
+                        imageVector = Icons.Filled.Pets,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
@@ -558,11 +563,11 @@ private fun CalendarDayCell(
 
         if (hasAppointment) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_animals),
+                imageVector = Icons.Filled.Pets,
                 contentDescription = null,
                 tint = iconTint,
                 modifier = Modifier
-                    .size(12.dp)
+                    .size(14.dp)
                     .padding(top = 2.dp)
             )
         } else {
@@ -639,36 +644,29 @@ fun AppointmentItemCard(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
+                Text(
+                    text = patient.name.ifBlank { "Sin nombre" },
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = patient.name.ifBlank { "Sin nombre" },
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        text = species.name.ifBlank { "Sin especie" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    val detailComplement = when {
-                        patient.breed.isNotBlank() -> patient.breed
-                        species.name.isNotBlank() -> species.name
-                        else -> ""
-                    }
-                    if (detailComplement.isNotBlank()) {
-                        Text(
-                            text = " - $detailComplement",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+
+                    Text(
+                        text = " - ${patient.breed.ifBlank { "Sin raza" }}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
 
                 Text(
                     text = followUp.reason.ifBlank { "Revisión médica agendada" },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -894,6 +892,15 @@ private fun BodyHomePreview() {
                             patientWithDetails = PatientWithDetailsModel(
                                 patient = PatientModel(name = "Luna", breed = "Felino")
                             )
+                        ),
+                        FollowUpWithDetailsModel(
+                            followUp = FollowUpModel(
+                                id = "2",
+                                consultationId = "c2",
+                                patientId = "p2",
+                                scheduledAt = "2026-09-16T09:00:00Z",
+                                reason = "Chequeo"
+                            )
                         )
                     ),
                     selectedDayFollowUps = listOf(
@@ -906,9 +913,14 @@ private fun BodyHomePreview() {
                                 reason = "Revisión de la operación"
                             ),
                             patientWithDetails = PatientWithDetailsModel(
-                                patient = PatientModel(name = "Luna", breed = "Felino")
+                                patient = PatientModel(
+                                    name = "Luna Alvizures",
+                                    breed = "Dalmata"
+                                ),
+                                species = AppCatalogModel(name = "Canino")
                             )
                         )
+
                     ),
                     lowStockProducts = listOf(
                         ProductWithDetailsModel(
