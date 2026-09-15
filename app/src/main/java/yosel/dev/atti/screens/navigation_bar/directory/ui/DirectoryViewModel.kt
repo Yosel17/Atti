@@ -75,8 +75,7 @@ class DirectoryViewModel @Inject constructor(
         } else {
             patients.filter { patientWithCatalogs ->
                 patientWithCatalogs.patient.name.normalize().contains(queryNormalized) ||
-                        patientWithCatalogs.patient.breed.normalize().contains(queryNormalized) ||
-                        patientWithCatalogs.patient.color.normalize().contains(queryNormalized)
+                        patientWithCatalogs.patient.breed.normalize().contains(queryNormalized)
             }
         }
         patients to filtered

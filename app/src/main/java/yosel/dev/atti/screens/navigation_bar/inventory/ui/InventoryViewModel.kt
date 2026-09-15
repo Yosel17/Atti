@@ -59,9 +59,7 @@ class InventoryViewModel @Inject constructor(
         } else {
             products.filter { productWithDetails ->
                 productWithDetails.product.commercialName.normalize().contains(productQueryNormalized) ||
-                        productWithDetails.product.brand.normalize().contains(productQueryNormalized) ||
-                        productWithDetails.category.name.normalize().contains(productQueryNormalized) ||
-                        productWithDetails.supplier.name.normalize().contains(productQueryNormalized)
+                        productWithDetails.product.brand.normalize().contains(productQueryNormalized)
             }
         }
         products to filtered
@@ -79,9 +77,7 @@ class InventoryViewModel @Inject constructor(
             services
         } else {
             services.filter { serviceWithDetails ->
-                serviceWithDetails.service.name.normalize().contains(serviceQueryNormalized) ||
-                        serviceWithDetails.service.description.normalize().contains(serviceQueryNormalized) ||
-                        serviceWithDetails.category.name.normalize().contains(serviceQueryNormalized)
+                serviceWithDetails.service.name.normalize().contains(serviceQueryNormalized)
             }
         }
         services to filtered
