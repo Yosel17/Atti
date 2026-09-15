@@ -5,10 +5,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.core.room.tables.app_catalog.AppCatalogDao
 import yosel.dev.atti.core.room.tables.client.ClientDao
+import yosel.dev.atti.core.room.tables.consultation.ConsultationDao
 import yosel.dev.atti.core.room.tables.patient.PatientDao
 import yosel.dev.atti.core.supabase.ClientsDataSource
+import yosel.dev.atti.core.supabase.ConsultationsDataSource
 import yosel.dev.atti.core.supabase.PatientsDataSource
 import yosel.dev.atti.core.utils.toEntity
 import yosel.dev.atti.core.utils.toModel
@@ -18,8 +22,11 @@ import javax.inject.Inject
 class DetailPatientRepositoryImpl @Inject constructor(
     private val patientDao: PatientDao,
     private val clientDao: ClientDao,
+    private val consultationDao: ConsultationDao,
+    private val appCatalogDao: AppCatalogDao,
     private val clientsDataSource: ClientsDataSource,
-    private val patientsDataSource: PatientsDataSource
+    private val patientsDataSource: PatientsDataSource,
+    private val consultationsDataSource: ConsultationsDataSource
 ): DetailPatientRepository {
 
     override fun getPatientWithCatalogsByIdFlow(patientId: String): Flow<PatientWithDetailsModel?> =
@@ -44,5 +51,21 @@ class DetailPatientRepositoryImpl @Inject constructor(
     override suspend fun changeStatusPatient(patientId: String, newStatus: Int): Result<Unit> = runCatching{
         patientsDataSource.updatePatientStatus(patientId = patientId, newStatus = newStatus)
         patientDao.updatePatientStatus(patientId = patientId, newStatus = newStatus)
+    }
+
+    override suspend fun getPatientConsultations(patientId: String): Result<List<ConsultationWithDetailsModel>> = runCatching {
+        val remoteConsultations = consultationsDataSource.getConsultationsByPatientId(patientId)
+        val catalogEntities = remoteConsultations.mapNotNull { it.consultationType?.toEntity() }.distinctBy { it.id }
+        val consultationEntities = remoteConsultations.map { it.toEntity() }
+
+        if (catalogEntities.isNotEmpty()) {
+            appCatalogDao.insertAllCatalogs(catalogEntities)
+        }
+        if (consultationEntities.isNotEmpty()) {
+            consultationDao.upsertConsultations(consultationEntities)
+        }
+
+        consultationDao.getConsultationsWithDetailsByPatientId(patientId)
+            .map { it.toModel() }
     }
 }

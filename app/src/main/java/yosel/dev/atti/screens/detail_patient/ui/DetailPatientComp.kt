@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.EventNote
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -24,11 +26,13 @@ import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,14 +51,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.core.utils.formatDate
+import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconGender
 import yosel.dev.atti.core.utils.getIconSpecies
 
 @Composable
 fun BodyDetailPatient(
     modifier: Modifier = Modifier,
-    state: DetailPatientState
+    state: DetailPatientState,
+    onAction: (DetailPatientAction) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -72,13 +80,22 @@ fun BodyDetailPatient(
             )
         }
         item {
+            ClinicalHistorySection(
+                consultations = state.consultations,
+                isLoading = state.isLoadingConsultations,
+                onConsultationClick = { consultationId, consultationTypeId ->
+                    onAction(DetailPatientAction.OnConsultationClick(consultationId, consultationTypeId))
+                }
+            )
+        }
+        item {
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 /**
- * 2. Header con Icono de Especie, Borde, Badge de Verificado y Nombre del Paciente
+ * Header con Icono de Especie, Borde, Badge de Verificado y Nombre del Paciente
  */
 @Composable
 private fun PatientProfileHeader(
@@ -95,7 +112,6 @@ private fun PatientProfileHeader(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier.padding(bottom = 12.dp)
         ) {
-            // Círculo principal con borde
             Box(
                 modifier = Modifier
                     .size(130.dp)
@@ -116,7 +132,6 @@ private fun PatientProfileHeader(
                 )
             }
 
-            // Mini círculo con icono de verificado
             Surface(
                 modifier = Modifier
                     .size(36.dp)
@@ -135,7 +150,6 @@ private fun PatientProfileHeader(
             }
         }
 
-        // Nombre del paciente
         Text(
             text = patientWithCatalogs.patient.name.ifBlank { "Sin nombre" },
             style = MaterialTheme.typography.headlineMedium,
@@ -149,7 +163,7 @@ private fun PatientProfileHeader(
 }
 
 /**
- * 3. Card con toda la información detallada del paciente y dueño
+ * Card con toda la información detallada del paciente y dueño
  */
 @Composable
 private fun PatientInformationCard(
@@ -158,7 +172,6 @@ private fun PatientInformationCard(
     modifier: Modifier = Modifier
 ) {
     val iconGender = getIconGender(patientWithCatalogs.patient.genderId)
-
     val ownerName = "${client.firstName} ${client.lastName}".trim().ifBlank { "Sin información" }
 
     Card(
@@ -174,7 +187,6 @@ private fun PatientInformationCard(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Edad
             DetailRow(
                 icon = Icons.Outlined.Event,
                 label = "Edad",
@@ -182,7 +194,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Especie
             DetailRow(
                 icon = Icons.Outlined.Category,
                 label = "Especie",
@@ -190,7 +201,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Raza
             DetailRow(
                 icon = Icons.Outlined.Fingerprint,
                 label = "Raza",
@@ -198,7 +208,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Género
             DetailRow(
                 icon = iconGender,
                 label = "Género",
@@ -206,7 +215,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Castrado / Esterilizado
             DetailRow(
                 icon = Icons.Outlined.ContentCut,
                 label = "Castrado",
@@ -217,7 +225,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Color de pelaje
             DetailRow(
                 icon = Icons.Outlined.ColorLens,
                 label = "Color de pelaje",
@@ -225,7 +232,6 @@ private fun PatientInformationCard(
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            // Propietario
             DetailRow(
                 icon = Icons.Outlined.Person,
                 label = "Propietario",
@@ -241,6 +247,223 @@ private fun PatientInformationCard(
                 valueComposable = {
                     StatusChip(status = patientWithCatalogs.patient.status)
                 }
+            )
+        }
+    }
+}
+
+/**
+ * Sección de Historial Clínico
+ */
+@Composable
+private fun ClinicalHistorySection(
+    consultations: List<ConsultationWithDetailsModel>,
+    isLoading: Boolean,
+    onConsultationClick: (consultationId: String, consultationTypeId: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.HistoryEdu,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Historial clínico",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            if (consultations.isNotEmpty()) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Text(
+                        text = "${consultations.size}",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
+
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
+            consultations.isEmpty() -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp, horizontal = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.EventNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Text(
+                            text = "Sin consultas registradas",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Las consultas atendidas para este paciente aparecerán aquí.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            else -> {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    consultations.forEach { consultationWithDetails ->
+                        ConsultationHistoryItem(
+                            item = consultationWithDetails,
+                            onClick = {
+                                onConsultationClick(
+                                    consultationWithDetails.consultation.id,
+                                    consultationWithDetails.consultation.consultationTypeId
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Item individual para cada consulta del historial clínico
+ */
+@Composable
+private fun ConsultationHistoryItem(
+    item: ConsultationWithDetailsModel,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val typeName = item.consultationType.name.ifBlank { "Consulta General" }
+    val icon = getIconForConsultationReason(typeName)
+
+    val rawDate = item.consultation.startedAt.ifBlank { item.consultation.createdAt }
+    val formattedDateText = if (rawDate.isNotBlank()) formatDate(rawDate) else "Sin fecha"
+
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = typeName,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column {
+                    Text(
+                        text = typeName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Event,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = formattedDateText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                contentDescription = "Ver detalle",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp)
             )
         }
     }
@@ -267,7 +490,6 @@ private fun DetailRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Lado Izquierdo: Icono + Label
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
@@ -288,7 +510,6 @@ private fun DetailRow(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Lado Derecho: Valor + Icono opcional (ej: Check)
         if (valueComposable != null){
             valueComposable()
         }else{
