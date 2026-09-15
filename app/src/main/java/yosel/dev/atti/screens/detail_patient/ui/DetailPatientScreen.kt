@@ -148,6 +148,7 @@ fun DetailPatientScreen(
                 patientName = state.patientWithCatalogs.patient.name,
                 comment = state.deleteComment,
                 isLoading = state.isLoadingDeletePatient,
+                isDeleteSuccess = state.isDeleteSuccess, // <-- Pasamos la bandera
                 onCommentChange = { comment ->
                     onAction(DetailPatientAction.OnDeleteCommentChange(comment))
                 },

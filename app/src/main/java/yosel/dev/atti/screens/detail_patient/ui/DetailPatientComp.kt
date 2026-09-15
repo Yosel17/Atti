@@ -58,6 +58,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,6 +74,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
@@ -582,6 +585,7 @@ fun DeletePatientBottomSheet(
     patientName: String,
     comment: String,
     isLoading: Boolean,
+    isDeleteSuccess: Boolean,
     onCommentChange: (String) -> Unit,
     onConfirmDelete: () -> Unit,
     onDismiss: () -> Unit
@@ -592,8 +596,27 @@ fun DeletePatientBottomSheet(
         confirmValueChange = { !isLoading }
     )
 
+    val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Cierre animado programático
+    fun animateDismiss() {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismiss()
+            }
+        }
+    }
+
+    // Animar la salida cuando la operación en el ViewModel sea exitosa
+    LaunchedEffect(isDeleteSuccess) {
+        if (isDeleteSuccess) {
+            animateDismiss()
+        }
+    }
 
     BackHandler(enabled = isLoading) {}
 
@@ -727,7 +750,7 @@ fun DeletePatientBottomSheet(
                     onClick = {
                         keyboardController?.hide()
                         focusManager.clearFocus()
-                        onDismiss()
+                        animateDismiss()
                     },
                     enabled = !isLoading,
                     shape = RoundedCornerShape(14.dp),

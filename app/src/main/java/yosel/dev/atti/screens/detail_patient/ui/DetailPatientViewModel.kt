@@ -46,6 +46,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                 _state.update {
                     it.copy(
                         showBottomSheetDelete = action.show,
+                        isDeleteSuccess = false, // Reiniciar estado de éxito
                         deleteComment = if (action.show) "" else it.deleteComment
                     )
                 }
@@ -167,7 +168,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                     _state.update { currentState ->
                         currentState.copy(
                             isLoadingDeletePatient = false,
-                            showBottomSheetDelete = false,
+                            isDeleteSuccess = true, // Notificamos éxito para que la UI anime el cierre
                             deleteComment = ""
                         )
                     }

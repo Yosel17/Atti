@@ -13,6 +13,7 @@ data class DetailPatientState(
     val showBottomSheetDelete: Boolean = false,
     val deleteComment: String = "",
     val isLoadingDeletePatient: Boolean = false,
+    val isDeleteSuccess: Boolean = false,
     val showDialogConfirmRestore: Boolean = false,
     val isLoadingRestorePatient: Boolean = false
 )
