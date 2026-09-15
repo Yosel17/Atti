@@ -32,7 +32,6 @@ fun HomeScreen(
             hostState = snackBarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
         ) { data ->
             SnackBarError(data = data)
         }
