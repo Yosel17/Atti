@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -62,6 +63,7 @@ import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.formatScheduledTime
 import yosel.dev.atti.ui.theme.AttiTheme
+import yosel.dev.atti.ui.theme.customColors
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -157,46 +159,84 @@ fun BodyHome(
 
         // 5. Encabezado de Stock Bajo
         item {
-            Row(
+            FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
+                val hasCritical = state.lowStockProducts.any { it.product.stock < it.product.minStock }
+                val headerIconTint = if (hasCritical) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.customColors.rangeHyper
+                }
+                val headerIconContainer = if (hasCritical) {
+                    MaterialTheme.colorScheme.errorContainer
+                } else {
+                    MaterialTheme.customColors.rangeHyperContainer
+                }
+
+                Row(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.WarningAmber,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(headerIconContainer.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.WarningAmber,
+                            contentDescription = null,
+                            tint = headerIconTint,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Text(
+                        text = "Stock Bajo",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                Text(
-                    text = "Stock Bajo",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
                 if (state.lowStockProducts.isNotEmpty()) {
-                    val criticalCount = state.lowStockProducts.size
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Text(
-                            text = "$criticalCount críticos",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
-                        )
+                    val criticalCount = state.lowStockProducts.count { it.product.stock < it.product.minStock }
+                    val warningCount = state.lowStockProducts.count { it.product.stock == it.product.minStock }
+
+                    if (criticalCount > 0) {
+                        Surface(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.errorContainer
+                        ) {
+                            Text(
+                                text = "$criticalCount críticos",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    if (warningCount > 0) {
+                        Surface(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            shape = CircleShape,
+                            color = MaterialTheme.customColors.rangeHyperContainer
+                        ) {
+                            Text(
+                                text = "$warningCount en mínimo",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.customColors.onRangeHyperContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -632,6 +672,25 @@ fun LowStockProductCard(
     val product = productWithDetails.product
     val unitLabel = productWithDetails.unitType.name.ifBlank { "sin tipo de unidad" }
 
+    val isCritical = product.stock < product.minStock
+
+    val statusText = if (isCritical) "CRÍTICO" else "ADVERTENCIA"
+    val statusColor = if (isCritical) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.customColors.rangeHyper
+    }
+    val containerColor = if (isCritical) {
+        MaterialTheme.colorScheme.errorContainer
+    } else {
+        MaterialTheme.customColors.rangeHyperContainer
+    }
+    val onContainerColor = if (isCritical) {
+        MaterialTheme.colorScheme.onErrorContainer
+    } else {
+        MaterialTheme.customColors.onRangeHyperContainer
+    }
+
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
@@ -655,13 +714,13 @@ fun LowStockProductCard(
                 modifier = Modifier
                     .size(52.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)),
+                    .background(containerColor.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Medication,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = statusColor,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -687,12 +746,12 @@ fun LowStockProductCard(
 
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.errorContainer
+                        color = containerColor
                     ) {
                         Text(
-                            text = "CRÍTICO",
+                            text = statusText,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            color = onContainerColor,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -716,7 +775,7 @@ fun LowStockProductCard(
                     Text(
                         text = "$stockFormatted restantes",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.error
+                        color = statusColor
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
@@ -883,6 +942,15 @@ private fun BodyHomePreview() {
                                 commercialName = "Amoxicilina 500mg adklfa sdfasd lkfasl;kd",
                                 stock = 3,
                                 minStock = 10
+                            ),
+                            unitType = AppCatalogModel(name = "unidades")
+                        ),
+                        ProductWithDetailsModel(
+                            product = ProductModel(
+                                id = "p2",
+                                commercialName = "Paracetamol 250mg",
+                                stock = 5,
+                                minStock = 5
                             ),
                             unitType = AppCatalogModel(name = "unidades")
                         )
