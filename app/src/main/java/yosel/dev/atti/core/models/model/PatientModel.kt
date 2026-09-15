@@ -15,7 +15,8 @@ data class PatientModel(
     val isNeutered: Boolean = false,
     val photoUrl: String = "",
     val createdAt: String = "",
-    val status: Int = 1
+    val status: Int = 1,
+    val comment: String = ""
 ) {
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)

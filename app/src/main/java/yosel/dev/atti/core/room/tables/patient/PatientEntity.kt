@@ -58,5 +58,8 @@ data class PatientEntity(
     val createdAt: String = "",
 
     @ColumnInfo(name = "status")
-    val status: Int
+    val status: Int,
+
+    @ColumnInfo(name = "comment")
+    val comment: String = ""
 )

@@ -44,6 +44,9 @@ data class PatientDto(
     @SerialName("status")
     val status: Int,
 
+    @SerialName("comment")
+    val comment: String? = null,
+
     // Relaciones mapeadas desde Supabase (Opcionales)
     @SerialName("species") val species: AppCatalogDto? = null,
     @SerialName("gender") val gender: AppCatalogDto? = null,
