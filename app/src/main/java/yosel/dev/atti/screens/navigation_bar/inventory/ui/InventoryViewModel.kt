@@ -18,6 +18,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.filter.DateSortOrder
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ProductWithDetailsModel
+import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
+import yosel.dev.atti.core.models.model.SupplierModel
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
 import javax.inject.Inject
@@ -58,7 +62,7 @@ class InventoryViewModel @Inject constructor(
         .map { it.supplierFilter }
         .distinctUntilChanged()
 
-    // 1. Filtrado de productos
+    // 1. Filtrado de productos y extracción de catálogos
     private val productsFlow = combine(
         repository.getAllProducts().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los productos locales"))
@@ -87,10 +91,26 @@ class InventoryViewModel @Inject constructor(
                     DateSortOrder.OLDEST -> list.sortedBy { it.product.createdAt }
                 }
             }
-        products to filtered
+
+        val categories = products
+            .map { it.category }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        val unitTypes = products
+            .map { it.unitType }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        val suppliers = products
+            .map { it.supplier }
+            .filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        ProductsCalculation(products, filtered, categories, unitTypes, suppliers)
     }
 
-    // 2. Filtrado de servicios
+    // 2. Filtrado de servicios y extracción de categorías
     private val servicesFlow = combine(
         repository.getAllServices().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los servicios locales"))
@@ -116,7 +136,13 @@ class InventoryViewModel @Inject constructor(
                     DateSortOrder.OLDEST -> list.sortedBy { it.service.createdAt }
                 }
             }
-        services to filtered
+
+        val categories = services
+            .map { it.category }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        ServicesCalculation(services, filtered, categories)
     }
 
     // 3. Filtrado de proveedores
@@ -153,12 +179,16 @@ class InventoryViewModel @Inject constructor(
         servicesFlow,
         suppliersFlow,
         _state
-    ) { (products, filteredProducts), (services, filteredServices), (suppliers, filteredSuppliers), localState ->
+    ) { prodCalc, servCalc, (suppliers, filteredSuppliers), localState ->
         localState.copy(
-            products = products,
-            filteredProducts = filteredProducts,
-            services = services,
-            filteredServices = filteredServices,
+            products = prodCalc.products,
+            filteredProducts = prodCalc.filtered,
+            productCategories = prodCalc.categories,
+            productUnitTypes = prodCalc.unitTypes,
+            productSuppliers = prodCalc.suppliers,
+            services = servCalc.services,
+            filteredServices = servCalc.filtered,
+            serviceCategories = servCalc.categories,
             suppliers = suppliers,
             filteredSuppliers = filteredSuppliers
         )
@@ -205,6 +235,15 @@ class InventoryViewModel @Inject constructor(
             }
             is InventoryAction.OnApplySupplierFilter -> {
                 _state.update { it.copy(supplierFilter = event.filter) }
+            }
+            is InventoryAction.OnToggleProductFilterSheet -> {
+                _state.update { it.copy(showProductFilterSheet = event.isOpen) }
+            }
+            is InventoryAction.OnToggleServiceFilterSheet -> {
+                _state.update { it.copy(showServiceFilterSheet = event.isOpen) }
+            }
+            is InventoryAction.OnToggleSupplierFilterSheet -> {
+                _state.update { it.copy(showSupplierFilterSheet = event.isOpen) }
             }
         }
     }
@@ -294,4 +333,18 @@ class InventoryViewModel @Inject constructor(
                 }
         }
     }
+
+    private data class ProductsCalculation(
+        val products: List<ProductWithDetailsModel>,
+        val filtered: List<ProductWithDetailsModel>,
+        val categories: List<AppCatalogModel>,
+        val unitTypes: List<AppCatalogModel>,
+        val suppliers: List<SupplierModel>
+    )
+
+    private data class ServicesCalculation(
+        val services: List<ServiceWithDetailsModel>,
+        val filtered: List<ServiceWithDetailsModel>,
+        val categories: List<AppCatalogModel>
+    )
 }

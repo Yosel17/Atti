@@ -129,39 +129,6 @@ fun BodyInventory(
     val serviceListState = rememberLazyListState()
     val supplierListState = rememberLazyListState()
 
-    var showProductFilterSheet by rememberSaveable { mutableStateOf(false) }
-    var showServiceFilterSheet by rememberSaveable { mutableStateOf(false) }
-    var showSupplierFilterSheet by rememberSaveable { mutableStateOf(false) }
-
-// Extraer opciones únicas en memoria sin llamadas adicionales a red/Room
-    val productCategories = remember(state.products) {
-        state.products
-            .map { it.category }
-            .filter { it.id != 0 && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
-    val productUnitTypes = remember(state.products) {
-        state.products
-            .map { it.unitType }
-            .filter { it.id != 0 && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
-    val productSuppliers = remember(state.products) {
-        state.products
-            .map { it.supplier }
-            .filter { it.id.isNotBlank() && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
-    val serviceCategories = remember(state.services) {
-        state.services
-            .map { it.category }
-            .filter { it.id != 0 && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
     Column(modifier = modifier) {
         SecondaryTabRow(
             selectedTabIndex = state.selectedTabIndex,
@@ -230,7 +197,7 @@ fun BodyInventory(
                                         value = state.productSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnProductSearchQueryChange(it)) },
                                         placeholder = "Buscar productos...",
-                                        onFilterClick = { showProductFilterSheet = true }
+                                        onFilterClick = { onAction(InventoryAction.OnToggleProductFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -309,7 +276,7 @@ fun BodyInventory(
                                         value = state.serviceSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnServiceSearchQueryChange(it)) },
                                         placeholder = "Buscar servicios...",
-                                        onFilterClick = { showServiceFilterSheet = true }
+                                        onFilterClick = { onAction(InventoryAction.OnToggleServiceFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -388,7 +355,7 @@ fun BodyInventory(
                                         value = state.supplierSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnSupplierSearchQueryChange(it)) },
                                         placeholder = "Buscar proveedores...",
-                                        onFilterClick = { showSupplierFilterSheet = true }
+                                        onFilterClick = { onAction(InventoryAction.OnToggleSupplierFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -446,34 +413,6 @@ fun BodyInventory(
                 }
             }
         }
-    }
-
-    if (showProductFilterSheet) {
-        ProductFilterBottomSheet(
-            initialFilter = state.productFilter,
-            categories = productCategories,
-            unitTypes = productUnitTypes,
-            suppliers = productSuppliers,
-            onDismissRequest = { showProductFilterSheet = false },
-            onApply = { onAction(InventoryAction.OnApplyProductFilter(it)) }
-        )
-    }
-
-    if (showServiceFilterSheet) {
-        ServiceFilterBottomSheet(
-            initialFilter = state.serviceFilter,
-            categories = serviceCategories,
-            onDismissRequest = { showServiceFilterSheet = false },
-            onApply = { onAction(InventoryAction.OnApplyServiceFilter(it)) }
-        )
-    }
-
-    if (showSupplierFilterSheet) {
-        SupplierFilterBottomSheet(
-            initialFilter = state.supplierFilter,
-            onDismissRequest = { showSupplierFilterSheet = false },
-            onApply = { onAction(InventoryAction.OnApplySupplierFilter(it)) }
-        )
     }
 }
 

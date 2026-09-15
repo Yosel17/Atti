@@ -25,7 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.ProductFilterBottomSheet
+import yosel.dev.atti.core.components.ServiceFilterBottomSheet
 import yosel.dev.atti.core.components.SnackBarError
+import yosel.dev.atti.core.components.SupplierFilterBottomSheet
 import yosel.dev.atti.core.navigation.main.Screens
 
 @Composable
@@ -162,5 +165,33 @@ fun InventoryScreen(
         ) { data ->
             SnackBarError(data = data)
         }
+    }
+
+    if (state.showProductFilterSheet) {
+        ProductFilterBottomSheet(
+            initialFilter = state.productFilter,
+            categories = state.productCategories,
+            unitTypes = state.productUnitTypes,
+            suppliers = state.productSuppliers,
+            onDismissRequest = { onAction(InventoryAction.OnToggleProductFilterSheet(false)) },
+            onApply = { onAction(InventoryAction.OnApplyProductFilter(it)) }
+        )
+    }
+
+    if (state.showServiceFilterSheet) {
+        ServiceFilterBottomSheet(
+            initialFilter = state.serviceFilter,
+            categories = state.serviceCategories,
+            onDismissRequest = { onAction(InventoryAction.OnToggleServiceFilterSheet(false)) },
+            onApply = { onAction(InventoryAction.OnApplyServiceFilter(it)) }
+        )
+    }
+
+    if (state.showSupplierFilterSheet) {
+        SupplierFilterBottomSheet(
+            initialFilter = state.supplierFilter,
+            onDismissRequest = { onAction(InventoryAction.OnToggleSupplierFilterSheet(false)) },
+            onApply = { onAction(InventoryAction.OnApplySupplierFilter(it)) }
+        )
     }
 }

@@ -14,4 +14,8 @@ sealed interface InventoryAction {
     data class OnApplyProductFilter(val filter: ProductFilter) : InventoryAction
     data class OnApplyServiceFilter(val filter: ServiceFilter) : InventoryAction
     data class OnApplySupplierFilter(val filter: SupplierFilter) : InventoryAction
+    // Control de visibilidad de sheets
+    data class OnToggleProductFilterSheet(val isOpen: Boolean) : InventoryAction
+    data class OnToggleServiceFilterSheet(val isOpen: Boolean) : InventoryAction
+    data class OnToggleSupplierFilterSheet(val isOpen: Boolean) : InventoryAction
 }
