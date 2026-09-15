@@ -35,7 +35,9 @@ import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryEvent
 import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryScreen
 import yosel.dev.atti.screens.navigation_bar.inventory.ui.InventoryViewModel
 
-fun EntryProviderScope<NavKey>.homeEntry(){
+fun EntryProviderScope<NavKey>.homeEntry(
+    onNavigationMain: (Screens) -> Unit
+){
     entry<ScreensNavigationBar.Home> {
         val viewModel = hiltViewModel<HomeViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -62,7 +64,7 @@ fun EntryProviderScope<NavKey>.homeEntry(){
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
-            onNavigationMain = {}
+            onNavigationMain = onNavigationMain
         )
     }
 }
