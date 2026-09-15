@@ -177,7 +177,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                     )
                 },
                 onFailure = {
-                    _state.update { it.copy(isLoadingDeletePatient = false) }
+                    _state.update { it.copy(isLoadingDeletePatient = false, isDeleteSuccess = true) }
                     _eventChannel.send(
                         ShowErrorSnackbar(message = "No se pudo eliminar el paciente")
                     )

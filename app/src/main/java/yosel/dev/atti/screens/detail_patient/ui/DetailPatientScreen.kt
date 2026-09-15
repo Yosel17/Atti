@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.DeleteConfirmationDialog
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
 
@@ -147,7 +148,6 @@ fun DetailPatientScreen(
             DeletePatientBottomSheet(
                 patientName = state.patientWithCatalogs.patient.name,
                 comment = state.deleteComment,
-                isLoading = state.isLoadingDeletePatient,
                 isDeleteSuccess = state.isDeleteSuccess, // <-- Pasamos la bandera
                 onCommentChange = { comment ->
                     onAction(DetailPatientAction.OnDeleteCommentChange(comment))
@@ -178,6 +178,14 @@ fun DetailPatientScreen(
                 buttonContainerColor = MaterialTheme.colorScheme.primary,
                 buttonContentColor = MaterialTheme.colorScheme.onPrimary,
                 textButtonIsLoading = "Restaurando..."
+            )
+        }
+
+        if (state.isLoadingDeletePatient){
+            LoadingDialog(
+                title = "Eliminando paciente",
+                color = MaterialTheme.colorScheme.error,
+                colorTitle = MaterialTheme.colorScheme.error
             )
         }
     }

@@ -584,7 +584,6 @@ fun DeletePatientBottomSheet(
     modifier: Modifier = Modifier,
     patientName: String,
     comment: String,
-    isLoading: Boolean,
     isDeleteSuccess: Boolean,
     onCommentChange: (String) -> Unit,
     onConfirmDelete: () -> Unit,
@@ -592,8 +591,7 @@ fun DeletePatientBottomSheet(
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        confirmValueChange = { !isLoading }
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
     )
 
     val scope = rememberCoroutineScope()
@@ -618,20 +616,11 @@ fun DeletePatientBottomSheet(
         }
     }
 
-    BackHandler(enabled = isLoading) {}
-
     ModalBottomSheet(
         onDismissRequest = {
-            if (!isLoading) {
-                onDismiss()
-            }
+            onDismiss()
         },
         sheetState = sheetState,
-        sheetGesturesEnabled = !isLoading,
-        properties = ModalBottomSheetProperties(
-            shouldDismissOnBackPress = !isLoading,
-            shouldDismissOnClickOutside = !isLoading
-        ),
         dragHandle = { BottomSheetDefaults.DragHandle() },
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
@@ -715,7 +704,6 @@ fun DeletePatientBottomSheet(
                 value = comment,
                 onValueChange = onCommentChange,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading,
                 label = { Text("Motivo de eliminación (opcional)") },
                 placeholder = {
                     Text(
@@ -752,7 +740,6 @@ fun DeletePatientBottomSheet(
                         focusManager.clearFocus()
                         animateDismiss()
                     },
-                    enabled = !isLoading,
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .weight(1f)
@@ -770,7 +757,6 @@ fun DeletePatientBottomSheet(
                         focusManager.clearFocus()
                         onConfirmDelete()
                     },
-                    enabled = !isLoading,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
@@ -780,29 +766,16 @@ fun DeletePatientBottomSheet(
                         .weight(1f)
                         .height(48.dp)
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onError
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Eliminando...",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Eliminar",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Rounded.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Eliminar",
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
         }
