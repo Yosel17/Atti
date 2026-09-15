@@ -109,24 +109,6 @@ fun BodyDirectory(
     val clientListState = rememberLazyListState()
     val patientListState = rememberLazyListState()
 
-    var showClientFilterSheet by rememberSaveable { mutableStateOf(false) }
-    var showPatientFilterSheet by rememberSaveable { mutableStateOf(false) }
-
-// Extraer especies y géneros dinámicamente de la lista existente sin ir a repositorios
-    val availableSpecies = remember(state.patientsWithCatalogs) {
-        state.patientsWithCatalogs
-            .map { it.species }
-            .filter { it.id != 0 && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
-    val availableGenders = remember(state.patientsWithCatalogs) {
-        state.patientsWithCatalogs
-            .map { it.gender }
-            .filter { it.id != 0 && it.name.isNotBlank() }
-            .distinctBy { it.id }
-    }
-
     Column(modifier = modifier) {
         SecondaryTabRow(
             selectedTabIndex = state.selectedTabIndex,
@@ -194,7 +176,7 @@ fun BodyDirectory(
                                         value = state.clientSearchQuery,
                                         onValueChange = { onAction(DirectoryAction.OnClientSearchQueryChange(it)) },
                                         placeholder = "Buscar clientes...",
-                                        onFilterClick = { showClientFilterSheet = true }
+                                        onFilterClick = { onAction(DirectoryAction.OnToggleClientFilterSheet(true)) }
                                     )
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -292,7 +274,7 @@ fun BodyDirectory(
                                         value = state.patientSearchQuery,
                                         onValueChange = { onAction(DirectoryAction.OnPatientSearchQueryChange(it)) },
                                         placeholder = "Buscar pacientes...",
-                                        onFilterClick = { showPatientFilterSheet = true }
+                                        onFilterClick = { onAction(DirectoryAction.OnTogglePatientFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -338,25 +320,6 @@ fun BodyDirectory(
                 }
             }
         }
-    }
-
-    // Mostrar los BottomSheets condicionalmente:
-    if (showClientFilterSheet) {
-        ClientFilterBottomSheet(
-            initialFilter = state.clientFilter,
-            onDismissRequest = { showClientFilterSheet = false },
-            onApply = { onAction(DirectoryAction.OnApplyClientFilter(it)) }
-        )
-    }
-
-    if (showPatientFilterSheet) {
-        PatientFilterBottomSheet(
-            initialFilter = state.patientFilter,
-            availableSpecies = availableSpecies,
-            availableGenders = availableGenders,
-            onDismissRequest = { showPatientFilterSheet = false },
-            onApply = { onAction(DirectoryAction.OnApplyPatientFilter(it)) }
-        )
     }
 }
 

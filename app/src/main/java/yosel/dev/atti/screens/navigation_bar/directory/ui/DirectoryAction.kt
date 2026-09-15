@@ -11,4 +11,7 @@ sealed interface DirectoryAction {
     data class OnPatientSearchQueryChange(val query: String): DirectoryAction
     data class OnApplyClientFilter(val filter: ClientFilter): DirectoryAction
     data class OnApplyPatientFilter(val filter: PatientFilter): DirectoryAction
+    // Control de visibilidad de sheets
+    data class OnToggleClientFilterSheet(val isOpen: Boolean): DirectoryAction
+    data class OnTogglePatientFilterSheet(val isOpen: Boolean): DirectoryAction
 }

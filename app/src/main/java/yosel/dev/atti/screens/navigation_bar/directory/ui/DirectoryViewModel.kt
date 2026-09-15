@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.filter.DateSortOrder
 import yosel.dev.atti.core.models.filter.NeuteredFilter
+import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.directory.domain.DirectoryRepository
 import javax.inject.Inject
@@ -110,19 +111,32 @@ class DirectoryViewModel @Inject constructor(
                     DateSortOrder.OLDEST -> list.sortedBy { it.patient.createdAt }
                 }
             }
-        patients to filtered
+
+        val species = patients
+            .map { it.species }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        val genders = patients
+            .map { it.gender }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+
+        Triple(patients, filtered, species to genders)
     }
 
     val state: StateFlow<DirectoryState> = combine(
         clientsFlow,
         patientsFlow,
         _state
-    ) { (clients, filteredClients), (patients, filteredPatients), localState ->
+    ) { (clients, filteredClients), (patients, filteredPatients, catalogs), localState ->
         localState.copy(
             clients = clients,
             filteredClients = filteredClients,
             patientsWithCatalogs = patients,
-            filteredPatientsWithCatalogs = filteredPatients
+            filteredPatientsWithCatalogs = filteredPatients,
+            availableSpecies = catalogs.first,
+            availableGenders = catalogs.second
         )
     }.stateIn(
         scope = viewModelScope,
@@ -161,6 +175,12 @@ class DirectoryViewModel @Inject constructor(
             }
             is DirectoryAction.OnApplyPatientFilter -> {
                 _state.update { it.copy(patientFilter = event.filter) }
+            }
+            is DirectoryAction.OnToggleClientFilterSheet -> {
+                _state.update { it.copy(showClientFilterSheet = event.isOpen) }
+            }
+            is DirectoryAction.OnTogglePatientFilterSheet -> {
+                _state.update { it.copy(showPatientFilterSheet = event.isOpen) }
             }
         }
     }
