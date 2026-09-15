@@ -10,8 +10,10 @@ data class DetailPatientState(
     val client: ClientModel = ClientModel(),
     val consultations: List<ConsultationWithDetailsModel> = emptyList(),
     val isLoadingConsultations: Boolean = false,
-    val showDialogConfirmDelete: Boolean = false,
+    val showBottomSheetDelete: Boolean = false,
+    val deleteComment: String = "",
     val isLoadingDeletePatient: Boolean = false,
+    val isDeleteSuccess: Boolean = false,
     val showDialogConfirmRestore: Boolean = false,
     val isLoadingRestorePatient: Boolean = false
 )

@@ -41,6 +41,9 @@ interface PatientDao {
     @Query("UPDATE patients SET status = :newStatus WHERE id = :patientId")
     suspend fun updatePatientStatus(patientId: String, newStatus: Int)
 
+    @Query("UPDATE patients SET status = :newStatus, comment = :comment WHERE id = :patientId")
+    suspend fun updatePatientStatusAndComment(patientId: String, newStatus: Int, comment: String)
+
     @Query("UPDATE patients SET status = :newStatus WHERE id IN (:patientIds)")
     suspend fun updatePatientsStatus(patientIds: List<String>, newStatus: Int)
 

@@ -15,5 +15,7 @@ interface DetailPatientRepository {
 
     suspend fun changeStatusPatient(patientId: String, newStatus: Int): Result<Unit>
 
+    suspend fun deletePatient(patientId: String, comment: String): Result<Unit>
+
     suspend fun getPatientConsultations(patientId: String): Result<List<ConsultationWithDetailsModel>>
 }

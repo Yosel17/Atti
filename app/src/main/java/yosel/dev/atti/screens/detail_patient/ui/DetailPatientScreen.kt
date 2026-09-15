@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.DeleteConfirmationDialog
 import yosel.dev.atti.core.components.EmptyGlobal
+import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.utils.Constants
 
@@ -50,23 +51,20 @@ fun DetailPatientScreen(
                 title = "Detalle Paciente",
                 onBack = onBack,
                 actions = {
-                    if (!state.isLoading && state.patientWithCatalogs.patient.id != ""){
+                    if (!state.isLoading && state.patientWithCatalogs.patient.id != "") {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(
                                 onClick = { onAction(DetailPatientAction.OnEditClick) }
                             ) {
-
                                 Icon(
                                     imageVector = Icons.Rounded.Edit,
                                     contentDescription = "editar"
                                 )
                             }
-
                             Spacer(modifier = Modifier.width(4.dp))
-
-                            if (state.patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS){
+                            if (state.patientWithCatalogs.patient.status == Constants.DELETED_PATIENT_STATUS) {
                                 IconButton(
                                     onClick = {
                                         onAction(
@@ -80,11 +78,11 @@ fun DetailPatientScreen(
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                            }else{
+                            } else {
                                 IconButton(
                                     onClick = {
                                         onAction(
-                                            DetailPatientAction.ToggleShowDialogConfirmDelete(show = true)
+                                            DetailPatientAction.ToggleShowBottomSheetDelete(show = true)
                                         )
                                     }
                                 ) {
@@ -95,7 +93,6 @@ fun DetailPatientScreen(
                                     )
                                 }
                             }
-
                         }
                     }
                 }
@@ -106,34 +103,34 @@ fun DetailPatientScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ){
+        ) {
             AnimatedContent(
                 targetState = state,
                 contentKey = { targetState ->
-                    when{
+                    when {
                         targetState.isLoading -> "LOADING"
                         targetState.patientWithCatalogs.patient.id.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
                 label = "DetailPatientScreenAnimation"
-            ){ targetState ->
-                when{
-                    targetState.isLoading ->{
+            ) { targetState ->
+                when {
+                    targetState.isLoading -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             LoadingIndicator(
                                 modifier = Modifier.size(75.dp)
                             )
                         }
                     }
-                    targetState.patientWithCatalogs.patient.id.isEmpty() ->{
+                    targetState.patientWithCatalogs.patient.id.isEmpty() -> {
                         EmptyGlobal(
                             title = "No se pudo encontrar al paciente",
                             subTitle = "Intenta de nuevo más tarde",
                             icon = Icons.Outlined.Pets
                         )
                     }
-                    else ->{
+                    else -> {
                         BodyDetailPatient(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -146,22 +143,29 @@ fun DetailPatientScreen(
             }
         }
 
-        if (state.showDialogConfirmDelete){
-            DeleteConfirmationDialog(
-                title = "Eliminar paciente",
-                message = "¿Estás seguro de que deseas eliminar al paciente",
-                itemTargetName = state.patientWithCatalogs.patient.name,
-                warningNote = "Este registro se ocultará de los pacientes activos junto con toda su información vinculada. Podrás volver a activarlo en cualquier momento.",
-                onConfirmDelete = { onAction(DetailPatientAction.DeletePatient) },
-                onDismiss = { onAction(DetailPatientAction.ToggleShowDialogConfirmDelete(show = false)) },
-                isLoading = state.isLoadingDeletePatient
+        // NUEVO: BottomSheet moderno para eliminar con motivo
+        if (state.showBottomSheetDelete) {
+            DeletePatientBottomSheet(
+                patientName = state.patientWithCatalogs.patient.name,
+                comment = state.deleteComment,
+                isDeleteSuccess = state.isDeleteSuccess, // <-- Pasamos la bandera
+                onCommentChange = { comment ->
+                    onAction(DetailPatientAction.OnDeleteCommentChange(comment))
+                },
+                onConfirmDelete = {
+                    onAction(DetailPatientAction.DeletePatient)
+                },
+                onDismiss = {
+                    onAction(DetailPatientAction.ToggleShowBottomSheetDelete(show = false))
+                }
             )
         }
 
-        if (state.showDialogConfirmRestore){
+        // Mantenemos intacto el diálogo de restauración
+        if (state.showDialogConfirmRestore) {
             DeleteConfirmationDialog(
                 title = "Restaurar paciente",
-                message = "¿Estás seguro de que deseas restaurar al paciente",
+                message = "Está seguro de que deseas restaurar al paciente",
                 itemTargetName = state.patientWithCatalogs.patient.name,
                 warningNote = "El paciente volverá a estar activo y su información vinculada aparecerá nuevamente en las listas principales.",
                 onConfirmDelete = { onAction(DetailPatientAction.RestorePatient) },
@@ -174,6 +178,14 @@ fun DetailPatientScreen(
                 buttonContainerColor = MaterialTheme.colorScheme.primary,
                 buttonContentColor = MaterialTheme.colorScheme.onPrimary,
                 textButtonIsLoading = "Restaurando..."
+            )
+        }
+
+        if (state.isLoadingDeletePatient){
+            LoadingDialog(
+                title = "Eliminando paciente",
+                color = MaterialTheme.colorScheme.error,
+                colorTitle = MaterialTheme.colorScheme.error
             )
         }
     }

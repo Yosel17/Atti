@@ -239,7 +239,8 @@ fun PatientDto.toEntity() = PatientEntity(
     isNeutered = isNeutered ?: false,
     photoUrl = photoUrl.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    comment = comment.orEmpty()
 )
 
 fun PatientDto.toModel() = PatientModel(
@@ -255,7 +256,8 @@ fun PatientDto.toModel() = PatientModel(
     isNeutered = isNeutered ?: false,
     photoUrl = photoUrl.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    comment = comment.orEmpty()
 )
 
 // Entity -> Model
@@ -272,7 +274,8 @@ fun PatientEntity.toModel() = PatientModel(
     isNeutered = isNeutered,
     photoUrl = photoUrl,
     createdAt = createdAt,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PatientModel.toEntity() = PatientEntity(
@@ -288,7 +291,8 @@ fun PatientModel.toEntity() = PatientEntity(
     isNeutered = isNeutered,
     photoUrl = photoUrl,
     createdAt = createdAt,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PatientModel.toDtoInsert() = PatientDto(
@@ -317,7 +321,8 @@ fun PatientModel.toDtoForUpdate() = PatientDto(
     isNeutered = isNeutered,
     photoUrl = photoUrl.ifBlank { null },
     createdAt = createdAt.ifBlank { null },
-    status = status
+    status = status,
+    comment = comment.ifBlank { null }
 )
 
 fun PatientModel.toAddPatientFormState(client: ClientModel?) = AddPatientFormState(
