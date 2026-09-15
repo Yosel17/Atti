@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.atti.core.models.filter.DateSortOrder
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.navigation_bar.inventory.domain.InventoryRepository
 import javax.inject.Inject
@@ -30,7 +31,6 @@ class InventoryViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(InventoryState())
 
-    // 1. Flujos con debounce para cada pestaña
     private val debouncedProductQuery = _state
         .map { it.productSearchQuery }
         .distinctUntilChanged()
@@ -46,64 +46,108 @@ class InventoryViewModel @Inject constructor(
         .distinctUntilChanged()
         .debounce(300L.milliseconds)
 
-    // 2. Filtrado de productos
+    private val productFilterFlow = _state
+        .map { it.productFilter }
+        .distinctUntilChanged()
+
+    private val serviceFilterFlow = _state
+        .map { it.serviceFilter }
+        .distinctUntilChanged()
+
+    private val supplierFilterFlow = _state
+        .map { it.supplierFilter }
+        .distinctUntilChanged()
+
+    // 1. Filtrado de productos
     private val productsFlow = combine(
         repository.getAllProducts().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los productos locales"))
         },
-        debouncedProductQuery
-    ) { products, query ->
+        debouncedProductQuery,
+        productFilterFlow
+    ) { products, query, filter ->
         val productQueryNormalized = query.normalize()
-        val filtered = if (productQueryNormalized.isBlank()) {
-            products
-        } else {
-            products.filter { productWithDetails ->
-                productWithDetails.product.commercialName.normalize().contains(productQueryNormalized) ||
-                        productWithDetails.product.brand.normalize().contains(productQueryNormalized)
+        val filtered = products
+            .filter { productWithDetails ->
+                val p = productWithDetails.product
+                val matchesQuery = productQueryNormalized.isBlank() ||
+                        p.commercialName.normalize().contains(productQueryNormalized) ||
+                        p.brand.normalize().contains(productQueryNormalized)
+
+                val matchesCategory = filter.categoryId == null || p.categoryId == filter.categoryId
+                val matchesUnit = filter.unitTypeId == null || p.unitTypeId == filter.unitTypeId
+                val matchesSupplier = filter.supplierId == null || p.supplierId == filter.supplierId
+                val matchesStatus = filter.status.statusCode == null || p.status == filter.status.statusCode
+
+                matchesQuery && matchesCategory && matchesUnit && matchesSupplier && matchesStatus
             }
-        }
+            .let { list ->
+                when (filter.dateSort) {
+                    DateSortOrder.NEWEST -> list.sortedByDescending { it.product.createdAt }
+                    DateSortOrder.OLDEST -> list.sortedBy { it.product.createdAt }
+                }
+            }
         products to filtered
     }
 
-    // 3. Filtrado de servicios
+    // 2. Filtrado de servicios
     private val servicesFlow = combine(
         repository.getAllServices().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los servicios locales"))
         },
-        debouncedServiceQuery
-    ) { services, query ->
+        debouncedServiceQuery,
+        serviceFilterFlow
+    ) { services, query, filter ->
         val serviceQueryNormalized = query.normalize()
-        val filtered = if (serviceQueryNormalized.isBlank()) {
-            services
-        } else {
-            services.filter { serviceWithDetails ->
-                serviceWithDetails.service.name.normalize().contains(serviceQueryNormalized)
+        val filtered = services
+            .filter { serviceWithDetails ->
+                val s = serviceWithDetails.service
+                val matchesQuery = serviceQueryNormalized.isBlank() ||
+                        s.name.normalize().contains(serviceQueryNormalized)
+
+                val matchesCategory = filter.categoryId == null || s.categoryId == filter.categoryId
+                val matchesStatus = filter.status.statusCode == null || s.status == filter.status.statusCode
+
+                matchesQuery && matchesCategory && matchesStatus
             }
-        }
+            .let { list ->
+                when (filter.dateSort) {
+                    DateSortOrder.NEWEST -> list.sortedByDescending { it.service.createdAt }
+                    DateSortOrder.OLDEST -> list.sortedBy { it.service.createdAt }
+                }
+            }
         services to filtered
     }
 
-    // 4. Filtrado de proveedores
+    // 3. Filtrado de proveedores
     private val suppliersFlow = combine(
         repository.getAllSuppliers().catch {
             _events.send(InventoryEvent.ShowSnackBarError("Error al obtener los proveedores locales"))
         },
-        debouncedSupplierQuery
-    ) { suppliers, query ->
+        debouncedSupplierQuery,
+        supplierFilterFlow
+    ) { suppliers, query, filter ->
         val supplierQueryNormalized = query.normalize()
-        val filtered = if (supplierQueryNormalized.isBlank()) {
-            suppliers
-        } else {
-            suppliers.filter { supplier ->
-                supplier.name.normalize().contains(supplierQueryNormalized) ||
+        val filtered = suppliers
+            .filter { supplier ->
+                val matchesQuery = supplierQueryNormalized.isBlank() ||
+                        supplier.name.normalize().contains(supplierQueryNormalized) ||
                         supplier.taxId.normalize().contains(supplierQueryNormalized) ||
                         supplier.phoneNumber.normalize().contains(supplierQueryNormalized)
+
+                val matchesStatus = filter.status.statusCode == null || supplier.status == filter.status.statusCode
+
+                matchesQuery && matchesStatus
             }
-        }
+            .let { list ->
+                when (filter.dateSort) {
+                    DateSortOrder.NEWEST -> list.sortedByDescending { it.createdAt }
+                    DateSortOrder.OLDEST -> list.sortedBy { it.createdAt }
+                }
+            }
         suppliers to filtered
     }
 
-    // 5. Estado unificado para la UI
     val state: StateFlow<InventoryState> = combine(
         productsFlow,
         servicesFlow,
@@ -133,9 +177,7 @@ class InventoryViewModel @Inject constructor(
 
     fun onAction(event: InventoryAction) {
         when (event) {
-            is InventoryAction.OnTabSelected -> {
-                onTabSelected(index = event.index)
-            }
+            is InventoryAction.OnTabSelected -> onTabSelected(index = event.index)
             is InventoryAction.OnProductSearchQueryChange -> {
                 _state.update { it.copy(productSearchQuery = event.query) }
             }
@@ -154,6 +196,15 @@ class InventoryViewModel @Inject constructor(
                 viewModelScope.launch {
                     _events.send(InventoryEvent.NavigateToWhatsapp(phoneNumber = event.phoneNumber))
                 }
+            }
+            is InventoryAction.OnApplyProductFilter -> {
+                _state.update { it.copy(productFilter = event.filter) }
+            }
+            is InventoryAction.OnApplyServiceFilter -> {
+                _state.update { it.copy(serviceFilter = event.filter) }
+            }
+            is InventoryAction.OnApplySupplierFilter -> {
+                _state.update { it.copy(supplierFilter = event.filter) }
             }
         }
     }

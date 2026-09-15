@@ -62,7 +62,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +81,10 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.ProductFilterBottomSheet
+import yosel.dev.atti.core.components.ServiceFilterBottomSheet
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.components.SupplierFilterBottomSheet
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
@@ -123,6 +128,39 @@ fun BodyInventory(
     val productListState = rememberLazyListState()
     val serviceListState = rememberLazyListState()
     val supplierListState = rememberLazyListState()
+
+    var showProductFilterSheet by rememberSaveable { mutableStateOf(false) }
+    var showServiceFilterSheet by rememberSaveable { mutableStateOf(false) }
+    var showSupplierFilterSheet by rememberSaveable { mutableStateOf(false) }
+
+// Extraer opciones únicas en memoria sin llamadas adicionales a red/Room
+    val productCategories = remember(state.products) {
+        state.products
+            .map { it.category }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+    }
+
+    val productUnitTypes = remember(state.products) {
+        state.products
+            .map { it.unitType }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+    }
+
+    val productSuppliers = remember(state.products) {
+        state.products
+            .map { it.supplier }
+            .filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            .distinctBy { it.id }
+    }
+
+    val serviceCategories = remember(state.services) {
+        state.services
+            .map { it.category }
+            .filter { it.id != 0 && it.name.isNotBlank() }
+            .distinctBy { it.id }
+    }
 
     Column(modifier = modifier) {
         SecondaryTabRow(
@@ -192,7 +230,7 @@ fun BodyInventory(
                                         value = state.productSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnProductSearchQueryChange(it)) },
                                         placeholder = "Buscar productos...",
-                                        onFilterClick = {}
+                                        onFilterClick = { showProductFilterSheet = true }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -271,7 +309,7 @@ fun BodyInventory(
                                         value = state.serviceSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnServiceSearchQueryChange(it)) },
                                         placeholder = "Buscar servicios...",
-                                        onFilterClick = {}
+                                        onFilterClick = { showServiceFilterSheet = true }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -350,7 +388,7 @@ fun BodyInventory(
                                         value = state.supplierSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnSupplierSearchQueryChange(it)) },
                                         placeholder = "Buscar proveedores...",
-                                        onFilterClick = {}
+                                        onFilterClick = { showSupplierFilterSheet = true }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -408,6 +446,34 @@ fun BodyInventory(
                 }
             }
         }
+    }
+
+    if (showProductFilterSheet) {
+        ProductFilterBottomSheet(
+            initialFilter = state.productFilter,
+            categories = productCategories,
+            unitTypes = productUnitTypes,
+            suppliers = productSuppliers,
+            onDismissRequest = { showProductFilterSheet = false },
+            onApply = { onAction(InventoryAction.OnApplyProductFilter(it)) }
+        )
+    }
+
+    if (showServiceFilterSheet) {
+        ServiceFilterBottomSheet(
+            initialFilter = state.serviceFilter,
+            categories = serviceCategories,
+            onDismissRequest = { showServiceFilterSheet = false },
+            onApply = { onAction(InventoryAction.OnApplyServiceFilter(it)) }
+        )
+    }
+
+    if (showSupplierFilterSheet) {
+        SupplierFilterBottomSheet(
+            initialFilter = state.supplierFilter,
+            onDismissRequest = { showSupplierFilterSheet = false },
+            onApply = { onAction(InventoryAction.OnApplySupplierFilter(it)) }
+        )
     }
 }
 
