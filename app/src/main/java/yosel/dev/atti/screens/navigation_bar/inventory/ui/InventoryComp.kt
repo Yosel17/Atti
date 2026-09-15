@@ -62,7 +62,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +81,10 @@ import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.ProductFilterBottomSheet
+import yosel.dev.atti.core.components.ServiceFilterBottomSheet
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.components.SupplierFilterBottomSheet
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceModel
@@ -192,7 +197,7 @@ fun BodyInventory(
                                         value = state.productSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnProductSearchQueryChange(it)) },
                                         placeholder = "Buscar productos...",
-                                        onFilterClick = {}
+                                        onFilterClick = { onAction(InventoryAction.OnToggleProductFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -271,7 +276,7 @@ fun BodyInventory(
                                         value = state.serviceSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnServiceSearchQueryChange(it)) },
                                         placeholder = "Buscar servicios...",
-                                        onFilterClick = {}
+                                        onFilterClick = { onAction(InventoryAction.OnToggleServiceFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(
@@ -350,7 +355,7 @@ fun BodyInventory(
                                         value = state.supplierSearchQuery,
                                         onValueChange = { onAction(InventoryAction.OnSupplierSearchQueryChange(it)) },
                                         placeholder = "Buscar proveedores...",
-                                        onFilterClick = {}
+                                        onFilterClick = { onAction(InventoryAction.OnToggleSupplierFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(

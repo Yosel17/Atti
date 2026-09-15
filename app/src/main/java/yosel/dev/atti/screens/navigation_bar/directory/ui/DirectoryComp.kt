@@ -58,7 +58,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,8 +73,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.R
 import yosel.dev.atti.core.components.AttiSearchBar
+import yosel.dev.atti.core.components.ClientFilterBottomSheet
 import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
+import yosel.dev.atti.core.components.PatientFilterBottomSheet
 import yosel.dev.atti.core.components.StatusChipShort
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
@@ -172,7 +176,7 @@ fun BodyDirectory(
                                         value = state.clientSearchQuery,
                                         onValueChange = { onAction(DirectoryAction.OnClientSearchQueryChange(it)) },
                                         placeholder = "Buscar clientes...",
-                                        onFilterClick = { /* No acción por ahora */ },
+                                        onFilterClick = { onAction(DirectoryAction.OnToggleClientFilterSheet(true)) }
                                     )
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -270,7 +274,7 @@ fun BodyDirectory(
                                         value = state.patientSearchQuery,
                                         onValueChange = { onAction(DirectoryAction.OnPatientSearchQueryChange(it)) },
                                         placeholder = "Buscar pacientes...",
-                                        onFilterClick = {}
+                                        onFilterClick = { onAction(DirectoryAction.OnTogglePatientFilterSheet(true)) }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     CountBadge(

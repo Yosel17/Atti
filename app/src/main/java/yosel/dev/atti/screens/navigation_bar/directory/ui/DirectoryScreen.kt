@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import yosel.dev.atti.core.components.ClientFilterBottomSheet
+import yosel.dev.atti.core.components.PatientFilterBottomSheet
 import yosel.dev.atti.core.components.SnackBarError
 import yosel.dev.atti.core.navigation.main.Screens
 
@@ -132,5 +134,23 @@ fun DirectoryScreen(
         ) { data ->
             SnackBarError(data = data)
         }
+    }
+
+    if (state.showClientFilterSheet) {
+        ClientFilterBottomSheet(
+            initialFilter = state.clientFilter,
+            onDismissRequest = { onAction(DirectoryAction.OnToggleClientFilterSheet(false)) },
+            onApply = { onAction(DirectoryAction.OnApplyClientFilter(it)) }
+        )
+    }
+
+    if (state.showPatientFilterSheet) {
+        PatientFilterBottomSheet(
+            initialFilter = state.patientFilter,
+            availableSpecies = state.availableSpecies,
+            availableGenders = state.availableGenders,
+            onDismissRequest = { onAction(DirectoryAction.OnTogglePatientFilterSheet(false)) },
+            onApply = { onAction(DirectoryAction.OnApplyPatientFilter(it)) }
+        )
     }
 }
