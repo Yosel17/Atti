@@ -125,7 +125,9 @@ fun MainScreen(
                 }
             },
             entryProvider = entryProvider {
-                homeEntry()
+                homeEntry(
+                    onNavigationMain = onNavigationMain
+                )
                 directoryEntry(
                     onNavigationMain = onNavigationMain
                 )
