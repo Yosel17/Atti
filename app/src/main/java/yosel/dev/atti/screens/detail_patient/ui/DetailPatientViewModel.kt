@@ -38,27 +38,31 @@ class DetailPatientViewModel @AssistedInject constructor(
     private val _eventChannel = Channel<DetailPatientEvent>()
     val events = _eventChannel.receiveAsFlow()
 
-    // Control para evitar llamadas repetidas a la red si el ID del cliente no cambia
     private var lastFetchedClientId: String? = null
 
     fun onAction(action: DetailPatientAction) {
         when (action) {
-            is DetailPatientAction.ToggleShowDialogConfirmDelete -> {
-                _state.update { it.copy(showDialogConfirmDelete = action.show) }
+            is DetailPatientAction.ToggleShowBottomSheetDelete -> {
+                _state.update {
+                    it.copy(
+                        showBottomSheetDelete = action.show,
+                        deleteComment = if (action.show) "" else it.deleteComment
+                    )
+                }
             }
-
+            is DetailPatientAction.OnDeleteCommentChange -> {
+                _state.update { it.copy(deleteComment = action.comment) }
+            }
             DetailPatientAction.OnEditClick -> {
                 viewModelScope.launch {
                     _eventChannel.send(OnNavigationMain(AddPatient(patientId)))
                 }
             }
-
             DetailPatientAction.DeletePatient -> deletePatient()
             DetailPatientAction.RestorePatient -> restorePatient()
             is DetailPatientAction.ToggleShowDialogConfirmRestore -> {
                 _state.update { it.copy(showDialogConfirmRestore = action.show) }
             }
-
             is DetailPatientAction.OnConsultationClick -> {
                 viewModelScope.launch {
                     _eventChannel.send(
@@ -102,7 +106,6 @@ class DetailPatientViewModel @AssistedInject constructor(
     private fun observePatient() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-
             repository.getPatientWithCatalogsByIdFlow(patientId)
                 .catch {
                     _state.update { it.copy(isLoading = false) }
@@ -115,10 +118,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                             isLoading = false
                         )
                     }
-
                     val isValid = patientWithCatalogsModel?.patient?.clientId?.isNotBlank() ?: false
-
-                    // Si tenemos un clientId válido, cargamos los datos del cliente
                     if (isValid) {
                         fetchClientIfNeeded(patientWithCatalogsModel.patient.clientId)
                     }
@@ -127,24 +127,20 @@ class DetailPatientViewModel @AssistedInject constructor(
     }
 
     private suspend fun fetchClientIfNeeded(clientId: String) {
-        // Evita re-consultar a la API/DB si el clientId no ha cambiado durante esta sesión de la pantalla
         if (lastFetchedClientId == clientId && _state.value.client.id == clientId) return
 
-        // 1. Intentar obtener de Room
         val roomResult = repository.getClientByIdRoom(clientId)
-
         roomResult.fold(
             onSuccess = { client ->
                 updateClientState(client)
             },
             onFailure = {
-                // 2. Si falla Room o no existe, intentar obtener de Supabase
                 val supabaseResult = repository.getClientByIdSupabase(clientId)
                 supabaseResult.fold(
                     onSuccess = { client ->
                         updateClientState(client)
                     },
-                    onFailure = { throwable ->
+                    onFailure = {
                         _eventChannel.send(ShowErrorSnackbar("No se pudo recuperar la información del cliente"))
                     }
                 )
@@ -161,20 +157,18 @@ class DetailPatientViewModel @AssistedInject constructor(
 
     private fun deletePatient() {
         val cs = _state.value
-
-        _state.update {
-            it.copy(isLoadingDeletePatient = true)
-        }
-
+        _state.update { it.copy(isLoadingDeletePatient = true) }
         viewModelScope.launch {
-            repository.changeStatusPatient(
-                patientId = cs.patientWithCatalogs.patient.id, newStatus = Constants.DELETED_PATIENT_STATUS
+            repository.deletePatient(
+                patientId = cs.patientWithCatalogs.patient.id,
+                comment = cs.deleteComment
             ).fold(
                 onSuccess = {
                     _state.update { currentState ->
                         currentState.copy(
                             isLoadingDeletePatient = false,
-                            showDialogConfirmDelete = false,
+                            showBottomSheetDelete = false,
+                            deleteComment = ""
                         )
                     }
                     _eventChannel.send(
@@ -182,9 +176,7 @@ class DetailPatientViewModel @AssistedInject constructor(
                     )
                 },
                 onFailure = {
-                    _state.update {
-                        it.copy(isLoadingDeletePatient = false, showDialogConfirmDelete = false)
-                    }
+                    _state.update { it.copy(isLoadingDeletePatient = false) }
                     _eventChannel.send(
                         ShowErrorSnackbar(message = "No se pudo eliminar el paciente")
                     )
@@ -195,14 +187,11 @@ class DetailPatientViewModel @AssistedInject constructor(
 
     private fun restorePatient() {
         val cs = _state.value
-
-        _state.update {
-            it.copy(isLoadingRestorePatient = true)
-        }
-
+        _state.update { it.copy(isLoadingRestorePatient = true) }
         viewModelScope.launch {
             repository.changeStatusPatient(
-                patientId = cs.patientWithCatalogs.patient.id, newStatus = Constants.ACTIVE_PATIENT_STATUS
+                patientId = cs.patientWithCatalogs.patient.id,
+                newStatus = Constants.ACTIVE_PATIENT_STATUS
             ).fold(
                 onSuccess = {
                     _state.update {
