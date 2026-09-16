@@ -14,7 +14,10 @@ data class AnamnesisModel(
     val feedingFrequency: String = "",
     val waterConsumption: String = "",
     val createdAt: String = "",
-    val status: Int = 1
+    val status: Int = 1,
+    val litterBrandId: Int? = null,
+    val litterQuantity: Double = 0.0,
+    val litterUnitTypeId: Int? = null,
 ) {
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)

@@ -982,7 +982,10 @@ fun AnamnesisDto.toEntity() = AnamnesisEntity(
     feedingFrequency = feedingFrequency.orEmpty(),
     waterConsumption = waterConsumption.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity ?: 0.0,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisEntity.toModel() = AnamnesisModel(
@@ -997,7 +1000,10 @@ fun AnamnesisEntity.toModel() = AnamnesisModel(
     feedingFrequency = feedingFrequency,
     waterConsumption = waterConsumption,
     createdAt = createdAt,
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toEntity() = AnamnesisEntity(
@@ -1012,7 +1018,10 @@ fun AnamnesisModel.toEntity() = AnamnesisEntity(
     feedingFrequency = feedingFrequency,
     waterConsumption = waterConsumption,
     createdAt = createdAt,
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
@@ -1025,7 +1034,10 @@ fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
     homemadeFood = homemadeFood.ifBlank { null },
     feedingFrequency = feedingFrequency.ifBlank { null },
     waterConsumption = waterConsumption.ifBlank { null },
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
@@ -1039,7 +1051,10 @@ fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
     homemadeFood = homemadeFood.ifBlank { null },
     feedingFrequency = feedingFrequency.ifBlank { null },
     waterConsumption = waterConsumption.ifBlank { null },
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisDto.toModel() = AnamnesisModel(
@@ -1054,7 +1069,10 @@ fun AnamnesisDto.toModel() = AnamnesisModel(
     feedingFrequency = feedingFrequency.orEmpty(),
     waterConsumption = waterConsumption.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity ?: 0.0,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisWithDetailsEntity.toModel() = AnamnesisWithDetailsModel(
