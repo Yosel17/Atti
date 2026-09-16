@@ -149,6 +149,8 @@ class AnamnesisFormRepositoryImpl @Inject constructor(
         val catalogsToInsert = buildList {
             remoteDto.foodBrand?.let { add(it.toEntity()) }
             remoteDto.foodUnit?.let { add(it.toEntity()) }
+            remoteDto.litterBrand?.let { add(it.toEntity()) }
+            remoteDto.litterUnit?.let { add(it.toEntity()) }
             remoteDto.environmentOptions.forEach { opt -> opt.catalog?.let { add(it.toEntity()) } }
             remoteDto.vaccines.forEach { vac ->
                 vac.vaccine?.let { add(it.toEntity()) }

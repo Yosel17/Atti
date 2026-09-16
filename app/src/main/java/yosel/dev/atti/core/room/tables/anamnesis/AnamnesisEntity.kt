@@ -28,12 +28,26 @@ import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
             parentColumns = ["id"],
             childColumns = ["food_unit_type_id"],
             onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey(
+            entity = AppCatalogEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["litter_brand_id"],
+            onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey(
+            entity = AppCatalogEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["litter_unit_type_id"],
+            onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [
         Index(value = ["consultation_id"], name = "idx_anamnesis_consultation_id"),
         Index(value = ["food_brand_id"]),
         Index(value = ["food_unit_type_id"]),
+        Index(value = ["litter_brand_id"]),
+        Index(value = ["litter_unit_type_id"]),
         Index(value = ["status"], name = "idx_anamnesis_status")
     ]
 )

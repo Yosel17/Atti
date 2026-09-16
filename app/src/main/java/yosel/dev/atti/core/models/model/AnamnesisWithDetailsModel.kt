@@ -6,5 +6,7 @@ data class AnamnesisWithDetailsModel(
     val foodUnit: AppCatalogModel = AppCatalogModel(),
     val environmentOptions: List<AnamnesisEnviOptWithDetailsModel> = emptyList(),
     val vaccines: List<AnamnesisVaccineWithDetailsModel> = emptyList(),
-    val dewormings: List<AnamnesisDewormingWithDetailsModel> = emptyList()
+    val dewormings: List<AnamnesisDewormingWithDetailsModel> = emptyList(),
+    val litterBrand: AppCatalogModel = AppCatalogModel(),
+    val litterUnit: AppCatalogModel = AppCatalogModel(),
 )

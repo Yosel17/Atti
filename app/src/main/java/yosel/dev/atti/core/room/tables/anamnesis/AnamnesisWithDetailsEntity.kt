@@ -33,5 +33,15 @@ data class AnamnesisWithDetailsEntity(
         parentColumn = "id",
         entityColumn = "anamnesis_id"
     )
-    val dewormings: List<AnamnesisDewormingWithDetailsEntity> = emptyList()
+    val dewormings: List<AnamnesisDewormingWithDetailsEntity> = emptyList(),
+    @Relation(
+        parentColumn = "litter_brand_id",
+        entityColumn = "id"
+    )
+    val litterBrand: AppCatalogEntity?,
+    @Relation(
+        parentColumn = "litter_unit_type_id",
+        entityColumn = "id"
+    )
+    val litterUnit: AppCatalogEntity?,
 )

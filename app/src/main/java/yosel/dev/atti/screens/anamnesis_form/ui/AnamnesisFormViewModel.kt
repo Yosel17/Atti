@@ -364,6 +364,47 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 _state.update { it.copy(formInputState = it.formInputState.copy(waterConsumption = action.consumption)) }
             }
 
+            // Arenero
+            AnamnesisFormAction.OnOpenLitterBrandSheet -> {
+                _state.update { it.copy(isLitterBrandSheetOpen = true, litterBrandSearchQuery = "", filteredLitterBrands = it.litterBrands) }
+            }
+            AnamnesisFormAction.OnDismissLitterBrandSheet -> {
+                _state.update { it.copy(isLitterBrandSheetOpen = false) }
+            }
+            is AnamnesisFormAction.OnSearchLitterBrandQueryChange -> {
+                _state.update { it.copy(litterBrandSearchQuery = action.query) }
+                debounceSearch {
+                    val q = action.query.normalize()
+                    _state.update { s ->
+                        s.copy(filteredLitterBrands = if (q.isBlank()) s.litterBrands else s.litterBrands.filter { it.name.normalize().contains(q) })
+                    }
+                }
+            }
+            is AnamnesisFormAction.OnSelectLitterBrand -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(selectedLitterBrand = action.brand)) }
+            }
+            AnamnesisFormAction.OnOpenLitterUnitSheet -> {
+                _state.update { it.copy(isLitterUnitSheetOpen = true, litterUnitSearchQuery = "", filteredLitterUnits = it.litterUnitsOfMeasurement) }
+            }
+            AnamnesisFormAction.OnDismissLitterUnitSheet -> {
+                _state.update { it.copy(isLitterUnitSheetOpen = false) }
+            }
+            is AnamnesisFormAction.OnSearchLitterUnitQueryChange -> {
+                _state.update { it.copy(litterUnitSearchQuery = action.query) }
+                debounceSearch {
+                    val q = action.query.normalize()
+                    _state.update { s ->
+                        s.copy(filteredLitterUnits = if (q.isBlank()) s.litterUnitsOfMeasurement else s.litterUnitsOfMeasurement.filter { it.name.normalize().contains(q) })
+                    }
+                }
+            }
+            is AnamnesisFormAction.OnSelectLitterUnit -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(selectedLitterUnit = action.unit)) }
+            }
+            is AnamnesisFormAction.OnLitterQuantityChange -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(litterQuantity = action.quantity)) }
+            }
+
             // Catálogos
             is AnamnesisFormAction.OnShowAddCatalogDialog -> {
                 _state.update {
@@ -441,7 +482,9 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                     Constants.INTERNAL_DEWORMER_TYPE_CATALOG,
                     Constants.EXTERNAL_DEWORMER_TYPE_CATALOG,
                     Constants.CONCENTRATE_BRAND_TYPE_CATALOG,
-                    Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG
+                    Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG,
+                    Constants.LITTER_BRAND_TYPE_CATALOG,
+                    Constants.LITTER_UNIT_OF_MEASURE_TYPE_CATALOG
                 )
             ).fold(
                 onSuccess = { appCatalogs ->
@@ -463,6 +506,8 @@ class AnamnesisFormViewModel @AssistedInject constructor(
         val externalDewormers = appCatalogs.filter { it.catalogTypeId == Constants.EXTERNAL_DEWORMER_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
         val concentrateBrands = appCatalogs.filter { it.catalogTypeId == Constants.CONCENTRATE_BRAND_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
         val concentrateUnitsOfMeasurement = appCatalogs.filter { it.catalogTypeId == Constants.CONCENTRATE_UNIT_OF_MEASURE_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
+        val litterBrands = appCatalogs.filter { it.catalogTypeId == Constants.LITTER_BRAND_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
+        val litterUnitsOfMeasurement = appCatalogs.filter { it.catalogTypeId == Constants.LITTER_UNIT_OF_MEASURE_TYPE_CATALOG }.sortedBy { it.name.lowercase() }
 
         val currentSelectedIds = _state.value.formInputState.selectedEnvironmentOptions.map { it.id }.toSet()
         val sortedAnimalLifestyles = getFilteredAndSortedAnimalLifestyles(animalLifestyles, "", currentSelectedIds)
@@ -481,6 +526,10 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 filteredConcentrateBrands = concentrateBrands,
                 concentrateUnitsOfMeasurement = concentrateUnitsOfMeasurement,
                 filteredConcentrateUnits = concentrateUnitsOfMeasurement,
+                litterBrands = litterBrands,
+                filteredLitterBrands = litterBrands,
+                litterUnitsOfMeasurement = litterUnitsOfMeasurement,
+                filteredLitterUnits = litterUnitsOfMeasurement,
                 isSuccessGetCatalogs = true
             )
         }
@@ -498,9 +547,13 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 onSuccess = { anamnesisWithDetails ->
                     val foodBrand = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodBrandId }
                     val foodUnit = catalogs.find { it.id == anamnesisWithDetails.anamnesis.foodUnitTypeId }
+                    val litterBrand = catalogs.find { it.id == anamnesisWithDetails.anamnesis.litterBrandId }
+                    val litterUnit = catalogs.find { it.id == anamnesisWithDetails.anamnesis.litterUnitTypeId }
                     val initialForm = anamnesisWithDetails.toAnamnesisFormInputsState(
                         foodBrand = foodBrand,
-                        foodUnit = foodUnit
+                        foodUnit = foodUnit,
+                        litterBrand = litterBrand,
+                        litterUnit = litterUnit
                     )
                     val currentSelectedIds = initialForm.selectedEnvironmentOptions.map { it.id }.toSet()
                     val sortedLifestyles = getFilteredAndSortedAnimalLifestyles(
@@ -541,8 +594,10 @@ class AnamnesisFormViewModel @AssistedInject constructor(
         val currentState = _state.value
         _state.update { it.copy(isLoadingSaveAnamnesis = true) }
         viewModelScope.launch {
+            val isFeline = currentState.isFeline
             val anamnesisModel = currentState.formInputState.toAnamnesisModel(
-                consultationId = consultationId ?: ""
+                consultationId = consultationId ?: "",
+                isFeline = isFeline
             )
             val envOptions = currentState.formInputState.toEnvironmentOptionModels()
             val vaccines = currentState.formInputState.toVaccineModels()
@@ -590,11 +645,13 @@ class AnamnesisFormViewModel @AssistedInject constructor(
             val vaccinesChanged = current.vaccines != initial.vaccines
             val dewormingsChanged = current.dewormings != initial.dewormings
 
+            val isFeline = currentState.isFeline
             val updatedAnamnesisModel = current.toUpdateModel(
                 anamnesisId = currentAnamnesis.id,
                 consultationId = currentAnamnesis.consultationId,
                 createdAt = currentAnamnesis.createdAt,
-                status = currentAnamnesis.status
+                status = currentAnamnesis.status,
+                isFeline = isFeline
             )
 
             val envOptions = if (optionsChanged) current.toEnvironmentOptionModels(currentAnamnesis.id) else null
@@ -689,6 +746,16 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                             (state.concentrateUnitsOfMeasurement + inserted).sortedBy { it.name.lowercase() }
                         } else state.concentrateUnitsOfMeasurement
 
+                        val updatedLitterBrands = if (currentState.activeCatalogTypeId == Constants.LITTER_BRAND_TYPE_CATALOG) {
+                            formInputs = formInputs.copy(selectedLitterBrand = inserted)
+                            (state.litterBrands + inserted).sortedBy { it.name.lowercase() }
+                        } else state.litterBrands
+
+                        val updatedLitterUnits = if (currentState.activeCatalogTypeId == Constants.LITTER_UNIT_OF_MEASURE_TYPE_CATALOG) {
+                            formInputs = formInputs.copy(selectedLitterUnit = inserted)
+                            (state.litterUnitsOfMeasurement + inserted).sortedBy { it.name.lowercase() }
+                        } else state.litterUnitsOfMeasurement
+
                         state.copy(
                             animalLifestyles = updatedLifestyles,
                             filteredAnimalLifestyles = sortedFilteredLifestyles,
@@ -702,6 +769,10 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                             filteredConcentrateBrands = updatedBrands,
                             concentrateUnitsOfMeasurement = updatedUnits,
                             filteredConcentrateUnits = updatedUnits,
+                            litterBrands = updatedLitterBrands,
+                            filteredLitterBrands = updatedLitterBrands,
+                            litterUnitsOfMeasurement = updatedLitterUnits,
+                            filteredLitterUnits = updatedLitterUnits,
                             formInputState = formInputs,
                             tempSelectedVaccineCatalog = tempVaccineName,
                             tempSelectedScheduleCatalog = tempVaccineSchedule,

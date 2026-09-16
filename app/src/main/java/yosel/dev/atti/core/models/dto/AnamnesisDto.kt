@@ -25,5 +25,7 @@ data class AnamnesisDto(
     @SerialName("food_unit") val foodUnit: AppCatalogDto? = null,
     @SerialName("environment_options") val environmentOptions: List<AnamnesisEnvironmentOptionDto> = emptyList(),
     @SerialName("vaccines") val vaccines: List<AnamnesisVaccineDto> = emptyList(),
-    @SerialName("dewormings") val dewormings: List<AnamnesisDewormingDto> = emptyList()
+    @SerialName("dewormings") val dewormings: List<AnamnesisDewormingDto> = emptyList(),
+    @SerialName("litter_brand") val litterBrand: AppCatalogDto? = null,
+    @SerialName("litter_unit") val litterUnit: AppCatalogDto? = null,
 )

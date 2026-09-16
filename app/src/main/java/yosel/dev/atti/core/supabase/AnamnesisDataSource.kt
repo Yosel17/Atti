@@ -46,7 +46,9 @@ class AnamnesisDataSource @Inject constructor(
                     dewormings:anamnesis_dewormings(
                         *,
                         product:app_catalogs!product_catalog_id(*)
-                    )
+                    ),
+                    litter_brand:app_catalogs!litter_brand_id(*),
+                    litter_unit:app_catalogs!litter_unit_type_id(*)
                     """.trimIndent()
                 )
             ) {
