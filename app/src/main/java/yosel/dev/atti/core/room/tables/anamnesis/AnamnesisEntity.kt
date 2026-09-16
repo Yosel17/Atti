@@ -83,4 +83,6 @@ data class AnamnesisEntity(
     val litterQuantity: Double = 0.0,
     @ColumnInfo(name = "litter_unit_type_id")
     val litterUnitTypeId: Int? = null,
+    @ColumnInfo(name = "comment")
+    val comment: String? = null,
 )

@@ -985,7 +985,8 @@ fun AnamnesisDto.toEntity() = AnamnesisEntity(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity ?: 0.0,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisEntity.toModel() = AnamnesisModel(
@@ -1003,7 +1004,8 @@ fun AnamnesisEntity.toModel() = AnamnesisModel(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toEntity() = AnamnesisEntity(
@@ -1021,7 +1023,8 @@ fun AnamnesisModel.toEntity() = AnamnesisEntity(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
@@ -1037,7 +1040,8 @@ fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
@@ -1054,7 +1058,8 @@ fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisDto.toModel() = AnamnesisModel(
@@ -1072,7 +1077,8 @@ fun AnamnesisDto.toModel() = AnamnesisModel(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity ?: 0.0,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisWithDetailsEntity.toModel() = AnamnesisWithDetailsModel(
