@@ -162,6 +162,13 @@ fun BodyAnamnesisForm(
                 state = state,
                 onAction = onAction
             )
+            if (state.isFeline) {
+                Spacer(modifier = Modifier.height(24.dp))
+                LitterSection(
+                    state = state,
+                    onAction = onAction
+                )
+            }
             Spacer(modifier = Modifier.height(28.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -825,6 +832,62 @@ private fun FeedingSection(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LitterSection(
+    state: AnamnesisFormState,
+    onAction: (AnamnesisFormAction) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            SectionHeader(
+                icon = Icons.Default.Pets,
+                title = "Arenero"
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            SectionTitle(title = "Marca de arenero", icon = Icons.Default.Pets, showIcon = false)
+            Spacer(modifier = Modifier.height(12.dp))
+            AppCatalogSelector(
+                selectedCatalog = state.formInputState.selectedLitterBrand,
+                onOpenSheet = { onAction(AnamnesisFormAction.OnOpenLitterBrandSheet) },
+                icon = Icons.Default.Pets,
+                emptyText = "Buscar marca de arenero..."
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            SectionTitle(title = "Unidad de medida", icon = Icons.Default.Straighten, showIcon = false)
+            Spacer(modifier = Modifier.height(12.dp))
+            AppCatalogSelector(
+                selectedCatalog = state.formInputState.selectedLitterUnit,
+                onOpenSheet = { onAction(AnamnesisFormAction.OnOpenLitterUnitSheet) },
+                icon = Icons.Default.Straighten,
+                emptyText = "Selecciona la unidad de medida"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            InputFieldGlobal(
+                label = "Cantidad de arena",
+                placeholder = "0.0",
+                value = state.formInputState.litterQuantity,
+                onValueChange = { input ->
+                    val sanitized = input.replace(',', '.')
+                    if (sanitized.matches(Regex("^(\\d*(\\.\\d{0,2})?)?$"))) {
+                        onAction(AnamnesisFormAction.OnLitterQuantityChange(sanitized))
+                    }
+                },
+                leadingIcon = Icons.Default.Numbers,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done
+                )
+            )
         }
     }
 }

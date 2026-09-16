@@ -28,12 +28,26 @@ import yosel.dev.atti.core.room.tables.consultation.ConsultationEntity
             parentColumns = ["id"],
             childColumns = ["food_unit_type_id"],
             onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey(
+            entity = AppCatalogEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["litter_brand_id"],
+            onDelete = ForeignKey.RESTRICT
+        ),
+        ForeignKey(
+            entity = AppCatalogEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["litter_unit_type_id"],
+            onDelete = ForeignKey.RESTRICT
         )
     ],
     indices = [
         Index(value = ["consultation_id"], name = "idx_anamnesis_consultation_id"),
         Index(value = ["food_brand_id"]),
         Index(value = ["food_unit_type_id"]),
+        Index(value = ["litter_brand_id"]),
+        Index(value = ["litter_unit_type_id"]),
         Index(value = ["status"], name = "idx_anamnesis_status")
     ]
 )
@@ -62,5 +76,11 @@ data class AnamnesisEntity(
     @ColumnInfo(name = "created_at")
     val createdAt: String = "",
     @ColumnInfo(name = "status")
-    val status: Int = 1
+    val status: Int = 1,
+    @ColumnInfo(name = "litter_brand_id")
+    val litterBrandId: Int? = null,
+    @ColumnInfo(name = "litter_quantity")
+    val litterQuantity: Double = 0.0,
+    @ColumnInfo(name = "litter_unit_type_id")
+    val litterUnitTypeId: Int? = null,
 )

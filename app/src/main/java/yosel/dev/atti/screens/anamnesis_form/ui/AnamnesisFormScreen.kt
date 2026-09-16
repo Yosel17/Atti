@@ -237,6 +237,50 @@ fun AnamnesisFormScreen(
             )
         }
 
+        // Sheet: Marca de arenero
+        if (state.isLitterBrandSheetOpen) {
+            SelectAppCatalogBottomSheet(
+                onDismiss = { onAction(AnamnesisFormAction.OnDismissLitterBrandSheet) },
+                title = "Selecciona marca de arenero",
+                search = state.litterBrandSearchQuery,
+                onSearchChange = { onAction(AnamnesisFormAction.OnSearchLitterBrandQueryChange(it)) },
+                filteredAppCatalogs = state.filteredLitterBrands,
+                selectedAppCatalog = state.formInputState.selectedLitterBrand,
+                onSelectAppCatalog = { onAction(AnamnesisFormAction.OnSelectLitterBrand(it)) },
+                showAddAppCatalogDialog = {
+                    onAction(
+                        AnamnesisFormAction.OnShowAddCatalogDialog(
+                            catalogTypeId = Constants.LITTER_BRAND_TYPE_CATALOG,
+                            catalogTypeName = "Marca de arenero"
+                        )
+                    )
+                },
+                catalogosEmpty = state.litterBrands.isEmpty()
+            )
+        }
+
+        // Sheet: Unidad de medida de arenero
+        if (state.isLitterUnitSheetOpen) {
+            SelectAppCatalogBottomSheet(
+                onDismiss = { onAction(AnamnesisFormAction.OnDismissLitterUnitSheet) },
+                title = "Selecciona unidad de medida",
+                search = state.litterUnitSearchQuery,
+                onSearchChange = { onAction(AnamnesisFormAction.OnSearchLitterUnitQueryChange(it)) },
+                filteredAppCatalogs = state.filteredLitterUnits,
+                selectedAppCatalog = state.formInputState.selectedLitterUnit,
+                onSelectAppCatalog = { onAction(AnamnesisFormAction.OnSelectLitterUnit(it)) },
+                showAddAppCatalogDialog = {
+                    onAction(
+                        AnamnesisFormAction.OnShowAddCatalogDialog(
+                            catalogTypeId = Constants.LITTER_UNIT_OF_MEASURE_TYPE_CATALOG,
+                            catalogTypeName = "Unidad de medida"
+                        )
+                    )
+                },
+                catalogosEmpty = state.litterUnitsOfMeasurement.isEmpty()
+            )
+        }
+
         // Diálogo para agregar catálogo
         if (state.showAddAppCatalogDialog) {
             AddAppCatalogDialog(

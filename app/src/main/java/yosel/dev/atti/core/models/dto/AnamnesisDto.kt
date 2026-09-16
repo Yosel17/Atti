@@ -17,10 +17,15 @@ data class AnamnesisDto(
     @SerialName("water_consumption") val waterConsumption: String? = null,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("status") val status: Int = 1,
+    @SerialName("litter_brand_id") val litterBrandId: Int? = null,
+    @SerialName("litter_quantity") val litterQuantity: Double? = 0.0,
+    @SerialName("litter_unit_type_id") val litterUnitTypeId: Int? = null,
     // Relaciones mapeadas desde Supabase (Opcionales)
     @SerialName("food_brand") val foodBrand: AppCatalogDto? = null,
     @SerialName("food_unit") val foodUnit: AppCatalogDto? = null,
     @SerialName("environment_options") val environmentOptions: List<AnamnesisEnvironmentOptionDto> = emptyList(),
     @SerialName("vaccines") val vaccines: List<AnamnesisVaccineDto> = emptyList(),
-    @SerialName("dewormings") val dewormings: List<AnamnesisDewormingDto> = emptyList()
+    @SerialName("dewormings") val dewormings: List<AnamnesisDewormingDto> = emptyList(),
+    @SerialName("litter_brand") val litterBrand: AppCatalogDto? = null,
+    @SerialName("litter_unit") val litterUnit: AppCatalogDto? = null,
 )

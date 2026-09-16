@@ -982,7 +982,10 @@ fun AnamnesisDto.toEntity() = AnamnesisEntity(
     feedingFrequency = feedingFrequency.orEmpty(),
     waterConsumption = waterConsumption.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity ?: 0.0,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisEntity.toModel() = AnamnesisModel(
@@ -997,7 +1000,10 @@ fun AnamnesisEntity.toModel() = AnamnesisModel(
     feedingFrequency = feedingFrequency,
     waterConsumption = waterConsumption,
     createdAt = createdAt,
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toEntity() = AnamnesisEntity(
@@ -1012,7 +1018,10 @@ fun AnamnesisModel.toEntity() = AnamnesisEntity(
     feedingFrequency = feedingFrequency,
     waterConsumption = waterConsumption,
     createdAt = createdAt,
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
@@ -1025,7 +1034,10 @@ fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
     homemadeFood = homemadeFood.ifBlank { null },
     feedingFrequency = feedingFrequency.ifBlank { null },
     waterConsumption = waterConsumption.ifBlank { null },
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
@@ -1039,7 +1051,10 @@ fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
     homemadeFood = homemadeFood.ifBlank { null },
     feedingFrequency = feedingFrequency.ifBlank { null },
     waterConsumption = waterConsumption.ifBlank { null },
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisDto.toModel() = AnamnesisModel(
@@ -1054,13 +1069,18 @@ fun AnamnesisDto.toModel() = AnamnesisModel(
     feedingFrequency = feedingFrequency.orEmpty(),
     waterConsumption = waterConsumption.orEmpty(),
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    litterBrandId = litterBrandId,
+    litterQuantity = litterQuantity ?: 0.0,
+    litterUnitTypeId = litterUnitTypeId
 )
 
 fun AnamnesisWithDetailsEntity.toModel() = AnamnesisWithDetailsModel(
     anamnesis = anamnesis.toModel(),
     foodBrand = foodBrand?.toModel() ?: AppCatalogModel(),
     foodUnit = foodUnit?.toModel() ?: AppCatalogModel(),
+    litterBrand = litterBrand?.toModel() ?: AppCatalogModel(),
+    litterUnit = litterUnit?.toModel() ?: AppCatalogModel(),
     environmentOptions = environmentOptions.map { it.toModel() },
     vaccines = vaccines.map { it.toModel() },
     dewormings = dewormings.map { it.toModel() }
@@ -1184,7 +1204,9 @@ fun AnamnesisDewormingWithDetailsEntity.toModel() = AnamnesisDewormingWithDetail
 
 fun AnamnesisWithDetailsModel.toAnamnesisFormInputsState(
     foodBrand: AppCatalogModel?,
-    foodUnit: AppCatalogModel?
+    foodUnit: AppCatalogModel?,
+    litterBrand: AppCatalogModel? = null,
+    litterUnit: AppCatalogModel? = null
 ): AnamnesisFormInputsState {
     val hasHomeFood = anamnesis.homemadeFood.isNotBlank() && anamnesis.homemadeFood != "No"
     return AnamnesisFormInputsState(
@@ -1199,7 +1221,10 @@ fun AnamnesisWithDetailsModel.toAnamnesisFormInputsState(
         hasHomemadeFood = hasHomeFood,
         homemadeFoodDetails = if (hasHomeFood) anamnesis.homemadeFood else "",
         feedingFrequency = anamnesis.feedingFrequency.ifBlank { "2 veces al día" },
-        waterConsumption = anamnesis.waterConsumption.ifBlank { "Normal" }
+        waterConsumption = anamnesis.waterConsumption.ifBlank { "Normal" },
+        selectedLitterBrand = litterBrand ?: this.litterBrand.takeIf { it.id != 0 },
+        selectedLitterUnit = litterUnit ?: this.litterUnit.takeIf { it.id != 0 },
+        litterQuantity = if (anamnesis.litterQuantity > 0.0) anamnesis.litterQuantity.toString() else ""
     )
 }
 
@@ -1207,7 +1232,8 @@ fun AnamnesisFormInputsState.toUpdateModel(
     anamnesisId: String,
     consultationId: String,
     createdAt: String = "",
-    status: Int = Constants.ACTIVE_STATUS
+    status: Int = Constants.ACTIVE_STATUS,
+    isFeline: Boolean = true
 ) = AnamnesisModel(
     id = anamnesisId,
     consultationId = consultationId,
@@ -1220,7 +1246,10 @@ fun AnamnesisFormInputsState.toUpdateModel(
     feedingFrequency = feedingFrequency,
     waterConsumption = waterConsumption,
     createdAt = createdAt,
-    status = status
+    status = status,
+    litterBrandId = if (isFeline) selectedLitterBrand?.id else null,
+    litterQuantity = if (isFeline) litterQuantity.parseToDouble() else 0.0,
+    litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null
 )
 
 fun AnamnesisFormInputsState.toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {

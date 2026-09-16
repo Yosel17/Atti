@@ -62,6 +62,19 @@ sealed interface AnamnesisFormAction {
     data class OnFeedingFrequencyChange(val frequency: String) : AnamnesisFormAction
     data class OnWaterConsumptionChange(val consumption: String) : AnamnesisFormAction
 
+    // Arenero (Felino)
+    data object OnOpenLitterBrandSheet : AnamnesisFormAction
+    data object OnDismissLitterBrandSheet : AnamnesisFormAction
+    data class OnSearchLitterBrandQueryChange(val query: String) : AnamnesisFormAction
+    data class OnSelectLitterBrand(val brand: AppCatalogModel) : AnamnesisFormAction
+
+    data object OnOpenLitterUnitSheet : AnamnesisFormAction
+    data object OnDismissLitterUnitSheet : AnamnesisFormAction
+    data class OnSearchLitterUnitQueryChange(val query: String) : AnamnesisFormAction
+    data class OnSelectLitterUnit(val unit: AppCatalogModel) : AnamnesisFormAction
+
+    data class OnLitterQuantityChange(val quantity: String) : AnamnesisFormAction
+
     // Creación de catálogos generales
     data class OnShowAddCatalogDialog(val catalogTypeId: Int, val catalogTypeName: String) : AnamnesisFormAction
     data object OnDismissAddCatalogDialog : AnamnesisFormAction

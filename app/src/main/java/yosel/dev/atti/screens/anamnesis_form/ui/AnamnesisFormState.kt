@@ -3,6 +3,7 @@ package yosel.dev.atti.screens.anamnesis_form.ui
 import yosel.dev.atti.core.models.model.AnamnesisModel
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.utils.Constants
 
 data class AnamnesisFormState(
     val isEditMode: Boolean = false,
@@ -46,6 +47,17 @@ data class AnamnesisFormState(
     val concentrateUnitSearchQuery: String = "",
     val isConcentrateUnitSheetOpen: Boolean = false,
 
+    // Arenero (Felino)
+    val litterBrands: List<AppCatalogModel> = emptyList(),
+    val filteredLitterBrands: List<AppCatalogModel> = emptyList(),
+    val litterBrandSearchQuery: String = "",
+    val isLitterBrandSheetOpen: Boolean = false,
+
+    val litterUnitsOfMeasurement: List<AppCatalogModel> = emptyList(),
+    val filteredLitterUnits: List<AppCatalogModel> = emptyList(),
+    val litterUnitSearchQuery: String = "",
+    val isLitterUnitSheetOpen: Boolean = false,
+
     // Sheets de creación de vacunas y desparasitantes
     val isAddVaccineSheetOpen: Boolean = false,
     val tempVaccineIsoDate: String = "",
@@ -66,4 +78,8 @@ data class AnamnesisFormState(
     val activeCatalogTypeId: Int = 0,
     val activeCatalogTypeName: String = "",
     val isLoadingAddCatalog: Boolean = false
-)
+) {
+    val isFeline: Boolean
+        get() = consultationWithDetails.patientWithDetails.patient.speciesId == Constants.FELINE_SPECIES_CATALOG ||
+                consultationWithDetails.patientWithDetails.species.id == Constants.FELINE_SPECIES_CATALOG
+}

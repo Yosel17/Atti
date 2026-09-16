@@ -101,6 +101,8 @@ object Constants {
     const val FOOD_FASTING_TYPE_CATALOG = 22
     const val WATER_FASTING_TYPE_CATALOG = 23
     const val ASA_CLASSIFICATION_TYPE_CATALOG = 24
+    const val LITTER_BRAND_TYPE_CATALOG = 25
+    const val LITTER_UNIT_OF_MEASURE_TYPE_CATALOG = 26
 
     //tipo de consultas
     const val GENERAL_CONSULTATION_TYPE = 23

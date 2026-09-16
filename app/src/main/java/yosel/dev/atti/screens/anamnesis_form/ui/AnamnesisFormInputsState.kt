@@ -22,9 +22,12 @@ data class AnamnesisFormInputsState(
     val hasHomemadeFood: Boolean = false,
     val homemadeFoodDetails: String = "",
     val feedingFrequency: String = "2 veces al día",
-    val waterConsumption: String = "Normal"
+    val waterConsumption: String = "Normal",
+    val selectedLitterBrand: AppCatalogModel? = null,
+    val selectedLitterUnit: AppCatalogModel? = null,
+    val litterQuantity: String = ""
 ) {
-    fun toAnamnesisModel(consultationId: String = "") = AnamnesisModel(
+    fun toAnamnesisModel(consultationId: String = "", isFeline: Boolean = true) = AnamnesisModel(
         consultationId = consultationId,
         hasOutdoorAccess = hasOutdoorAccess,
         housemates = housemates.trim(),
@@ -34,7 +37,10 @@ data class AnamnesisFormInputsState(
         homemadeFood = if (hasHomemadeFood) homemadeFoodDetails.trim() else "No",
         feedingFrequency = feedingFrequency,
         waterConsumption = waterConsumption,
-        status = Constants.ACTIVE_STATUS
+        status = Constants.ACTIVE_STATUS,
+        litterBrandId = if (isFeline) selectedLitterBrand?.id else null,
+        litterQuantity = if (isFeline) litterQuantity.parseToDouble() else 0.0,
+        litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null
     )
 
     fun toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {
@@ -66,6 +72,9 @@ data class AnamnesisFormInputsState(
                 hasHomemadeFood != initial.hasHomemadeFood ||
                 homemadeFoodDetails.trim() != initial.homemadeFoodDetails.trim() ||
                 feedingFrequency != initial.feedingFrequency ||
-                waterConsumption != initial.waterConsumption
+                waterConsumption != initial.waterConsumption ||
+                selectedLitterBrand?.id != initial.selectedLitterBrand?.id ||
+                selectedLitterUnit?.id != initial.selectedLitterUnit?.id ||
+                litterQuantity != initial.litterQuantity
     }
 }
