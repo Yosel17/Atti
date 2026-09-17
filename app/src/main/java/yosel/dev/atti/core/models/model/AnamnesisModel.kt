@@ -18,6 +18,7 @@ data class AnamnesisModel(
     val litterBrandId: Int? = null,
     val litterQuantity: Double = 0.0,
     val litterUnitTypeId: Int? = null,
+    val comment: String? = null,
 ) {
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)

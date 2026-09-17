@@ -25,7 +25,8 @@ data class AnamnesisFormInputsState(
     val waterConsumption: String = "Normal",
     val selectedLitterBrand: AppCatalogModel? = null,
     val selectedLitterUnit: AppCatalogModel? = null,
-    val litterQuantity: String = ""
+    val litterQuantity: String = "",
+    val comment: String = "",
 ) {
     fun toAnamnesisModel(consultationId: String = "", isFeline: Boolean = true) = AnamnesisModel(
         consultationId = consultationId,
@@ -40,7 +41,8 @@ data class AnamnesisFormInputsState(
         status = Constants.ACTIVE_STATUS,
         litterBrandId = if (isFeline) selectedLitterBrand?.id else null,
         litterQuantity = if (isFeline) litterQuantity.parseToDouble() else 0.0,
-        litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null
+        litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null,
+        comment = comment.trim().ifBlank { null }
     )
 
     fun toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {
@@ -75,6 +77,7 @@ data class AnamnesisFormInputsState(
                 waterConsumption != initial.waterConsumption ||
                 selectedLitterBrand?.id != initial.selectedLitterBrand?.id ||
                 selectedLitterUnit?.id != initial.selectedLitterUnit?.id ||
-                litterQuantity != initial.litterQuantity
+                litterQuantity != initial.litterQuantity ||
+                comment.trim() != initial.comment.trim()
     }
 }

@@ -20,6 +20,7 @@ data class AnamnesisDto(
     @SerialName("litter_brand_id") val litterBrandId: Int? = null,
     @SerialName("litter_quantity") val litterQuantity: Double? = 0.0,
     @SerialName("litter_unit_type_id") val litterUnitTypeId: Int? = null,
+    @SerialName("comment") val comment: String? = null,
     // Relaciones mapeadas desde Supabase (Opcionales)
     @SerialName("food_brand") val foodBrand: AppCatalogDto? = null,
     @SerialName("food_unit") val foodUnit: AppCatalogDto? = null,

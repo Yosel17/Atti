@@ -985,7 +985,8 @@ fun AnamnesisDto.toEntity() = AnamnesisEntity(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity ?: 0.0,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisEntity.toModel() = AnamnesisModel(
@@ -1003,7 +1004,8 @@ fun AnamnesisEntity.toModel() = AnamnesisModel(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toEntity() = AnamnesisEntity(
@@ -1021,7 +1023,8 @@ fun AnamnesisModel.toEntity() = AnamnesisEntity(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
@@ -1037,7 +1040,8 @@ fun AnamnesisModel.toDtoForInsert() = AnamnesisDto(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
@@ -1054,7 +1058,8 @@ fun AnamnesisModel.toDtoForUpdate() = AnamnesisDto(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisDto.toModel() = AnamnesisModel(
@@ -1072,7 +1077,8 @@ fun AnamnesisDto.toModel() = AnamnesisModel(
     status = status,
     litterBrandId = litterBrandId,
     litterQuantity = litterQuantity ?: 0.0,
-    litterUnitTypeId = litterUnitTypeId
+    litterUnitTypeId = litterUnitTypeId,
+    comment = comment
 )
 
 fun AnamnesisWithDetailsEntity.toModel() = AnamnesisWithDetailsModel(
@@ -1224,7 +1230,8 @@ fun AnamnesisWithDetailsModel.toAnamnesisFormInputsState(
         waterConsumption = anamnesis.waterConsumption.ifBlank { "Normal" },
         selectedLitterBrand = litterBrand ?: this.litterBrand.takeIf { it.id != 0 },
         selectedLitterUnit = litterUnit ?: this.litterUnit.takeIf { it.id != 0 },
-        litterQuantity = if (anamnesis.litterQuantity > 0.0) anamnesis.litterQuantity.toString() else ""
+        litterQuantity = if (anamnesis.litterQuantity > 0.0) anamnesis.litterQuantity.toString() else "",
+        comment = anamnesis.comment.orEmpty()
     )
 }
 
@@ -1249,7 +1256,8 @@ fun AnamnesisFormInputsState.toUpdateModel(
     status = status,
     litterBrandId = if (isFeline) selectedLitterBrand?.id else null,
     litterQuantity = if (isFeline) litterQuantity.parseToDouble() else 0.0,
-    litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null
+    litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null,
+    comment = comment.trim().ifBlank { null }
 )
 
 fun AnamnesisFormInputsState.toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {
