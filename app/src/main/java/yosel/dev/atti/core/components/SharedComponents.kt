@@ -1221,8 +1221,6 @@ private fun AppCatalogSelectionCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
                 )
             }
 
@@ -1595,9 +1593,7 @@ fun SelectAppCatalogMultiBottomSheet(
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.weight(1f),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                        modifier = Modifier.weight(1f)
                                     )
                                     Checkbox(
                                         checked = isSelected,
