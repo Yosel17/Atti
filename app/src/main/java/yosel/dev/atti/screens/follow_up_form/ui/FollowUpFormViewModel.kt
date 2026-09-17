@@ -70,6 +70,9 @@ class FollowUpFormViewModel @AssistedInject constructor(
             is FollowUpFormAction.ToggleDatePickerDialog -> {
                 _state.update { it.copy(showDatePickerDialog = action.show) }
             }
+            is FollowUpFormAction.ToggleTimePickerDialog -> {
+                _state.update { it.copy(showTimePickerDialog = action.show) }
+            }
             is FollowUpFormAction.OnSelectDate -> {
                 _state.update {
                     it.copy(
@@ -80,7 +83,7 @@ class FollowUpFormViewModel @AssistedInject constructor(
                     )
                 }
             }
-            is FollowUpFormAction.OnSelectDateForCalendar ->{
+            is FollowUpFormAction.OnSelectDateForCalendar -> {
                 _state.update {
                     it.copy(
                         showDatePickerDialog = false,
@@ -93,7 +96,10 @@ class FollowUpFormViewModel @AssistedInject constructor(
             }
             is FollowUpFormAction.OnSelectTime -> {
                 _state.update {
-                    it.copy(formInputState = it.formInputState.copy(selectedTime = action.time))
+                    it.copy(
+                        showTimePickerDialog = false,
+                        formInputState = it.formInputState.copy(selectedTime = action.time)
+                    )
                 }
             }
             FollowUpFormAction.OnResetToDaySelector -> {

@@ -15,6 +15,7 @@ data class FollowUpFormState(
     val isLoadingUpdateFollowUp: Boolean = false,
     val showDialogConfirm: Boolean = false,
     val showDatePickerDialog: Boolean = false,
+    val showTimePickerDialog: Boolean = false, // <-- Visibilidad del TimePicker
     val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
     val existingFollowUpWithDetails: FollowUpWithDetailsModel? = null,
 
