@@ -53,5 +53,7 @@ data class PhysiologicalConstsEntity(
     @ColumnInfo(name = "created_at")
     val createdAt: String = "",
     @ColumnInfo(name = "status")
-    val status: Int = 1
+    val status: Int = 1,
+    @ColumnInfo(name = "comment")
+    val comment: String? = null
 )

@@ -16,6 +16,7 @@ data class PhysiologicalConstsDto(
     @SerialName("skin_turgor") val skinTurgor: Int? = null,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("status") val status: Int = 1,
+    @SerialName("comment") val comment: String? = null,
     // Relación opcional con catálogos
     @SerialName("weight_unit") val weightUnit: AppCatalogDto? = null
 )

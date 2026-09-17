@@ -13,7 +13,8 @@ data class PhysiologicalConstsModel(
     val capillaryRefillTime: Int? = null,
     val skinTurgor: Int? = null,
     val createdAt: String = "",
-    val status: Int = 1
+    val status: Int = 1,
+    val comment: String? = null
 ){
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)
