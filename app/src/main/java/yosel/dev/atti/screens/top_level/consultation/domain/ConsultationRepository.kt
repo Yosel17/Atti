@@ -1,0 +1,16 @@
+package yosel.dev.atti.screens.top_level.consultation.domain
+
+import kotlinx.coroutines.flow.Flow
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+
+interface ConsultationRepository {
+    fun getActiveConsultationFlow(): Flow<ConsultationWithDetailsModel?>
+    suspend fun syncActiveConsultation(): Result<Unit>
+    fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithDetailsModel>>
+    suspend fun syncClientsAndPatients(): Result<Unit>
+    suspend fun getConsultationReasons(): Result<List<AppCatalogModel>>
+    suspend fun createConsultation(patientId: String, consultationTypeId: Int): Result<ConsultationModel>
+}

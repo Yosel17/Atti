@@ -1,0 +1,22 @@
+package yosel.dev.atti.screens.top_level.consultation.ui
+
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+
+data class ConsultationState(
+    val isLoadingData: Boolean = true,
+    val isStartingConsultation: Boolean = false,
+    val activeConsultation: ConsultationWithDetailsModel? = null,
+    val patients: List<PatientWithDetailsModel> = emptyList(),
+    val filteredPatients: List<PatientWithDetailsModel> = emptyList(),
+    val patientSearchQuery: String = "",
+    val selectedPatient: PatientWithDetailsModel? = null,
+    val consultationReasons: List<AppCatalogModel> = emptyList(),
+    val selectedReason: AppCatalogModel? = null,
+    val showConfirmDialog: Boolean = false,
+    val pendingSelectedReason: AppCatalogModel? = null
+) {
+    val hasActiveConsultation: Boolean
+        get() = activeConsultation != null
+}

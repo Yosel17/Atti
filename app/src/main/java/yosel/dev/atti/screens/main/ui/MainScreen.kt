@@ -42,19 +42,19 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.navigation.main.Screens
-import yosel.dev.atti.core.navigation.navigation_bar.BottomNavItem
-import yosel.dev.atti.core.navigation.navigation_bar.ScreensNavigationBar
-import yosel.dev.atti.core.navigation.navigation_bar.consultationEntry
-import yosel.dev.atti.core.navigation.navigation_bar.directoryEntry
-import yosel.dev.atti.core.navigation.navigation_bar.homeEntry
-import yosel.dev.atti.core.navigation.navigation_bar.inventoryEntry
+import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
+import yosel.dev.atti.core.navigation.top_level.ScreensTopLevel
+import yosel.dev.atti.core.navigation.top_level.consultationEntry
+import yosel.dev.atti.core.navigation.top_level.directoryEntry
+import yosel.dev.atti.core.navigation.top_level.homeEntry
+import yosel.dev.atti.core.navigation.top_level.inventoryEntry
 
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     onNavigationMain: (Screens) -> Unit
 ) {
-    val navBackStack = rememberNavBackStack(ScreensNavigationBar.Home)
+    val navBackStack = rememberNavBackStack(ScreensTopLevel.Home)
     val currentDestination = navBackStack.lastOrNull()
     val activity = LocalContext.current as? Activity
 
@@ -63,26 +63,26 @@ fun MainScreen(
 
     val navItems = remember {
         listOf(
-            BottomNavItem(
-                screen = ScreensNavigationBar.Home,
+            TopLevelDestination(
+                screen = ScreensTopLevel.Home,
                 title = "Inicio",
                 selectedIcon = Icons.Filled.Home,
                 unselectedIcon = Icons.Outlined.Home
             ),
-            BottomNavItem(
-                screen = ScreensNavigationBar.Directory,
+            TopLevelDestination(
+                screen = ScreensTopLevel.Directory,
                 title = "Directorio",
                 selectedIcon = Icons.Filled.Folder,
                 unselectedIcon = Icons.Outlined.Folder
             ),
-            BottomNavItem(
-                screen = ScreensNavigationBar.Consultation,
+            TopLevelDestination(
+                screen = ScreensTopLevel.Consultation,
                 title = "Consulta",
                 selectedIcon = Icons.Filled.MedicalServices,
                 unselectedIcon = Icons.Outlined.MedicalServices
             ),
-            BottomNavItem(
-                screen = ScreensNavigationBar.Inventory,
+            TopLevelDestination(
+                screen = ScreensTopLevel.Inventory,
                 title = "Inventario",
                 selectedIcon = Icons.Filled.Inventory2,
                 unselectedIcon = Icons.Outlined.Inventory2
@@ -175,11 +175,11 @@ fun MainScreen(
                     rememberViewModelStoreNavEntryDecorator()
                 ),
                 onBack = {
-                    if (currentDestination != ScreensNavigationBar.Home) {
-                        if (navBackStack.contains(ScreensNavigationBar.Home)) {
-                            navBackStack.remove(ScreensNavigationBar.Home)
+                    if (currentDestination != ScreensTopLevel.Home) {
+                        if (navBackStack.contains(ScreensTopLevel.Home)) {
+                            navBackStack.remove(ScreensTopLevel.Home)
                         }
-                        navBackStack.add(ScreensNavigationBar.Home)
+                        navBackStack.add(ScreensTopLevel.Home)
                     } else {
                         activity?.finish()
                     }
