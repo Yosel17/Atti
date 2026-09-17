@@ -1400,7 +1400,8 @@ fun PhysiologicalConstsDto.toEntity() = PhysiologicalConstsEntity(
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsEntity.toModel() = PhysiologicalConstsModel(
@@ -1414,7 +1415,8 @@ fun PhysiologicalConstsEntity.toModel() = PhysiologicalConstsModel(
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
     createdAt = createdAt,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsModel.toEntity() = PhysiologicalConstsEntity(
@@ -1428,7 +1430,8 @@ fun PhysiologicalConstsModel.toEntity() = PhysiologicalConstsEntity(
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
     createdAt = createdAt,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsDto.toModel() = PhysiologicalConstsModel(
@@ -1442,7 +1445,8 @@ fun PhysiologicalConstsDto.toModel() = PhysiologicalConstsModel(
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsModel.toDtoForInsert() = PhysiologicalConstsDto(
@@ -1454,7 +1458,8 @@ fun PhysiologicalConstsModel.toDtoForInsert() = PhysiologicalConstsDto(
     weightUnitCatalogId = weightUnitCatalogId,
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsModel.toDtoForUpdate() = PhysiologicalConstsDto(
@@ -1467,7 +1472,8 @@ fun PhysiologicalConstsModel.toDtoForUpdate() = PhysiologicalConstsDto(
     weightUnitCatalogId = weightUnitCatalogId,
     capillaryRefillTime = capillaryRefillTime,
     skinTurgor = skinTurgor,
-    status = status
+    status = status,
+    comment = comment
 )
 
 fun PhysiologicalConstsWithDetailsEntity.toModel() = PhysiologicalConstsWithDetailsModel(

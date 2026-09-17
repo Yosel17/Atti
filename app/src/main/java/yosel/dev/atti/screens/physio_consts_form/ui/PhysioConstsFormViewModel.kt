@@ -78,6 +78,9 @@ class PhysioConstsFormViewModel @AssistedInject constructor(
             is PhysioConstsFormAction.OnSkinTurgorChange -> {
                 _state.update { it.copy(formInputState = it.formInputState.copy(skinTurgor = action.value)) }
             }
+            is PhysioConstsFormAction.OnCommentChange -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(comment = action.value)) }
+            }
             PhysioConstsFormAction.OnOpenWeightUnitSheet -> {
                 _state.update { it.copy(isWeightUnitSheetOpen = true, weightUnitSearchQuery = "", filteredWeightUnits = it.weightUnits) }
             }
@@ -222,7 +225,8 @@ class PhysioConstsFormViewModel @AssistedInject constructor(
                         weight = constsWithDetails.constants.weight?.toString() ?: "",
                         selectedWeightUnit = weightUnit ?: constsWithDetails.weightUnit.takeIf { it.id != 0 },
                         capillaryRefillTime = constsWithDetails.constants.capillaryRefillTime ?: 2,
-                        skinTurgor = constsWithDetails.constants.skinTurgor ?: 1
+                        skinTurgor = constsWithDetails.constants.skinTurgor ?: 1,
+                        comment = constsWithDetails.constants.comment.orEmpty()
                     )
                     _state.update { currentState ->
                         currentState.copy(

@@ -33,7 +33,9 @@ import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.rounded.AssignmentTurnedIn
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -63,6 +65,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -159,6 +162,13 @@ fun BodyPhysiologicalConstsForm(
             SkinTurgorCard(
                 selectedTime = state.formInputState.skinTurgor,
                 onSelect = { onAction(PhysioConstsFormAction.OnSkinTurgorChange(it)) }
+            )
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // 7. Comentario
+            CommentSectionCard(
+                value = state.formInputState.comment,
+                onValueChange = { onAction(PhysioConstsFormAction.OnCommentChange(it)) }
             )
             Spacer(modifier = Modifier.height(28.dp))
         }
@@ -654,6 +664,56 @@ private fun OptionSelectionButton(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun CommentSectionCard(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.EditNote,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Comentario",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            InputFieldGlobal(
+                label = "Comentario",
+                placeholder = "Escribe un comentario opcional...",
+                value = value,
+                onValueChange = onValueChange,
+                leadingIcon = Icons.Outlined.TextFields,
+                singleLine = false,
+                minLines = 1,
+                maxLines = 5,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                )
             )
         }
     }
