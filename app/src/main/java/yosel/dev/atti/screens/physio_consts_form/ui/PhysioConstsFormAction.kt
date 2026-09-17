@@ -14,6 +14,7 @@ sealed interface PhysioConstsFormAction {
     data class OnWeightChange(val value: String) : PhysioConstsFormAction
     data class OnCapillaryRefillTimeChange(val value: Int) : PhysioConstsFormAction
     data class OnSkinTurgorChange(val value: Int) : PhysioConstsFormAction
+    data class OnCommentChange(val value: String) : PhysioConstsFormAction
 
     // Unidad de Peso
     data object OnOpenWeightUnitSheet : PhysioConstsFormAction

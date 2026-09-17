@@ -13,7 +13,8 @@ data class PhysioConstsFormInputsState(
     val weight: String = "",
     val selectedWeightUnit: AppCatalogModel? = null,
     val capillaryRefillTime: Int = 2,
-    val skinTurgor: Int = 1
+    val skinTurgor: Int = 1,
+    val comment: String = ""
 ) {
     fun toModel(consultationId: String = "") = PhysiologicalConstsModel(
         consultationId = consultationId,
@@ -24,7 +25,8 @@ data class PhysioConstsFormInputsState(
         weightUnitCatalogId = selectedWeightUnit?.id,
         capillaryRefillTime = capillaryRefillTime,
         skinTurgor = skinTurgor,
-        status = Constants.ACTIVE_STATUS
+        status = Constants.ACTIVE_STATUS,
+        comment = comment.trim().ifBlank { null }
     )
 
     fun toUpdateModel(
@@ -43,7 +45,8 @@ data class PhysioConstsFormInputsState(
         capillaryRefillTime = capillaryRefillTime,
         skinTurgor = skinTurgor,
         createdAt = createdAt,
-        status = status
+        status = status,
+        comment = comment.trim().ifBlank { null }
     )
 
     fun hasChangesFrom(initial: PhysioConstsFormInputsState): Boolean {
@@ -53,6 +56,7 @@ data class PhysioConstsFormInputsState(
                 weight.trim() != initial.weight.trim() ||
                 selectedWeightUnit?.id != initial.selectedWeightUnit?.id ||
                 capillaryRefillTime != initial.capillaryRefillTime ||
-                skinTurgor != initial.skinTurgor
+                skinTurgor != initial.skinTurgor ||
+                comment.trim() != initial.comment.trim()
     }
 }
