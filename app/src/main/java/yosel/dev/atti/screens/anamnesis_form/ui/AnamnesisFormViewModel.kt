@@ -405,6 +405,11 @@ class AnamnesisFormViewModel @AssistedInject constructor(
                 _state.update { it.copy(formInputState = it.formInputState.copy(litterQuantity = action.quantity)) }
             }
 
+            // Comentario
+            is AnamnesisFormAction.OnCommentChange -> {
+                _state.update { it.copy(formInputState = it.formInputState.copy(comment = action.comment)) }
+            }
+
             // Catálogos
             is AnamnesisFormAction.OnShowAddCatalogDialog -> {
                 _state.update {

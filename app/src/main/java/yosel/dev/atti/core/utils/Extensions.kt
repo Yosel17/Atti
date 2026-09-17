@@ -1230,7 +1230,8 @@ fun AnamnesisWithDetailsModel.toAnamnesisFormInputsState(
         waterConsumption = anamnesis.waterConsumption.ifBlank { "Normal" },
         selectedLitterBrand = litterBrand ?: this.litterBrand.takeIf { it.id != 0 },
         selectedLitterUnit = litterUnit ?: this.litterUnit.takeIf { it.id != 0 },
-        litterQuantity = if (anamnesis.litterQuantity > 0.0) anamnesis.litterQuantity.toString() else ""
+        litterQuantity = if (anamnesis.litterQuantity > 0.0) anamnesis.litterQuantity.toString() else "",
+        comment = anamnesis.comment.orEmpty()
     )
 }
 
@@ -1255,7 +1256,8 @@ fun AnamnesisFormInputsState.toUpdateModel(
     status = status,
     litterBrandId = if (isFeline) selectedLitterBrand?.id else null,
     litterQuantity = if (isFeline) litterQuantity.parseToDouble() else 0.0,
-    litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null
+    litterUnitTypeId = if (isFeline) selectedLitterUnit?.id else null,
+    comment = comment.trim().ifBlank { null }
 )
 
 fun AnamnesisFormInputsState.toEnvironmentOptionModels(anamnesisId: String = ""): List<AnamnesisEnvironmentOptionModel> {

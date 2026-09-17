@@ -75,6 +75,9 @@ sealed interface AnamnesisFormAction {
 
     data class OnLitterQuantityChange(val quantity: String) : AnamnesisFormAction
 
+    // Comentario
+    data class OnCommentChange(val comment: String) : AnamnesisFormAction
+
     // Creación de catálogos generales
     data class OnShowAddCatalogDialog(val catalogTypeId: Int, val catalogTypeName: String) : AnamnesisFormAction
     data object OnDismissAddCatalogDialog : AnamnesisFormAction

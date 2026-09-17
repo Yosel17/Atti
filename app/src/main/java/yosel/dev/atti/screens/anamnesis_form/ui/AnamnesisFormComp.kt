@@ -48,7 +48,9 @@ import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Vaccines
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.rounded.AssignmentTurnedIn
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -169,6 +171,11 @@ fun BodyAnamnesisForm(
                     onAction = onAction
                 )
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            CommentSection(
+                formInputState = state.formInputState,
+                onAction = onAction
+            )
             Spacer(modifier = Modifier.height(28.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -885,6 +892,42 @@ private fun LitterSection(
                 leadingIcon = Icons.Default.Numbers,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun CommentSection(
+    formInputState: AnamnesisFormInputsState,
+    onAction: (AnamnesisFormAction) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            SectionHeader(
+                icon = Icons.Outlined.EditNote,
+                title = "Comentario"
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            InputFieldGlobal(
+                label = "Comentario",
+                placeholder = "Ingresa un comentario relevante sobre el paciente...",
+                value = formInputState.comment,
+                onValueChange = { onAction(AnamnesisFormAction.OnCommentChange(it)) },
+                leadingIcon = Icons.Outlined.TextFields,
+                singleLine = false,
+                minLines = 1,
+                maxLines = 5,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Done
                 )
             )
