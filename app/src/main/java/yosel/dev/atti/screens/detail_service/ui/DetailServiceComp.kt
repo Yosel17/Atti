@@ -381,7 +381,7 @@ private fun SupplyItemCard(
                 )
 
                 Text(
-                    text = "Q $precie",
+                    text = "Precio de compra: Q $precie",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.ExtraBold
