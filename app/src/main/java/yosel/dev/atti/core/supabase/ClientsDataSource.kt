@@ -57,4 +57,15 @@ class ClientsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun getAllClientsActive(): List<ClientDto> {
+        return postgrest.from(Constants.CLIENTS_SUPABASE)
+            .select {
+                filter {
+                    eq("status", Constants.ACTIVE_STATUS)
+                }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<ClientDto>()
+    }
 }

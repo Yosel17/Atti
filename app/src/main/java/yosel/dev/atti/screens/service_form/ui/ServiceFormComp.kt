@@ -228,7 +228,7 @@ private fun GeneralInformationSection(
                 leadingIcon = Icons.Filled.MedicalServices,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Done
                 ),
                 isError = formInputState.isError(Constants.SERVICE_NAME_FIELD),
                 errorMessage = "El nombre del servicio es obligatorio"
@@ -306,7 +306,7 @@ private fun PricesAndCostsSection(
                 leadingIcon = Icons.Filled.PointOfSale,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
-                    imeAction = if (formInputState.expenseMode == ExpenseMode.MANUAL) ImeAction.Next else ImeAction.Done
+                    imeAction = ImeAction.Done
                 ),
                 isError = formInputState.isError(Constants.SERVICE_SALE_PRICE_FIELD),
                 errorMessage = "El precio de venta es obligatorio"
