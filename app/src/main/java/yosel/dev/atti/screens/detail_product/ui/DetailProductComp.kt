@@ -2,6 +2,7 @@ package yosel.dev.atti.screens.detail_product.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,7 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.SupplierModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 import java.util.Locale
@@ -67,7 +69,8 @@ import java.util.Locale
 @Composable
 fun BodyDetailProduct(
     modifier: Modifier = Modifier,
-    state: DetailProductState
+    state: DetailProductState,
+    onNavigation:(Screens) -> Unit
 ) {
     val productWithDetails = state.productWithDetails
 
@@ -81,7 +84,12 @@ fun BodyDetailProduct(
         ProductHeaderSection(productWithDetails = productWithDetails)
 
         // 2. Card de Información General
-        ProductGeneralInfoCard(productWithDetails = productWithDetails)
+        ProductGeneralInfoCard(
+            productWithDetails = productWithDetails,
+            onClickSupplier = { supplierId ->
+                onNavigation(Screens.DetailSupplier(supplierId = supplierId))
+            }
+        )
 
         // 3. Card de Estado de Inventario (Con colores dinámicos active, inactive, deleted)
         ProductInventoryCard(productWithDetails = productWithDetails)
@@ -137,7 +145,8 @@ private fun ProductHeaderSection(
 @Composable
 private fun ProductGeneralInfoCard(
     productWithDetails: ProductWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickSupplier: (String) -> Unit
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -184,7 +193,10 @@ private fun ProductGeneralInfoCard(
             ProductInfoTile(
                 icon = Icons.Outlined.LocalShipping,
                 label = "Proveedor",
-                value = productWithDetails.supplier.name.ifBlank { "Sin proveedor" }
+                value = productWithDetails.supplier.name.ifBlank { "Sin proveedor" },
+                onValueClick = {
+                    onClickSupplier(productWithDetails.supplier.id)
+                }
             )
 
             ProductInfoTile(
@@ -204,7 +216,8 @@ private fun ProductInfoTile(
     icon: ImageVector,
     label: String,
     value: String,
-    valueComposable: @Composable (() -> Unit)? = null
+    valueComposable: @Composable (() -> Unit)? = null,
+    onValueClick: (() -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -234,12 +247,21 @@ private fun ProductInfoTile(
             if (valueComposable != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 valueComposable()
-            }else{
+            } else {
                 Text(
                     text = value,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.then(
+                        if (onValueClick != null) {
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable(onClick = onValueClick)
+                        } else {
+                            Modifier
+                        }
+                    )
                 )
             }
         }
@@ -684,7 +706,8 @@ private fun BodyDetailProductPreview() {
                         name = "Fabrica S.A"
                     )
                 )
-            )
+            ),
+            onNavigation = {}
         )
     }
 }

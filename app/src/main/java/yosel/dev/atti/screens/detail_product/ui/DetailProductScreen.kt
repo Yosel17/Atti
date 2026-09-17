@@ -29,6 +29,7 @@ import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.DeleteConfirmationDialog
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -39,7 +40,8 @@ fun DetailProductScreen(
     snackBarHostState: SnackbarHostState,
     showEditAction: Boolean,
     onAction: (DetailProductAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val product = state.productWithDetails.product
 
@@ -139,7 +141,8 @@ fun DetailProductScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
-                            state = state
+                            state = state,
+                            onNavigation = onNavigationMain
                         )
                     }
                 }
