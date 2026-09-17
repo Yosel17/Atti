@@ -112,6 +112,19 @@ fun FollowUpFormScreen(
             )
         }
 
+        // Diálogo TimePicker propio de Material 3
+        if (state.showTimePickerDialog) {
+            FollowUpTimePickerDialog(
+                initialTime = state.formInputState.selectedTime,
+                onTimeSelected = { selectedTime ->
+                    onAction(FollowUpFormAction.OnSelectTime(selectedTime))
+                },
+                onDismiss = {
+                    onAction(FollowUpFormAction.ToggleTimePickerDialog(show = false))
+                }
+            )
+        }
+
         // BottomSheet Motivos Rápidos (Catálogo 20)
         if (state.isQuickReasonSheetOpen) {
             SelectAppCatalogBottomSheet(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EventRepeat
+import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -51,7 +53,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -74,30 +79,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
-
-private val MORNING_SLOTS: List<LocalTime> = listOf(
-    LocalTime.of(8, 0),
-    LocalTime.of(8, 30),
-    LocalTime.of(9, 0),
-    LocalTime.of(9, 30),
-    LocalTime.of(10, 0),
-    LocalTime.of(10, 30),
-    LocalTime.of(11, 0),
-    LocalTime.of(11, 30)
-)
-
-private val AFTERNOON_SLOTS: List<LocalTime> = listOf(
-    LocalTime.of(12, 0),
-    LocalTime.of(12, 30),
-    LocalTime.of(13, 0),
-    LocalTime.of(13, 30),
-    LocalTime.of(14, 0),
-    LocalTime.of(14, 30),
-    LocalTime.of(15, 0),
-    LocalTime.of(15, 30),
-    LocalTime.of(16, 0),
-    LocalTime.of(16, 30)
-)
 
 @Composable
 fun BodyFollowUpForm(
@@ -127,6 +108,7 @@ fun BodyFollowUpForm(
             PatientConsultationHeaderHero(
                 patientWithDetails = state.consultationWithDetails.patientWithDetails
             )
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // Selector de Fecha
@@ -160,6 +142,7 @@ fun BodyFollowUpForm(
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(10.dp))
 
             if (!state.formInputState.isCustomDateFromPicker) {
@@ -178,34 +161,43 @@ fun BodyFollowUpForm(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Horarios: MAÑANA
-            Text(
-                text = "MAÑANA",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            TimeSlotsFlowRow(
-                slots = MORNING_SLOTS,
-                selectedTime = state.formInputState.selectedTime,
-                onTimeSelect = { onAction(FollowUpFormAction.OnSelectTime(it)) }
-            )
+            // Selector de Hora con TimePicker
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Seleccionar Hora",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TextButton(
+                    onClick = { onAction(FollowUpFormAction.ToggleTimePickerDialog(show = true)) },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.AccessTime,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Cambiar hora",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Horarios: TARDE
-            Text(
-                text = "TARDE",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
             Spacer(modifier = Modifier.height(10.dp))
-            TimeSlotsFlowRow(
-                slots = AFTERNOON_SLOTS,
+
+            TimeSelectorCard(
                 selectedTime = state.formInputState.selectedTime,
-                onTimeSelect = { onAction(FollowUpFormAction.OnSelectTime(it)) }
+                onClick = { onAction(FollowUpFormAction.ToggleTimePickerDialog(show = true)) }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -217,6 +209,7 @@ fun BodyFollowUpForm(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
@@ -336,7 +329,6 @@ private fun HorizontalDayPicker(
         val selectedIndex = days.indexOfFirst { it.isEqual(selectedDate) }
         val todayIndex = days.indexOfFirst { it.isEqual(LocalDate.now()) }
 
-        // Si la fecha seleccionada está en la lista la usamos; si no, vamos a hoy
         val targetIndex = if (selectedIndex != -1) {
             selectedIndex
         } else {
@@ -344,7 +336,6 @@ private fun HorizontalDayPicker(
         }
 
         if (targetIndex != -1) {
-            // Restamos 2 para dejar margen y centrar mejor el ítem en la pantalla
             val scrollPosition = (targetIndex - 2).coerceAtLeast(0)
             listState.animateScrollToItem(scrollPosition)
         }
@@ -504,42 +495,169 @@ private fun CustomSelectedDateCard(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TimeSlotsFlowRow(
-    slots: List<LocalTime>,
+private fun TimeSelectorCard(
     selectedTime: LocalTime,
-    onTimeSelect: (LocalTime) -> Unit
+    onClick: () -> Unit
 ) {
     val timeFormatter = remember { DateTimeFormatter.ofPattern("hh:mm a", Locale.US) }
+    val formattedTime = remember(selectedTime) {
+        selectedTime.format(timeFormatter).uppercase()
+    }
 
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
-        slots.forEach { slot ->
-            val isSelected = slot == selectedTime
-            val timeString = slot.format(timeFormatter).uppercase()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(46.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Outlined.AccessTime,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(14.dp))
+                Column {
+                    Text(
+                        text = "Hora de la cita",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = formattedTime,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
 
             Surface(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .clickable { onTimeSelect(slot) },
-                shape = RoundedCornerShape(14.dp),
-                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                border = BorderStroke(
-                    width = if (isSelected) 1.5.dp else 1.dp,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
-                )
+                shape = RoundedCornerShape(100.dp),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
             ) {
                 Text(
-                    text = timeString,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                    text = "Ajustar",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FollowUpTimePickerDialog(
+    initialTime: LocalTime,
+    onTimeSelected: (LocalTime) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialTime.hour,
+        initialMinute = initialTime.minute,
+        is24Hour = false
+    )
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = RoundedCornerShape(28.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                )
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = "Seleccionar Hora",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        clockDialColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        selectorColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        periodSelectorBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        periodSelectorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        periodSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        periodSelectorContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        timeSelectorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        timeSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        timeSelectorContentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            val pickedTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                            onTimeSelected(pickedTime)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text("Aceptar", fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }
