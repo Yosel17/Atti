@@ -96,16 +96,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -434,6 +437,25 @@ fun InputFieldWithTextGlobal(
         Modifier
     }
 
+    var textFieldValueState by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+
+    // Sincronizar el estado interno si 'value' cambia desde el exterior
+    if (textFieldValueState.text != value) {
+        textFieldValueState = TextFieldValue(
+            text = value,
+            selection = TextRange(value.length)
+        )
+    }
+
+    var isFocusedState by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -447,8 +469,13 @@ fun InputFieldWithTextGlobal(
         )
 
         TextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = textFieldValueState,
+            onValueChange = { newValue ->
+                textFieldValueState = newValue
+                if (newValue.text != value) {
+                    onValueChange(newValue.text)
+                }
+            },
             leadingIcon = {
                 Icon(
                     imageVector = leadingIcon,
@@ -484,6 +511,14 @@ fun InputFieldWithTextGlobal(
             ),
             modifier = Modifier
                 .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused && !isFocusedState) {
+                        textFieldValueState = textFieldValueState.copy(
+                            selection = TextRange(textFieldValueState.text.length)
+                        )
+                    }
+                    isFocusedState = focusState.isFocused
+                }
                 .then(clickableModifier),
             placeholder = {
                 Text(
