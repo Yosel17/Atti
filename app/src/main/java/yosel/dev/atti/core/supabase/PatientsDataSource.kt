@@ -97,4 +97,23 @@ class PatientsDataSource @Inject constructor(
                 }
             }
     }
+
+    suspend fun getAllPatientsWithCatalogsActive(): List<PatientDto> {
+        return postgrest.from(Constants.PATIENTS_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    """
+                *,
+                species:app_catalogs!species_id(*),
+                gender:app_catalogs!gender_id(*)
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    eq("status", Constants.ACTIVE_STATUS)
+                }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<PatientDto>()
+    }
 }

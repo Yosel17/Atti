@@ -67,7 +67,7 @@ class ConsultationRepositoryImpl @Inject constructor(
     }
 
     override fun getAllPatientsWithCatalogsFlow(): Flow<List<PatientWithDetailsModel>> =
-        patientDao.getAllPatientsWithCatalogsFlow()
+        patientDao.getAllPatientsWithCatalogsFlowActive()
             .map { entities ->
                 entities.map { it.toModel() }
             }
@@ -75,13 +75,13 @@ class ConsultationRepositoryImpl @Inject constructor(
 
     override suspend fun syncClientsAndPatients(): Result<Unit> = runCatching {
         //clients
-        val remoteClients = clientsDataSource.getAllClients()
+        val remoteClients = clientsDataSource.getAllClientsActive()
         val clientsEntities = remoteClients.map { it.toEntity() }
 
         clientDao.upsertClients(clientsEntities)
 
         //patients
-        val remotePatients = patientsDataSource.getAllPatientsWithCatalogs()
+        val remotePatients = patientsDataSource.getAllPatientsWithCatalogsActive()
         val patientsEntities = remotePatients.map { it.toEntity() }
         val appCatalogsEntities = remotePatients.flatMap { patient ->
             listOfNotNull(
