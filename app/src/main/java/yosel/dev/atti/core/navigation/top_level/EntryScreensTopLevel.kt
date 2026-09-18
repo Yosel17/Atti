@@ -126,7 +126,7 @@ fun EntryProviderScope<NavKey>.clientsEntry(
 fun EntryProviderScope<NavKey>.patientsEntry(
     onNavigationMain: (Screens) -> Unit
 ){
-    entry<ScreensTopLevel.Clients>{
+    entry<ScreensTopLevel.Patients>{
         val viewModel = hiltViewModel<PatientsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
