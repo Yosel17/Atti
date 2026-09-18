@@ -1,4 +1,4 @@
-package yosel.dev.atti.screens.top_level.patients.ui
+package yosel.dev.atti.screens.top_level.suppliers.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
@@ -23,21 +23,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import yosel.dev.atti.core.components.PatientFilterBottomSheet
 import yosel.dev.atti.core.components.SnackBarError
+import yosel.dev.atti.core.components.SupplierFilterBottomSheet
 import yosel.dev.atti.core.navigation.main.Screens
 
 @Composable
-fun PatientsScreen(
+fun SuppliersScreen(
     modifier: Modifier = Modifier,
-    state: PatientsState,
+    state: SuppliersState,
     snackBarHostState: SnackbarHostState,
-    onAction: (PatientsAction) -> Unit,
+    onAction: (SuppliersAction) -> Unit,
     onNavigationMain: (Screens) -> Unit
 ) {
-
     Box(modifier = modifier.fillMaxSize()) {
-        BodyPatients(
+        BodySuppliers(
             modifier = Modifier.fillMaxSize(),
             state = state,
             onAction = onAction,
@@ -46,7 +45,7 @@ fun PatientsScreen(
 
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.BottomEnd),
-            visible = state.patients.isNotEmpty() && !state.isLoading,
+            visible = state.suppliers.isNotEmpty() && !state.isLoading,
             enter = slideInVertically(
                 initialOffsetY = { it / 2 },
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
@@ -63,9 +62,9 @@ fun PatientsScreen(
             ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
         ) {
             ExtendedFloatingActionButton(
-                onClick = { onNavigationMain(Screens.AddPatient()) },
-                icon = { Icon(imageVector = Icons.Filled.Pets, contentDescription = "Nuevo paciente") },
-                text = { Text(text = "Agregar paciente") },
+                onClick = { onNavigationMain(Screens.AddSupplier) },
+                icon = { Icon(imageVector = Icons.Filled.LocalShipping, contentDescription = "Nuevo proveedor") },
+                text = { Text(text = "Agregar Proveedor") },
                 expanded = true,
                 modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
             )
@@ -81,12 +80,10 @@ fun PatientsScreen(
     }
 
     if (state.showFilterSheet) {
-        PatientFilterBottomSheet(
+        SupplierFilterBottomSheet(
             initialFilter = state.filter,
-            availableSpecies = state.availableSpecies,
-            availableGenders = state.availableGenders,
-            onDismissRequest = { onAction(PatientsAction.OnToggleFilterSheet(false)) },
-            onApply = { onAction(PatientsAction.OnApplyFilter(it)) }
+            onDismissRequest = { onAction(SuppliersAction.OnToggleFilterSheet(false)) },
+            onApply = { onAction(SuppliersAction.OnApplyFilter(it)) }
         )
     }
 }
