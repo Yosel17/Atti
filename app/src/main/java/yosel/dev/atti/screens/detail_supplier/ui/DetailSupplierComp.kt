@@ -511,7 +511,7 @@ fun EditSupplierBottomSheet(
                     placeHolder = "ej. 55554444",
                     value = state.editFormState.phoneNumber,
                     onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.matches(Regex("""^\d*$"""))) {
+                        if (newValue.isEmpty() || newValue.matches(Regex("""^\+?[0-9\s]*$"""))) {
                             onAction(
                                 DetailSupplierAction.OnChangeEditFormValue(
                                     newValue,

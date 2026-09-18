@@ -10,8 +10,6 @@ import yosel.dev.atti.screens.top_level.consultation.data.ConsultationRepository
 import yosel.dev.atti.screens.top_level.consultation.domain.ConsultationRepository
 import yosel.dev.atti.screens.top_level.home.data.HomeRepositoryImpl
 import yosel.dev.atti.screens.top_level.home.domain.HomeRepository
-import yosel.dev.atti.screens.top_level.inventory.data.InventoryRepositoryImpl
-import yosel.dev.atti.screens.top_level.inventory.domain.InventoryRepository
 import yosel.dev.atti.screens.top_level.patients.data.PatientsRepositoryImpl
 import yosel.dev.atti.screens.top_level.patients.domain.PatientsRepository
 import yosel.dev.atti.screens.top_level.products.data.ProductsRepositoryImpl
@@ -25,12 +23,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryTopLevelModule {
-
-    @Binds
-    @Singleton
-    abstract fun bindInventoryRepository(
-        impl: InventoryRepositoryImpl
-    ): InventoryRepository
 
     @Binds
     @Singleton

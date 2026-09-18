@@ -316,7 +316,7 @@ fun EditClientBottomSheet(
                     placeHolder = "ej. 87654321",
                     value = state.editFormState.phoneNumber,
                     onValueChange = {
-                        if (it.isEmpty() || it.matches(Regex("""^\d*$"""))) {
+                        if (it.isEmpty() || it.matches(Regex("""^\+?[0-9\s]*$"""))) {
                             onAction(
                                 DetailClientAction.OnChangeEditFormValue(
                                     it,
