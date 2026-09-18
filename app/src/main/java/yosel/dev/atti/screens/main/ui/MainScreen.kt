@@ -205,7 +205,7 @@ fun MainScreen(
                     title = {
                         Text(
                             text = currentTitle,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleLarge
                         )
                     },
                     navigationIcon = {
