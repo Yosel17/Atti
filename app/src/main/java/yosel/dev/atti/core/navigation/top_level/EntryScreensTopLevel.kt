@@ -38,6 +38,9 @@ import yosel.dev.atti.screens.top_level.inventory.ui.InventoryViewModel
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsEvent
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsScreen
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsViewModel
+import yosel.dev.atti.screens.top_level.products.ui.ProductsEvent
+import yosel.dev.atti.screens.top_level.products.ui.ProductsScreen
+import yosel.dev.atti.screens.top_level.products.ui.ProductsViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(
     onNavigationMain: (Screens) -> Unit
@@ -240,6 +243,86 @@ fun EntryProviderScope<NavKey>.inventoryEntry(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<ScreensTopLevel>.productsEntry(
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<ScreensTopLevel.Products> {
+        val viewModel= hiltViewModel<ProductsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ProductsEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+        }
+
+        ProductsScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<ScreensTopLevel>.servicesEntry(
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<ScreensTopLevel.Services> {
+        val viewModel: ServicesViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ServicesEvent.ShowSnackBarError -> snackBarHostState.showSnackbar(event.message)
+            }
+        }
+
+        ServicesScreen(
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<ScreensTopLevel>.suppliersEntry(
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<ScreensTopLevel.Suppliers> {
+        val viewModel: SuppliersViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val context = LocalContext.current
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is SuppliersEvent.ShowSnackBarError -> snackBarHostState.showSnackbar(event.message)
+                is SuppliersEvent.NavigateToPhone -> context.dialPhoneNumber(event.phoneNumber)
+                is SuppliersEvent.NavigateToWhatsapp -> context.openWhatsApp(event.phoneNumber)
+            }
+        }
+
+        SuppliersScreen(
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
