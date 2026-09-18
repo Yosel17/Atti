@@ -12,6 +12,10 @@ import yosel.dev.atti.screens.add_supplier.data.AddSupplierRepositoryImpl
 import yosel.dev.atti.screens.add_supplier.domain.AddSupplierRepository
 import yosel.dev.atti.screens.anamnesis_form.data.AnamnesisFormRepositoryImpl
 import yosel.dev.atti.screens.anamnesis_form.domain.AnamnesisFormRepository
+import yosel.dev.atti.screens.asa_classification_form.data.AsaClassificationFormRepositoryImpl
+import yosel.dev.atti.screens.asa_classification_form.domain.AsaClassificationFormRepository
+import yosel.dev.atti.screens.auxiliary_test_form.data.AuxiliaryTestFormRepositoryImpl
+import yosel.dev.atti.screens.auxiliary_test_form.domain.AuxiliaryTestFormRepository
 import yosel.dev.atti.screens.clinical_exam_form.data.ClinicalExamFormRepositoryImpl
 import yosel.dev.atti.screens.clinical_exam_form.domain.ClinicalExamFormRepository
 import yosel.dev.atti.screens.consent_form.data.ConsentFormRepositoryImpl
@@ -28,22 +32,18 @@ import yosel.dev.atti.screens.detail_service.data.DetailServiceRepositoryImpl
 import yosel.dev.atti.screens.detail_service.domain.DetailServiceRepository
 import yosel.dev.atti.screens.detail_supplier.data.DetailSupplierRepositoryImpl
 import yosel.dev.atti.screens.detail_supplier.domain.DetailSupplierRepository
-import yosel.dev.atti.screens.auxiliary_test_form.data.AuxiliaryTestFormRepositoryImpl
-import yosel.dev.atti.screens.auxiliary_test_form.domain.AuxiliaryTestFormRepository
-import yosel.dev.atti.screens.asa_classification_form.data.AsaClassificationFormRepositoryImpl
-import yosel.dev.atti.screens.asa_classification_form.domain.AsaClassificationFormRepository
 import yosel.dev.atti.screens.diagnosis_form.data.DiagnosisFormRepositoryImpl
 import yosel.dev.atti.screens.diagnosis_form.domain.DiagnosisFormRepository
 import yosel.dev.atti.screens.fasting_form.data.FastingFormRepositoryImpl
 import yosel.dev.atti.screens.fasting_form.domain.FastingFormRepository
 import yosel.dev.atti.screens.follow_up_form.data.FollowUpFormRepositoryImpl
 import yosel.dev.atti.screens.follow_up_form.domain.FollowUpFormRepository
-import yosel.dev.atti.screens.top_level.directory.data.DirectoryRepositoryImpl
-import yosel.dev.atti.screens.top_level.directory.domain.DirectoryRepository
 import yosel.dev.atti.screens.observation_form.data.ObservationFormRepositoryImpl
 import yosel.dev.atti.screens.observation_form.domain.ObservationFormRepository
 import yosel.dev.atti.screens.physio_consts_form.data.PhysioConstsFormRepositoryImpl
 import yosel.dev.atti.screens.physio_consts_form.domain.PhysioConstsFormRepository
+import yosel.dev.atti.screens.pre_anesthetic_test_form.data.PreAnestheticTestFormRepositoryImpl
+import yosel.dev.atti.screens.pre_anesthetic_test_form.domain.PreAnestheticTestFormRepository
 import yosel.dev.atti.screens.prescription_form.data.PrescriptionFormRepositoryImpl
 import yosel.dev.atti.screens.prescription_form.domain.PrescriptionFormRepository
 import yosel.dev.atti.screens.product_form.data.ProductFormRepositoryImpl
@@ -52,23 +52,15 @@ import yosel.dev.atti.screens.receipt_form.data.ReceiptFormRepositoryImpl
 import yosel.dev.atti.screens.receipt_form.domain.ReceiptFormRepository
 import yosel.dev.atti.screens.service_form.data.ServiceFormRepositoryImpl
 import yosel.dev.atti.screens.service_form.domain.ServiceFormRepository
-import yosel.dev.atti.screens.treatment_form.data.TreatmentFormRepositoryImpl
-import yosel.dev.atti.screens.treatment_form.domain.TreatmentFormRepository
-import yosel.dev.atti.screens.pre_anesthetic_test_form.data.PreAnestheticTestFormRepositoryImpl
-import yosel.dev.atti.screens.pre_anesthetic_test_form.domain.PreAnestheticTestFormRepository
 import yosel.dev.atti.screens.shift_medication_form.data.ShiftMedicationFormRepositoryImpl
 import yosel.dev.atti.screens.shift_medication_form.domain.ShiftMedicationFormRepository
+import yosel.dev.atti.screens.treatment_form.data.TreatmentFormRepositoryImpl
+import yosel.dev.atti.screens.treatment_form.domain.TreatmentFormRepository
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryMainModule {
-
-    @Binds
-    @Singleton
-    abstract fun bindDirectoryRepository(
-        impl: DirectoryRepositoryImpl
-    ): DirectoryRepository
 
     @Binds
     @Singleton
