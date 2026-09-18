@@ -35,6 +35,9 @@ import yosel.dev.atti.screens.top_level.home.ui.HomeViewModel
 import yosel.dev.atti.screens.top_level.inventory.ui.InventoryEvent
 import yosel.dev.atti.screens.top_level.inventory.ui.InventoryScreen
 import yosel.dev.atti.screens.top_level.inventory.ui.InventoryViewModel
+import yosel.dev.atti.screens.top_level.patients.ui.PatientsEvent
+import yosel.dev.atti.screens.top_level.patients.ui.PatientsScreen
+import yosel.dev.atti.screens.top_level.patients.ui.PatientsViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(
     onNavigationMain: (Screens) -> Unit
@@ -66,58 +69,6 @@ fun EntryProviderScope<NavKey>.homeEntry(
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
             onNavigationMain = onNavigationMain
-        )
-    }
-}
-
-fun EntryProviderScope<NavKey>.directoryEntry(
-    onNavigationMain: (Screens) -> Unit
-){
-    entry<ScreensTopLevel.Directory> {
-        val viewModel = hiltViewModel<DirectoryViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val scope = rememberCoroutineScope()
-        val context = LocalContext.current
-
-        ObserveAsEvents(viewModel.events) { event ->
-            when(event){
-                is DirectoryEvent.ShowSnackBarError -> {
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = event.message
-                        )
-                    }
-                }
-                is DirectoryEvent.NavigateToPhone -> {
-                    if (!context.dialPhoneNumber(event.phoneNumber)) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "No se puede abrir la aplicación de teléfono"
-                            )
-                        }
-                    }
-                }
-                is DirectoryEvent.NavigateToWhatsapp -> {
-                    if (!context.openWhatsApp(event.phoneNumber)) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "No se puede abrir la aplicación de WhatsApp"
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        DirectoryScreen(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            state = state,
-            snackBarHostState = snackBarHostState,
-            onNavigationMain = onNavigationMain,
-            onAction = viewModel::onAction
         )
     }
 }
@@ -161,6 +112,37 @@ fun EntryProviderScope<NavKey>.clientsEntry(
         }
 
         ClientsScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.patientsEntry(
+    onNavigationMain: (Screens) -> Unit
+){
+    entry<ScreensTopLevel.Clients>{
+        val viewModel = hiltViewModel<PatientsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is PatientsEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+        }
+
+        PatientsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
