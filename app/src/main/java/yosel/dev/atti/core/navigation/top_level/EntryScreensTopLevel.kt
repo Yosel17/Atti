@@ -20,6 +20,9 @@ import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.ObserveAsEvents
 import yosel.dev.atti.core.utils.dialPhoneNumber
 import yosel.dev.atti.core.utils.openWhatsApp
+import yosel.dev.atti.screens.top_level.clients.ui.ClientsEvent
+import yosel.dev.atti.screens.top_level.clients.ui.ClientsScreen
+import yosel.dev.atti.screens.top_level.clients.ui.ClientsViewModel
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationEvent
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationScreen
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationViewModel
@@ -115,6 +118,56 @@ fun EntryProviderScope<NavKey>.directoryEntry(
             snackBarHostState = snackBarHostState,
             onNavigationMain = onNavigationMain,
             onAction = viewModel::onAction
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.clientsEntry(
+    onNavigationMain: (Screens) -> Unit
+){
+    entry<ScreensTopLevel.Clients> {
+        val viewModel: ClientsViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val context = LocalContext.current
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ClientsEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+                is ClientsEvent.NavigateToPhone -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono"
+                            )
+                        }
+                    }
+                }
+                is ClientsEvent.NavigateToWhatsapp -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        ClientsScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
         )
     }
 }
