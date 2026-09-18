@@ -12,11 +12,17 @@ sealed interface ScreensTopLevel : NavKey {
     data object Consultation : ScreensTopLevel
 
     @Serializable
-    data object Inventory : ScreensTopLevel
-
-    @Serializable
     data object Clients : ScreensTopLevel
 
     @Serializable
     data object Patients : ScreensTopLevel
+
+    @Serializable
+    data object Products : ScreensTopLevel
+
+    @Serializable
+    data object Services : ScreensTopLevel
+
+    @Serializable
+    data object Suppliers : ScreensTopLevel
 }
