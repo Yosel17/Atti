@@ -205,7 +205,7 @@ fun EntryProviderScope<NavKey>.consultationEntry(
     }
 }
 
-fun EntryProviderScope<ScreensTopLevel>.productsEntry(
+fun EntryProviderScope<NavKey>.productsEntry(
     onNavigationMain: (Screens) -> Unit
 ) {
     entry<ScreensTopLevel.Products> {
@@ -236,7 +236,7 @@ fun EntryProviderScope<ScreensTopLevel>.productsEntry(
     }
 }
 
-fun EntryProviderScope<ScreensTopLevel>.servicesEntry(
+fun EntryProviderScope<NavKey>.servicesEntry(
     onNavigationMain: (Screens) -> Unit
 ) {
     entry<ScreensTopLevel.Services> {
@@ -267,7 +267,7 @@ fun EntryProviderScope<ScreensTopLevel>.servicesEntry(
     }
 }
 
-fun EntryProviderScope<ScreensTopLevel>.suppliersEntry(
+fun EntryProviderScope<NavKey>.suppliersEntry(
     onNavigationMain: (Screens) -> Unit
 ) {
     entry<ScreensTopLevel.Suppliers> {

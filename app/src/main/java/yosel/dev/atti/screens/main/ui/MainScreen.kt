@@ -11,14 +11,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.DrawerValue
@@ -54,8 +56,10 @@ import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
 import yosel.dev.atti.core.navigation.top_level.clientsEntry
 import yosel.dev.atti.core.navigation.top_level.consultationEntry
 import yosel.dev.atti.core.navigation.top_level.homeEntry
-import yosel.dev.atti.core.navigation.top_level.inventoryEntry
 import yosel.dev.atti.core.navigation.top_level.patientsEntry
+import yosel.dev.atti.core.navigation.top_level.productsEntry
+import yosel.dev.atti.core.navigation.top_level.servicesEntry
+import yosel.dev.atti.core.navigation.top_level.suppliersEntry
 
 private data class NavDrawerSection(
     val title: String,
@@ -89,12 +93,29 @@ fun MainScreen(
                         title = "Consulta",
                         selectedIcon = Icons.Filled.MedicalServices,
                         unselectedIcon = Icons.Outlined.MedicalServices
+                    )
+                )
+            ),
+            NavDrawerSection(
+                title = "Inventario",
+                items = listOf(
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Products,
+                        title = "Productos",
+                        selectedIcon = Icons.Filled.Medication,
+                        unselectedIcon = Icons.Outlined.Medication
                     ),
                     TopLevelDestination(
-                        screen = ScreensTopLevel.Inventory,
-                        title = "Inventario",
-                        selectedIcon = Icons.Filled.Inventory2,
-                        unselectedIcon = Icons.Outlined.Inventory2
+                        screen = ScreensTopLevel.Services,
+                        title = "Servicios",
+                        selectedIcon = Icons.Filled.MedicalServices,
+                        unselectedIcon = Icons.Outlined.MedicalServices
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Suppliers,
+                        title = "Proveedores",
+                        selectedIcon = Icons.Filled.LocalShipping,
+                        unselectedIcon = Icons.Outlined.LocalShipping
                     )
                 )
             ),
@@ -140,7 +161,6 @@ fun MainScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = 28.dp, top = 24.dp, bottom = 12.dp)
                     )
-
                     drawerSections.forEachIndexed { index, section ->
                         Text(
                             text = section.title,
@@ -148,7 +168,6 @@ fun MainScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 28.dp, top = 16.dp, bottom = 8.dp)
                         )
-
                         section.items.forEach { item ->
                             val isSelected = currentDestination == item.screen
                             NavigationDrawerItem(
@@ -185,7 +204,6 @@ fun MainScreen(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                         }
-
                         if (index < drawerSections.lastIndex) {
                             Spacer(modifier = Modifier.height(8.dp))
                             HorizontalDivider(
@@ -244,7 +262,9 @@ fun MainScreen(
                 entryProvider = entryProvider {
                     homeEntry(onNavigationMain = onNavigationMain)
                     consultationEntry(onNavigationMain = onNavigationMain)
-                    inventoryEntry(onNavigationMain = onNavigationMain)
+                    productsEntry(onNavigationMain = onNavigationMain)
+                    servicesEntry(onNavigationMain = onNavigationMain)
+                    suppliersEntry(onNavigationMain = onNavigationMain)
                     clientsEntry(onNavigationMain = onNavigationMain)
                     patientsEntry(onNavigationMain = onNavigationMain)
                 }
