@@ -14,6 +14,12 @@ import yosel.dev.atti.screens.top_level.inventory.data.InventoryRepositoryImpl
 import yosel.dev.atti.screens.top_level.inventory.domain.InventoryRepository
 import yosel.dev.atti.screens.top_level.patients.data.PatientsRepositoryImpl
 import yosel.dev.atti.screens.top_level.patients.domain.PatientsRepository
+import yosel.dev.atti.screens.top_level.products.data.ProductsRepositoryImpl
+import yosel.dev.atti.screens.top_level.products.domain.ProductsRepository
+import yosel.dev.atti.screens.top_level.services.data.ServicesRepositoryImpl
+import yosel.dev.atti.screens.top_level.services.domain.ServicesRepository
+import yosel.dev.atti.screens.top_level.suppliers.data.SuppliersRepositoryImpl
+import yosel.dev.atti.screens.top_level.suppliers.domain.SuppliersRepository
 import javax.inject.Singleton
 
 @Module
@@ -46,4 +52,22 @@ abstract class RepositoryTopLevelModule {
     abstract fun bindPatientsRepository(
         impl: PatientsRepositoryImpl
     ): PatientsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProductsRepository(
+        impl: ProductsRepositoryImpl
+    ): ProductsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindServicesRepository(
+        impl: ServicesRepositoryImpl
+    ): ServicesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSuppliersRepository(
+        impl: SuppliersRepositoryImpl
+    ): SuppliersRepository
 }
