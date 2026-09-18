@@ -102,12 +102,6 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindInventoryRepository(
-        impl: InventoryRepositoryImpl
-    ): InventoryRepository
-
-    @Binds
-    @Singleton
     abstract fun bindAddSupplierRepository(
         impl: AddSupplierRepositoryImpl
     ): AddSupplierRepository
@@ -142,11 +136,6 @@ abstract class RepositoryModule {
         impl: DetailServiceRepositoryImpl
     ): DetailServiceRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindConsultationRepository(
-        impl: ConsultationRepositoryImpl
-    ): ConsultationRepository
 
     @Binds
     @Singleton
@@ -242,9 +231,4 @@ abstract class RepositoryModule {
     abstract fun bindShiftMedicationFormRepository(
         impl: ShiftMedicationFormRepositoryImpl
     ): ShiftMedicationFormRepository
-
-    @Binds
-    abstract fun bindHomeRepository(
-        impl: HomeRepositoryImpl
-    ): HomeRepository
 }
