@@ -44,6 +44,9 @@ import yosel.dev.atti.screens.top_level.products.ui.ProductsViewModel
 import yosel.dev.atti.screens.top_level.services.ui.ServicesEvent
 import yosel.dev.atti.screens.top_level.services.ui.ServicesScreen
 import yosel.dev.atti.screens.top_level.services.ui.ServicesViewModel
+import yosel.dev.atti.screens.top_level.suppliers.ui.SuppliersEvent
+import yosel.dev.atti.screens.top_level.suppliers.ui.SuppliersScreen
+import yosel.dev.atti.screens.top_level.suppliers.ui.SuppliersViewModel
 
 fun EntryProviderScope<NavKey>.homeEntry(
     onNavigationMain: (Screens) -> Unit
@@ -202,58 +205,6 @@ fun EntryProviderScope<NavKey>.consultationEntry(
     }
 }
 
-fun EntryProviderScope<NavKey>.inventoryEntry(
-    onNavigationMain: (Screens) -> Unit
-){
-    entry<ScreensTopLevel.Inventory> {
-        val viewModel = hiltViewModel<InventoryViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val scope = rememberCoroutineScope()
-        val context = LocalContext.current
-
-        ObserveAsEvents(viewModel.events) { event ->
-            when (event) {
-                is InventoryEvent.ShowSnackBarError -> {
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = event.message
-                        )
-                    }
-                }
-                is InventoryEvent.NavigateToPhone -> {
-                    if (!context.dialPhoneNumber(event.phoneNumber)) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "No se puede abrir la aplicación de teléfono"
-                            )
-                        }
-                    }
-                }
-                is InventoryEvent.NavigateToWhatsapp -> {
-                    if (!context.openWhatsApp(event.phoneNumber)) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "No se puede abrir la aplicación de WhatsApp"
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        InventoryScreen(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            state = state,
-            snackBarHostState = snackBarHostState,
-            onAction = viewModel::onAction,
-            onNavigationMain = onNavigationMain
-        )
-    }
-}
-
 fun EntryProviderScope<ScreensTopLevel>.productsEntry(
     onNavigationMain: (Screens) -> Unit
 ) {
@@ -320,20 +271,44 @@ fun EntryProviderScope<ScreensTopLevel>.suppliersEntry(
     onNavigationMain: (Screens) -> Unit
 ) {
     entry<ScreensTopLevel.Suppliers> {
-        val viewModel: SuppliersViewModel = hiltViewModel()
+        val viewModel = hiltViewModel<SuppliersViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
-                is SuppliersEvent.ShowSnackBarError -> snackBarHostState.showSnackbar(event.message)
-                is SuppliersEvent.NavigateToPhone -> context.dialPhoneNumber(event.phoneNumber)
-                is SuppliersEvent.NavigateToWhatsapp -> context.openWhatsApp(event.phoneNumber)
+                is SuppliersEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+                is SuppliersEvent.NavigateToPhone -> {
+                    if (!context.dialPhoneNumber(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de teléfono"
+                            )
+                        }
+                    }
+                }
+                is SuppliersEvent.NavigateToWhatsapp -> {
+                    if (!context.openWhatsApp(event.phoneNumber)) {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "No se puede abrir la aplicación de WhatsApp"
+                            )
+                        }
+                    }
+                }
             }
         }
 
         SuppliersScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
