@@ -26,15 +26,9 @@ import yosel.dev.atti.screens.top_level.clients.ui.ClientsViewModel
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationEvent
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationScreen
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationViewModel
-import yosel.dev.atti.screens.top_level.directory.ui.DirectoryEvent
-import yosel.dev.atti.screens.top_level.directory.ui.DirectoryScreen
-import yosel.dev.atti.screens.top_level.directory.ui.DirectoryViewModel
 import yosel.dev.atti.screens.top_level.home.ui.HomeEvent
 import yosel.dev.atti.screens.top_level.home.ui.HomeScreen
 import yosel.dev.atti.screens.top_level.home.ui.HomeViewModel
-import yosel.dev.atti.screens.top_level.inventory.ui.InventoryEvent
-import yosel.dev.atti.screens.top_level.inventory.ui.InventoryScreen
-import yosel.dev.atti.screens.top_level.inventory.ui.InventoryViewModel
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsEvent
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsScreen
 import yosel.dev.atti.screens.top_level.patients.ui.PatientsViewModel
