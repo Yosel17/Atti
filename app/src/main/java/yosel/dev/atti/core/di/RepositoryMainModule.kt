@@ -38,14 +38,8 @@ import yosel.dev.atti.screens.fasting_form.data.FastingFormRepositoryImpl
 import yosel.dev.atti.screens.fasting_form.domain.FastingFormRepository
 import yosel.dev.atti.screens.follow_up_form.data.FollowUpFormRepositoryImpl
 import yosel.dev.atti.screens.follow_up_form.domain.FollowUpFormRepository
-import yosel.dev.atti.screens.top_level.consultation.data.ConsultationRepositoryImpl
-import yosel.dev.atti.screens.top_level.consultation.domain.ConsultationRepository
 import yosel.dev.atti.screens.top_level.directory.data.DirectoryRepositoryImpl
 import yosel.dev.atti.screens.top_level.directory.domain.DirectoryRepository
-import yosel.dev.atti.screens.top_level.home.data.HomeRepositoryImpl
-import yosel.dev.atti.screens.top_level.home.domain.HomeRepository
-import yosel.dev.atti.screens.top_level.inventory.data.InventoryRepositoryImpl
-import yosel.dev.atti.screens.top_level.inventory.domain.InventoryRepository
 import yosel.dev.atti.screens.observation_form.data.ObservationFormRepositoryImpl
 import yosel.dev.atti.screens.observation_form.domain.ObservationFormRepository
 import yosel.dev.atti.screens.physio_consts_form.data.PhysioConstsFormRepositoryImpl
@@ -68,7 +62,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
+abstract class RepositoryMainModule {
 
     @Binds
     @Singleton
@@ -99,12 +93,6 @@ abstract class RepositoryModule {
     abstract fun bindDetailPatientRepository(
         impl: DetailPatientRepositoryImpl
     ): DetailPatientRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindInventoryRepository(
-        impl: InventoryRepositoryImpl
-    ): InventoryRepository
 
     @Binds
     @Singleton
@@ -142,11 +130,6 @@ abstract class RepositoryModule {
         impl: DetailServiceRepositoryImpl
     ): DetailServiceRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindConsultationRepository(
-        impl: ConsultationRepositoryImpl
-    ): ConsultationRepository
 
     @Binds
     @Singleton
@@ -242,9 +225,4 @@ abstract class RepositoryModule {
     abstract fun bindShiftMedicationFormRepository(
         impl: ShiftMedicationFormRepositoryImpl
     ): ShiftMedicationFormRepository
-
-    @Binds
-    abstract fun bindHomeRepository(
-        impl: HomeRepositoryImpl
-    ): HomeRepository
 }

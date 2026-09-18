@@ -1,21 +1,28 @@
 package yosel.dev.atti.screens.main.ui
 
 import android.app.Activity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,12 +49,18 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.navigation.main.Screens
-import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
 import yosel.dev.atti.core.navigation.top_level.ScreensTopLevel
+import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
+import yosel.dev.atti.core.navigation.top_level.clientsEntry
 import yosel.dev.atti.core.navigation.top_level.consultationEntry
-import yosel.dev.atti.core.navigation.top_level.directoryEntry
 import yosel.dev.atti.core.navigation.top_level.homeEntry
 import yosel.dev.atti.core.navigation.top_level.inventoryEntry
+import yosel.dev.atti.core.navigation.top_level.patientsEntry
+
+private data class NavDrawerSection(
+    val title: String,
+    val items: List<TopLevelDestination>
+)
 
 @Composable
 fun MainScreen(
@@ -57,37 +70,56 @@ fun MainScreen(
     val navBackStack = rememberNavBackStack(ScreensTopLevel.Home)
     val currentDestination = navBackStack.lastOrNull()
     val activity = LocalContext.current as? Activity
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    val navItems = remember {
+    val drawerSections = remember {
         listOf(
-            TopLevelDestination(
-                screen = ScreensTopLevel.Home,
-                title = "Inicio",
-                selectedIcon = Icons.Filled.Home,
-                unselectedIcon = Icons.Outlined.Home
+            NavDrawerSection(
+                title = "Clínica",
+                items = listOf(
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Home,
+                        title = "Inicio",
+                        selectedIcon = Icons.Filled.Home,
+                        unselectedIcon = Icons.Outlined.Home
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Consultation,
+                        title = "Consulta",
+                        selectedIcon = Icons.Filled.MedicalServices,
+                        unselectedIcon = Icons.Outlined.MedicalServices
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Inventory,
+                        title = "Inventario",
+                        selectedIcon = Icons.Filled.Inventory2,
+                        unselectedIcon = Icons.Outlined.Inventory2
+                    )
+                )
             ),
-            TopLevelDestination(
-                screen = ScreensTopLevel.Directory,
+            NavDrawerSection(
                 title = "Directorio",
-                selectedIcon = Icons.Filled.Folder,
-                unselectedIcon = Icons.Outlined.Folder
-            ),
-            TopLevelDestination(
-                screen = ScreensTopLevel.Consultation,
-                title = "Consulta",
-                selectedIcon = Icons.Filled.MedicalServices,
-                unselectedIcon = Icons.Outlined.MedicalServices
-            ),
-            TopLevelDestination(
-                screen = ScreensTopLevel.Inventory,
-                title = "Inventario",
-                selectedIcon = Icons.Filled.Inventory2,
-                unselectedIcon = Icons.Outlined.Inventory2
+                items = listOf(
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Clients,
+                        title = "Clientes",
+                        selectedIcon = Icons.Filled.People,
+                        unselectedIcon = Icons.Outlined.People
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Patients,
+                        title = "Pacientes",
+                        selectedIcon = Icons.Filled.Pets,
+                        unselectedIcon = Icons.Outlined.Pets
+                    )
+                )
             )
         )
+    }
+
+    val currentTitle = remember(currentDestination, drawerSections) {
+        drawerSections.flatMap { it.items }.find { it.screen == currentDestination }?.title ?: "Atti"
     }
 
     ModalNavigationDrawer(
@@ -97,46 +129,72 @@ fun MainScreen(
             ModalDrawerSheet(
                 drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
-                Text(
-                    text = "Atti",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 28.dp, top = 24.dp, bottom = 16.dp)
-                )
-
-                navItems.forEach { item ->
-                    val isSelected = currentDestination == item.screen
-                    NavigationDrawerItem(
-                        label = {
-                            Text(
-                                text = item.title,
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        },
-                        selected = isSelected,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            if (navBackStack.contains(item.screen)) {
-                                navBackStack.remove(item.screen)
-                            }
-                            navBackStack.add(item.screen)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                                contentDescription = item.title
-                            )
-                        },
-                        colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = "Atti",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 28.dp, top = 24.dp, bottom = 12.dp)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                    drawerSections.forEachIndexed { index, section ->
+                        Text(
+                            text = section.title,
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 28.dp, top = 16.dp, bottom = 8.dp)
+                        )
+
+                        section.items.forEach { item ->
+                            val isSelected = currentDestination == item.screen
+                            NavigationDrawerItem(
+                                label = {
+                                    Text(
+                                        text = item.title,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                    )
+                                },
+                                selected = isSelected,
+                                onClick = {
+                                    coroutineScope.launch { drawerState.close() }
+                                    if (navBackStack.contains(item.screen)) {
+                                        navBackStack.remove(item.screen)
+                                    }
+                                    navBackStack.add(item.screen)
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
+                                        contentDescription = item.title
+                                    )
+                                },
+                                colors = NavigationDrawerItemDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+
+                        if (index < drawerSections.lastIndex) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 28.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
@@ -145,10 +203,9 @@ fun MainScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        val currentTitle = navItems.find { it.screen == currentDestination }?.title ?: "Atti"
                         Text(
                             text = currentTitle,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleLarge
                         )
                     },
                     navigationIcon = {
@@ -186,9 +243,10 @@ fun MainScreen(
                 },
                 entryProvider = entryProvider {
                     homeEntry(onNavigationMain = onNavigationMain)
-                    directoryEntry(onNavigationMain = onNavigationMain)
                     consultationEntry(onNavigationMain = onNavigationMain)
                     inventoryEntry(onNavigationMain = onNavigationMain)
+                    clientsEntry(onNavigationMain = onNavigationMain)
+                    patientsEntry(onNavigationMain = onNavigationMain)
                 }
             )
         }
