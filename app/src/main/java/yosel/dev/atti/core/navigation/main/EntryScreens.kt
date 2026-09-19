@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
@@ -1130,6 +1131,16 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
                     createPdfLauncher.launch(
                         "Receta ${state.consultationWithDetails.patientWithDetails.patient.name}"
                     )
+                }
+                is PrescriptionFormEvent.ShowGenerateDocumentSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.GENERATING_DOCUMENT,
+                            actionLabel = event.uri.toString(),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
                 }
             }
         }

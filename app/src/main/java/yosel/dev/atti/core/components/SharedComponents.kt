@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +44,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Inbox
@@ -54,7 +56,9 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,6 +85,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,12 +99,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -113,13 +120,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
+import yosel.dev.atti.core.utils.DocumentType
 import yosel.dev.atti.core.utils.getIconSpecies
+import yosel.dev.atti.core.utils.openDocument
+import yosel.dev.atti.core.utils.shareDocument
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 import kotlin.time.Duration.Companion.milliseconds
@@ -256,6 +267,123 @@ fun SnackBarSuccess(
 }
 
 @Composable
+fun SnackBarSeeOrShareDocument(
+    message: String,
+    onViewClick: () -> Unit,
+    onShareClick: () -> Unit,
+    onCloseClick: () -> Unit,
+    icon: ImageVector,
+    containerColor: Color,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .padding(16.dp)
+            .widthIn(max = 600.dp)
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(16.dp),
+                spotColor = Color(0x40000000)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.inverseSurface,
+        contentColor = MaterialTheme.colorScheme.inverseOnSurface
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(vertical = 8.dp, horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = containerColor,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = iconColor
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+            VerticalDivider(
+                modifier = Modifier
+                    .height(24.dp)
+                    .width(1.dp),
+                color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.2f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                IconButton(
+                    onClick = onViewClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Visibility,
+                        contentDescription = "Ver documento",
+                        tint = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+
+                IconButton(
+                    onClick = onShareClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Share,
+                        contentDescription = "Compartir documento",
+                        tint = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                IconButton(
+                    onClick = onCloseClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Cerrar",
+                        tint = MaterialTheme.colorScheme.inverseOnSurface,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun TopBarGlobal(
     title: String,
     modifier: Modifier = Modifier,
@@ -294,7 +422,8 @@ fun TopBarGlobal(
 
 enum class SnackbarType {
     SUCCESS,
-    ERROR
+    ERROR,
+    GENERATING_DOCUMENT
 }
 
 class CustomSnackbarVisuals(
@@ -307,12 +436,16 @@ class CustomSnackbarVisuals(
 
 suspend fun SnackbarHostState.showCustomSnackbar(
     message: String,
-    type: SnackbarType
+    type: SnackbarType,
+    actionLabel: String? = null,
+    duration: SnackbarDuration = SnackbarDuration.Short
 ) {
     showSnackbar(
         CustomSnackbarVisuals(
             message = message,
-            type = type
+            type = type,
+            actionLabel = actionLabel,
+            duration = duration
         )
     )
 }
@@ -322,6 +455,8 @@ fun CustomSnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     SnackbarHost(
         hostState = hostState,
         modifier = modifier
@@ -330,6 +465,26 @@ fun CustomSnackbarHost(
         when (customVisuals?.type) {
             SnackbarType.SUCCESS -> SnackBarSuccess(data = data)
             SnackbarType.ERROR, null -> SnackBarError(data = data)
+            SnackbarType.GENERATING_DOCUMENT -> SnackBarSeeOrShareDocument(
+                message = data.visuals.message,
+                onViewClick = {
+                    if (customVisuals.actionLabel != null){
+                        openDocument(context = context, uri = customVisuals.actionLabel.toUri(), documentType = DocumentType.PDF)
+                    }
+                    data.dismiss()
+                },
+                onShareClick = {
+                    if (customVisuals.actionLabel != null){
+                        shareDocument(context = context, uri = customVisuals.actionLabel.toUri(), documentType = DocumentType.PDF)
+                    }
+
+                    data.dismiss()
+                },
+                onCloseClick = { data.dismiss() },
+                icon = Icons.Filled.PictureAsPdf,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                iconColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }
