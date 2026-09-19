@@ -122,6 +122,13 @@ class PrescriptionFormViewModel @AssistedInject constructor(
             is PrescriptionFormAction.OnRemoveItem -> removeItem(action.itemId)
             PrescriptionFormAction.ShowLoadingAndSelectRoutePdf -> {
                 _state.update { it.copy(isLoadingGeneratePdf = true) }
+                viewModelScope.launch {
+                    _eventChannel.send(PrescriptionFormEvent.CreateDocument)
+                }
+            }
+            is PrescriptionFormAction.GeneratePdf -> {}
+            PrescriptionFormAction.OnDismissLoadingGeneratePdf -> {
+                _state.update { it.copy(isLoadingGeneratePdf = false) }
             }
         }
     }

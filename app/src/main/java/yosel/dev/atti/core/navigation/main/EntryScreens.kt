@@ -116,6 +116,7 @@ import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormViewModel
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormEvent
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormScreen
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormViewModel
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormAction
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormEvent
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormScreen
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormViewModel
@@ -1094,6 +1095,16 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
+        val createPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/pdf")
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onAction(action = PrescriptionFormAction.GeneratePdf(uri))
+            } else {
+                viewModel.onAction(action = PrescriptionFormAction.OnDismissLoadingGeneratePdf)
+            }
+        }
+
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
                 is PrescriptionFormEvent.ShowErrorSnackbar -> {
@@ -1114,6 +1125,11 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
                 }
                 is PrescriptionFormEvent.ShowToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+                PrescriptionFormEvent.CreateDocument -> {
+                    createPdfLauncher.launch(
+                        "Receta ${state.consultationWithDetails.patientWithDetails.patient.name}"
+                    )
                 }
             }
         }
