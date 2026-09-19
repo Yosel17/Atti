@@ -53,9 +53,9 @@ fun PrescriptionFormScreen(
                 title = if (state.isEditMode) "Editar Receta" else "Resumen de Receta",
                 onBack = onBack,
                 actions = {
-                    if (state.isEditMode) {
+                    if (state.isEditMode && !state.isLoadingDataInitial) {
                         IconButton(
-                            onClick = { onAction(PrescriptionFormAction.ToggleSaveDialog(show = true)) }
+                            onClick = { onAction(PrescriptionFormAction.ShowLoadingAndSelectRoutePdf) }
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.PictureAsPdf,
@@ -197,6 +197,15 @@ fun PrescriptionFormScreen(
                     onAction(PrescriptionFormAction.ToggleSaveDialog(show = false))
                     onAction(PrescriptionFormAction.SavePrescription)
                 }
+            )
+        }
+
+        if (state.isLoadingGeneratePdf){
+            LoadingDialog(
+                title = "Generando PDF...",
+                subtitle = "Por favor espera un momento mientras se genera el PDF...",
+                colorTitle = MaterialTheme.customColors.pdf,
+                color = MaterialTheme.customColors.pdf
             )
         }
     }

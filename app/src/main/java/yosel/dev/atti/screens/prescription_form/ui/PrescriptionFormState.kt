@@ -35,5 +35,8 @@ data class PrescriptionFormState(
     val isLoadingAddPreset: Boolean = false,
 
     // Diálogo producto fuera de inventario
-    val showAddCustomProductDialog: Boolean = false
+    val showAddCustomProductDialog: Boolean = false,
+
+    //Generar pdf
+    val isLoadingGeneratePdf: Boolean = false,
 )

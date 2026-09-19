@@ -37,4 +37,7 @@ sealed interface PrescriptionFormAction {
 
     // Notas generales
     data class OnGeneralNotesChange(val notes: String) : PrescriptionFormAction
+
+    //Generar pdf
+    data object ShowLoadingAndSelectRoutePdf: PrescriptionFormAction
 }
