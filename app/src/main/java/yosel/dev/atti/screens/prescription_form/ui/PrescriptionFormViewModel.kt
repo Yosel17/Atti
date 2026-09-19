@@ -120,6 +120,8 @@ class PrescriptionFormViewModel @AssistedInject constructor(
             is PrescriptionFormAction.OnIncrementQuantity -> incrementItem(action.itemId)
             is PrescriptionFormAction.OnDecrementQuantity -> decrementItem(action.itemId)
             is PrescriptionFormAction.OnRemoveItem -> removeItem(action.itemId)
+
+            //Generar pdf
             PrescriptionFormAction.ShowLoadingAndSelectRoutePdf -> {
                 _state.update { it.copy(isLoadingGeneratePdf = true) }
                 viewModelScope.launch {

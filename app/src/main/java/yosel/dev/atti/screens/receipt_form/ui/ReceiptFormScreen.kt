@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +27,8 @@ import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormAction
+import yosel.dev.atti.ui.theme.customColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -43,7 +48,20 @@ fun ReceiptFormScreen(
         topBar = {
             TopBarGlobal(
                 title = if (state.isEditMode) "Editar Recibo" else "Generar Recibo",
-                onBack = onBack
+                onBack = onBack,
+                actions = {
+                    if (state.isEditMode && !state.isLoadingDataInitial) {
+                        IconButton(
+                            onClick = { onAction(ReceiptFormAction.ShowLoadingAndSelectRoutePdf) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.PictureAsPdf,
+                                contentDescription = "Generar PDF",
+                                tint = MaterialTheme.customColors.pdf
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -162,6 +180,15 @@ fun ReceiptFormScreen(
                     onAction(ReceiptFormAction.ToggleReceiptErrorDialog(show = false))
                 },
                 detailedError = state.detailedError
+            )
+        }
+
+        if (state.isLoadingGeneratePdf){
+            LoadingDialog(
+                title = "Generando PDF...",
+                subtitle = "Por favor espera un momento mientras se genera el PDF...",
+                colorTitle = MaterialTheme.customColors.pdf,
+                color = MaterialTheme.customColors.pdf
             )
         }
     }

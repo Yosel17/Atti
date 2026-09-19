@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.receipt_form.ui
 
+import android.net.Uri
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 
@@ -32,4 +33,9 @@ sealed interface ReceiptFormAction {
     data class OnIncrementService(val serviceId: String) : ReceiptFormAction
     data class OnDecrementService(val serviceId: String) : ReceiptFormAction
     data class OnRemoveService(val serviceId: String) : ReceiptFormAction
+
+    //Generar pdf
+    data object ShowLoadingAndSelectRoutePdf: ReceiptFormAction
+    data object OnDismissLoadingGeneratePdf: ReceiptFormAction
+    data class GeneratePdf(val uri: Uri): ReceiptFormAction
 }

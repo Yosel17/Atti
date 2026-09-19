@@ -35,5 +35,8 @@ data class ReceiptFormState(
     val filteredServices: List<ServiceWithDetailsModel> = emptyList(),
     val isServiceSheetOpen: Boolean = false,
     val serviceSearchQuery: String = "",
-    val tempSelectedServiceIds: Set<String> = emptySet()
+    val tempSelectedServiceIds: Set<String> = emptySet(),
+
+    //Generar pdf
+    val isLoadingGeneratePdf: Boolean = false,
 )

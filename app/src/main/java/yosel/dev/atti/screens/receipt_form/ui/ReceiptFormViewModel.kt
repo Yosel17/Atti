@@ -25,6 +25,7 @@ import yosel.dev.atti.core.models.model.ReceiptModel
 import yosel.dev.atti.core.models.model.ServiceWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormEvent
 import yosel.dev.atti.screens.receipt_form.domain.ReceiptFormRepository
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -111,6 +112,18 @@ class ReceiptFormViewModel @AssistedInject constructor(
             is ReceiptFormAction.OnRemoveService -> removeService(action.serviceId)
             is ReceiptFormAction.ToggleReceiptErrorDialog -> {
                 _state.update { it.copy(showReceiptErrorDialog = action.show) }
+            }
+
+            //Generar pdf
+            ReceiptFormAction.ShowLoadingAndSelectRoutePdf -> {
+                _state.update { it.copy(isLoadingGeneratePdf = true) }
+                viewModelScope.launch {
+                    _eventChannel.send(ReceiptFormEvent.CreateDocument)
+                }
+            }
+            is ReceiptFormAction.GeneratePdf -> {}
+            ReceiptFormAction.OnDismissLoadingGeneratePdf -> {
+                _state.update { it.copy(isLoadingGeneratePdf = false) }
             }
         }
     }

@@ -118,6 +118,7 @@ import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormE
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormScreen
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormViewModel
 import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormAction
+import yosel.dev.atti.screens.receipt_form.ui.ReceiptFormAction
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormEvent
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormScreen
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormViewModel
@@ -1129,7 +1130,7 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
                 }
                 PrescriptionFormEvent.CreateDocument -> {
                     createPdfLauncher.launch(
-                        "Receta ${state.consultationWithDetails.patientWithDetails.patient.name}"
+                        "Receta_${state.consultationWithDetails.patientWithDetails.patient.name}"
                     )
                 }
                 is PrescriptionFormEvent.ShowGenerateDocumentSnackbar -> {
@@ -1282,6 +1283,16 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
+        val createPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/pdf")
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onAction(action = ReceiptFormAction.GeneratePdf(uri))
+            } else {
+                viewModel.onAction(action = ReceiptFormAction.OnDismissLoadingGeneratePdf)
+            }
+        }
+
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
                 is ReceiptFormEvent.ShowErrorSnackbar -> {
@@ -1302,6 +1313,22 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
                 }
                 is ReceiptFormEvent.ShowToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                ReceiptFormEvent.CreateDocument -> {
+                    createPdfLauncher.launch(
+                        "Recibo_${state.existingReceiptWithDetails?.clientOrCustomerName}"
+                    )
+                }
+                is ReceiptFormEvent.ShowGenerateDocumentSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.GENERATING_DOCUMENT,
+                            actionLabel = event.uri.toString(),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
                 }
             }
         }
