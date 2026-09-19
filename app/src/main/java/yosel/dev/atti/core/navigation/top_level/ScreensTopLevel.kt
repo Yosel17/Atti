@@ -25,4 +25,7 @@ sealed interface ScreensTopLevel : NavKey {
 
     @Serializable
     data object Suppliers : ScreensTopLevel
+
+    @Serializable
+    data object Receipts : ScreensTopLevel
 }
