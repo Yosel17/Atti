@@ -57,8 +57,37 @@ class ReceiptsDataSource @Inject constructor(
 
     suspend fun getAllReceiptsWithDetails(): List<ReceiptDto> {
         return postgrest.from(Constants.RECEIPTS_SUPABASE)
-            .select(columns = detailedColumns) {
-                order("id", Order.DESCENDING)
+            .select(
+                columns = Columns.raw(
+                    """
+                    *,
+                    consultation:consultations!consultation_id(
+                        *,
+                        patient:patients!patient_id(
+                            *,
+                            species:app_catalogs!species_id(*),
+                            gender:app_catalogs!gender_id(*),
+                            client:clients!client_id(*)
+                        ),
+                        consultation_type:app_catalogs!consultation_type_id(*)
+                    ),
+                    items:receipt_items(
+                        *,
+                        product:products!product_id(
+                            *,
+                            category:app_catalogs!category_id(*),
+                            unit_type:app_catalogs!unit_type_id(*),
+                            supplier:suppliers!supplier_id(*)
+                        ),
+                        service:services!service_id(
+                            *,
+                            category:app_catalogs!category_id(*)
+                        )
+                    )
+                    """.trimIndent()
+                )
+            ) {
+                order("created_at", Order.DESCENDING)
             }
             .decodeList<ReceiptDto>()
     }
