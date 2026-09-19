@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
@@ -116,6 +117,8 @@ import yosel.dev.atti.screens.treatment_form.ui.TreatmentFormViewModel
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormEvent
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormScreen
 import yosel.dev.atti.screens.pre_anesthetic_test_form.ui.PreAnestheticTestFormViewModel
+import yosel.dev.atti.screens.prescription_form.ui.PrescriptionFormAction
+import yosel.dev.atti.screens.receipt_form.ui.ReceiptFormAction
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormEvent
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormScreen
 import yosel.dev.atti.screens.shift_medication_form.ui.ShiftMedicationFormViewModel
@@ -1094,6 +1097,16 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
+        val createPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/pdf")
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onAction(action = PrescriptionFormAction.GeneratePdf(uri))
+            } else {
+                viewModel.onAction(action = PrescriptionFormAction.OnDismissLoadingGeneratePdf)
+            }
+        }
+
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
                 is PrescriptionFormEvent.ShowErrorSnackbar -> {
@@ -1114,6 +1127,21 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
                 }
                 is PrescriptionFormEvent.ShowToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+                PrescriptionFormEvent.CreateDocument -> {
+                    createPdfLauncher.launch(
+                        "Receta_${state.consultationWithDetails.patientWithDetails.patient.name}"
+                    )
+                }
+                is PrescriptionFormEvent.ShowGenerateDocumentSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.GENERATING_DOCUMENT,
+                            actionLabel = event.uri.toString(),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
                 }
             }
         }
@@ -1255,6 +1283,16 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
+        val createPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/pdf")
+        ) { uri ->
+            if (uri != null) {
+                viewModel.onAction(action = ReceiptFormAction.GeneratePdf(uri))
+            } else {
+                viewModel.onAction(action = ReceiptFormAction.OnDismissLoadingGeneratePdf)
+            }
+        }
+
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
                 is ReceiptFormEvent.ShowErrorSnackbar -> {
@@ -1275,6 +1313,22 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
                 }
                 is ReceiptFormEvent.ShowToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+
+                ReceiptFormEvent.CreateDocument -> {
+                    createPdfLauncher.launch(
+                        "Recibo_${state.existingReceiptWithDetails?.clientOrCustomerName}"
+                    )
+                }
+                is ReceiptFormEvent.ShowGenerateDocumentSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.GENERATING_DOCUMENT,
+                            actionLabel = event.uri.toString(),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
                 }
             }
         }

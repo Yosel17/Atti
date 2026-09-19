@@ -313,3 +313,16 @@ val rangeFeverDark = Color(0xFFEF9A9A)
 val onRangeFeverDark = Color(0xFF5C0006)
 val rangeFeverContainerDark = Color(0xFF8C000D)
 val onRangeFeverContainerDark = Color(0xFFFFDAD6)
+
+// ==========================================
+// PDF
+// ==========================================
+val pdfLight = Color(0xFFC02626)
+val onPdfLight = Color(0xFFFFFFFF)
+val pdfContainerLight = Color(0xFFFFDAD6)
+val onPdfContainerLight = Color(0xFF410002)
+
+val pdfDark = Color(0xFFFFB4AB)
+val onPdfDark = Color(0xFF690005) // Icono rojo oscuro intenso para contraste dentro del botón
+val pdfContainerDark = Color(0xFF93000A)
+val onPdfContainerDark = Color(0xFFFFDAD6)

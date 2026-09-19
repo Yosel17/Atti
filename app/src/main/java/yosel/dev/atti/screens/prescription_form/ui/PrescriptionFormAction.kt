@@ -1,5 +1,6 @@
 package yosel.dev.atti.screens.prescription_form.ui
 
+import android.net.Uri
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ProductWithDetailsModel
 
@@ -37,4 +38,9 @@ sealed interface PrescriptionFormAction {
 
     // Notas generales
     data class OnGeneralNotesChange(val notes: String) : PrescriptionFormAction
+
+    //Generar pdf
+    data object ShowLoadingAndSelectRoutePdf: PrescriptionFormAction
+    data object OnDismissLoadingGeneratePdf: PrescriptionFormAction
+    data class GeneratePdf(val uri: Uri): PrescriptionFormAction
 }

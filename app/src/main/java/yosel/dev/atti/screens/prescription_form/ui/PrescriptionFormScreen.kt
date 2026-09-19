@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.rounded.PictureAsPdf
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,6 +31,7 @@ import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
+import yosel.dev.atti.ui.theme.customColors
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -46,7 +51,20 @@ fun PrescriptionFormScreen(
         topBar = {
             TopBarGlobal(
                 title = if (state.isEditMode) "Editar Receta" else "Resumen de Receta",
-                onBack = onBack
+                onBack = onBack,
+                actions = {
+                    if (state.isEditMode && !state.isLoadingDataInitial) {
+                        IconButton(
+                            onClick = { onAction(PrescriptionFormAction.ShowLoadingAndSelectRoutePdf) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.PictureAsPdf,
+                                contentDescription = "Generar PDF",
+                                tint = MaterialTheme.customColors.pdf
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -179,6 +197,15 @@ fun PrescriptionFormScreen(
                     onAction(PrescriptionFormAction.ToggleSaveDialog(show = false))
                     onAction(PrescriptionFormAction.SavePrescription)
                 }
+            )
+        }
+
+        if (state.isLoadingGeneratePdf){
+            LoadingDialog(
+                title = "Generando PDF...",
+                subtitle = "Por favor espera un momento mientras se genera el PDF...",
+                colorTitle = MaterialTheme.customColors.pdf,
+                color = MaterialTheme.customColors.pdf
             )
         }
     }

@@ -1,11 +1,13 @@
 package yosel.dev.atti.core.utils
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -278,6 +280,42 @@ fun formatScheduledDayOfWeek(isoString: String): String {
     val formatter = DateTimeFormatter.ofPattern("EEE d", locale)
     return dateTime.format(formatter)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+}
+
+enum class DocumentType(val mimeType: String, val label: String) {
+    PDF("application/pdf", "PDF"),
+    EXCEL("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Excel"),
+    XML("application/xml", "XML")
+}
+
+fun openDocument(context: Context, uri: Uri, documentType: DocumentType) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, documentType.mimeType)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, "No tienes una app instalada para abrir archivos ${documentType.label}", Toast.LENGTH_LONG).show()
+    } catch (e: Exception) {
+        Toast.makeText(context, "Ocurrió un error al intentar abrir el archivo", Toast.LENGTH_SHORT).show()
+    }
+}
+
+// 3. Función genérica para compartir el documento de forma segura
+fun shareDocument(context: Context, uri: Uri, documentType: DocumentType) {
+    try {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = documentType.mimeType
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(shareIntent, "Compartir reporte ${documentType.label} con...")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    } catch (e: Exception) {
+        Toast.makeText(context, "No se pudo compartir el archivo ${documentType.label}", Toast.LENGTH_SHORT).show()
+    }
 }
 
 fun Context.openAppSettings() {
