@@ -42,7 +42,12 @@ data class CustomColors(
     val rangeFever: Color,
     val onRangeFever: Color,
     val rangeFeverContainer: Color,
-    val onRangeFeverContainer: Color
+    val onRangeFeverContainer: Color,
+    //PDF
+    val pdf: Color,
+    val onPdf: Color,
+    val pdfContainer: Color,
+    val onPdfContainer: Color,
 )
 
 val LocalCustomColors = staticCompositionLocalOf {
@@ -78,7 +83,11 @@ val LocalCustomColors = staticCompositionLocalOf {
         rangeFever = Color.Unspecified,
         onRangeFever = Color.Unspecified,
         rangeFeverContainer = Color.Unspecified,
-        onRangeFeverContainer = Color.Unspecified
+        onRangeFeverContainer = Color.Unspecified,
+        pdf = Color.Unspecified,
+        onPdf = Color.Unspecified,
+        pdfContainer = Color.Unspecified,
+        onPdfContainer = Color.Unspecified,
     )
 }
 
@@ -120,7 +129,12 @@ val LightCustomColors = CustomColors(
     rangeFever = rangeFeverLight,
     onRangeFever = onRangeFeverLight,
     rangeFeverContainer = rangeFeverContainerLight,
-    onRangeFeverContainer = onRangeFeverContainerLight
+    onRangeFeverContainer = onRangeFeverContainerLight,
+
+    pdf = pdfLight,
+    onPdf = onPdfLight,
+    pdfContainer = pdfContainerLight,
+    onPdfContainer = onPdfContainerLight,
 )
 
 val DarkCustomColors = CustomColors(
@@ -162,5 +176,10 @@ val DarkCustomColors = CustomColors(
     rangeFever = rangeFeverDark,
     onRangeFever = onRangeFeverDark,
     rangeFeverContainer = rangeFeverContainerDark,
-    onRangeFeverContainer = onRangeFeverContainerDark
+    onRangeFeverContainer = onRangeFeverContainerDark,
+
+    pdf = pdfDark,
+    onPdf = onPdfDark,
+    pdfContainer = pdfContainerDark,
+    onPdfContainer = onPdfContainerDark,
 )
