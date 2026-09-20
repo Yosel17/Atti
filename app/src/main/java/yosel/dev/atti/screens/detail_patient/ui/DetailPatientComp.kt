@@ -1,6 +1,5 @@
 package yosel.dev.atti.screens.detail_patient.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
@@ -28,7 +26,6 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.Comment
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Fingerprint
@@ -48,7 +45,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -56,7 +52,6 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -75,7 +70,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.StatusChip
 import yosel.dev.atti.core.models.model.ClientModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
@@ -90,7 +84,8 @@ import yosel.dev.atti.core.utils.getIconSpecies
 fun BodyDetailPatient(
     modifier: Modifier = Modifier,
     state: DetailPatientState,
-    onAction: (DetailPatientAction) -> Unit
+    onAction: (DetailPatientAction) -> Unit,
+    showConsultations: Boolean
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -107,14 +102,16 @@ fun BodyDetailPatient(
                 client = state.client
             )
         }
-        item {
-            ClinicalHistorySection(
-                consultations = state.consultations,
-                isLoading = state.isLoadingConsultations,
-                onConsultationClick = { consultationId, consultationTypeId ->
-                    onAction(DetailPatientAction.OnConsultationClick(consultationId, consultationTypeId))
-                }
-            )
+        if (showConsultations){
+            item {
+                ClinicalHistorySection(
+                    consultations = state.consultations,
+                    isLoading = state.isLoadingConsultations,
+                    onConsultationClick = { consultationId, consultationTypeId ->
+                        onAction(DetailPatientAction.OnConsultationClick(consultationId, consultationTypeId))
+                    }
+                )
+            }
         }
         item {
             Spacer(modifier = Modifier.height(16.dp))

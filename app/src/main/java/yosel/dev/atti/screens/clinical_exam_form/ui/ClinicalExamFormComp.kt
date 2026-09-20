@@ -61,12 +61,14 @@ import yosel.dev.atti.core.components.AppCatalogMultiSelector
 import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
+import yosel.dev.atti.core.navigation.main.Screens
 
 @Composable
 fun BodyClinicalExamForm(
     modifier: Modifier = Modifier,
     state: ClinicalExamFormState,
-    onAction: (ClinicalExamFormAction) -> Unit
+    onAction: (ClinicalExamFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -83,7 +85,12 @@ fun BodyClinicalExamForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(24.dp))
             MucousMembranesSection(

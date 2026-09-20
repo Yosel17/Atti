@@ -1781,14 +1781,30 @@ fun SelectAppCatalogMultiBottomSheet(
 @Composable
 fun PatientConsultationHeaderHero(
     patientWithDetails: PatientWithDetailsModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: ((String) -> Unit)? = null
 ) {
     val patient = patientWithDetails.patient
     val species = patientWithDetails.species
+    val cardShape = RoundedCornerShape(20.dp)
 
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (onClick != null) {
+                    Modifier
+                        .clip(cardShape)
+                        .clickable(
+                            onClick = {
+                                onClick(patient.id)
+                            }
+                        )
+                } else {
+                    Modifier
+                }
+            ),
+        shape = cardShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
         ),

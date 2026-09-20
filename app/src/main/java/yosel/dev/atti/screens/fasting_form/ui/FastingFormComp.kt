@@ -51,13 +51,15 @@ import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
 import yosel.dev.atti.core.models.model.PatientModel
 import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.ui.theme.AttiTheme
 
 @Composable
 fun BodyFastingForm(
     modifier: Modifier = Modifier,
     state: FastingFormState,
-    onAction: (FastingFormAction) -> Unit
+    onAction: (FastingFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -74,7 +76,12 @@ fun BodyFastingForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -341,7 +348,8 @@ fun FastingFormPreview() {
                         selectedWater = AppCatalogModel(id = 2, name = "2 - 4 Horas")
                     )
                 ),
-                onAction = {}
+                onAction = {},
+                onNavigationMain = {}
             )
         }
     }

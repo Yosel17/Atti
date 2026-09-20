@@ -26,6 +26,7 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 
@@ -36,7 +37,8 @@ fun PhysioConstsFormScreen(
     state: PhysioConstsFormState,
     snackBarHostState: SnackbarHostState,
     onAction: (PhysioConstsFormAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -97,7 +99,8 @@ fun PhysioConstsFormScreen(
                                     .fillMaxSize()
                                     .padding(horizontal = 24.dp),
                                 state = state,
-                                onAction = onAction
+                                onAction = onAction,
+                                onNavigationMain = onNavigationMain
                             )
                         }
                     }

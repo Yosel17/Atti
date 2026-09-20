@@ -18,7 +18,7 @@ sealed interface Screens: NavKey {
     data class AddPatient(val patientId: String? = null, val clientId: String? = null): Screens
 
     @Serializable
-    data class DetailPatient(val patientId: String): Screens
+    data class DetailPatient(val patientId: String, val showConsultations: Boolean = true): Screens
 
     @Serializable
     data object AddSupplier: Screens

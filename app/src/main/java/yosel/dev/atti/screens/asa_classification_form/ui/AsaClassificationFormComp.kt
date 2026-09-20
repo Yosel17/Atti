@@ -60,12 +60,14 @@ import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.navigation.main.Screens
 
 @Composable
 fun BodyAsaClassificationForm(
     modifier: Modifier = Modifier,
     state: AsaClassificationFormState,
-    onAction: (AsaClassificationFormAction) -> Unit
+    onAction: (AsaClassificationFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -78,7 +80,12 @@ fun BodyAsaClassificationForm(
         Column(modifier = Modifier.weight(1f)) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
 

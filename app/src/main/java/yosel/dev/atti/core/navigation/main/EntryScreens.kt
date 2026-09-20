@@ -316,7 +316,8 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
         val viewModel: DetailPatientViewModel = hiltViewModel(
             creationCallback = { factory: DetailPatientViewModel.Factory ->
                 factory.create(
-                    patientId = detailPatientKey.patientId
+                    patientId = detailPatientKey.patientId,
+                    showConsultations = detailPatientKey.showConsultations
                 )
             }
         )
@@ -357,7 +358,8 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            showConsultations = detailPatientKey.showConsultations
         )
     }
 }
@@ -733,6 +735,7 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
 
 fun EntryProviderScope<NavKey>.anamnesisFormEntry(
     onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ){
     entry<Screens.AnamnesisForm> { anamnesisFormKey ->
         val viewModel: AnamnesisFormViewModel = hiltViewModel(
@@ -779,7 +782,8 @@ fun EntryProviderScope<NavKey>.anamnesisFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
@@ -813,7 +817,8 @@ fun EntryProviderScope<NavKey>.emptyEntry(){
 }
 
 fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.ClinicalExamForm> { clinicalExamFormKey ->
         val viewModel: ClinicalExamFormViewModel = hiltViewModel(
@@ -860,13 +865,15 @@ fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.physioConstsFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.PhysioConstsForm> { constsKey ->
         val viewModel: PhysioConstsFormViewModel = hiltViewModel(
@@ -913,13 +920,15 @@ fun EntryProviderScope<NavKey>.physioConstsFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.diagnosisFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.DiagnosisForm> { key ->
         val viewModel: DiagnosisFormViewModel = hiltViewModel(
@@ -966,13 +975,15 @@ fun EntryProviderScope<NavKey>.diagnosisFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.auxiliaryTestFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.AuxiliaryTestForm> { key ->
         val viewModel: AuxiliaryTestFormViewModel = hiltViewModel(
@@ -1019,7 +1030,8 @@ fun EntryProviderScope<NavKey>.auxiliaryTestFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
@@ -1160,7 +1172,8 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.observationFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.ObservationForm> { key ->
         val viewModel: ObservationFormViewModel = hiltViewModel(
@@ -1207,13 +1220,15 @@ fun EntryProviderScope<NavKey>.observationFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.followUpFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.FollowUpForm> { followUpKey ->
         val viewModel: FollowUpFormViewModel = hiltViewModel(
@@ -1260,7 +1275,8 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
@@ -1347,7 +1363,8 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.fastingFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ){
     entry<Screens.FastingForm> { fastingFormKey ->
         val viewModel: FastingFormViewModel = hiltViewModel(
@@ -1396,13 +1413,15 @@ fun EntryProviderScope<NavKey>.fastingFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
 
 fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.AsaClassificationForm> { key ->
         val viewModel: AsaClassificationFormViewModel = hiltViewModel(
@@ -1449,7 +1468,8 @@ fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }

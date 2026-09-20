@@ -25,11 +25,15 @@ import yosel.dev.atti.screens.detail_patient.ui.DetailPatientEvent.*
 class DetailPatientViewModel @AssistedInject constructor(
     private val repository: DetailPatientRepository,
     @Assisted private val patientId: String,
+    @Assisted private val showConsultations: Boolean,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(patientId: String): DetailPatientViewModel
+        fun create(
+            patientId: String,
+            showConsultations: Boolean
+        ): DetailPatientViewModel
     }
 
     private val _state = MutableStateFlow(DetailPatientState())
@@ -81,7 +85,9 @@ class DetailPatientViewModel @AssistedInject constructor(
 
     init {
         observePatient()
-        loadConsultations()
+        if (showConsultations){
+            loadConsultations()
+        }
     }
 
     private fun loadConsultations() {

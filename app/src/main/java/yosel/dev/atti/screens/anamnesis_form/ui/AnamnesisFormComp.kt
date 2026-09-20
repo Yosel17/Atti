@@ -113,6 +113,7 @@ import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.components.SectionTitle
 import yosel.dev.atti.core.models.model.AnamnesisDewormingWithDetailsModel
 import yosel.dev.atti.core.models.model.AnamnesisVaccineWithDetailsModel
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import java.time.Instant
 import java.time.LocalDate
@@ -125,7 +126,8 @@ import kotlin.time.Duration.Companion.milliseconds
 fun BodyAnamnesisForm(
     modifier: Modifier = Modifier,
     state: AnamnesisFormState,
-    onAction: (AnamnesisFormAction) -> Unit
+    onAction: (AnamnesisFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -142,7 +144,12 @@ fun BodyAnamnesisForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(24.dp))
             EnvironmentAndRoutineSection(

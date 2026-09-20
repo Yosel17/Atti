@@ -87,7 +87,8 @@ fun PreAnestheticTestFormScreen(
                                 .padding(horizontal = 24.dp),
                             state = state,
                             onAction = onAction,
-                            onNavigation = onNavigation
+                            onNavigation = onNavigation,
+                            onNavigationMain = onNavigation
                         )
                     }
                 }

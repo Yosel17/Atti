@@ -77,6 +77,7 @@ import yosel.dev.atti.core.components.AppCatalogSelector
 import yosel.dev.atti.core.components.InputFieldGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
 import yosel.dev.atti.core.components.SectionTitle
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
@@ -95,7 +96,8 @@ data class RangeEvaluation(
 fun BodyPhysiologicalConstsForm(
     modifier: Modifier = Modifier,
     state: PhysioConstsFormState,
-    onAction: (PhysioConstsFormAction) -> Unit
+    onAction: (PhysioConstsFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -113,7 +115,12 @@ fun BodyPhysiologicalConstsForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(20.dp))
 
