@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
@@ -58,6 +60,7 @@ import yosel.dev.atti.core.navigation.top_level.consultationEntry
 import yosel.dev.atti.core.navigation.top_level.homeEntry
 import yosel.dev.atti.core.navigation.top_level.patientsEntry
 import yosel.dev.atti.core.navigation.top_level.productsEntry
+import yosel.dev.atti.core.navigation.top_level.receiptsEntry
 import yosel.dev.atti.core.navigation.top_level.servicesEntry
 import yosel.dev.atti.core.navigation.top_level.suppliersEntry
 
@@ -93,6 +96,12 @@ fun MainScreen(
                         title = "Consulta",
                         selectedIcon = Icons.Filled.MedicalServices,
                         unselectedIcon = Icons.Outlined.MedicalServices
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Receipts,
+                        title = "Recibos",
+                        selectedIcon = Icons.AutoMirrored.Filled.ReceiptLong,
+                        unselectedIcon = Icons.AutoMirrored.Outlined.ReceiptLong
                     )
                 )
             ),
@@ -267,6 +276,7 @@ fun MainScreen(
                     suppliersEntry(onNavigationMain = onNavigationMain)
                     clientsEntry(onNavigationMain = onNavigationMain)
                     patientsEntry(onNavigationMain = onNavigationMain)
+                    receiptsEntry(onNavigationMain = onNavigationMain)
                 }
             )
         }

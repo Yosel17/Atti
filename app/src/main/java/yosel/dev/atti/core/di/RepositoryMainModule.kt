@@ -190,6 +190,7 @@ abstract class RepositoryMainModule {
     ): ObservationFormRepository
 
     @Binds
+    @Singleton
     abstract fun bindFollowUpFormRepository(
         impl: FollowUpFormRepositoryImpl
     ): FollowUpFormRepository

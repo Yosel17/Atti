@@ -40,7 +40,7 @@ interface ReceiptDao {
 
     // --- Consultas con Relaciones ---
     @Transaction
-    @Query("SELECT * FROM receipts ORDER BY id DESC")
+    @Query("SELECT * FROM receipts ORDER BY created_at DESC")
     fun getAllReceiptsWithDetailsFlow(): Flow<List<ReceiptWithDetailsEntity>>
 
     @Transaction

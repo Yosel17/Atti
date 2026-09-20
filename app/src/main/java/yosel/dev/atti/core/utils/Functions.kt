@@ -57,6 +57,15 @@ fun formatDate(isoString: String): String {
     val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM, yyyy", locale)
     return dateTime.format(formatter)
 }
+/**
+ * Ejemplo: "16 de oct. 2026"
+ */
+fun formatShortDate(isoString: String): String {
+    val dateTime = parseToLocalDateTime(isoString) ?: return isoString
+    val locale = Locale.forLanguageTag("es-ES")
+    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMM yyyy", locale)
+    return dateTime.format(formatter)
+}
 
 /**
  * Abre el marcador telefónico con el número proporcionado.
