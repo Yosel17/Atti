@@ -121,6 +121,9 @@ fun AppNavigation(startDestination: Screens) {
             physioConstsFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screen ->
+                    backStack.add(screen)
                 }
             )
 

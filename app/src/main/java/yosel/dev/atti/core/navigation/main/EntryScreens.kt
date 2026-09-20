@@ -872,7 +872,8 @@ fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.physioConstsFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.PhysioConstsForm> { constsKey ->
         val viewModel: PhysioConstsFormViewModel = hiltViewModel(
@@ -919,7 +920,8 @@ fun EntryProviderScope<NavKey>.physioConstsFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
