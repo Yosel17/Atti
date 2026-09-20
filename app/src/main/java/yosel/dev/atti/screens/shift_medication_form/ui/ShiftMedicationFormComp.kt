@@ -125,7 +125,12 @@ fun BodyShiftMedicationForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigation(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(18.dp))
 
