@@ -1223,7 +1223,8 @@ fun EntryProviderScope<NavKey>.observationFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.followUpFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.FollowUpForm> { followUpKey ->
         val viewModel: FollowUpFormViewModel = hiltViewModel(
@@ -1270,7 +1271,8 @@ fun EntryProviderScope<NavKey>.followUpFormEntry(
             state = state,
             snackBarHostState = snackBarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }

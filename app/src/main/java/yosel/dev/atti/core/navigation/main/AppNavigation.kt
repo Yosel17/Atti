@@ -169,6 +169,9 @@ fun AppNavigation(startDestination: Screens) {
             followUpFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screen ->
+                    backStack.add(screen)
                 }
             )
 

@@ -26,6 +26,7 @@ import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -36,7 +37,8 @@ fun FollowUpFormScreen(
     state: FollowUpFormState,
     snackBarHostState: SnackbarHostState,
     onAction: (FollowUpFormAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM, yyyy", Locale.forLanguageTag("es-ES")) }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("hh:mm a", Locale.US) }
@@ -92,7 +94,8 @@ fun FollowUpFormScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
-                            onAction = onAction
+                            onAction = onAction,
+                            onNavigationMain = onNavigationMain
                         )
                     }
                 }

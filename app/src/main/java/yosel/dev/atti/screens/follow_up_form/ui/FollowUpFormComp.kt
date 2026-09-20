@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
+import yosel.dev.atti.core.navigation.main.Screens
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -84,7 +85,8 @@ import java.util.Locale
 fun BodyFollowUpForm(
     modifier: Modifier = Modifier,
     state: FollowUpFormState,
-    onAction: (FollowUpFormAction) -> Unit
+    onAction: (FollowUpFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -106,7 +108,12 @@ fun BodyFollowUpForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
