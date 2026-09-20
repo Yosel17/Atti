@@ -64,7 +64,12 @@ fun BodyDetailConsultation(
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         PatientConsultationHeaderHero(
-            patientWithDetails = state.consultationWithDetails.patientWithDetails
+            patientWithDetails = state.consultationWithDetails.patientWithDetails,
+            onClick = { patientId ->
+                onNavigationMain(
+                    Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                )
+            }
         )
         Spacer(modifier = Modifier.height(16.dp))
 
