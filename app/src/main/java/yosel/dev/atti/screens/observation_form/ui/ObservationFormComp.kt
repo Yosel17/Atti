@@ -46,12 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
+import yosel.dev.atti.core.navigation.main.Screens
 
 @Composable
 fun BodyObservationForm(
     modifier: Modifier = Modifier,
     state: ObservationFormState,
-    onAction: (ObservationFormAction) -> Unit
+    onAction: (ObservationFormAction) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -69,7 +71,12 @@ fun BodyObservationForm(
             Spacer(modifier = Modifier.height(12.dp))
 
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(20.dp))

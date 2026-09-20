@@ -1170,7 +1170,8 @@ fun EntryProviderScope<NavKey>.prescriptionFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.observationFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.ObservationForm> { key ->
         val viewModel: ObservationFormViewModel = hiltViewModel(
@@ -1217,7 +1218,8 @@ fun EntryProviderScope<NavKey>.observationFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
