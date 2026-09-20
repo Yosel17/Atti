@@ -146,7 +146,9 @@ fun BodyAnamnesisForm(
             PatientConsultationHeaderHero(
                 patientWithDetails = state.consultationWithDetails.patientWithDetails,
                 onClick = { patientId ->
-                    onNavigationMain(Screens.DetailPatient(patientId = patientId))
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
                 }
             )
             Spacer(modifier = Modifier.height(24.dp))

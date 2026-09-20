@@ -39,7 +39,8 @@ fun DetailPatientScreen(
     state: DetailPatientState,
     snackBarHostState: SnackbarHostState,
     onAction: (DetailPatientAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showConsultations: Boolean
 ) {
     Scaffold(
         modifier = modifier,
@@ -136,7 +137,8 @@ fun DetailPatientScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
-                            onAction = onAction
+                            onAction = onAction,
+                            showConsultations = showConsultations
                         )
                     }
                 }

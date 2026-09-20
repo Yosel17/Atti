@@ -316,7 +316,8 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
         val viewModel: DetailPatientViewModel = hiltViewModel(
             creationCallback = { factory: DetailPatientViewModel.Factory ->
                 factory.create(
-                    patientId = detailPatientKey.patientId
+                    patientId = detailPatientKey.patientId,
+                    showConsultations = detailPatientKey.showConsultations
                 )
             }
         )
@@ -357,7 +358,8 @@ fun EntryProviderScope<NavKey>.detailPatientEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            showConsultations = detailPatientKey.showConsultations
         )
     }
 }
