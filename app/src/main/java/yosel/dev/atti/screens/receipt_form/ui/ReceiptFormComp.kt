@@ -146,7 +146,12 @@ fun BodyReceiptForm(
             // 1. Header con Información de Paciente (solo si existe consulta activa)
             if (state.hasConsultation && state.consultationWithDetails.patientWithDetails.patient.id.isNotBlank()) {
                 PatientConsultationHeaderHero(
-                    patientWithDetails = state.consultationWithDetails.patientWithDetails
+                    patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                    onClick = { patientId ->
+                        onNavigation(
+                            Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.height(18.dp))
             }
