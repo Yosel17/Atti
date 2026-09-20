@@ -1406,7 +1406,8 @@ fun EntryProviderScope<NavKey>.fastingFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.AsaClassificationForm> { key ->
         val viewModel: AsaClassificationFormViewModel = hiltViewModel(
@@ -1453,7 +1454,8 @@ fun EntryProviderScope<NavKey>.asaClassificationFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }

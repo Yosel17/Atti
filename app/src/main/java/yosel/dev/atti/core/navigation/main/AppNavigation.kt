@@ -181,6 +181,9 @@ fun AppNavigation(startDestination: Screens) {
             asaClassificationFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screen ->
+                    backStack.add(screen)
                 }
             )
 
