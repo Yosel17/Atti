@@ -1357,7 +1357,8 @@ fun EntryProviderScope<NavKey>.receiptFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.fastingFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ){
     entry<Screens.FastingForm> { fastingFormKey ->
         val viewModel: FastingFormViewModel = hiltViewModel(
@@ -1406,7 +1407,8 @@ fun EntryProviderScope<NavKey>.fastingFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }

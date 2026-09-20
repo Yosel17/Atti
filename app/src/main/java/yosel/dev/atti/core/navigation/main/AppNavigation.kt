@@ -184,6 +184,9 @@ fun AppNavigation(startDestination: Screens) {
             fastingFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screen ->
+                    backStack.add(screen)
                 }
             )
 
