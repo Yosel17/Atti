@@ -51,16 +51,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
+import yosel.dev.atti.core.models.model.ReceiptItemModel
+import yosel.dev.atti.core.models.model.ReceiptItemWithDetailsModel
+import yosel.dev.atti.core.models.model.ReceiptModel
 import yosel.dev.atti.core.models.model.ReceiptWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.formatDate
+import yosel.dev.atti.core.utils.formatShortDate
 import yosel.dev.atti.core.utils.getIconSpecies
+import yosel.dev.atti.ui.theme.AttiTheme
 import java.util.Locale
 
 private enum class ReceiptsUIStatus { LOADING, CONTENT, EMPTY }
@@ -204,7 +214,7 @@ fun ReceiptCard(
     }
 
     val dateFormatted = remember(receipt.createdAt) {
-        formatDate(receipt.createdAt)
+        formatShortDate(receipt.createdAt)
     }
 
     val formattedTotal = remember(receipt.total) {
@@ -244,6 +254,8 @@ fun ReceiptCard(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -290,7 +302,7 @@ fun ReceiptCard(
                         text = displayName,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (patient != null && patient.name.isNotBlank()) {
@@ -419,6 +431,91 @@ fun EmptyReceiptsState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Crear primer recibo")
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyReceiptsPreview() {
+    val sampleReceipts = listOf(
+        ReceiptWithDetailsModel(
+            receipt = ReceiptModel(
+                id = "1",
+                receiptNumber = 101L,
+                customerName = "Juan Pérez aj kldsf asdklf asdlkf jasldkf jaslkdf jasldf asldkf asldkf aslkd ",
+                total = 250.00,
+                createdAt = "2025-01-15T10:30:00Z"
+            ),
+            consultationWithDetails = ConsultationWithDetailsModel(
+                patientWithDetails = PatientWithDetailsModel(
+                    patient = PatientModel(name = "Max", speciesId = 1),
+                    client = ClientModel(firstName = "Juan", lastName = "Pérez")
+                )
+            ),
+            items = listOf(
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item1")),
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item2"))
+            )
+        ),
+        ReceiptWithDetailsModel(
+            receipt = ReceiptModel(
+                id = "2",
+                receiptNumber = 102L,
+                customerName = "María López",
+                total = 120.50,
+                createdAt = "2025-01-16T14:15:00Z"
+            ),
+            consultationWithDetails = ConsultationWithDetailsModel(
+                patientWithDetails = PatientWithDetailsModel(
+                    patient = PatientModel(name = "Luna", speciesId = 2),
+                    client = ClientModel(firstName = "María", lastName = "López")
+                )
+            ),
+            items = listOf(
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item3"))
+            )
+        ),
+        ReceiptWithDetailsModel(
+            receipt = ReceiptModel(
+                id = "3",
+                receiptNumber = 103L,
+                customerName = "Carlos Gómez",
+                total = 500.00,
+                createdAt = "2025-01-17T09:00:00Z",
+                status = Constants.DELETED_STATUS
+            ),
+            consultationWithDetails = ConsultationWithDetailsModel(
+                patientWithDetails = PatientWithDetailsModel(
+                    patient = PatientModel(name = "Rocky", speciesId = 1),
+                    client = ClientModel(firstName = "Carlos", lastName = "Gómez")
+                )
+            ),
+            items = listOf(
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item4")),
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item5")),
+                ReceiptItemWithDetailsModel(item = ReceiptItemModel(id = "item6"))
+            )
+        )
+    )
+
+    val sampleState = ReceiptsState(
+        isLoading = false,
+        receipts = sampleReceipts,
+        filteredReceipts = sampleReceipts,
+        searchQuery = ""
+    )
+
+    AttiTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BodyReceipts(
+                state = sampleState,
+                onAction = {},
+                onNavigationMain = {}
+            )
         }
     }
 }
