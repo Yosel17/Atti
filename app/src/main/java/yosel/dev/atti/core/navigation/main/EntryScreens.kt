@@ -817,7 +817,8 @@ fun EntryProviderScope<NavKey>.emptyEntry(){
 }
 
 fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.ClinicalExamForm> { clinicalExamFormKey ->
         val viewModel: ClinicalExamFormViewModel = hiltViewModel(
@@ -864,7 +865,8 @@ fun EntryProviderScope<NavKey>.clinicalExamFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }

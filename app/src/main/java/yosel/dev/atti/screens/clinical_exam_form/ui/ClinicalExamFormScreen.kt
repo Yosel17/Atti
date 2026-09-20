@@ -27,6 +27,7 @@ import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.SelectAppCatalogBottomSheet
 import yosel.dev.atti.core.components.SelectAppCatalogMultiBottomSheet
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 
@@ -37,7 +38,8 @@ fun ClinicalExamFormScreen(
     state: ClinicalExamFormState,
     snackBarHostState: SnackbarHostState,
     onAction: (ClinicalExamFormAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -98,7 +100,8 @@ fun ClinicalExamFormScreen(
                                     .fillMaxSize()
                                     .padding(horizontal = 24.dp),
                                 state = state,
-                                onAction = onAction
+                                onAction = onAction,
+                                onNavigationMain = onNavigationMain
                             )
                         }
                     }
