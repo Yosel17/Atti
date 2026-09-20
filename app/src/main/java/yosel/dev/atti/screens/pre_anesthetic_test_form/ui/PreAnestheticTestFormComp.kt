@@ -108,7 +108,8 @@ fun BodyPreAnestheticTestForm(
     modifier: Modifier = Modifier,
     state: PreAnestheticTestFormState,
     onAction: (PreAnestheticTestFormAction) -> Unit,
-    onNavigation: (Screens) -> Unit
+    onNavigation: (Screens) -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
@@ -125,7 +126,12 @@ fun BodyPreAnestheticTestForm(
         ) {
             Spacer(modifier = Modifier.height(12.dp))
             PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails
+                patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                onClick = { patientId ->
+                    onNavigationMain(
+                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(18.dp))
 
