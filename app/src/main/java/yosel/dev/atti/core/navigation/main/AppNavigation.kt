@@ -103,6 +103,9 @@ fun AppNavigation(startDestination: Screens) {
             anamnesisFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screen ->
+                    backStack.add(screen)
                 }
             )
 

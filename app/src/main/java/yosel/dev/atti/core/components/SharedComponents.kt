@@ -1782,7 +1782,7 @@ fun SelectAppCatalogMultiBottomSheet(
 fun PatientConsultationHeaderHero(
     patientWithDetails: PatientWithDetailsModel,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    onClick: ((String) -> Unit)? = null
 ) {
     val patient = patientWithDetails.patient
     val species = patientWithDetails.species
@@ -1795,7 +1795,11 @@ fun PatientConsultationHeaderHero(
                 if (onClick != null) {
                     Modifier
                         .clip(cardShape)
-                        .clickable(onClick = onClick)
+                        .clickable(
+                            onClick = {
+                                onClick(patient.id)
+                            }
+                        )
                 } else {
                     Modifier
                 }

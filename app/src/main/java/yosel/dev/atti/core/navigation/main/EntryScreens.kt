@@ -733,6 +733,7 @@ fun EntryProviderScope<NavKey>.detailConsultationEntry(
 
 fun EntryProviderScope<NavKey>.anamnesisFormEntry(
     onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ){
     entry<Screens.AnamnesisForm> { anamnesisFormKey ->
         val viewModel: AnamnesisFormViewModel = hiltViewModel(
@@ -779,7 +780,8 @@ fun EntryProviderScope<NavKey>.anamnesisFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
