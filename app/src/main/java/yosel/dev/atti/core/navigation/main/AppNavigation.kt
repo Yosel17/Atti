@@ -130,6 +130,9 @@ fun AppNavigation(startDestination: Screens) {
             auxiliaryTestFormEntry(
                 onBack = {
                     backStack.removeLastOrNull()
+                },
+                onNavigationMain = { screens ->
+                    backStack.add(screens)
                 }
             )
 

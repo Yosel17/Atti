@@ -976,7 +976,8 @@ fun EntryProviderScope<NavKey>.diagnosisFormEntry(
 }
 
 fun EntryProviderScope<NavKey>.auxiliaryTestFormEntry(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     entry<Screens.AuxiliaryTestForm> { key ->
         val viewModel: AuxiliaryTestFormViewModel = hiltViewModel(
@@ -1023,7 +1024,8 @@ fun EntryProviderScope<NavKey>.auxiliaryTestFormEntry(
             state = state,
             snackBarHostState = snackbarHostState,
             onAction = viewModel::onAction,
-            onBack = onBack
+            onBack = onBack,
+            onNavigationMain = onNavigationMain
         )
     }
 }
