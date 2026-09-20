@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
@@ -98,8 +100,8 @@ fun MainScreen(
                     TopLevelDestination(
                         screen = ScreensTopLevel.Receipts,
                         title = "Recibos",
-                        selectedIcon = Icons.Filled.LocalShipping,
-                        unselectedIcon = Icons.Outlined.LocalShipping
+                        selectedIcon = Icons.AutoMirrored.Filled.ReceiptLong,
+                        unselectedIcon = Icons.AutoMirrored.Outlined.ReceiptLong
                     )
                 )
             ),
