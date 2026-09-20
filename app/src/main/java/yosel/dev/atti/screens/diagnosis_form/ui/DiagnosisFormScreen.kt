@@ -22,6 +22,7 @@ import yosel.dev.atti.core.components.CustomSnackbarHost
 import yosel.dev.atti.core.components.EmptyGlobal
 import yosel.dev.atti.core.components.LoadingDialog
 import yosel.dev.atti.core.components.TopBarGlobal
+import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.getFormattedCurrentDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -31,7 +32,8 @@ fun DiagnosisFormScreen(
     state: DiagnosisFormState,
     snackBarHostState: SnackbarHostState,
     onAction: (DiagnosisFormAction) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigationMain: (Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -84,7 +86,8 @@ fun DiagnosisFormScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = state,
-                            onAction = onAction
+                            onAction = onAction,
+                            onNavigationMain = onNavigationMain
                         )
                     }
                 }
