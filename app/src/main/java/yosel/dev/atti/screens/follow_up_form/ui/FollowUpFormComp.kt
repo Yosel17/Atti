@@ -36,6 +36,8 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.EditCalendar
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
@@ -67,11 +69,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import yosel.dev.atti.core.components.InputFieldWithTextGlobal
 import yosel.dev.atti.core.components.PatientConsultationHeaderHero
+import yosel.dev.atti.core.components.PhoneInputFieldWithTextGlobal
 import yosel.dev.atti.core.navigation.main.Screens
 import java.time.Instant
 import java.time.LocalDate
@@ -90,9 +95,14 @@ fun BodyFollowUpForm(
 ) {
     val focusManager = LocalFocusManager.current
     val isButtonEnabled = if (state.isEditMode) {
-        state.formInputState.hasChangesFrom(state.initialFormInputState)
+        state.formInputState.hasChangesFrom(state.initialFormInputState, state.isStandalone) &&
+                (!state.isStandalone || state.formInputState.isStandaloneValid)
     } else {
-        true
+        if (state.isStandalone) {
+            state.formInputState.isStandaloneValid
+        } else {
+            true
+        }
     }
 
     val daysRange = remember {
@@ -107,18 +117,98 @@ fun BodyFollowUpForm(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(12.dp))
-            PatientConsultationHeaderHero(
-                patientWithDetails = state.consultationWithDetails.patientWithDetails,
-                onClick = { patientId ->
-                    onNavigationMain(
-                        Screens.DetailPatient(patientId = patientId, showConsultations = false)
-                    )
-                }
-            )
+
+            // 1. Cabecera dinámica: Paciente vinculado VS Inputs libres
+            if (!state.isStandalone) {
+                PatientConsultationHeaderHero(
+                    patientWithDetails = state.consultationWithDetails.patientWithDetails,
+                    onClick = { patientId ->
+                        onNavigationMain(
+                            Screens.DetailPatient(patientId = patientId, showConsultations = false)
+                        )
+                    }
+                )
+            } else {
+                Text(
+                    text = "Datos de la Cita",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nombre del paciente",
+                    placeHolder = "ej. Luna",
+                    value = state.formInputState.patientName,
+                    onValueChange = {
+                        onAction(
+                            FollowUpFormAction.OnChangeStandaloneField(
+                                value = it,
+                                field = FollowUpFormInputsState.FIELD_PATIENT_NAME
+                            )
+                        )
+                    },
+                    leadingIcon = Icons.Outlined.Pets,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.formInputState.isError(FollowUpFormInputsState.FIELD_PATIENT_NAME),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                InputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Nombre del cliente / dueño",
+                    placeHolder = "ej. Carlos Pérez",
+                    value = state.formInputState.clientName,
+                    onValueChange = {
+                        onAction(
+                            FollowUpFormAction.OnChangeStandaloneField(
+                                value = it,
+                                field = FollowUpFormInputsState.FIELD_CLIENT_NAME
+                            )
+                        )
+                    },
+                    leadingIcon = Icons.Outlined.Person,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = state.formInputState.isError(FollowUpFormInputsState.FIELD_CLIENT_NAME),
+                    errorMessage = "Este campo no puede estar vacío"
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PhoneInputFieldWithTextGlobal(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Teléfono de contacto",
+                    placeHolder = "ej. +502 87654321",
+                    value = state.formInputState.clientPhone,
+                    onValueChange = {
+                        onAction(
+                            FollowUpFormAction.OnChangeStandaloneField(
+                                value = it,
+                                field = FollowUpFormInputsState.FIELD_CLIENT_PHONE
+                            )
+                        )
+                    },
+                    isError = state.formInputState.isError(FollowUpFormInputsState.FIELD_CLIENT_PHONE),
+                    errorMessage = "Este campo no puede estar vacío",
+                    imeAction = ImeAction.Done
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Selector de Fecha
+            // 2. Selector de Fecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -168,7 +258,7 @@ fun BodyFollowUpForm(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Selector de Hora con TimePicker
+            // 3. Selector de Hora con TimePicker
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -209,9 +299,9 @@ fun BodyFollowUpForm(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Motivo de la reconsulta
+            // 4. Motivo
             Text(
-                text = "Motivo de la reconsulta",
+                text = if (state.isStandalone) "Motivo de la cita" else "Motivo de la reconsulta",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -252,7 +342,6 @@ fun BodyFollowUpForm(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Botón Motivos Rápidos alineado a la derecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -335,13 +424,11 @@ private fun HorizontalDayPicker(
     LaunchedEffect(Unit) {
         val selectedIndex = days.indexOfFirst { it.isEqual(selectedDate) }
         val todayIndex = days.indexOfFirst { it.isEqual(LocalDate.now()) }
-
         val targetIndex = if (selectedIndex != -1) {
             selectedIndex
         } else {
             todayIndex
         }
-
         if (targetIndex != -1) {
             val scrollPosition = (targetIndex - 2).coerceAtLeast(0)
             listState.animateScrollToItem(scrollPosition)
@@ -400,8 +487,7 @@ private fun DayItemCard(
         tonalElevation = if (isSelected) 4.dp else 0.dp
     ) {
         Column(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 4.dp),
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -562,7 +648,6 @@ private fun TimeSelectorCard(
                     )
                 }
             }
-
             Surface(
                 shape = RoundedCornerShape(100.dp),
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
@@ -714,10 +799,13 @@ fun FollowUpDatePickerDialog(
 fun SaveFollowUpDialog(
     modifier: Modifier = Modifier,
     patientName: String,
+    clientName: String = "",
+    clientPhone: String = "",
     scheduledDate: String,
     scheduledTime: String,
     reason: String,
     isEditMode: Boolean = false,
+    isStandalone: Boolean = false,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -757,7 +845,12 @@ fun SaveFollowUpDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = if (isEditMode) "Actualizar Reconsulta" else "Agendar Reconsulta",
+                    text = when {
+                        isEditMode && isStandalone -> "Actualizar Cita"
+                        isEditMode && !isStandalone -> "Actualizar Reconsulta"
+                        !isEditMode && isStandalone -> "Agendar Cita"
+                        else -> "Agendar Reconsulta"
+                    },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -786,6 +879,12 @@ fun SaveFollowUpDialog(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         DataRow(label = "Paciente", value = patientName)
+                        if (clientName.isNotBlank()) {
+                            DataRow(label = "Cliente", value = clientName)
+                        }
+                        if (clientPhone.isNotBlank() && clientPhone != "+502 ") {
+                            DataRow(label = "Teléfono", value = clientPhone)
+                        }
                         DataRow(label = "Fecha", value = scheduledDate)
                         DataRow(label = "Hora", value = scheduledTime)
                         if (reason.isNotBlank()) {

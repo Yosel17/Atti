@@ -26,12 +26,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -93,7 +95,8 @@ fun BodyHome(
         item {
             CalendarCard(
                 state = state,
-                onAction = onAction
+                onAction = onAction,
+                onNavigationMain = onNavigationMain
             )
         }
 
@@ -146,12 +149,20 @@ fun BodyHome(
                     modifier = Modifier.animateItem(),
                     followUpWithDetails = followUpWithDetails,
                     onClick = {
-                        onNavigationMain(
-                            Screens.DetailConsultation(
-                                consultationId = followUpWithDetails.followUp.consultationId?:"",
-                                consultationTypeId = followUpWithDetails.consultationWithDetails.consultation.consultationTypeId
+                        if (followUpWithDetails.followUp.consultationId != null){
+                            onNavigationMain(
+                                Screens.DetailConsultation(
+                                    consultationId = followUpWithDetails.followUp.consultationId,
+                                    consultationTypeId = followUpWithDetails.consultationWithDetails.consultation.consultationTypeId
+                                )
                             )
-                        )
+                        } else{
+                            onNavigationMain(
+                                Screens.FollowUpForm(
+                                    followUpId = followUpWithDetails.followUp.id
+                                )
+                            )
+                        }
                     }
                 )
             }
@@ -279,7 +290,8 @@ private fun HeaderWelcomeSection() {
 fun CalendarCard(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val esLocale = remember { Locale.forLanguageTag("es-ES") }
     val monthName = remember(state.currentYearMonth) {
@@ -416,6 +428,24 @@ fun CalendarCard(
                         monthFollowUps = state.monthFollowUps,
                         onSelectDate = { onAction(HomeAction.OnSelectDate(it)) }
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                modifier = Modifier.align(Alignment.End),
+                onClick = {
+                    onNavigationMain(Screens.FollowUpForm())
+                }
+            ) {
+                Row() {
+                    Icon(
+                        imageVector = Icons.Filled.EditCalendar,
+                        contentDescription = "Agendar cita"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Agendar cita")
                 }
             }
         }
@@ -577,6 +607,13 @@ fun AppointmentItemCard(
         val parts = rawTime.split(" ")
         if (parts.size >= 2) parts[0] to parts[1] else rawTime to ""
     }
+    val namePatient = remember(followUp) {
+        if(followUp.consultationId == null){
+            followUp.patientName?.ifBlank { "Sin nombre" }
+        }else{
+            patient.name.ifBlank { "Sin nombre" }
+        }
+    }
 
     OutlinedCard(
         modifier = modifier
@@ -629,22 +666,31 @@ fun AppointmentItemCard(
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Text(
-                    text = patient.name.ifBlank { "Sin nombre" },
+                    text = namePatient ?: "Sin nombre",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                if (followUp.consultationId == null){
                     Text(
-                        text = species.name.ifBlank { "Sin especie" },
+                        text = "Paciente sin registro en la app",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.error
                     )
 
-                    Text(
-                        text = " - ${patient.breed.ifBlank { "Sin raza" }}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                }else{
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = species.name.ifBlank { "Sin especie" },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Text(
+                            text = " - ${patient.breed.ifBlank { "Sin raza" }}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 Text(

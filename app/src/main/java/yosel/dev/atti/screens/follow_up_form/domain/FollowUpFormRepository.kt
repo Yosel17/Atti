@@ -11,6 +11,6 @@ interface FollowUpFormRepository {
     suspend fun getFollowUpByConsultationId(consultationId: String): Result<FollowUpWithDetailsModel?>
     suspend fun getQuickReasonCatalogs(): Result<List<AppCatalogModel>>
     suspend fun insertCatalog(catalog: AppCatalogModel): Result<AppCatalogModel>
-    suspend fun saveFollowUp(consultationId: String, followUp: FollowUpModel): Result<FollowUpWithDetailsModel>
-    suspend fun updateFollowUp(consultationId: String, followUp: FollowUpModel): Result<FollowUpWithDetailsModel>
+    suspend fun saveFollowUp(consultationId: String?, followUp: FollowUpModel): Result<FollowUpWithDetailsModel>
+    suspend fun updateFollowUp(consultationId: String?, followUp: FollowUpModel): Result<FollowUpWithDetailsModel>
 }

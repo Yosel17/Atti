@@ -96,7 +96,7 @@ fun MainScreen(
                     ),
                     TopLevelDestination(
                         screen = ScreensTopLevel.Consultation,
-                        title = "Consulta",
+                        title = "Consulta activa",
                         selectedIcon = Icons.Filled.MedicalServices,
                         unselectedIcon = Icons.Outlined.MedicalServices
                     ),
