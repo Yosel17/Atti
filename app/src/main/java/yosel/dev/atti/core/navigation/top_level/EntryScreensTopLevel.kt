@@ -26,6 +26,9 @@ import yosel.dev.atti.screens.top_level.clients.ui.ClientsViewModel
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationEvent
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationScreen
 import yosel.dev.atti.screens.top_level.consultation.ui.ConsultationViewModel
+import yosel.dev.atti.screens.top_level.consultations.ui.ConsultationsEvent
+import yosel.dev.atti.screens.top_level.consultations.ui.ConsultationsScreen
+import yosel.dev.atti.screens.top_level.consultations.ui.ConsultationsViewModel
 import yosel.dev.atti.screens.top_level.home.ui.HomeEvent
 import yosel.dev.atti.screens.top_level.home.ui.HomeScreen
 import yosel.dev.atti.screens.top_level.home.ui.HomeViewModel
@@ -334,6 +337,37 @@ fun EntryProviderScope<NavKey>.receiptsEntry(
         }
 
         ReceiptsScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackBarHostState,
+            onAction = viewModel::onAction,
+            onNavigationMain = onNavigationMain
+        )
+    }
+}
+
+fun EntryProviderScope<NavKey>.consultationsEntry(
+    onNavigationMain: (Screens) -> Unit
+) {
+    entry<ScreensTopLevel.Consultations> {
+        val viewModel: ConsultationsViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is ConsultationsEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+        }
+
+        ConsultationsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),

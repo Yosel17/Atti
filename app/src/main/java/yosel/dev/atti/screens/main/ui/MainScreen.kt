@@ -57,6 +57,7 @@ import yosel.dev.atti.core.navigation.top_level.ScreensTopLevel
 import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
 import yosel.dev.atti.core.navigation.top_level.clientsEntry
 import yosel.dev.atti.core.navigation.top_level.consultationEntry
+import yosel.dev.atti.core.navigation.top_level.consultationsEntry
 import yosel.dev.atti.core.navigation.top_level.homeEntry
 import yosel.dev.atti.core.navigation.top_level.patientsEntry
 import yosel.dev.atti.core.navigation.top_level.productsEntry
@@ -94,6 +95,12 @@ fun MainScreen(
                     TopLevelDestination(
                         screen = ScreensTopLevel.Consultation,
                         title = "Consulta",
+                        selectedIcon = Icons.Filled.MedicalServices,
+                        unselectedIcon = Icons.Outlined.MedicalServices
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Consultations,
+                        title = "Consultas",
                         selectedIcon = Icons.Filled.MedicalServices,
                         unselectedIcon = Icons.Outlined.MedicalServices
                     ),
@@ -277,6 +284,7 @@ fun MainScreen(
                     clientsEntry(onNavigationMain = onNavigationMain)
                     patientsEntry(onNavigationMain = onNavigationMain)
                     receiptsEntry(onNavigationMain = onNavigationMain)
+                    consultationsEntry(onNavigationMain = onNavigationMain)
                 }
             )
         }
