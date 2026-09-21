@@ -26,12 +26,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -93,7 +95,8 @@ fun BodyHome(
         item {
             CalendarCard(
                 state = state,
-                onAction = onAction
+                onAction = onAction,
+                onNavigationMain = onNavigationMain
             )
         }
 
@@ -279,7 +282,8 @@ private fun HeaderWelcomeSection() {
 fun CalendarCard(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigationMain: (Screens) -> Unit
 ) {
     val esLocale = remember { Locale.forLanguageTag("es-ES") }
     val monthName = remember(state.currentYearMonth) {
@@ -416,6 +420,24 @@ fun CalendarCard(
                         monthFollowUps = state.monthFollowUps,
                         onSelectDate = { onAction(HomeAction.OnSelectDate(it)) }
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                modifier = Modifier.align(Alignment.End),
+                onClick = {
+                    onNavigationMain(Screens.FollowUpForm())
+                }
+            ) {
+                Row() {
+                    Icon(
+                        imageVector = Icons.Filled.EditCalendar,
+                        contentDescription = "Agendar cita"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Agendar cita")
                 }
             }
         }
