@@ -152,7 +152,7 @@ fun BodyFollowUpForm(
                     },
                     leadingIcon = Icons.Outlined.Pets,
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
+                        capitalization = KeyboardCapitalization.Words,
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
@@ -177,7 +177,7 @@ fun BodyFollowUpForm(
                     },
                     leadingIcon = Icons.Outlined.Person,
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
+                        capitalization = KeyboardCapitalization.Words,
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
