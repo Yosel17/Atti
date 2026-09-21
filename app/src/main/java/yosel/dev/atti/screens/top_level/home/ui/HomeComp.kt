@@ -148,7 +148,7 @@ fun BodyHome(
                     onClick = {
                         onNavigationMain(
                             Screens.DetailConsultation(
-                                consultationId = followUpWithDetails.followUp.consultationId,
+                                consultationId = followUpWithDetails.followUp.consultationId?:"",
                                 consultationTypeId = followUpWithDetails.consultationWithDetails.consultation.consultationTypeId
                             )
                         )
