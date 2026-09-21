@@ -71,6 +71,27 @@ class ConsultationsDataSource @Inject constructor(
             .decodeList<ConsultationDto>()
     }
 
+    suspend fun getAllConsultationsWithDetails(): List<ConsultationDto> {
+        return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
+            .select(
+                columns = Columns.raw(
+                    """
+                *,
+                patient:patients!patient_id(
+                    *,
+                    species:app_catalogs!species_id(*),
+                    gender:app_catalogs!gender_id(*),
+                    client:clients!client_id(*)
+                ),
+                consultation_type:app_catalogs!consultation_type_id(*)
+                """.trimIndent()
+                )
+            ) {
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<ConsultationDto>()
+    }
+
     suspend fun getConsultationProgressById(consultationId: String): ConsultationProgressDto? {
         return postgrest.from(Constants.CONSULTATIONS_SUPABASE)
             .select(

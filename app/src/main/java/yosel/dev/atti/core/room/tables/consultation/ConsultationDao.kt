@@ -66,4 +66,11 @@ interface ConsultationDao {
     @Transaction
     @Query("SELECT * FROM consultations WHERE id = :consultationId")
     suspend fun getConsultationWithDetailsById(consultationId: String): ConsultationWithDetailsEntity?
+
+    @Transaction
+    @Query("""
+    SELECT * FROM consultations 
+    ORDER BY created_at DESC
+    """)
+    fun getAllConsultationsWithDetailsFlow(): Flow<List<ConsultationWithDetailsEntity>>
 }
