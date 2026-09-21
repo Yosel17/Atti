@@ -53,17 +53,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.atti.core.components.AttiSearchBar
 import yosel.dev.atti.core.components.CountBadge
 import yosel.dev.atti.core.components.NoSearchResultsState
 import yosel.dev.atti.core.components.StatusChipShort
+import yosel.dev.atti.core.models.model.AppCatalogModel
+import yosel.dev.atti.core.models.model.ClientModel
+import yosel.dev.atti.core.models.model.ConsultationModel
 import yosel.dev.atti.core.models.model.ConsultationWithDetailsModel
+import yosel.dev.atti.core.models.model.PatientModel
+import yosel.dev.atti.core.models.model.PatientWithDetailsModel
 import yosel.dev.atti.core.navigation.main.Screens
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.formatShortDate
 import yosel.dev.atti.core.utils.getIconForConsultationReason
 import yosel.dev.atti.core.utils.getIconSpecies
+import yosel.dev.atti.ui.theme.AttiTheme
 import yosel.dev.atti.ui.theme.customColors
 
 private enum class ConsultationsUIStatus { LOADING, CONTENT, EMPTY }
@@ -112,8 +119,7 @@ fun BodyConsultations(
                     AttiSearchBar(
                         value = state.searchQuery,
                         onValueChange = { onAction(ConsultationsAction.OnSearchQueryChange(it)) },
-                        placeholder = "Buscar por paciente, cliente o tipo...",
-                        onFilterClick = {}
+                        placeholder = "Buscar por paciente, cliente o tipo..."
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     CountBadge(
@@ -262,6 +268,8 @@ fun ConsultationCard(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 // Chip de Estado de la Consulta
                 ConsultationStatusChip(status = consultation.status)
@@ -498,6 +506,114 @@ fun EmptyConsultationsState(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(text = "Ir al inicio")
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun BodyConsultationsPreview() {
+    val sampleConsultations = listOf(
+        ConsultationWithDetailsModel(
+            consultation = ConsultationModel(
+                id = "1",
+                patientId = "p1",
+                consultationTypeId = 1,
+                startedAt = "2025-02-20T10:00:00Z",
+                createdAt = "2025-02-20T10:00:00Z",
+                completedAt = "",
+                status = Constants.CONSULTATION_ACTIVE_STATUS
+            ),
+            patientWithDetails = PatientWithDetailsModel(
+                patient = PatientModel(
+                    id = "p1",
+                    name = "Max",
+                    breed = "Golden Retriever",
+                    speciesId = 1
+                ),
+                client = ClientModel(
+                    firstName = "Juan",
+                    lastName = "Pérez"
+                )
+            ),
+            consultationType = AppCatalogModel(
+                id = 1,
+                name = "Consulta General"
+            )
+        ),
+        ConsultationWithDetailsModel(
+            consultation = ConsultationModel(
+                id = "2",
+                patientId = "p2",
+                consultationTypeId = 2,
+                startedAt = "2025-02-19T14:30:00Z",
+                createdAt = "2025-02-19T14:30:00Z",
+                completedAt = "2025-02-19T15:15:00Z",
+                status = Constants.CONSULTATION_COMPLETED_STATUS
+            ),
+            patientWithDetails = PatientWithDetailsModel(
+                patient = PatientModel(
+                    id = "p2",
+                    name = "Luna",
+                    breed = "Siamés",
+                    speciesId = 2
+                ),
+                client = ClientModel(
+                    firstName = "María",
+                    lastName = "López"
+                )
+            ),
+            consultationType = AppCatalogModel(
+                id = 2,
+                name = "Vacunación"
+            )
+        ),
+        ConsultationWithDetailsModel(
+            consultation = ConsultationModel(
+                id = "3",
+                patientId = "p3",
+                consultationTypeId = 3,
+                startedAt = "2025-02-18T09:00:00Z",
+                createdAt = "2025-02-18T09:00:00Z",
+                completedAt = "2025-02-18T09:45:00Z",
+                status = Constants.CONSULTATION_COMPLETED_STATUS
+            ),
+            patientWithDetails = PatientWithDetailsModel(
+                patient = PatientModel(
+                    id = "p3",
+                    name = "Rocky",
+                    breed = "French Bulldog",
+                    speciesId = 1
+                ),
+                client = ClientModel(
+                    firstName = "Carlos",
+                    lastName = "Gómez"
+                )
+            ),
+            consultationType = AppCatalogModel(
+                id = 3,
+                name = "Revisión Control"
+            )
+        )
+    )
+
+    val sampleState = ConsultationsState(
+        isLoading = false,
+        consultations = sampleConsultations,
+        filteredConsultations = sampleConsultations,
+        searchQuery = ""
+    )
+
+    AttiTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            BodyConsultations(
+                state = sampleState,
+                onAction = {},
+                onNavigationMain = {}
+            )
         }
     }
 }
