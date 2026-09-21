@@ -7,12 +7,15 @@ import yosel.dev.atti.core.utils.formatScheduledTime
 
 data class FollowUpModel(
     val id: String = "",
-    val consultationId: String = "",
-    val patientId: String = "",
+    val consultationId: String? = null,
+    val patientId: String? = null,
     val scheduledAt: String = "",
     val reason: String = "",
     val createdAt: String = "",
-    val status: Int = 1
+    val status: Int = 1,
+    val patientName: String? = null,
+    val clientName: String? = null,
+    val clientPhone: String? = null,
 ) {
     val formattedCreatedAt: String
         get() = formatDate(isoString = createdAt)

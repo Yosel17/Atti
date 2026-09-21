@@ -36,9 +36,9 @@ data class FollowUpEntity(
     @ColumnInfo(name = "id")
     val id: String, // UUID generado por Supabase / PostgreSQL
     @ColumnInfo(name = "consultation_id")
-    val consultationId: String,
+    val consultationId: String? = null,
     @ColumnInfo(name = "patient_id")
-    val patientId: String,
+    val patientId: String? = null,
     @ColumnInfo(name = "scheduled_at")
     val scheduledAt: String, // Formato ISO-8601 (permite ordenación lexicográfica en SQLite)
     @ColumnInfo(name = "reason")
@@ -46,5 +46,11 @@ data class FollowUpEntity(
     @ColumnInfo(name = "created_at")
     val createdAt: String = "",
     @ColumnInfo(name = "status")
-    val status: Int = 1
+    val status: Int = 1,
+    @ColumnInfo(name = "patient_name")
+    val patientName: String? = null,
+    @ColumnInfo(name = "client_name")
+    val clientName: String? = null,
+    @ColumnInfo(name = "client_phone")
+    val clientPhone: String? = null,
 )
