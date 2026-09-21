@@ -8,6 +8,8 @@ import yosel.dev.atti.screens.top_level.clients.data.ClientsRepositoryImpl
 import yosel.dev.atti.screens.top_level.clients.domain.ClientsRepository
 import yosel.dev.atti.screens.top_level.consultation.data.ConsultationRepositoryImpl
 import yosel.dev.atti.screens.top_level.consultation.domain.ConsultationRepository
+import yosel.dev.atti.screens.top_level.consultations.data.ConsultationsRepositoryImpl
+import yosel.dev.atti.screens.top_level.consultations.domain.ConsultationsRepository
 import yosel.dev.atti.screens.top_level.home.data.HomeRepositoryImpl
 import yosel.dev.atti.screens.top_level.home.domain.HomeRepository
 import yosel.dev.atti.screens.top_level.patients.data.PatientsRepositoryImpl
@@ -73,4 +75,10 @@ abstract class RepositoryTopLevelModule {
     abstract fun bindReceiptsRepository(
         impl: ReceiptsRepositoryImpl
     ): ReceiptsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConsultationsRepository(
+        impl: ConsultationsRepositoryImpl
+    ): ConsultationsRepository
 }
