@@ -1817,7 +1817,10 @@ fun FollowUpDto.toEntity() = FollowUpEntity(
     scheduledAt = scheduledAt,
     reason = reason,
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpEntity.toModel() = FollowUpModel(
@@ -1827,7 +1830,10 @@ fun FollowUpEntity.toModel() = FollowUpModel(
     scheduledAt = scheduledAt,
     reason = reason,
     createdAt = createdAt,
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpModel.toEntity() = FollowUpEntity(
@@ -1837,7 +1843,10 @@ fun FollowUpModel.toEntity() = FollowUpEntity(
     scheduledAt = scheduledAt,
     reason = reason,
     createdAt = createdAt,
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpDto.toModel() = FollowUpModel(
@@ -1847,7 +1856,10 @@ fun FollowUpDto.toModel() = FollowUpModel(
     scheduledAt = scheduledAt,
     reason = reason,
     createdAt = createdAt.orEmpty(),
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpModel.toDtoForInsert() = FollowUpDto(
@@ -1855,7 +1867,10 @@ fun FollowUpModel.toDtoForInsert() = FollowUpDto(
     patientId = patientId,
     scheduledAt = scheduledAt,
     reason = reason.trim(),
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpModel.toDtoForUpdate() = FollowUpDto(
@@ -1864,7 +1879,10 @@ fun FollowUpModel.toDtoForUpdate() = FollowUpDto(
     patientId = patientId,
     scheduledAt = scheduledAt,
     reason = reason.trim(),
-    status = status
+    status = status,
+    patientName = patientName,
+    clientName = clientName,
+    clientPhone = clientPhone
 )
 
 fun FollowUpWithDetailsEntity.toModel() = FollowUpWithDetailsModel(
