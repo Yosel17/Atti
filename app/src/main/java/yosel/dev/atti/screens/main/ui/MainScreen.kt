@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.MedicalServices
@@ -57,6 +59,7 @@ import yosel.dev.atti.core.navigation.top_level.ScreensTopLevel
 import yosel.dev.atti.core.navigation.top_level.TopLevelDestination
 import yosel.dev.atti.core.navigation.top_level.clientsEntry
 import yosel.dev.atti.core.navigation.top_level.consultationEntry
+import yosel.dev.atti.core.navigation.top_level.consultationsEntry
 import yosel.dev.atti.core.navigation.top_level.homeEntry
 import yosel.dev.atti.core.navigation.top_level.patientsEntry
 import yosel.dev.atti.core.navigation.top_level.productsEntry
@@ -96,6 +99,12 @@ fun MainScreen(
                         title = "Consulta",
                         selectedIcon = Icons.Filled.MedicalServices,
                         unselectedIcon = Icons.Outlined.MedicalServices
+                    ),
+                    TopLevelDestination(
+                        screen = ScreensTopLevel.Consultations,
+                        title = "Historial de consultas",
+                        selectedIcon = Icons.Filled.History,
+                        unselectedIcon = Icons.Outlined.History
                     ),
                     TopLevelDestination(
                         screen = ScreensTopLevel.Receipts,
@@ -277,6 +286,7 @@ fun MainScreen(
                     clientsEntry(onNavigationMain = onNavigationMain)
                     patientsEntry(onNavigationMain = onNavigationMain)
                     receiptsEntry(onNavigationMain = onNavigationMain)
+                    consultationsEntry(onNavigationMain = onNavigationMain)
                 }
             )
         }
