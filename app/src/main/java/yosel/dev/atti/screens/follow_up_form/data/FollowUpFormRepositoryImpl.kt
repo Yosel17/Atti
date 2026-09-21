@@ -76,25 +76,29 @@ class FollowUpFormRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveFollowUp(
-        consultationId: String,
+        consultationId: String?,
         followUp: FollowUpModel
     ): Result<FollowUpWithDetailsModel> = runCatching {
         val insertedDto = followUpsDataSource.insertAndGetFollowUp(followUp.toDtoForInsert())
         saveFollowUpWithDetailsLocally(insertedDto)
-        consultationStepProgressDao.upsertSingleProgress(
-            ConsultationStepProgressEntity(
-                consultationId = consultationId,
-                stepCatalogId = Constants.FOLLOW_UP_STEP_DIAGNOSIS,
-                recordId = insertedDto.id,
-                isCompleted = true,
-                status = Constants.ACTIVE_STATUS
+
+        // Solo se actualiza el paso de progreso si pertenece a una consulta
+        if (!consultationId.isNullOrBlank()) {
+            consultationStepProgressDao.upsertSingleProgress(
+                ConsultationStepProgressEntity(
+                    consultationId = consultationId,
+                    stepCatalogId = Constants.FOLLOW_UP_STEP_DIAGNOSIS,
+                    recordId = insertedDto.id,
+                    isCompleted = true,
+                    status = Constants.ACTIVE_STATUS
+                )
             )
-        )
+        }
         insertedDto.toWithDetailsModel()
     }
 
     override suspend fun updateFollowUp(
-        consultationId: String,
+        consultationId: String?,
         followUp: FollowUpModel
     ): Result<FollowUpWithDetailsModel> = runCatching {
         val updatedDto = followUpsDataSource.updateFollowUp(followUp.toDtoForUpdate())

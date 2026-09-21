@@ -6,6 +6,7 @@ import yosel.dev.atti.core.models.model.FollowUpWithDetailsModel
 
 data class FollowUpFormState(
     val isEditMode: Boolean = false,
+    val isStandalone: Boolean = false, // True si la cita no tiene consulta ni paciente
     val followUpId: String? = null,
     val formInputState: FollowUpFormInputsState = FollowUpFormInputsState(),
     val initialFormInputState: FollowUpFormInputsState = FollowUpFormInputsState(),
@@ -15,10 +16,9 @@ data class FollowUpFormState(
     val isLoadingUpdateFollowUp: Boolean = false,
     val showDialogConfirm: Boolean = false,
     val showDatePickerDialog: Boolean = false,
-    val showTimePickerDialog: Boolean = false, // <-- Visibilidad del TimePicker
+    val showTimePickerDialog: Boolean = false,
     val consultationWithDetails: ConsultationWithDetailsModel = ConsultationWithDetailsModel(),
     val existingFollowUpWithDetails: FollowUpWithDetailsModel? = null,
-
     // Motivos Rápidos (Catálogo Tipo 20)
     val quickReasonCatalogs: List<AppCatalogModel> = emptyList(),
     val filteredQuickReasonCatalogs: List<AppCatalogModel> = emptyList(),

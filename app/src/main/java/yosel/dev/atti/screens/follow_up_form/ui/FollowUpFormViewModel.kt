@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.atti.core.models.model.AppCatalogModel
 import yosel.dev.atti.core.models.model.FollowUpModel
+import yosel.dev.atti.core.models.model.FollowUpWithDetailsModel
 import yosel.dev.atti.core.utils.Constants
 import yosel.dev.atti.core.utils.normalize
 import yosel.dev.atti.screens.follow_up_form.domain.FollowUpFormRepository
@@ -43,9 +44,12 @@ class FollowUpFormViewModel @AssistedInject constructor(
         ): FollowUpFormViewModel
     }
 
+    private val isInitialStandalone = consultationId.isNullOrBlank()
+
     private val _state = MutableStateFlow(
         FollowUpFormState(
             isEditMode = !followUpId.isNullOrBlank(),
+            isStandalone = isInitialStandalone,
             followUpId = followUpId
         )
     )
@@ -65,7 +69,21 @@ class FollowUpFormViewModel @AssistedInject constructor(
             FollowUpFormAction.TryLoadAgain -> loadInitialData()
             FollowUpFormAction.SaveFollowUp -> saveFollowUp()
             is FollowUpFormAction.ToggleSaveDialog -> {
-                _state.update { it.copy(showDialogConfirm = action.show) }
+                if (action.show && _state.value.isStandalone && !_state.value.formInputState.isStandaloneValid) {
+                    _state.update {
+                        it.copy(
+                            formInputState = it.formInputState.copy(
+                                touchedFields = setOf(
+                                    FollowUpFormInputsState.FIELD_PATIENT_NAME,
+                                    FollowUpFormInputsState.FIELD_CLIENT_NAME,
+                                    FollowUpFormInputsState.FIELD_CLIENT_PHONE
+                                )
+                            )
+                        )
+                    }
+                } else {
+                    _state.update { it.copy(showDialogConfirm = action.show) }
+                }
             }
             is FollowUpFormAction.ToggleDatePickerDialog -> {
                 _state.update { it.copy(showDatePickerDialog = action.show) }
@@ -112,6 +130,9 @@ class FollowUpFormViewModel @AssistedInject constructor(
                     it.copy(formInputState = it.formInputState.copy(reason = action.reason))
                 }
             }
+            is FollowUpFormAction.OnChangeStandaloneField -> {
+                onStandaloneFieldChange(action.value, action.field)
+            }
             // BottomSheet Motivos Rápidos
             FollowUpFormAction.OnOpenQuickReasonSheet -> {
                 _state.update {
@@ -142,79 +163,98 @@ class FollowUpFormViewModel @AssistedInject constructor(
         }
     }
 
+    private fun onStandaloneFieldChange(value: String, field: Int) {
+        _state.update { currentState ->
+            val form = currentState.formInputState
+            val updatedForm = when (field) {
+                FollowUpFormInputsState.FIELD_PATIENT_NAME -> form.copy(patientName = value)
+                FollowUpFormInputsState.FIELD_CLIENT_NAME -> form.copy(clientName = value)
+                FollowUpFormInputsState.FIELD_CLIENT_PHONE -> form.copy(clientPhone = value)
+                else -> form
+            }
+            currentState.copy(
+                formInputState = updatedForm.copy(
+                    touchedFields = updatedForm.touchedFields + field
+                )
+            )
+        }
+    }
+
     private fun loadInitialData() {
         _state.update { it.copy(isLoadingDataInitial = true) }
-        viewModelScope.launch {
-            repository.getConsultation(consultationId.orEmpty()).fold(
-                onSuccess = { consultation ->
-                    _state.update { it.copy(consultationWithDetails = consultation) }
-                    loadCatalogsAndFollowUp()
-                },
-                onFailure = {
-                    _state.update { it.copy(isLoadingDataInitial = false) }
-                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo cargar la información de la consulta."))
+        val hasConsultation = !consultationId.isNullOrBlank()
+
+        if (hasConsultation) {
+            viewModelScope.launch {
+                repository.getConsultation(consultationId.orEmpty()).fold(
+                    onSuccess = { consultation ->
+                        _state.update {
+                            it.copy(
+                                consultationWithDetails = consultation,
+                                isStandalone = false
+                            )
+                        }
+                        loadCatalogsAndFollowUp()
+                    },
+                    onFailure = {
+                        _state.update { it.copy(isLoadingDataInitial = false) }
+                        _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo cargar la información de la consulta."))
+                    }
+                )
+            }
+        } else {
+            viewModelScope.launch {
+                loadCatalogs()
+                if (!followUpId.isNullOrBlank()) {
+                    loadExistingFollowUpDirect()
+                } else {
+                    _state.update {
+                        it.copy(
+                            isStandalone = true,
+                            isEditMode = false,
+                            isSuccessGetData = true,
+                            isLoadingDataInitial = false
+                        )
+                    }
                 }
+            }
+        }
+    }
+
+    private suspend fun loadCatalogs() {
+        val catalogsResult = repository.getQuickReasonCatalogs()
+        val catalogs = catalogsResult.getOrDefault(emptyList()).sortedBy { it.name.lowercase() }
+        _state.update {
+            it.copy(
+                quickReasonCatalogs = catalogs,
+                filteredQuickReasonCatalogs = catalogs
             )
         }
     }
 
     private fun loadCatalogsAndFollowUp() {
         viewModelScope.launch {
-            val catalogsResult = repository.getQuickReasonCatalogs()
-            val catalogs = catalogsResult.getOrDefault(emptyList()).sortedBy { it.name.lowercase() }
-
-            _state.update {
-                it.copy(
-                    quickReasonCatalogs = catalogs,
-                    filteredQuickReasonCatalogs = catalogs,
-                    isSuccessGetData = true
-                )
-            }
-
+            loadCatalogs()
+            _state.update { it.copy(isSuccessGetData = true) }
             if (_state.value.isEditMode) {
-                loadExistingFollowUp()
+                loadExistingFollowUpForConsultation()
             } else {
                 _state.update { it.copy(isLoadingDataInitial = false) }
             }
         }
     }
 
-    private fun loadExistingFollowUp() {
+    private fun loadExistingFollowUpForConsultation() {
         viewModelScope.launch {
             val result = if (!followUpId.isNullOrBlank()) {
                 repository.getFollowUpById(followUpId)
             } else {
                 repository.getFollowUpByConsultationId(consultationId.orEmpty())
             }
-
             result.fold(
                 onSuccess = { existing ->
                     if (existing != null) {
-                        val parsedDateTime = parseIsoToLocalDateTime(existing.followUp.scheduledAt)
-                        val initialDate = parsedDateTime?.toLocalDate() ?: LocalDate.now()
-                        // Truncar a minutos para asegurar coincidencia exacta con los chips de hora
-                        val initialTime = (parsedDateTime?.toLocalTime() ?: LocalTime.of(8, 0)).truncatedTo(ChronoUnit.MINUTES)
-
-                        val today = LocalDate.now()
-                        val isOutOfRange = initialDate.isBefore(today.minusDays(30)) || initialDate.isAfter(today.plusDays(30))
-
-                        val formState = FollowUpFormInputsState(
-                            selectedDate = initialDate,
-                            selectedTime = initialTime,
-                            isCustomDateFromPicker = isOutOfRange,
-                            reason = existing.followUp.reason
-                        )
-
-                        _state.update {
-                            it.copy(
-                                isEditMode = true,
-                                followUpId = existing.followUp.id,
-                                existingFollowUpWithDetails = existing,
-                                formInputState = formState,
-                                initialFormInputState = formState,
-                                isLoadingDataInitial = false
-                            )
-                        }
+                        applyLoadedFollowUp(existing, isStandalone = false)
                     } else {
                         _state.update { it.copy(isLoadingDataInitial = false) }
                     }
@@ -223,6 +263,59 @@ class FollowUpFormViewModel @AssistedInject constructor(
                     _state.update { it.copy(isLoadingDataInitial = false) }
                     _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo cargar la reconsulta previa."))
                 }
+            )
+        }
+    }
+
+    private fun loadExistingFollowUpDirect() {
+        viewModelScope.launch {
+            repository.getFollowUpById(followUpId.orEmpty()).fold(
+                onSuccess = { existing ->
+                    if (existing != null) {
+                        val isStandalone = existing.followUp.consultationId.isNullOrBlank() &&
+                                existing.followUp.patientId.isNullOrBlank()
+                        applyLoadedFollowUp(existing, isStandalone = isStandalone)
+                    } else {
+                        _state.update { it.copy(isLoadingDataInitial = false) }
+                        _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se encontró la cita solicitada."))
+                    }
+                },
+                onFailure = {
+                    _state.update { it.copy(isLoadingDataInitial = false) }
+                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo cargar la cita."))
+                }
+            )
+        }
+    }
+
+    private fun applyLoadedFollowUp(existing: FollowUpWithDetailsModel, isStandalone: Boolean) {
+        val parsedDateTime = parseIsoToLocalDateTime(existing.followUp.scheduledAt)
+        val initialDate = parsedDateTime?.toLocalDate() ?: LocalDate.now()
+        val initialTime = (parsedDateTime?.toLocalTime() ?: LocalTime.of(8, 0)).truncatedTo(ChronoUnit.MINUTES)
+        val today = LocalDate.now()
+        val isOutOfRange = initialDate.isBefore(today.minusDays(30)) || initialDate.isAfter(today.plusDays(30))
+
+        val formState = FollowUpFormInputsState(
+            selectedDate = initialDate,
+            selectedTime = initialTime,
+            isCustomDateFromPicker = isOutOfRange,
+            reason = existing.followUp.reason,
+            patientName = existing.followUp.patientName.orEmpty(),
+            clientName = existing.followUp.clientName.orEmpty(),
+            clientPhone = existing.followUp.clientPhone?.ifBlank { "+502 " } ?: "+502 "
+        )
+
+        _state.update {
+            it.copy(
+                isEditMode = true,
+                isStandalone = isStandalone,
+                followUpId = existing.followUp.id,
+                existingFollowUpWithDetails = existing,
+                consultationWithDetails = if (!isStandalone) existing.consultationWithDetails else it.consultationWithDetails,
+                formInputState = formState,
+                initialFormInputState = formState,
+                isSuccessGetData = true,
+                isLoadingDataInitial = false
             )
         }
     }
@@ -289,6 +382,21 @@ class FollowUpFormViewModel @AssistedInject constructor(
 
     private fun saveFollowUp() {
         val s = _state.value
+        if (s.isStandalone && !s.formInputState.isStandaloneValid) {
+            _state.update {
+                it.copy(
+                    formInputState = it.formInputState.copy(
+                        touchedFields = setOf(
+                            FollowUpFormInputsState.FIELD_PATIENT_NAME,
+                            FollowUpFormInputsState.FIELD_CLIENT_NAME,
+                            FollowUpFormInputsState.FIELD_CLIENT_PHONE
+                        )
+                    )
+                )
+            }
+            return
+        }
+
         if (s.isEditMode) {
             updateExistingFollowUp()
         } else {
@@ -300,15 +408,33 @@ class FollowUpFormViewModel @AssistedInject constructor(
         val s = _state.value
         _state.update { it.copy(isLoadingSaveFollowUp = true) }
         viewModelScope.launch {
-            val followUpModel = FollowUpModel(
-                consultationId = consultationId.orEmpty(),
-                patientId = s.consultationWithDetails.patientWithDetails.patient.id,
-                scheduledAt = s.formInputState.scheduledAtIso,
-                reason = s.formInputState.reason.trim(),
-                status = Constants.ACTIVE_STATUS
-            )
+            val followUpModel = if (s.isStandalone) {
+                FollowUpModel(
+                    consultationId = null,
+                    patientId = null,
+                    scheduledAt = s.formInputState.scheduledAtIso,
+                    reason = s.formInputState.reason.trim(),
+                    status = Constants.ACTIVE_STATUS,
+                    patientName = s.formInputState.patientName.trim(),
+                    clientName = s.formInputState.clientName.trim(),
+                    clientPhone = s.formInputState.clientPhone.trim()
+                )
+            } else {
+                FollowUpModel(
+                    consultationId = consultationId,
+                    patientId = s.consultationWithDetails.patientWithDetails.patient.id.takeIf { it.isNotBlank() },
+                    scheduledAt = s.formInputState.scheduledAtIso,
+                    reason = s.formInputState.reason.trim(),
+                    status = Constants.ACTIVE_STATUS,
+                    patientName = null,
+                    clientName = null,
+                    clientPhone = null
+                )
+            }
 
-            repository.saveFollowUp(consultationId.orEmpty(), followUpModel).fold(
+            val targetConsultationId = if (s.isStandalone) null else consultationId
+
+            repository.saveFollowUp(targetConsultationId, followUpModel).fold(
                 onSuccess = { savedWithDetails ->
                     val currentForm = s.formInputState
                     _state.update {
@@ -321,12 +447,14 @@ class FollowUpFormViewModel @AssistedInject constructor(
                             isLoadingSaveFollowUp = false
                         )
                     }
-                    _eventChannel.send(FollowUpFormEvent.ShowSuccessSnackbar("Reconsulta agendada exitosamente."))
+                    val msg = if (s.isStandalone) "Cita agendada exitosamente." else "Reconsulta agendada exitosamente."
+                    _eventChannel.send(FollowUpFormEvent.ShowSuccessSnackbar(msg))
                 },
                 onFailure = { error ->
-                    Log.e("FollowUpFormVM", "Error al registrar reconsulta", error)
+                    Log.e("FollowUpFormVM", "Error al registrar cita/reconsulta", error)
                     _state.update { it.copy(isLoadingSaveFollowUp = false) }
-                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo agendar la reconsulta."))
+                    val msg = if (s.isStandalone) "No se pudo agendar la cita." else "No se pudo agendar la reconsulta."
+                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar(msg))
                 }
             )
         }
@@ -337,17 +465,38 @@ class FollowUpFormViewModel @AssistedInject constructor(
         val existingId = s.followUpId ?: s.existingFollowUpWithDetails?.followUp?.id ?: return
         _state.update { it.copy(isLoadingUpdateFollowUp = true) }
         viewModelScope.launch {
-            val followUpModel = FollowUpModel(
-                id = existingId,
-                consultationId = consultationId.orEmpty(),
-                patientId = s.consultationWithDetails.patientWithDetails.patient.id,
-                scheduledAt = s.formInputState.scheduledAtIso,
-                reason = s.formInputState.reason.trim(),
-                createdAt = s.existingFollowUpWithDetails?.followUp?.createdAt.orEmpty(),
-                status = Constants.ACTIVE_STATUS
-            )
+            val followUpModel = if (s.isStandalone) {
+                FollowUpModel(
+                    id = existingId,
+                    consultationId = null,
+                    patientId = null,
+                    scheduledAt = s.formInputState.scheduledAtIso,
+                    reason = s.formInputState.reason.trim(),
+                    createdAt = s.existingFollowUpWithDetails?.followUp?.createdAt.orEmpty(),
+                    status = Constants.ACTIVE_STATUS,
+                    patientName = s.formInputState.patientName.trim(),
+                    clientName = s.formInputState.clientName.trim(),
+                    clientPhone = s.formInputState.clientPhone.trim()
+                )
+            } else {
+                FollowUpModel(
+                    id = existingId,
+                    consultationId = consultationId ?: s.existingFollowUpWithDetails?.followUp?.consultationId,
+                    patientId = s.consultationWithDetails.patientWithDetails.patient.id.takeIf { it.isNotBlank() }
+                        ?: s.existingFollowUpWithDetails?.followUp?.patientId,
+                    scheduledAt = s.formInputState.scheduledAtIso,
+                    reason = s.formInputState.reason.trim(),
+                    createdAt = s.existingFollowUpWithDetails?.followUp?.createdAt.orEmpty(),
+                    status = Constants.ACTIVE_STATUS,
+                    patientName = null,
+                    clientName = null,
+                    clientPhone = null
+                )
+            }
 
-            repository.updateFollowUp(consultationId.orEmpty(), followUpModel).fold(
+            val targetConsultationId = if (s.isStandalone) null else (consultationId ?: s.existingFollowUpWithDetails?.followUp?.consultationId)
+
+            repository.updateFollowUp(targetConsultationId, followUpModel).fold(
                 onSuccess = { updatedWithDetails ->
                     val currentForm = s.formInputState
                     _state.update {
@@ -359,12 +508,14 @@ class FollowUpFormViewModel @AssistedInject constructor(
                             isLoadingUpdateFollowUp = false
                         )
                     }
-                    _eventChannel.send(FollowUpFormEvent.ShowSuccessSnackbar("Reconsulta actualizada correctamente."))
+                    val msg = if (s.isStandalone) "Cita actualizada correctamente." else "Reconsulta actualizada correctamente."
+                    _eventChannel.send(FollowUpFormEvent.ShowSuccessSnackbar(msg))
                 },
                 onFailure = { error ->
-                    Log.e("FollowUpFormVM", "Error al actualizar reconsulta", error)
+                    Log.e("FollowUpFormVM", "Error al actualizar cita/reconsulta", error)
                     _state.update { it.copy(isLoadingUpdateFollowUp = false) }
-                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar("No se pudo actualizar la reconsulta."))
+                    val msg = if (s.isStandalone) "No se pudo actualizar la cita." else "No se pudo actualizar la reconsulta."
+                    _eventChannel.send(FollowUpFormEvent.ShowErrorSnackbar(msg))
                 }
             )
         }

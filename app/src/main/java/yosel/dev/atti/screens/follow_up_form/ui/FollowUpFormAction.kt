@@ -9,12 +9,15 @@ sealed interface FollowUpFormAction {
     data object SaveFollowUp : FollowUpFormAction
     data class ToggleSaveDialog(val show: Boolean) : FollowUpFormAction
     data class ToggleDatePickerDialog(val show: Boolean) : FollowUpFormAction
-    data class ToggleTimePickerDialog(val show: Boolean) : FollowUpFormAction // <-- Control del diálogo TimePicker
+    data class ToggleTimePickerDialog(val show: Boolean) : FollowUpFormAction
     data class OnSelectDate(val date: LocalDate) : FollowUpFormAction
     data class OnSelectDateForCalendar(val date: LocalDate) : FollowUpFormAction
     data class OnSelectTime(val time: LocalTime) : FollowUpFormAction
     data object OnResetToDaySelector : FollowUpFormAction
     data class OnReasonChange(val reason: String) : FollowUpFormAction
+
+    // Inputs cita sin consulta ni paciente (Standalone)
+    data class OnChangeStandaloneField(val value: String, val field: Int) : FollowUpFormAction
 
     // BottomSheet Motivos Rápidos (Catálogo 20)
     data object OnOpenQuickReasonSheet : FollowUpFormAction

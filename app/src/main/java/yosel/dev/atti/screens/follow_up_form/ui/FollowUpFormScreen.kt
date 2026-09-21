@@ -50,7 +50,12 @@ fun FollowUpFormScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = if (state.isEditMode) "Editar Reconsulta" else "Asignar Reconsulta",
+                title = when {
+                    state.isEditMode && state.isStandalone -> "Editar Cita"
+                    state.isEditMode && !state.isStandalone -> "Editar Reconsulta"
+                    !state.isEditMode && state.isStandalone -> "Agendar Cita"
+                    else -> "Asignar Reconsulta"
+                },
                 onBack = onBack
             )
         }
@@ -81,8 +86,8 @@ fun FollowUpFormScreen(
                     }
                     !targetState.isSuccessGetData -> {
                         EmptyGlobal(
-                            title = "No se pudo cargar la consulta",
-                            subTitle = "Ocurrió un error al cargar la información del paciente. Inténtalo de nuevo.",
+                            title = if (targetState.isStandalone) "No se pudo cargar la cita" else "No se pudo cargar la consulta",
+                            subTitle = if (targetState.isStandalone) "Ocurrió un error al cargar la información de la cita. Inténtalo de nuevo." else "Ocurrió un error al cargar la información del paciente. Inténtalo de nuevo.",
                             icon = Icons.AutoMirrored.Outlined.ListAlt,
                             showAction = true,
                             onClickAction = { onAction(FollowUpFormAction.TryLoadAgain) }
@@ -158,10 +163,11 @@ fun FollowUpFormScreen(
         if (state.isLoadingSaveFollowUp) {
             LoadingDialog(
                 title = "Agendando Cita...",
-                subtitle = "Estamos registrando la fecha y hora de la reconsulta en el expediente.",
+                subtitle = if (state.isStandalone) "Estamos registrando la cita en la agenda." else "Estamos registrando la fecha y hora de la reconsulta en el expediente.",
                 colorTitle = MaterialTheme.colorScheme.primary
             )
         }
+
         if (state.isLoadingUpdateFollowUp) {
             LoadingDialog(
                 title = "Actualizando Cita...",
@@ -176,12 +182,21 @@ fun FollowUpFormScreen(
                 .replaceFirstChar { it.uppercase() }
             val formattedTime = state.formInputState.selectedTime.format(timeFormatter).uppercase()
 
+            val patientName = if (state.isStandalone) {
+                state.formInputState.patientName.trim()
+            } else {
+                state.consultationWithDetails.patientWithDetails.patient.name
+            }
+
             SaveFollowUpDialog(
-                patientName = state.consultationWithDetails.patientWithDetails.patient.name,
+                patientName = patientName,
+                clientName = if (state.isStandalone) state.formInputState.clientName.trim() else "",
+                clientPhone = if (state.isStandalone) state.formInputState.clientPhone.trim() else "",
                 scheduledDate = formattedDate,
                 scheduledTime = formattedTime,
                 reason = state.formInputState.reason.trim(),
                 isEditMode = state.isEditMode,
+                isStandalone = state.isStandalone,
                 onDismiss = { onAction(FollowUpFormAction.ToggleSaveDialog(show = false)) },
                 onConfirm = {
                     onAction(FollowUpFormAction.ToggleSaveDialog(show = false))
