@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MedicalServices
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.MedicalServices
@@ -100,9 +102,9 @@ fun MainScreen(
                     ),
                     TopLevelDestination(
                         screen = ScreensTopLevel.Consultations,
-                        title = "Consultas",
-                        selectedIcon = Icons.Filled.MedicalServices,
-                        unselectedIcon = Icons.Outlined.MedicalServices
+                        title = "Historial de consultas",
+                        selectedIcon = Icons.Filled.History,
+                        unselectedIcon = Icons.Outlined.History
                     ),
                     TopLevelDestination(
                         screen = ScreensTopLevel.Receipts,
